@@ -1,0 +1,2 @@
+diofant==0.12
+lark-parser==0.11
