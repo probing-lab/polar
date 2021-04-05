@@ -1,6 +1,5 @@
 from lark import Lark
 
-
 GRAMMAR_FILE_PATH = "parser/syntax.lark"
 
 
@@ -11,4 +10,5 @@ class Parser:
             with open(GRAMMAR_FILE_PATH) as grammar_file:
                 lark_parser = Lark(grammar_file)
                 tree = lark_parser.parse(file.read())
+                print(tree.pretty())
                 return tree
