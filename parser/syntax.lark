@@ -27,7 +27,12 @@
 ?if_statem: "if" bexpr ":" statems ("else if" bexpr ":" statems)* ["else" ":" statems] "end"
 ?statems: statem (_NL statems)*
 
-?program: statems "while" bexpr ":" statems "end"
+?program: [typedefs] statems "while" bexpr ":" statems "end"
+
+?typedef: VARIABLE ":" FINITE_TYPE
+?typedefs: "types" typedef (_NL typedef)* "end"
+
+FINITE_TYPE: "Finite" "(" NUMBER "," NUMBER ")"
 
 ASSIGN: "="
 
