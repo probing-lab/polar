@@ -14,4 +14,6 @@ while x > 0:
     else:
         x = x - 1
     end
+    a = Normal(x**2, 1)
+    b = Uniform(a**2+y, a-y)
 end

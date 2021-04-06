@@ -34,7 +34,11 @@ def main():
 
     for benchmark in args.benchmarks:
         parser = Parser()
-        parser.parse_file(benchmark)
+        try:
+            parser.parse_file(benchmark)
+        except Exception as e:
+            print(e)
+            exit()
 
 
 if __name__ == "__main__":

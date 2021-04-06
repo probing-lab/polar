@@ -6,12 +6,12 @@
 ?constant: NUMBER
          | SYMBOL
          | constant BINOP constant
-         | "(" constant ")"
+         | BOPEN constant BCLOSE
 
 ?poly: constant
      | VARIABLE
      | poly BINOP_POLY poly
-     | "(" poly ")"
+     | BOPEN poly BCLOSE
      | poly POWER INT
 
 ?dist: DIST_NAME "(" [poly ("," poly)*] ")"
@@ -36,6 +36,8 @@ FINITE_TYPE: "Finite" "(" NUMBER "," NUMBER ")"
 
 ASSIGN: "="
 
+BOPEN: "("
+BCLOSE: ")"
 PLUS:  "+"
 MINUS: "-"
 POWER: "**"
