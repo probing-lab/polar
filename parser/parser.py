@@ -2,6 +2,7 @@ from lark import Lark
 from .multi_assign_transformer import MultiAssignTransformer
 from .distributions_transformer import DistributionsTransformer
 from .categorical_transformer import CategoricalTransformer
+from .structure_transformer import StructureTransformer
 
 GRAMMAR_FILE_PATH = "parser/syntax.lark"
 
@@ -16,5 +17,6 @@ class Parser:
                 tree = MultiAssignTransformer(lark_parser).transform(tree)
                 tree = CategoricalTransformer(lark_parser).transform(tree)
                 tree = DistributionsTransformer(lark_parser).transform(tree)
+                tree = StructureTransformer().transform(tree)
                 print(tree.pretty())
                 return tree

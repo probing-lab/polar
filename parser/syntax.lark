@@ -3,35 +3,36 @@
 
 ?start: program
 
-?assign: VARIABLE ("," VARIABLE)* ASSIGN assign_right ("," assign_right)*
+assign: VARIABLE ("," VARIABLE)* ASSIGN assign_right ("," assign_right)*
 ?assign_right: POLY | dist | categorical
 
 dist: DIST_NAME "(" [DIST_PARAM ("," DIST_PARAM)*] ")"
 
 categorical: POLY ("{" DIST_PARAM "}" POLY)+ ["{" DIST_PARAM "}"]
 
-?bexpr: TRUE | FALSE | POLY COP POLY | NOT bexpr | bexpr (AND | OR) bexpr
+condition: literal | NOT condition | condition (AND | OR) condition | "(" condition ")"
+?literal: POLY COP POLY
 
 ?statem: assign
        | if_statem
 
-?if_statem: "if" bexpr ":" statems ("else if" bexpr ":" statems)* ["else" ":" statems] "end"
+if_statem: "if" condition ":" statems ("else if" condition ":" statems)* ["else" ":" statems] "end"
 ?statems: statem (_NL statems)*
 
-?program: [typedefs] statems "while" bexpr ":" statems "end"
+program: [typedefs] initial "while" loop_guard ":" loop_body "end"
+initial: statems
+loop_guard: condition
+loop_body: statems
 
-?typedef: VARIABLE ":" FINITE_TYPE
-?typedefs: "types" typedef (_NL typedef)* "end"
-
-FINITE_TYPE: "Finite" "(" NUMBER "," NUMBER ")"
+type: TYPE_NAME "(" [TYPE_PARAM ("," TYPE_PARAM)*] ")"
+typedef: VARIABLE ":" type
+typedefs: "types" typedef (_NL typedef)* "end"
 
 ASSIGN: "="
 
-TRUE:  "True"
-FALSE: "False"
-AND:   "and"
-OR:    "or"
-NOT:   "not"
+AND: "&&"
+OR: "||"
+NOT: "!"
 
 EQ:  "=="
 NEQ: "/="
@@ -42,12 +43,14 @@ GEQ: ">="
 COP: LEQ | GEQ | NEQ | EQ | LE | GE
 
 VARIABLE: NAME
+TYPE_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
+TYPE_PARAM: /[^(){}A-Z"><=,&|!\n]+/
 DIST_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
 // coarse definition of distribution parameters as they will be parsed by the individiual distribution
-DIST_PARAM: /[^(){}A-Z"><=,\n]+/
+DIST_PARAM: /[^(){}A-Z"><=,&|!\n]+/
 
 // coarse definition of polynomials as they will be parsed by the CAS
-POLY: /[^{}A-Z":><=,\n]+/
+POLY: /[^{}A-Z":><=,&|!\n]+/
 
 %import common.WS
 %import common.UCASE_LETTER
