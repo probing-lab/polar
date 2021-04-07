@@ -3,10 +3,12 @@
 
 ?start: program
 
+?assign: VARIABLE ("," VARIABLE)* ASSIGN assign_right ("," assign_right)*
+?assign_right: POLY | dist | categorical
+
 dist: DIST_NAME "(" [DIST_PARAM ("," DIST_PARAM)*] ")"
 
-?assign: VARIABLE ("," VARIABLE)* ASSIGN assign_right ("," assign_right)*
-?assign_right: POLY | dist
+categorical: POLY ("{" DIST_PARAM "}" POLY)+ ["{" DIST_PARAM "}"]
 
 ?bexpr: TRUE | FALSE | POLY COP POLY | NOT bexpr | bexpr (AND | OR) bexpr
 
@@ -42,10 +44,10 @@ COP: LEQ | GEQ | NEQ | EQ | LE | GE
 VARIABLE: NAME
 DIST_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
 // coarse definition of distribution parameters as they will be parsed by the individiual distribution
-DIST_PARAM: /[^)(A-Z"><=,\n]+/
+DIST_PARAM: /[^(){}A-Z"><=,\n]+/
 
 // coarse definition of polynomials as they will be parsed by the CAS
-POLY: /[^A-Z":><=,\n]+/
+POLY: /[^{}A-Z":><=,\n]+/
 
 %import common.WS
 %import common.UCASE_LETTER
