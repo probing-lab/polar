@@ -3,23 +3,12 @@
 
 ?start: program
 
-?constant: NUMBER
-         | SYMBOL
-         | constant BINOP constant
-         | BOPEN constant BCLOSE
-
-?poly: constant
-     | VARIABLE
-     | poly BINOP_POLY poly
-     | BOPEN poly BCLOSE
-     | poly POWER INT
-
-?dist: DIST_NAME "(" [poly ("," poly)*] ")"
+dist: DIST_NAME "(" [DIST_PARAM ("," DIST_PARAM)*] ")"
 
 ?assign: VARIABLE ("," VARIABLE)* ASSIGN assign_right ("," assign_right)*
-?assign_right: poly | dist
+?assign_right: POLY | dist
 
-?bexpr: TRUE | FALSE | poly COP poly | NOT bexpr | bexpr (AND | OR) bexpr
+?bexpr: TRUE | FALSE | POLY COP POLY | NOT bexpr | bexpr (AND | OR) bexpr
 
 ?statem: assign
        | if_statem
@@ -36,16 +25,6 @@ FINITE_TYPE: "Finite" "(" NUMBER "," NUMBER ")"
 
 ASSIGN: "="
 
-BOPEN: "("
-BCLOSE: ")"
-PLUS:  "+"
-MINUS: "-"
-POWER: "**"
-MULT:  "*"
-DIV:   "/"
-BINOP: PLUS | MINUS | POWER | MULT | DIV
-BINOP_POLY : PLUS | MINUS | POWER
-
 TRUE:  "True"
 FALSE: "False"
 AND:   "and"
@@ -61,8 +40,12 @@ GEQ: ">="
 COP: LEQ | GEQ | NEQ | EQ | LE | GE
 
 VARIABLE: NAME
-SYMBOL:   NAME
-DIST_NAME : UCASE_LETTER ("_" | LETTER | DIGIT)*
+DIST_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
+// coarse definition of distribution parameters as they will be parsed by the individiual distribution
+DIST_PARAM: /[^)(A-Z"><=,\n]+/
+
+// coarse definition of polynomials as they will be parsed by the CAS
+POLY: /[^A-Z":><=,\n]+/
 
 %import common.WS
 %import common.UCASE_LETTER

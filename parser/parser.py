@@ -1,5 +1,6 @@
 from lark import Lark
-from .transformers import MultiAssignTransformer, DistributionsTransformer
+from .multi_assign_transformer import MultiAssignTransformer
+from .distributions_transformer import DistributionsTransformer
 
 GRAMMAR_FILE_PATH = "parser/syntax.lark"
 
@@ -11,7 +12,7 @@ class Parser:
             with open(GRAMMAR_FILE_PATH) as grammar_file:
                 lark_parser = Lark(grammar_file)
                 tree = lark_parser.parse(file.read())
-                tree = MultiAssignTransformer().transform(tree)
-                tree = DistributionsTransformer().transform(tree)
+                tree = MultiAssignTransformer(lark_parser).transform(tree)
+                tree = DistributionsTransformer(lark_parser).transform(tree)
                 print(tree.pretty())
                 return tree
