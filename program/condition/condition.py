@@ -1,5 +1,4 @@
+from abc import ABC, abstractmethod
 
-class Condition:
-    def __init__(self, content):
-        # TODO
-        self.content = content
+class Condition(ABC):
+    pass

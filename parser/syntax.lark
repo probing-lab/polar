@@ -4,27 +4,27 @@
 ?start: program
 
 assign: VARIABLE ("," VARIABLE)* ASSIGN assign_right ("," assign_right)*
-?assign_right: POLY | dist | categorical
+?assign_right: arithm | dist | categorical
 
-dist: DIST_NAME "(" [DIST_PARAM ("," DIST_PARAM)*] ")"
+dist: DIST_NAME "(" [arithm ("," arithm)*] ")"
 
-categorical: POLY ("{" DIST_PARAM "}" POLY)+ ["{" DIST_PARAM "}"]
+categorical: arithm ("{" arithm "}" arithm)+ ["{" arithm "}"]
 
-condition: literal | NOT condition | condition (AND | OR) condition | "(" condition ")"
-?literal: POLY COP POLY
+condition: atom | NOT "(" condition ")" | condition (AND | OR) condition | "(" condition ")"
+atom: arithm COP arithm
 
 ?statem: assign
        | if_statem
 
 if_statem: "if" condition ":" statems ("else if" condition ":" statems)* ["else" ":" statems] "end"
-?statems: statem (_NL statems)*
+statems: statem (_NL statems)*
 
 program: [typedefs] initial "while" loop_guard ":" loop_body "end"
-initial: statems
+initial: [statems]
 loop_guard: condition
 loop_body: statems
 
-type: TYPE_NAME "(" [TYPE_PARAM ("," TYPE_PARAM)*] ")"
+type: TYPE_NAME "(" [arithm ("," arithm)*] ")"
 typedef: VARIABLE ":" type
 typedefs: "types" typedef (_NL typedef)* "end"
 
@@ -44,22 +44,28 @@ COP: LEQ | GEQ | NEQ | EQ | LE | GE
 
 VARIABLE: NAME
 TYPE_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
-TYPE_PARAM: /[^(){}A-Z"><=,&|!\n]+/
 DIST_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
-// coarse definition of distribution parameters as they will be parsed by the individiual distribution
-DIST_PARAM: /[^(){}A-Z"><=,&|!\n]+/
 
-// coarse definition of polynomials as they will be parsed by the CAS
-POLY: /[^{}A-Z":><=,&|!\n]+/
+arithm: ARITHM_ATOM
+      | BOPEN arithm BCLOSE
+      | arithm (PLUS | MINUS | MULT | POW) arithm
+ARITHM_ATOM: ["+" | "-"] (NUMBER | LCASE_LETTER | "_")+
+PLUS: "+"
+MINUS: "-"
+MULT: "*"
+POW: "**"
+BOPEN: "("
+BCLOSE: ")"
 
 %import common.WS
+%import common.LCASE_LETTER
 %import common.UCASE_LETTER
 %import common.LETTER
 %import common.DIGIT
 %import common.CNAME -> NAME
 %import common.SH_COMMENT -> COMMENT
-%import common.SIGNED_NUMBER -> NUMBER
-%import common.INT
+%import common.SIGNED_NUMBER
+%import common.NUMBER
 
 _NL: (/\r?\n[\t ]*/)+
 
