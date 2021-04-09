@@ -6,6 +6,7 @@ For the command line arguments run the script with "--help".
 import glob
 from argparse import ArgumentParser
 from parser import Parser
+from program.transformer.dist_transformer import DistTransformer
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
 
@@ -34,11 +35,13 @@ def main():
 
     for benchmark in args.benchmarks:
         parser = Parser()
-        #try:
-        parser.parse_file(benchmark)
-        #except Exception as e:
-        #    print(e)
-        #    exit()
+        try:
+            program = parser.parse_file(benchmark)
+            program = DistTransformer().execute(program)
+            pass
+        except Exception as e:
+            print(e)
+            exit()
 
 
 if __name__ == "__main__":

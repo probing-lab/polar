@@ -1,6 +1,8 @@
 
 class Program:
 
+    children = ["initial", "loop_body"]
+
     def __init__(self, typedefs, initial, loop_guard, loop_body):
         self.typedefs = typedefs
         self.initial = initial

@@ -6,6 +6,8 @@ class IfStatem:
     branches: []
     else_branch = None
 
+    children = ["branches", "else_branch"]
+
     def __init__(self, conditions, branches, else_branch=None):
         self.conditions = conditions
         self.branches = branches
