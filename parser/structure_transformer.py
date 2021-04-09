@@ -1,16 +1,23 @@
-from lark import Transformer, Tree
+from lark import Transformer, Tree, Token
 from program import Program
 from program.assignment import DistAssignment, PolyAssignment
 from program.condition import Condition, Atom, Not, And, Or
-from program.distribution import distribution_factory, Distribution
+from program.distribution import distribution_factory, Distribution, Categorical
 from program.ifstatem import IfStatem
-from program.type import Finite
+from program.type import type_factory, Type
+from utils import get_unique_var
 from .exceptions import ParseException
 
 
 class StructureTransformer(Transformer):
+    """
+    Lark transformer which transform the parse tree returned by lark into our own representations
+    """
 
-    def program(self, args):
+    def program(self, args) -> Program:
+        """
+        Constructs the most outer data wrapper
+        """
         tree = Tree("program", args)
         td = list(tree.find_data("typedefs"))
         i = list(tree.find_data("initial")).pop()
@@ -29,31 +36,36 @@ class StructureTransformer(Transformer):
         parameters = [str(p) for p in args[1:]]
         return distribution_factory(dist_name, parameters)
 
-    def assign(self, args):
-        var = str(args[0])
-        value = args[2]
-        if isinstance(value, Distribution):
-            return DistAssignment(var, value)
-        else:
-            return PolyAssignment(var, str(value))
+    def if_statem(self, args) -> IfStatem:
+        conditions = [a for a in args if isinstance(a, Condition)]
+        branches = [a for a in args if not isinstance(a, Condition)]
+        else_branch = None
+        if len(branches) > len(conditions):
+            else_branch = branches.pop()
+        return IfStatem(conditions, branches, else_branch)
 
-    def statems(self, args):
+    def typedef(self, args) -> Type:
+        var = str(args[0])
+        name = str(args[1].children[0])
+        params = [str(a) for a in args[1].children[1:]]
+        return type_factory(name, var, params)
+
+    def statems(self, args) -> []:
         statements = []
         for a in args:
             if type(a) is list:
                 statements += a
             else:
                 statements.append(a)
-
         return statements
 
-    def atom(self, args):
+    def atom(self, args) -> Atom:
         poly1 = str(args[0])
         cop = str(args[1])
         poly2 = str(args[2])
         return Atom(poly1, cop, poly2)
 
-    def condition(self, args):
+    def condition(self, args) -> Condition:
         if len(args) == 1:
             return args[0]
         if len(args) == 2:
@@ -69,22 +81,60 @@ class StructureTransformer(Transformer):
                 return Or(cond1, cond2)
         raise ParseException("Error in condition")
 
-    def if_statem(self, args):
-        conditions = [a for a in args if isinstance(a, Condition)]
-        branches = [a for a in args if not isinstance(a, Condition)]
-        else_branch = None
-        if len(branches) > len(conditions):
-            else_branch = branches.pop()
-        return IfStatem(conditions, branches, else_branch)
-
-    def typedef(self, args):
+    def assign(self, args):
+        if len(args) > 3:
+            return self.__assign__multiple__(args)
         var = str(args[0])
-        type_name = str(args[1].children[0])
-        if type_name != "Finite":
-            raise ParseException("Only type 'Finite' is supported")
-        type_params = args[1].children[1:]
-        if len(type_params) != 2:
-            raise ParseException("Type 'Finite' requires two parameters")
-        lower = str(type_params[0])
-        upper = str(type_params[1])
-        return Finite(var, lower, upper)
+        value = args[2]
+        if isinstance(value, Distribution):
+            return DistAssignment(var, value)
+        elif isinstance(value, Tree) and value.data == "categorical":
+            return self.__assign__categorical__(args)
+        else:
+            return PolyAssignment(var, str(value))
+
+    def __assign__categorical__(self, args):
+        """
+        Helper function to transform the syntactic sugar categorical assignment
+        x = v1 {p1} v2 {p2} ...
+        into an if-statement
+        """
+        var = args[0]
+        assigns = args[2].children[0::2]
+        params = args[2].children[1::2]
+        if len(params) < len(assigns):
+            last_param = f"1-{'-'.join(params)}"
+            params.append(last_param)
+
+        cat_var = get_unique_var()
+        cat_assign = DistAssignment(cat_var, Categorical(params))
+        conditions = []
+        assignments = []
+        for i in range(len(assigns)):
+            conditions.append(Atom(cat_var, "==", str(i)))
+            assignments.append(PolyAssignment(var, assigns[i]))
+        return [cat_assign, IfStatem(conditions, assignments)]
+
+    def __assign__multiple__(self, args):
+        """
+        Helper function to transform
+        """
+        if len(args) % 2 == 0:
+            raise ParseException(f"Error in multi-assignment at line {args[0].line} col {args[0].column}")
+
+        num_vars = int((len(args) - 1) / 2)
+        if args[num_vars] != "=":
+            raise ParseException(f"Error in multi-assignment at line {args[0].line} col {args[0].column}")
+
+        assignments1 = []
+        assignments2 = []
+        for i in range(num_vars):
+            var = args[i]
+            value = args[num_vars + 1 + i]
+            if var.type != "VARIABLE":
+                raise ParseException(f"Error in multi-assignment at line {args[0].line} col {args[0].column}")
+
+            new_var = get_unique_var()
+            assignments1.append(self.assign([Token(b"VARIABLE", new_var), Token(b"ASSIGN", "="), value]))
+            assignments1.append(self.assign([var, Token(b"ASSIGN", "="), new_var]))
+        return assignments1 + assignments2

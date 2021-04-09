@@ -1,21 +1,35 @@
 
 types
-    x : Finite(0,10)
-    y : Finite(0,1)
+    x : FiniteRange(0,10)
+    y : FiniteRange(0,1)
+    z : Finite(-2,3,10,100)
 end
-
 x = 0
 y = Bernoulli(p)
 while !(x > 0 && (y <= 0 || z == 3)):
     w = x**2 {0.5} 0
+
+
     b = Bernoulli(p)
+
     if b == 1:
+
         x = x + 1
+
+
         y = Bernoulli(0.7)
+
+
+
     else:
         x = x - 1
     end
     x, y, t = y + 2, x - 2, Normal(0,1)
+
     a = Normal(x**2 - (y+2)**3, 1)
+
     b = Uniform(a**2+y, a-y)
+
+
+
 end

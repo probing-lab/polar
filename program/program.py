@@ -6,4 +6,3 @@ class Program:
         self.initial = initial
         self.loop_guard = loop_guard
         self.loop_body = loop_body
-
