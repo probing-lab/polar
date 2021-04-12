@@ -9,3 +9,9 @@ class Atom(Condition):
         self.poly1 = sympify(poly1)
         self.cop = cop
         self.poly2 = sympify(poly2)
+
+    def simplify(self):
+        return self
+
+    def __str__(self):
+        return f"{self.poly1} {self.cop} {self.poly2}"

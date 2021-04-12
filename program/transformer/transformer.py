@@ -1,8 +1,19 @@
-from abc import ABC
-from functools import singledispatchmethod
+from abc import ABC, abstractmethod
 
 
 class ProgramTransformer(ABC):
+
+    def __init__(self):
+        @self.__class__.transform.register
+        def _(self, xs: list):
+            result = []
+            for x in xs:
+                x = self.execute(x)
+                if isinstance(x, tuple):
+                    result += list(x)
+                else:
+                    result.append(x)
+            return result
 
     def execute(self, element):
         if hasattr(element, "children"):
@@ -12,17 +23,6 @@ class ProgramTransformer(ABC):
 
         return self.transform(element)
 
-    @singledispatchmethod
+    @abstractmethod
     def transform(self, element):
-        return element
-
-    @transform.register
-    def _(self, xs: list):
-        result = []
-        for x in xs:
-            x = self.execute(x)
-            if isinstance(x, list):
-                result += x
-            else:
-                result.append(x)
-        return result
+        pass

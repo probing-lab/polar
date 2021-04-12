@@ -26,7 +26,7 @@ class StructureTransformer(Transformer):
 
         typedefs = td[0].children if td else []
         initial = i.children[0] if i.children else []
-        loop_guard = lg.children
+        loop_guard = lg.children[0]
         loop_body = lb.children[0]
 
         return Program(typedefs, initial, loop_guard, loop_body)
@@ -117,7 +117,7 @@ class StructureTransformer(Transformer):
         assignments = []
         for i in range(len(assigns)):
             conditions.append(Atom(cat_var, "==", str(i)))
-            assignments.append(PolyAssignment(var, assigns[i]))
+            assignments.append([PolyAssignment(var, assigns[i])])
         return [cat_assign, IfStatem(conditions, assignments)]
 
     def __assign__multiple__(self, args):

@@ -1,5 +1,9 @@
-from program.condition import Condition
+from .condition import Condition
 
 
 class TrueCond(Condition):
-    pass
+    def __str__(self):
+        return "true"
+
+    def simplify(self):
+        return self

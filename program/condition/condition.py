@@ -1,4 +1,8 @@
 from abc import ABC, abstractmethod
 
+
 class Condition(ABC):
-    pass
+
+    @abstractmethod
+    def simplify(self):
+        pass

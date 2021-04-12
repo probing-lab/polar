@@ -13,3 +13,6 @@ class FiniteRange(Type):
         self.expression = sympify(expression)
         self.lower = sympify(parameters[0])
         self.upper = sympify(parameters[1])
+
+    def __str__(self):
+        return f"{self.expression} : FiniteRange({self.lower}, {self.upper})"

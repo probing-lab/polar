@@ -8,5 +8,9 @@ class PolyAssignment(Assignment):
     poly: Expr
 
     def __init__(self, var, poly):
+        super().__init__()
         self.variable = sympify(var)
         self.poly = sympify(poly)
+
+    def __str__(self):
+        return str(self.variable) + " = " + str(self.poly) + "  |  " + str(self.condition)

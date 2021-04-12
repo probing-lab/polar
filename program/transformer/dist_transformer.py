@@ -1,3 +1,5 @@
+from functools import singledispatchmethod
+
 from program.assignment import DistAssignment, PolyAssignment
 from program.distribution import Normal, Uniform
 from program.transformer.transformer import ProgramTransformer as PT
@@ -10,7 +12,11 @@ class DistTransformer(PT):
     program variables from the parameters. It does so by introducing a new assignment.
     """
 
-    @PT.transform.register
+    @singledispatchmethod
+    def transform(self, element):
+        return element
+
+    @transform.register
     def _(self, dist_assign: DistAssignment):
         if isinstance(dist_assign.distribution, Normal):
             return self.__transform_normal__(dist_assign)
@@ -30,7 +36,7 @@ class DistTransformer(PT):
         new_var = get_unique_var()
         new_normal_assign = DistAssignment(new_var, Normal([0, normal.sigma2]))
         new_assign = PolyAssignment(variable, f"{normal.mu} + {new_var}")
-        return [new_normal_assign, new_assign]
+        return new_normal_assign, new_assign
 
     def __transform_uniform__(self, uniform_assign):
         variable = uniform_assign.variable
@@ -43,4 +49,4 @@ class DistTransformer(PT):
         a, b = str(uniform.a), str(uniform.b)
         new_uniform_assign = DistAssignment(new_var, Uniform([0, 1]))
         new_assign = PolyAssignment(variable, f"{a} + ({b} - ({a}))*{new_var}")
-        return [new_uniform_assign, new_assign]
+        return new_uniform_assign, new_assign

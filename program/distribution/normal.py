@@ -12,10 +12,12 @@ class Normal(Distribution):
         self.mu = sympify(parameters[0])
         self.sigma2 = sympify(parameters[1])
 
-
     def get_moment(self, k: int):
         #TODO
         pass
 
     def is_discrete(self):
         return False
+
+    def __str__(self):
+        return f"Normal({self.mu}, {self.sigma2})"

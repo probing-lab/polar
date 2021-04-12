@@ -16,3 +16,6 @@ class Bernoulli(Distribution):
 
     def is_discrete(self):
         return True
+
+    def __str__(self):
+        return f"Bernoulli({self.p})"

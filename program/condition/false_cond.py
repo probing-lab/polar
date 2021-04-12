@@ -1,5 +1,9 @@
-from program.condition import Condition
+from .condition import Condition
 
 
 class FalseCond(Condition):
-    pass
+    def __str__(self):
+        return "false"
+
+    def simplify(self):
+        return self
