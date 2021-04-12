@@ -11,7 +11,7 @@ dist: DIST_NAME "(" [arithm ("," arithm)*] ")"
 categorical: arithm ("{" arithm "}" arithm)+ ["{" arithm "}"]
 
 condition: atom | NOT "(" condition ")" | condition (AND | OR) condition | "(" condition ")"
-atom: arithm COP arithm
+atom: arithm COP arithm | TRUE | FALSE
 
 ?statem: assign
        | if_statem
@@ -30,6 +30,8 @@ typedefs: "types" (_NL)* typedef (_NL typedef)* (_NL)* "end" (_NL)*
 
 ASSIGN: "="
 
+TRUE: "true"
+FALSE: "false"
 AND: "&&"
 OR: "||"
 NOT: "!"

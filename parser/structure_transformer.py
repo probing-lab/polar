@@ -1,7 +1,7 @@
 from lark import Transformer, Tree, Token
 from program import Program
 from program.assignment import DistAssignment, PolyAssignment
-from program.condition import Condition, Atom, Not, And, Or
+from program.condition import Condition, Atom, Not, And, Or, TrueCond, FalseCond
 from program.distribution import distribution_factory, Distribution, Categorical
 from program.ifstatem import IfStatem
 from program.type import type_factory, Type
@@ -59,7 +59,12 @@ class StructureTransformer(Transformer):
                 statements.append(a)
         return statements
 
-    def atom(self, args) -> Atom:
+    def atom(self, args) -> Condition:
+        if len(args) == 1 and args[0].type == "TRUE":
+            return TrueCond()
+        if len(args) == 1 and args[0].type == "FALSE":
+            return FalseCond()
+
         poly1 = str(args[0])
         cop = str(args[1])
         poly2 = str(args[2])
