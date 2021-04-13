@@ -2,11 +2,11 @@ from functools import singledispatchmethod
 
 from program.assignment import DistAssignment, PolyAssignment
 from program.distribution import Normal, Uniform
-from program.transformer.transformer import ProgramTransformer as PT
+from program.transformer.transformer import TreeTransformer
 from utils import get_unique_var
 
 
-class DistTransformer(PT):
+class DistTransformer(TreeTransformer):
     """
     Exploits the linearity of the normal and uniform distribution to "pull out"
     program variables from the parameters. It does so by introducing a new assignment.

@@ -2,10 +2,10 @@ from functools import singledispatchmethod
 
 from program.condition import TrueCond, And, Not
 from program.ifstatem import IfStatem
-from program.transformer.transformer import ProgramTransformer as PT
+from program.transformer.transformer import TreeTransformer
 
 
-class IfTransformer(PT):
+class IfTransformer(TreeTransformer):
     """
     Removes all if-statements from the program and moves the branch conditions into the conditions
     of the assignments. So the transformer basically flattens the structure.
