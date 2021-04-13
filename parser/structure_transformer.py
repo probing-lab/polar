@@ -88,7 +88,7 @@ class StructureTransformer(Transformer):
 
     def assign(self, args):
         if len(args) > 3:
-            return self.__assign__multiple__(args)
+            return self.__assign__simult__(args)
         var = str(args[0])
         value = args[2]
         if isinstance(value, Distribution):
@@ -120,16 +120,16 @@ class StructureTransformer(Transformer):
             assignments.append([PolyAssignment(var, assigns[i])])
         return [cat_assign, IfStatem(conditions, assignments)]
 
-    def __assign__multiple__(self, args):
+    def __assign__simult__(self, args):
         """
         Helper function to transform
         """
         if len(args) % 2 == 0:
-            raise ParseException(f"Error in multi-assignment at line {args[0].line} col {args[0].column}")
+            raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
 
         num_vars = int((len(args) - 1) / 2)
         if args[num_vars] != "=":
-            raise ParseException(f"Error in multi-assignment at line {args[0].line} col {args[0].column}")
+            raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
 
         assignments1 = []
         assignments2 = []
@@ -137,7 +137,7 @@ class StructureTransformer(Transformer):
             var = args[i]
             value = args[num_vars + 1 + i]
             if var.type != "VARIABLE":
-                raise ParseException(f"Error in multi-assignment at line {args[0].line} col {args[0].column}")
+                raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
 
             new_var = get_unique_var()
             assignments1.append(self.assign([Token(b"VARIABLE", new_var), Token(b"ASSIGN", "="), value]))
