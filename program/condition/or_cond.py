@@ -19,5 +19,9 @@ class Or(Condition):
             return self.cond1
         return self
 
+    def subs(self, substitutions):
+        self.cond1.subs(substitutions)
+        self.cond2.subs(substitutions)
+
     def __str__(self):
         return f"({self.cond1} ∨ {self.cond2})"

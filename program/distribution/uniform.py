@@ -16,6 +16,10 @@ class Uniform(Distribution):
         #TODO
         pass
 
+    def subs(self, substitutions):
+        self.a = self.a.subs(substitutions)
+        self.b = self.b.subs(substitutions)
+
     def is_discrete(self):
         return False
 

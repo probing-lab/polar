@@ -7,3 +7,6 @@ class FalseCond(Condition):
 
     def simplify(self):
         return self
+
+    def subs(self, substitutions):
+        pass

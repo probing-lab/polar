@@ -11,5 +11,8 @@ class Not(Condition):
         self.cond = self.cond.simplify()
         return self
 
+    def subs(self, substitutions):
+        self.cond.subs(substitutions)
+
     def __str__(self):
         return f"¬({self.cond})"

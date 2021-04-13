@@ -19,5 +19,9 @@ class Normal(Distribution):
     def is_discrete(self):
         return False
 
+    def subs(self, substitutions):
+        self.mu = self.mu.subs(substitutions)
+        self.sigma2 = self.sigma2.subs(substitutions)
+
     def __str__(self):
         return f"Normal({self.mu}, {self.sigma2})"

@@ -18,3 +18,7 @@ class Distribution(ABC):
     @abstractmethod
     def is_discrete(self) -> bool:
         pass
+
+    @abstractmethod
+    def subs(self, substitutions):
+        pass

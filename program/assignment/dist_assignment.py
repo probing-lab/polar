@@ -14,3 +14,7 @@ class DistAssignment(Assignment):
 
     def __str__(self):
         return str(self.variable) + " = " + str(self.distribution) + "  |  " + str(self.condition)
+
+    def subs(self, substitutions):
+        self.condition.subs(substitutions)
+        self.distribution.subs(substitutions)

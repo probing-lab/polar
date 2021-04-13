@@ -6,3 +6,7 @@ class Condition(ABC):
     @abstractmethod
     def simplify(self):
         pass
+
+    @abstractmethod
+    def subs(self, substitutions):
+        pass

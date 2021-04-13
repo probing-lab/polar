@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from program.condition import Condition, TrueCond, And
 
 
@@ -13,3 +13,7 @@ class Assignment(ABC):
 
     def simplify_condition(self):
         self.condition = self.condition.simplify()
+
+    @abstractmethod
+    def subs(self, substitutions):
+        pass

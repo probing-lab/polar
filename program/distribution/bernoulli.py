@@ -17,5 +17,8 @@ class Bernoulli(Distribution):
     def is_discrete(self):
         return True
 
+    def subs(self, substitutions):
+        self.p = self.p.subs(substitutions)
+
     def __str__(self):
         return f"Bernoulli({self.p})"

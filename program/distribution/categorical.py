@@ -17,5 +17,8 @@ class Categorical(Distribution):
     def is_discrete(self):
         return True
 
+    def subs(self, substitutions):
+        self.probabilities = [p.subs(substitutions) for p in self.probabilities]
+
     def __str__(self):
         return f"Categorical({', '.join([str(p) for p in self.probabilities])})"
