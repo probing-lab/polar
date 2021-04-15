@@ -2,7 +2,7 @@ from functools import singledispatchmethod
 from diofant import fraction
 
 from program.assignment import DistAssignment, PolyAssignment
-from program.distribution import Normal, Uniform, DiscreteUniform, Laplace, Exponential
+from program.distribution import Normal, Uniform, Laplace, Exponential
 from .exceptions import TransformException
 from program.transformer.transformer import TreeTransformer
 from utils import get_unique_var
@@ -25,9 +25,6 @@ class DistTransformer(TreeTransformer):
 
         if isinstance(dist_assign.distribution, Uniform):
             return self.__transform_uniform__(dist_assign)
-
-        if isinstance(dist_assign.distribution, DiscreteUniform):
-            return self.__transform_discrete_uniform__(dist_assign)
 
         if isinstance(dist_assign.distribution, Laplace):
             return self.__transform_laplace__(dist_assign)
@@ -89,16 +86,3 @@ class DistTransformer(TreeTransformer):
         new_uniform_assign = DistAssignment(new_var, Uniform([0, 1]))
         new_assign = PolyAssignment(variable, f"{a} + ({b} - ({a}))*{new_var}")
         return new_uniform_assign, new_assign
-
-    def __transform_discrete_uniform__(self, d_uniform_assign):
-        variable = d_uniform_assign.variable
-        d_uniform: DiscreteUniform = d_uniform_assign.distribution
-
-        if not d_uniform.a.free_symbols and not d_uniform.b.free_symbols:
-            return d_uniform_assign
-
-        new_var = get_unique_var()
-        a, b = str(d_uniform.a), str(d_uniform.b)
-        new_d_uniform_assign = DistAssignment(new_var, DiscreteUniform([0, 1]))
-        new_assign = PolyAssignment(variable, f"{a} + ({b} - ({a}))*{new_var}")
-        return new_d_uniform_assign, new_assign
