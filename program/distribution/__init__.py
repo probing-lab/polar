@@ -2,6 +2,7 @@ from .bernoulli import *
 from .categorical import *
 from .distribution import *
 from .normal import *
+from .laplace import *
 from .uniform import *
 
 __distributions__ = {
@@ -9,6 +10,7 @@ __distributions__ = {
     "Normal": Normal,
     "Categorical": Categorical,
     "Uniform": Uniform,
+    "Laplace": Laplace
 }
 
 

@@ -1,7 +1,7 @@
 from functools import singledispatchmethod
 
 from program.assignment import DistAssignment, PolyAssignment
-from program.distribution import Normal, Uniform
+from program.distribution import Normal, Uniform, Laplace
 from program.transformer.transformer import TreeTransformer
 from utils import get_unique_var
 
@@ -24,6 +24,9 @@ class DistTransformer(TreeTransformer):
         if isinstance(dist_assign.distribution, Uniform):
             return self.__transform_uniform__(dist_assign)
 
+        if isinstance(dist_assign.distribution, Laplace):
+            return self.__transform_laplace__(dist_assign)
+
         return dist_assign
 
     def __transform_normal__(self, normal_assign):
@@ -37,6 +40,18 @@ class DistTransformer(TreeTransformer):
         new_normal_assign = DistAssignment(new_var, Normal([0, normal.sigma2]))
         new_assign = PolyAssignment(variable, f"{normal.mu} + {new_var}")
         return new_normal_assign, new_assign
+
+    def __transform_laplace__(self, laplace_assign):
+        variable = laplace_assign.variable
+        laplace: Laplace = laplace_assign.distribution
+
+        if not laplace.mu.free_symbols:
+            return laplace
+
+        new_var = get_unique_var()
+        new_laplace_assign = DistAssignment(new_var, Laplace([0, laplace.b]))
+        new_assign = PolyAssignment(variable, f"{laplace.mu} + {new_var}")
+        return new_laplace_assign, new_assign
 
     def __transform_uniform__(self, uniform_assign):
         variable = uniform_assign.variable
