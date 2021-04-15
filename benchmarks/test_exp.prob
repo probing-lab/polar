@@ -13,5 +13,5 @@ while true:
         x = x + 2 {0.7} x - 2
         y = y + x {0.3} y - x
     end
-    e = Exponential(x**2 + y**2)
+    e = Exponential(1/(x**2 + y**2))
 end

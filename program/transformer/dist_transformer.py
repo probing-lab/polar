@@ -1,7 +1,9 @@
 from functools import singledispatchmethod
+from diofant import fraction
 
 from program.assignment import DistAssignment, PolyAssignment
 from program.distribution import Normal, Uniform, DiscreteUniform, Laplace, Exponential
+from .exceptions import TransformException
 from program.transformer.transformer import TreeTransformer
 from utils import get_unique_var
 
@@ -66,9 +68,13 @@ class DistTransformer(TreeTransformer):
         if not exp.lamb.free_symbols:
             return exp_assign
 
+        numerator, denominator = fraction(exp.lamb)
+        if numerator.free_symbols:
+            raise TransformException("Exponential distribution can only handle 1/expr parameters. ")
+
         new_var = get_unique_var()
-        new_exp_assign = DistAssignment(new_var, Exponential([1]))
-        new_assign = PolyAssignment(variable, f"({exp.lamb}) * {new_var}")
+        new_exp_assign = DistAssignment(new_var, Exponential([numerator]))
+        new_assign = PolyAssignment(variable, f"({denominator}) * {new_var}")
         return new_exp_assign, new_assign
 
     def __transform_uniform__(self, uniform_assign):
