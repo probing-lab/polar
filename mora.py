@@ -4,6 +4,7 @@ This runnable script allows the user to run MORA on probabilistic programs store
 For the command line arguments run the script with "--help".
 """
 import glob
+import time
 from argparse import ArgumentParser
 from parser import Parser
 from program.transformer import DistTransformer, IfTransformer, MultiAssignTransformer, TypeInferer, ConditionsToArithm, PrepareTransformer
@@ -33,6 +34,7 @@ def main():
     args = arg_parser.parse_args()
     args.benchmarks = [b for bs in map(glob.glob, args.benchmarks) for b in bs]
 
+    start = time.time()
     for benchmark in args.benchmarks:
         parser = Parser()
         try:
@@ -44,6 +46,7 @@ def main():
             program = ConditionsToArithm().execute(program)
             program = PrepareTransformer().execute(program)
             print(program)
+            print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:
             print(e)
             raise e

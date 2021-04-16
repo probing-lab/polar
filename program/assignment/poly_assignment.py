@@ -11,7 +11,7 @@ class PolyAssignment(Assignment):
         self.poly = sympify(poly)
 
     def __str__(self):
-        result = str(self.variable) + " = " + str(self.poly)
+        result = str(self.variable) + " = " + str(self.poly.as_expr())
         if not isinstance(self.condition, TrueCond):
             result += "  |  " + str(self.condition) + "  :  " + str(self.default)
         return result
