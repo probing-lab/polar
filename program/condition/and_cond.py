@@ -1,5 +1,7 @@
+from diofant import Expr
 from .condition import Condition
 from .true_cond import TrueCond
+from program import Program
 
 
 class And(Condition):
@@ -22,6 +24,9 @@ class And(Condition):
     def subs(self, substitutions):
         self.cond1.subs(substitutions)
         self.cond2.subs(substitutions)
+
+    def to_arithm(self, p: Program) -> Expr:
+        return self.cond1.to_arithm(p) * self.cond2.to_arithm(p)
 
     def __str__(self):
         return f"({self.cond1} ∧ {self.cond2})"

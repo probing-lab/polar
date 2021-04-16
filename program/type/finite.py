@@ -1,14 +1,15 @@
+from typing import Set
 from diofant import sympify, Expr
 from .type import Type
 
 
 class Finite(Type):
-    values: [Expr]
+    values: Set[Expr]
 
     def __init__(self, parameters, expression=None):
         if len(parameters) == 0:
             raise RuntimeError("Finite type requires >=1 parameters")
-        self.values = [sympify(p) for p in parameters]
+        self.values = {sympify(p) for p in parameters}
         if expression:
             self.expression = sympify(expression)
 

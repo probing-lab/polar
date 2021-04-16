@@ -1,3 +1,4 @@
+from typing import Optional
 from .type import Type
 from utils import indent_string
 
@@ -19,6 +20,9 @@ class Program:
     def add_types(self, ts: [Type]):
         for t in ts:
             self.add_type(t)
+
+    def get_type(self, expression) -> Optional[Type]:
+        return self.typedefs.get(expression)
 
     def __str__(self):
         typedefs = "\n".join([str(t) for t in self.typedefs.values()])

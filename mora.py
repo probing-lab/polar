@@ -42,6 +42,9 @@ def main():
             program = MultiAssignTransformer().execute(program)
             program = TypeInferer().execute(program)
             print(program)
+            for assign in program.loop_body:
+                assign.condition = assign.condition.to_arithm(program)
+            print(program)
         except Exception as e:
             print(e)
             raise e
