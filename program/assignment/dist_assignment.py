@@ -1,5 +1,7 @@
+from typing import Optional
+
 from .assignment import Assignment
-from ..distribution import Distribution
+from program.distribution import Distribution, Type
 
 
 class DistAssignment(Assignment):
@@ -16,3 +18,8 @@ class DistAssignment(Assignment):
         self.default = self.default.subs(substitutions)
         self.condition.subs(substitutions)
         self.distribution.subs(substitutions)
+
+    def get_assign_type(self) -> Optional[Type]:
+        if self.variable == self.default:
+            return self.distribution.get_type()
+        return None

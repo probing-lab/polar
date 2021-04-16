@@ -1,5 +1,6 @@
 from diofant import sympify, Expr
 from .distribution import Distribution
+from program.type import FiniteRange
 
 
 class Categorical(Distribution):
@@ -13,6 +14,9 @@ class Categorical(Distribution):
     def get_moment(self, k: int):
         #TODO
         pass
+
+    def get_type(self) -> FiniteRange:
+        return FiniteRange([0, len(self.probabilities) - 1])
 
     def is_discrete(self):
         return True

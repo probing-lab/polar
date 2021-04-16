@@ -16,3 +16,6 @@ class PolyAssignment(Assignment):
         self.default = self.default.subs(substitutions)
         self.condition.subs(substitutions)
         self.poly = self.poly.subs(substitutions)
+
+    def get_assign_type(self):
+        return None

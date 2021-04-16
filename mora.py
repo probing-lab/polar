@@ -6,7 +6,7 @@ For the command line arguments run the script with "--help".
 import glob
 from argparse import ArgumentParser
 from parser import Parser
-from program.transformer import DistTransformer, IfTransformer, MultiAssignTransformer
+from program.transformer import DistTransformer, IfTransformer, MultiAssignTransformer, TypeInferer
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
 
@@ -37,16 +37,14 @@ def main():
         parser = Parser()
         try:
             program = parser.parse_file(benchmark)
-            print(program)
             program = DistTransformer().execute(program)
             program = IfTransformer().execute(program)
-            print(program)
             program = MultiAssignTransformer().execute(program)
-            print()
-            print()
+            program = TypeInferer().execute(program)
             print(program)
         except Exception as e:
             print(e)
+            raise e
             exit()
 
 

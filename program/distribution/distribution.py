@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional, Type
 
 
 class Distribution(ABC):
@@ -13,6 +14,10 @@ class Distribution(ABC):
 
     @abstractmethod
     def get_moment(self, k: int):
+        pass
+
+    @abstractmethod
+    def get_type(self) -> Optional[Type]:
         pass
 
     @abstractmethod

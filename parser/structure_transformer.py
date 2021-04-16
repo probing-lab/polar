@@ -48,7 +48,7 @@ class StructureTransformer(Transformer):
         var = str(args[0])
         name = str(args[1].children[0])
         params = [str(a) for a in args[1].children[1:]]
-        return type_factory(name, var, params)
+        return type_factory(name, params, var)
 
     def statems(self, args) -> []:
         statements = []

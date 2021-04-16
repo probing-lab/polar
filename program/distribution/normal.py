@@ -16,6 +16,9 @@ class Normal(Distribution):
         #TODO
         pass
 
+    def get_type(self):
+        return None
+
     def is_discrete(self):
         return False
 

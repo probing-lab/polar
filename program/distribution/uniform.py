@@ -16,6 +16,9 @@ class Uniform(Distribution):
         #TODO
         pass
 
+    def get_type(self):
+        return None
+
     def subs(self, substitutions):
         self.a = self.a.subs(substitutions)
         self.b = self.b.subs(substitutions)

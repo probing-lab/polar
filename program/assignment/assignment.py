@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import Optional
+from program.type import Type
+
 from diofant import Symbol
 
 from program.condition import Condition, TrueCond, And, sympify
@@ -22,4 +25,8 @@ class Assignment(ABC):
 
     @abstractmethod
     def subs(self, substitutions):
+        pass
+
+    @abstractmethod
+    def get_assign_type(self) -> Optional[Type]:
         pass

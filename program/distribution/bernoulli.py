@@ -1,5 +1,6 @@
 from diofant import sympify, Expr
 from .distribution import Distribution
+from program.type import Finite
 
 
 class Bernoulli(Distribution):
@@ -13,6 +14,9 @@ class Bernoulli(Distribution):
     def get_moment(self, k: int):
         #TODO
         pass
+
+    def get_type(self) -> Finite:
+        return Finite([0, 1])
 
     def is_discrete(self):
         return True

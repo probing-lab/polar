@@ -1,5 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+from diofant import Expr
 
 
 class Type(ABC):
-    pass
+    expression: Expr
+
