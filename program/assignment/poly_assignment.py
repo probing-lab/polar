@@ -1,5 +1,6 @@
 from diofant import Expr, sympify
 from .assignment import Assignment
+from program.condition import TrueCond
 
 
 class PolyAssignment(Assignment):
@@ -10,7 +11,10 @@ class PolyAssignment(Assignment):
         self.poly = sympify(poly)
 
     def __str__(self):
-        return str(self.variable) + " = " + str(self.poly) + "  |  " + str(self.condition) + "  :  " + str(self.default)
+        result = str(self.variable) + " = " + str(self.poly)
+        if not isinstance(self.condition, TrueCond):
+            result += "  |  " + str(self.condition) + "  :  " + str(self.default)
+        return result
 
     def subs(self, substitutions):
         self.default = self.default.subs(substitutions)

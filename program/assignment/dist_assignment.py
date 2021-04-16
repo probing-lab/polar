@@ -2,6 +2,7 @@ from typing import Optional
 
 from .assignment import Assignment
 from program.distribution import Distribution, Type
+from program.condition import TrueCond
 
 
 class DistAssignment(Assignment):
@@ -12,7 +13,10 @@ class DistAssignment(Assignment):
         self.distribution = dist
 
     def __str__(self):
-        return str(self.variable) + " = " + str(self.distribution) + "  |  " + str(self.condition) + "  :  " + str(self.default)
+        result = str(self.variable) + " = " + str(self.distribution)
+        if not isinstance(self.condition, TrueCond):
+            result += "  |  " + str(self.condition) + "  :  " + str(self.default)
+        return result
 
     def subs(self, substitutions):
         self.default = self.default.subs(substitutions)
