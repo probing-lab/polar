@@ -40,8 +40,8 @@ def main():
             program = DistTransformer().execute(program)
             program = IfTransformer().execute(program)
             program = MultiAssignTransformer().execute(program)
-            program = TypeInferer().execute(program)
-            program = ConditionsToArithm().execute(program)
+            # program = TypeInferer().execute(program)
+            # program = ConditionsToArithm().execute(program)
             print(program)
         except Exception as e:
             print(e)

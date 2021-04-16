@@ -1,4 +1,7 @@
 from typing import Optional
+
+from diofant import sympify
+
 from .type import Type
 from utils import indent_string
 
@@ -7,9 +10,10 @@ class Program:
 
     children = ["initial", "loop_body"]
 
-    def __init__(self, types, initial, loop_guard, loop_body):
+    def __init__(self, types, variables, initial, loop_guard, loop_body):
         self.typedefs = {}
         self.add_types(types)
+        self.variables = {sympify(v) for v in variables}
         self.initial = initial
         self.loop_guard = loop_guard
         self.loop_body = loop_body

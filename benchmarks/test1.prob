@@ -15,7 +15,7 @@ while !(x > 0 && (y <= 0 || z == 3)):
     else:
         x = x - 1
     end
-    x, y, t = y + 2, x - 2, Normal(0,1)
+    x, y, t = y + 2, x - 2, Normal(u,s**2)
     a = Normal(x**2 - (y+2)**3, 1)
     b = Uniform(a**2+y, a-y)
 end

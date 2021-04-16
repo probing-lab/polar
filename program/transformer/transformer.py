@@ -17,6 +17,7 @@ class TreeTransformer(Transformer, ABC):
     Abstract class for transformers acting on the deep tree structure of a program by providing methods
     which transform individual nodes.
     """
+    program: Program
 
     def __init__(self):
         @self.__class__.transform.register
@@ -31,6 +32,7 @@ class TreeTransformer(Transformer, ABC):
             return result
 
     def execute(self, program: Program) -> Program:
+        self.program = program
         return self.__execute__(program)
 
     def __execute__(self, element):

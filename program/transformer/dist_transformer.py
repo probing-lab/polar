@@ -38,7 +38,7 @@ class DistTransformer(TreeTransformer):
         variable = normal_assign.variable
         normal: Normal = normal_assign.distribution
 
-        if not normal.mu.free_symbols:
+        if not self.program.variables.intersection(normal.mu.free_symbols):
             return normal_assign
 
         new_var = get_unique_var()
@@ -50,7 +50,7 @@ class DistTransformer(TreeTransformer):
         variable = laplace_assign.variable
         laplace: Laplace = laplace_assign.distribution
 
-        if not laplace.mu.free_symbols:
+        if not self.program.variables.intersection(laplace.mu.free_symbols):
             return laplace_assign
 
         new_var = get_unique_var()
@@ -62,7 +62,7 @@ class DistTransformer(TreeTransformer):
         variable = exp_assign.variable
         exp: Exponential = exp_assign.distribution
 
-        if not exp.lamb.free_symbols:
+        if not self.program.variables.intersection(exp.lamb.free_symbols):
             return exp_assign
 
         numerator, denominator = fraction(exp.lamb)
@@ -78,7 +78,8 @@ class DistTransformer(TreeTransformer):
         variable = uniform_assign.variable
         uniform: Uniform = uniform_assign.distribution
 
-        if not uniform.a.free_symbols and not uniform.b.free_symbols:
+        if not self.program.variables.intersection(uniform.a.free_symbols) and not self.program.variables.intersection(
+                uniform.b.free_symbols):
             return uniform_assign
 
         new_var = get_unique_var()

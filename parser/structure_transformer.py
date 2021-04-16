@@ -13,6 +13,9 @@ class StructureTransformer(Transformer):
     """
     Lark transformer which transform the parse tree returned by lark into our own representations
     """
+    def __init__(self):
+        super().__init__()
+        self.program_variables = set()
 
     def program(self, args) -> Program:
         """
@@ -29,7 +32,7 @@ class StructureTransformer(Transformer):
         loop_guard = lg.children[0]
         loop_body = lb.children[0]
 
-        return Program(typedefs, initial, loop_guard, loop_body)
+        return Program(typedefs, self.program_variables, initial, loop_guard, loop_body)
 
     def dist(self, args):
         dist_name = str(args[0])
@@ -90,6 +93,7 @@ class StructureTransformer(Transformer):
         if len(args) > 3:
             return self.__assign__simult__(args)
         var = str(args[0])
+        self.program_variables.add(var)
         value = args[2]
         if isinstance(value, Distribution):
             return DistAssignment(var, value)
@@ -135,6 +139,7 @@ class StructureTransformer(Transformer):
         assignments2 = []
         for i in range(num_vars):
             var = args[i]
+            self.program_variables.add(var)
             value = args[num_vars + 1 + i]
             if var.type != "VARIABLE":
                 raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
