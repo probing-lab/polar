@@ -30,8 +30,14 @@ class Program:
 
     def __str__(self):
         typedefs = "\n".join([str(t) for t in self.typedefs.values()])
-        initial = "\n".join([str(i) for i in self.initial])
-        body = "\n".join([str(b) for b in self.loop_body])
+        if isinstance(self.initial, dict):
+            initial = "\n".join([str(self.initial[i]) for i in self.initial])
+        else:
+            initial = "\n".join([str(i) for i in self.initial])
+        if isinstance(self.loop_body, dict):
+            body = "\n".join([str(self.loop_body[b]) for b in self.loop_body])
+        else:
+            body = "\n".join([str(b) for b in self.loop_body])
 
         string = ""
         if self.typedefs:
