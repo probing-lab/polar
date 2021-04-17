@@ -4,7 +4,7 @@ from program import Program
 from .structure_transformer import StructureTransformer
 from .arithmetic_transformer import ArithmeticToStringTransformer
 
-GRAMMAR_FILE_PATH = "parser/syntax.lark"
+GRAMMAR_FILE_PATH = "inputparser/syntax.lark"
 
 
 class Parser:

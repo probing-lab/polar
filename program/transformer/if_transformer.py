@@ -1,4 +1,4 @@
-from functools import singledispatchmethod
+from singledispatchmethod import singledispatchmethod
 
 from program.condition import TrueCond, And, Not
 from program.ifstatem import IfStatem

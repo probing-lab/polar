@@ -6,7 +6,7 @@ For the command line arguments run the script with "--help".
 import glob
 import time
 from argparse import ArgumentParser
-from parser import Parser
+from inputparser import Parser
 from program.transformer import DistTransformer, IfTransformer, MultiAssignTransformer, TypeInferer, ConditionsToArithm, PrepareTransformer
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")

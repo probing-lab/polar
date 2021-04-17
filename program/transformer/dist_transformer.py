@@ -1,4 +1,4 @@
-from functools import singledispatchmethod
+from singledispatchmethod import singledispatchmethod
 from diofant import fraction
 
 from program.assignment import DistAssignment, PolyAssignment

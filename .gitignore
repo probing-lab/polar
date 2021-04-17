@@ -2,7 +2,7 @@
 /out/*
 todo
 /tmpf/*
-.venv
+.venv*
 build
 dist
 *.egg-info
