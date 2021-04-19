@@ -26,3 +26,6 @@ class PolyAssignment(Assignment):
 
     def get_assign_type(self):
         return None
+
+    def is_probabilistic(self) -> bool:
+        return False

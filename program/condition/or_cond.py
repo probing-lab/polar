@@ -1,7 +1,5 @@
-from diofant import Expr
 from .condition import Condition
 from .false_cond import FalseCond
-from program import Program
 
 
 class Or(Condition):
@@ -25,7 +23,7 @@ class Or(Condition):
         self.cond1.subs(substitutions)
         self.cond2.subs(substitutions)
 
-    def to_arithm(self, p: Program) -> Expr:
+    def to_arithm(self, p):
         not_cond1 = 1 - self.cond1.to_arithm(p)
         not_cond2 = 1 - self.cond2.to_arithm(p)
         return 1 - (not_cond1 * not_cond2)

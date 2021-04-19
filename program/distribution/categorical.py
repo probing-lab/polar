@@ -9,11 +9,13 @@ class Categorical(Distribution):
     def set_parameters(self, parameters):
         if len(parameters) == 0:
             raise RuntimeError("Categorical distribution requires >=1 parameters")
-        self.probabilities = [sympify(p) for p in parameters]
+        self.probabilities = [p for p in parameters]
 
     def get_moment(self, k: int):
-        #TODO
-        pass
+        m = 0
+        for i, p in enumerate(self.probabilities):
+            m += i*p
+        return m
 
     def get_type(self) -> FiniteRange:
         return FiniteRange([0, len(self.probabilities) - 1])

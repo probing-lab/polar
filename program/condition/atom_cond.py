@@ -1,6 +1,5 @@
-from diofant import sympify, Expr
+from diofant import sympify
 
-from program import Program
 from program.condition import Condition
 from .exceptions import ArithmConversionException
 from program.type import Finite
@@ -26,7 +25,7 @@ class Atom(Condition):
     def is_canonical(self):
         return self.poly1.is_Symbol and self.poly2.is_Integer and self.cop == "=="
 
-    def to_arithm(self, program: Program) -> Expr:
+    def to_arithm(self, program):
         if not self.is_canonical():
             raise ArithmConversionException(f"Atom {self} is not canonical")
         var = self.poly1

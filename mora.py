@@ -50,7 +50,7 @@ def main():
             print(program)
             rec_builder = RecBuilder(program)
             recurrences = rec_builder.get_recurrences(sympify("x"))
-            print(recurrences)
+            print(recurrences[0])
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:
             print(e)

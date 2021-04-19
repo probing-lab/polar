@@ -9,8 +9,8 @@ class Uniform(Distribution):
     def set_parameters(self, parameters):
         if len(parameters) != 2:
             raise RuntimeError("Uniform distribution requires 2 parameters")
-        self.a = sympify(parameters[0])
-        self.b = sympify(parameters[1])
+        self.a = parameters[0]
+        self.b = parameters[1]
 
     def get_moment(self, k: int):
         #TODO

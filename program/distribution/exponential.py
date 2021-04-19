@@ -8,7 +8,7 @@ class Exponential(Distribution):
     def set_parameters(self, parameters):
         if len(parameters) != 1:
             raise RuntimeError("Exponential distribution requires 1 parameter")
-        self.lamb = sympify(parameters[0])
+        self.lamb = parameters[0]
 
     def get_moment(self, k: int):
         #TODO

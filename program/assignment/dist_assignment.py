@@ -31,3 +31,6 @@ class DistAssignment(Assignment):
         if self.variable == self.default:
             return self.distribution.get_type()
         return None
+
+    def is_probabilistic(self) -> bool:
+        return True

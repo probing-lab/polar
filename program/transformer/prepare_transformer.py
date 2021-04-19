@@ -13,21 +13,21 @@ class PrepareTransformer(Transformer):
 
     def execute(self, program: Program) -> Program:
         self.program = program
-        program.initial = self.__prepare_assignments__(program.initial)
-        program.loop_body = self.__prepare_assignments__(program.loop_body)
-        program.variables = program.initial.keys() | program.loop_body.keys()
 
-        symbols = self.__get_all_symbols__(program.initial.values())
-        symbols = symbols.union(self.__get_all_symbols__(program.loop_body.values()))
+        variables_initial = self.__get_all_variables__(self.program.initial)
+        variables_body = self.__get_all_variables__(self.program.loop_body)
+        program.variables = set(variables_initial) | set(variables_body)
+        program.var_to_index = {v: i for i, v in enumerate(variables_body)}
+        program.index_to_var = {i: v for i, v in enumerate(variables_body)}
+
+        symbols = self.__get_all_symbols__(program.initial)
+        symbols = symbols.union(self.__get_all_symbols__(program.loop_body))
         program.symbols = symbols.difference(program.variables)
 
         return program
 
-    def __prepare_assignments__(self, assignments: List[Assignment]):
-        new_assignments = {}
-        for assign in assignments:
-            new_assignments[assign.variable] = assign
-        return new_assignments
+    def __get_all_variables__(self, assignments):
+        return [a.variable for a in assignments]
 
     def __get_all_symbols__(self, assignments):
         all_symbols = set()

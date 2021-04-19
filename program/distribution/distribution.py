@@ -1,13 +1,19 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Type, Set
 
-from diofant import Symbol
+from diofant import Symbol, sympify, Rational
 
 
 class Distribution(ABC):
 
     def __init__(self, parameters):
-        self.set_parameters(parameters)
+        params = []
+        for p in parameters:
+            p = sympify(p)
+            if p.is_Float:
+                p = Rational(str(p))
+            params.append(p)
+        self.set_parameters(params)
         super().__init__()
 
     @abstractmethod

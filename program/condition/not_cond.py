@@ -1,6 +1,4 @@
-from diofant import Expr
 from .condition import Condition
-from program import Program
 
 
 class Not(Condition):
@@ -16,7 +14,7 @@ class Not(Condition):
     def subs(self, substitutions):
         self.cond.subs(substitutions)
 
-    def to_arithm(self, p: Program) -> Expr:
+    def to_arithm(self, p):
         return 1 - self.cond.to_arithm(p)
 
     def __str__(self):

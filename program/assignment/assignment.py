@@ -32,3 +32,7 @@ class Assignment(ABC):
     @abstractmethod
     def get_free_symbols(self) -> Set[Symbol]:
         pass
+
+    @abstractmethod
+    def is_probabilistic(self) -> bool:
+        pass

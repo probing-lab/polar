@@ -1,12 +1,13 @@
-from typing import Optional
-
+from typing import Optional, List
 from diofant import sympify
-
+from .assignment import Assignment
 from .type import Type
 from utils import indent_string
 
 
 class Program:
+    initial: List[Assignment]
+    loop_body: List[Assignment]
     children = ["initial", "loop_body"]
 
     def __init__(self, types, variables, initial, loop_guard, loop_body):
@@ -17,6 +18,8 @@ class Program:
         self.initial = initial
         self.loop_guard = loop_guard
         self.loop_body = loop_body
+        self.var_to_index = {}  # initialized by prepare transformer
+        self.index_to_var = {}  # initialized by prepare transformer
 
     def add_type(self, t: Type):
         self.typedefs[t.expression] = t
@@ -30,14 +33,8 @@ class Program:
 
     def __str__(self):
         typedefs = "\n".join([str(t) for t in self.typedefs.values()])
-        if isinstance(self.initial, dict):
-            initial = "\n".join([str(self.initial[i]) for i in self.initial])
-        else:
-            initial = "\n".join([str(i) for i in self.initial])
-        if isinstance(self.loop_body, dict):
-            body = "\n".join([str(self.loop_body[b]) for b in self.loop_body])
-        else:
-            body = "\n".join([str(b) for b in self.loop_body])
+        initial = "\n".join([str(i) for i in self.initial])
+        body = "\n".join([str(b) for b in self.loop_body])
 
         string = ""
         if self.typedefs:

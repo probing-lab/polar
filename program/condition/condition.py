@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from diofant import Expr
-from program import Program
 
 
 class Condition(ABC):
@@ -14,5 +13,5 @@ class Condition(ABC):
         pass
 
     @abstractmethod
-    def to_arithm(self, program: Program) -> Expr:
+    def to_arithm(self, program) -> Expr:
         pass

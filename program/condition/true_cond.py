@@ -1,6 +1,5 @@
-from diofant import sympify, Expr
+from diofant import sympify
 from .condition import Condition
-from program import Program
 
 
 class TrueCond(Condition):
@@ -13,5 +12,5 @@ class TrueCond(Condition):
     def subs(self, substitutions):
         pass
 
-    def to_arithm(self, p: Program) -> Expr:
+    def to_arithm(self, p):
         return sympify(1)
