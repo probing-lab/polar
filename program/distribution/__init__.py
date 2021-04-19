@@ -1,10 +1,10 @@
-from .bernoulli import *
-from .categorical import *
-from .distribution import *
-from .normal import *
-from .laplace import *
-from .exponential import *
-from .uniform import *
+from .bernoulli import Bernoulli
+from .categorical import Categorical
+from .distribution import Distribution
+from .normal import Normal
+from .laplace import Laplace
+from .exponential import Exponential
+from .uniform import Uniform
 
 __distributions__ = {
     "Bernoulli": Bernoulli,

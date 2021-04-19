@@ -7,7 +7,8 @@ import glob
 import time
 from argparse import ArgumentParser
 from inputparser import Parser
-from program.transformer import DistTransformer, IfTransformer, MultiAssignTransformer, TypeInferer, ConditionsToArithm, PrepareTransformer
+from program.transformer import *
+from recurrences import *
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
 
@@ -45,6 +46,7 @@ def main():
             program = TypeInferer().execute(program)
             program = ConditionsToArithm().execute(program)
             program = PrepareTransformer().execute(program)
+            rec_builder = RecBuilder(program)
             print(program)
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:

@@ -1,1 +1,1 @@
-from .ifstatem import *
+from .ifstatem import IfStatem

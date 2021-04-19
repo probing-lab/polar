@@ -1,1 +1,1 @@
-from .program import *
+from .program import Program

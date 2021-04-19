@@ -7,7 +7,6 @@ from utils import indent_string
 
 
 class Program:
-
     children = ["initial", "loop_body"]
 
     def __init__(self, types, variables, initial, loop_guard, loop_body):

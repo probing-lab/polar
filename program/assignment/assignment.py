@@ -1,16 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from program.type import Type
-
-from diofant import Symbol
-
-from program.condition import Condition, TrueCond, And, sympify
+from diofant import Symbol, sympify
+from program.condition import Condition, TrueCond, And
 
 
 class Assignment(ABC):
-    variable: Symbol      # the variable to assign to
+    variable: Symbol  # the variable to assign to
     condition: Condition  # a condition which has to hold in order for tha assignment to happen
-    default: Symbol       # the value to assign if condition is false
+    default: Symbol  # the value to assign if condition is false
 
     def __init__(self, variable, condition=TrueCond(), default=None):
         self.variable = sympify(variable)

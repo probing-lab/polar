@@ -4,4 +4,3 @@ from diofant import Expr
 
 class Type(ABC):
     expression: Expr
-

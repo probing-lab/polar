@@ -3,7 +3,8 @@ from diofant import sympify
 from utils import get_unique_var
 from .transformer import Transformer
 from program import Program
-from program.assignment import Assignment, PolyAssignment, DistAssignment, TrueCond
+from program.assignment import Assignment, PolyAssignment, DistAssignment
+from program.condition import TrueCond
 
 
 class ConditionsToArithm(Transformer):

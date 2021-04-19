@@ -1,7 +1,8 @@
 from typing import Optional
 
 from .assignment import Assignment
-from program.distribution import Distribution, Type
+from program.distribution import Distribution
+from program.type import Type
 from program.condition import TrueCond
 
 

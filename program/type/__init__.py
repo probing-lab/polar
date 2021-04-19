@@ -1,6 +1,6 @@
-from .finite import *
-from .type import *
-from .finite_range import *
+from .finite import Finite
+from .type import Type
+from .finite_range import FiniteRange
 
 __types__ = {
     "FiniteRange": FiniteRange,
