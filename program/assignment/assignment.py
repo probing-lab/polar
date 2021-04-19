@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Set
 from program.type import Type
 from diofant import Symbol, sympify
 from program.condition import Condition, TrueCond, And
@@ -27,4 +27,8 @@ class Assignment(ABC):
 
     @abstractmethod
     def get_assign_type(self) -> Optional[Type]:
+        pass
+
+    @abstractmethod
+    def get_free_symbols(self) -> Set[Symbol]:
         pass

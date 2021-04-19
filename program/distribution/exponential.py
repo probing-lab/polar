@@ -23,5 +23,8 @@ class Exponential(Distribution):
     def subs(self, substitutions):
         self.lamb = self.lamb.subs(substitutions)
 
+    def get_free_symbols(self):
+        return self.lamb.free_symbols
+
     def __str__(self):
         return f"Exponential({self.lamb})"

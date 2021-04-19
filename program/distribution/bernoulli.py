@@ -24,5 +24,8 @@ class Bernoulli(Distribution):
     def subs(self, substitutions):
         self.p = self.p.subs(substitutions)
 
+    def get_free_symbols(self):
+        return self.p.free_symbols
+
     def __str__(self):
         return f"Bernoulli({self.p})"

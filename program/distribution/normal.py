@@ -26,5 +26,8 @@ class Normal(Distribution):
         self.mu = self.mu.subs(substitutions)
         self.sigma2 = self.sigma2.subs(substitutions)
 
+    def get_free_symbols(self):
+        return self.mu.free_symbols.union(self.sigma2.free_symbols)
+
     def __str__(self):
         return f"Normal({self.mu}, {self.sigma2})"

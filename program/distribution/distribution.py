@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Type
+from typing import Optional, Type, Set
+
+from diofant import Symbol
 
 
 class Distribution(ABC):
@@ -26,4 +28,8 @@ class Distribution(ABC):
 
     @abstractmethod
     def subs(self, substitutions):
+        pass
+
+    @abstractmethod
+    def get_free_symbols(self) -> Set[Symbol]:
         pass

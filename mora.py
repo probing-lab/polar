@@ -5,6 +5,7 @@ For the command line arguments run the script with "--help".
 """
 import glob
 import time
+from diofant import sympify
 from argparse import ArgumentParser
 from inputparser import Parser
 from program.transformer import *
@@ -46,8 +47,10 @@ def main():
             program = TypeInferer().execute(program)
             program = ConditionsToArithm().execute(program)
             program = PrepareTransformer().execute(program)
-            rec_builder = RecBuilder(program)
             print(program)
+            rec_builder = RecBuilder(program)
+            recurrences = rec_builder.get_recurrences(sympify("x"))
+            print(recurrences)
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:
             print(e)

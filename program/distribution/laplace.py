@@ -26,6 +26,9 @@ class Laplace(Distribution):
         self.mu = self.mu.subs(substitutions)
         self.b = self.b.subs(substitutions)
 
+    def get_free_symbols(self):
+        return self.mu.free_symbols.union(self.b.free_symbols)
+
     def __str__(self):
         return f"Laplace({self.mu}, {self.b})"
 

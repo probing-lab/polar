@@ -19,6 +19,9 @@ class DistAssignment(Assignment):
             result += "  |  " + str(self.condition) + "  :  " + str(self.default)
         return result
 
+    def get_free_symbols(self):
+        return self.distribution.get_free_symbols()
+
     def subs(self, substitutions):
         self.default = self.default.subs(substitutions)
         self.condition.subs(substitutions)

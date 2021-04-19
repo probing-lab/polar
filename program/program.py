@@ -13,6 +13,7 @@ class Program:
         self.typedefs = {}
         self.add_types(types)
         self.variables = {sympify(v) for v in variables}
+        self.symbols = set()
         self.initial = initial
         self.loop_guard = loop_guard
         self.loop_body = loop_body

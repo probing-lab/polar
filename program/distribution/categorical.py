@@ -21,6 +21,12 @@ class Categorical(Distribution):
     def is_discrete(self):
         return True
 
+    def get_free_symbols(self):
+        symbols = set()
+        for p in self.probabilities:
+            symbols = symbols.union(p.free_symbols)
+        return symbols
+
     def subs(self, substitutions):
         self.probabilities = [p.subs(substitutions) for p in self.probabilities]
 

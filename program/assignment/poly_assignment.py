@@ -21,5 +21,8 @@ class PolyAssignment(Assignment):
         self.condition.subs(substitutions)
         self.poly = self.poly.subs(substitutions)
 
+    def get_free_symbols(self):
+        return self.poly.free_symbols
+
     def get_assign_type(self):
         return None

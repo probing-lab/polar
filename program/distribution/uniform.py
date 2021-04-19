@@ -23,6 +23,9 @@ class Uniform(Distribution):
         self.a = self.a.subs(substitutions)
         self.b = self.b.subs(substitutions)
 
+    def get_free_symbols(self):
+        return self.a.free_symbols.union(self.b.free_symbols)
+
     def is_discrete(self):
         return False
 
