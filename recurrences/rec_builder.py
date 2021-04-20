@@ -39,11 +39,12 @@ class RecBuilder:
 
     def __replace_dist_assign_moments__(self, expr: Expr, dist_assign: DistAssignment):
         poly = expr.as_poly(dist_assign.variable)
-        for m in poly.monoms():
-            power = m[0]
+        result = poly.coeff_monomial(1)
+        for monom in poly.monoms():
+            power = monom[0]
             if power > 0:
-                monom = dist_assign.variable ** power
                 moment = dist_assign.distribution.get_moment(power)
-                poly = poly.xreplace({monom: moment})
-        return poly.as_expr()
-
+                coeff = poly.coeff_monomial(monom)
+                assert dist_assign.variable not in (moment.free_symbols | coeff.free_symbols)
+                result += moment * coeff
+        return result.expand()

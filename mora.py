@@ -49,7 +49,7 @@ def main():
             program = PrepareTransformer().execute(program)
             print(program)
             rec_builder = RecBuilder(program)
-            recurrences = rec_builder.get_recurrences(sympify("x"))
+            recurrences = rec_builder.get_recurrences(sympify("y"))
             print(recurrences[0])
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:

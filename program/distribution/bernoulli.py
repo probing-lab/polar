@@ -1,4 +1,4 @@
-from diofant import sympify, Expr
+from diofant import Expr
 from .distribution import Distribution
 from program.type import Finite
 

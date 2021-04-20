@@ -1,4 +1,5 @@
-from diofant import sympify, Expr
+from functools import lru_cache
+from diofant import Expr
 from .distribution import Distribution
 from program.type import FiniteRange
 
@@ -11,6 +12,7 @@ class Categorical(Distribution):
             raise RuntimeError("Categorical distribution requires >=1 parameters")
         self.probabilities = [p for p in parameters]
 
+    @lru_cache()
     def get_moment(self, k: int):
         m = 0
         for i, p in enumerate(self.probabilities):

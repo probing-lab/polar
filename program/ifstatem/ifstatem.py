@@ -4,15 +4,17 @@ from utils import indent_string
 
 class IfStatem:
     conditions: [Condition]
+    mutually_exclusive: bool  # Flag to signal that all conditions are mutually exclusive
     branches: []
     else_branch = None
 
     children = ["branches", "else_branch"]
 
-    def __init__(self, conditions, branches, else_branch=None):
+    def __init__(self, conditions, branches, else_branch=None, mutually_exclusive=False):
         self.conditions = conditions
         self.branches = branches
         self.else_branch = else_branch
+        self.mutually_exclusive = mutually_exclusive
 
     def __str__(self):
         def branch_to_str(branch):
