@@ -22,7 +22,7 @@ class IfTransformer(TreeTransformer):
 
         not_previous = TrueCond()
         for i, branch in enumerate(branches):
-            current_condition = And(not_previous, conditions[i])
+            current_condition = conditions[i] if ifstmt.mutually_exclusive else And(not_previous, conditions[i])
             for assign in branch:
                 assign.add_to_condition(current_condition)
                 assign.simplify_condition()

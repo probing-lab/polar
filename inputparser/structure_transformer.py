@@ -122,7 +122,7 @@ class StructureTransformer(Transformer):
         for i in range(len(assigns)):
             conditions.append(Atom(cat_var, "==", str(i)))
             assignments.append([PolyAssignment(var, assigns[i])])
-        return [cat_assign, IfStatem(conditions, assignments)]
+        return [cat_assign, IfStatem(conditions, assignments, mutually_exclusive=True)]
 
     def __assign__simult__(self, args):
         """
