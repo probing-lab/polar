@@ -17,5 +17,8 @@ class Not(Condition):
     def to_arithm(self, p):
         return 1 - self.cond.to_arithm(p)
 
+    def get_free_symbols(self):
+        return self.cond.get_free_symbols()
+
     def __str__(self):
         return f"¬({self.cond})"

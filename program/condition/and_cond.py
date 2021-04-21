@@ -26,5 +26,8 @@ class And(Condition):
     def to_arithm(self, p):
         return self.cond1.to_arithm(p) * self.cond2.to_arithm(p)
 
+    def get_free_symbols(self):
+        return self.cond1.get_free_symbols() | self.cond2.get_free_symbols()
+
     def __str__(self):
         return f"({self.cond1} ∧ {self.cond2})"

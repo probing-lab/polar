@@ -34,5 +34,5 @@ class Assignment(ABC):
         pass
 
     @abstractmethod
-    def is_probabilistic(self) -> bool:
+    def get_moment_of_content(self, k: int):
         pass

@@ -18,14 +18,16 @@ def float_to_rational(expr: Expr):
 def get_terms_with_var(poly: Expr, var: Symbol):
     result = []
     rest = Zero()
-    for term in poly.args:
+    terms = poly.args if poly.is_Add else [poly]
+    for term in terms:
         if var not in term.free_symbols:
             rest += term
             continue
 
         part_without_var = One()
         power = Zero()
-        for part in term.args:
+        parts = term.args if term.is_Mul else [term]
+        for part in parts:
             if var not in part.free_symbols:
                 part_without_var *= part
                 continue

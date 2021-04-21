@@ -12,5 +12,8 @@ class TrueCond(Condition):
     def subs(self, substitutions):
         pass
 
+    def get_free_symbols(self):
+        return set()
+
     def to_arithm(self, p):
         return sympify(1)

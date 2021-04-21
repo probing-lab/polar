@@ -14,3 +14,6 @@ class FalseCond(Condition):
 
     def to_arithm(self, _) -> Expr:
         return sympify(0)
+
+    def get_free_symbols(self):
+        return set()

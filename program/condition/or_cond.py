@@ -28,5 +28,8 @@ class Or(Condition):
         not_cond2 = 1 - self.cond2.to_arithm(p)
         return 1 - (not_cond1 * not_cond2)
 
+    def get_free_symbols(self):
+        return self.cond1.get_free_symbols() | self.cond2.get_free_symbols()
+
     def __str__(self):
         return f"({self.cond1} ∨ {self.cond2})"

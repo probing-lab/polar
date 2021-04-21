@@ -45,11 +45,10 @@ def main():
             program = IfTransformer().execute(program)
             program = MultiAssignTransformer().execute(program)
             program = TypeInferer().execute(program)
-            program = ConditionsToArithm().execute(program)
             program = PrepareTransformer().execute(program)
             print(program)
             rec_builder = RecBuilder(program)
-            recurrences = rec_builder.get_recurrences(sympify("x"))
+            recurrences = rec_builder.get_recurrences(sympify("x**2*y**2"))
             print(recurrences[0])
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:

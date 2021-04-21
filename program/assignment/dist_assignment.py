@@ -20,7 +20,7 @@ class DistAssignment(Assignment):
         return result
 
     def get_free_symbols(self):
-        return self.distribution.get_free_symbols()
+        return self.distribution.get_free_symbols() | self.condition.get_free_symbols()
 
     def subs(self, substitutions):
         self.default = self.default.subs(substitutions)
@@ -32,5 +32,5 @@ class DistAssignment(Assignment):
             return self.distribution.get_type()
         return None
 
-    def is_probabilistic(self) -> bool:
-        return True
+    def get_moment_of_content(self, k: int):
+        return self.distribution.get_moment(k)

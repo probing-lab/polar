@@ -1,5 +1,4 @@
 from symengine.lib.symengine_wrapper import sympify
-
 from program.condition import Condition
 from .exceptions import ArithmConversionException
 from program.type import Finite
@@ -43,3 +42,6 @@ class Atom(Condition):
             result *= t
 
         return result
+
+    def get_free_symbols(self):
+        return self.poly1.free_symbols | self.poly2.free_symbols

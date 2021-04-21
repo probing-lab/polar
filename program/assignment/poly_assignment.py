@@ -22,10 +22,10 @@ class PolyAssignment(Assignment):
         self.poly = self.poly.subs(substitutions)
 
     def get_free_symbols(self):
-        return self.poly.free_symbols
+        return self.poly.free_symbols | self.condition.get_free_symbols()
 
     def get_assign_type(self):
         return None
 
-    def is_probabilistic(self) -> bool:
-        return False
+    def get_moment_of_content(self, k: int):
+        return self.poly ** k

@@ -9,6 +9,10 @@ class Condition(ABC):
         pass
 
     @abstractmethod
+    def get_free_symbols(self):
+        pass
+
+    @abstractmethod
     def subs(self, substitutions):
         pass
 
