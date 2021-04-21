@@ -1,4 +1,4 @@
-from diofant import Expr, sympify
+from symengine.lib.symengine_wrapper import Expr, sympify
 from .assignment import Assignment
 from program.condition import TrueCond
 
@@ -11,7 +11,7 @@ class PolyAssignment(Assignment):
         self.poly = sympify(poly)
 
     def __str__(self):
-        result = str(self.variable) + " = " + str(self.poly.as_expr())
+        result = str(self.variable) + " = " + str(self.poly)
         if not isinstance(self.condition, TrueCond):
             result += "  |  " + str(self.condition) + "  :  " + str(self.default)
         return result

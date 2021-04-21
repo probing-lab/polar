@@ -1,4 +1,4 @@
-from diofant import sympify
+from symengine.lib.symengine_wrapper import sympify
 
 from program.condition import Condition
 from .exceptions import ArithmConversionException

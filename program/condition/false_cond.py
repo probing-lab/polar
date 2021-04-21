@@ -1,4 +1,4 @@
-from diofant import sympify, Expr
+from symengine.lib.symengine_wrapper import sympify, Expr
 from .condition import Condition
 
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Set
 from program.type import Type
-from diofant import Symbol, sympify
+from symengine.lib.symengine_wrapper import Symbol, sympify
 from program.condition import Condition, TrueCond, And
 
 

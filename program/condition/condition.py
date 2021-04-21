@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from diofant import Expr
+from symengine.lib.symengine_wrapper import Expr
 
 
 class Condition(ABC):

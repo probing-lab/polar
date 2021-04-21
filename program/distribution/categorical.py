@@ -1,5 +1,5 @@
 from functools import lru_cache
-from diofant import Expr
+from symengine.lib.symengine_wrapper import Expr
 from .distribution import Distribution
 from program.type import FiniteRange
 

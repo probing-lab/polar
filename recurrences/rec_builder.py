@@ -1,9 +1,8 @@
 from typing import Set
-
-from diofant import Expr, Symbol
-
+from symengine.lib.symengine_wrapper import Expr, Symbol
 from program import Program
 from program.assignment import DistAssignment
+from utils import get_terms_with_var
 
 
 class RecBuilder:
@@ -38,13 +37,12 @@ class RecBuilder:
         return m
 
     def __replace_dist_assign_moments__(self, expr: Expr, dist_assign: DistAssignment):
-        poly = expr.as_poly(dist_assign.variable)
-        result = poly.coeff_monomial(1)
-        for monom in poly.monoms():
-            power = monom[0]
-            if power > 0:
-                moment = dist_assign.distribution.get_moment(power)
-                coeff = poly.coeff_monomial(monom)
-                assert dist_assign.variable not in (moment.free_symbols | coeff.free_symbols)
-                result += moment * coeff
-        return result.expand()
+        var = dist_assign.variable
+        dist = dist_assign.distribution
+        poly = expr.expand()
+        terms_with_var, rest_without_var = get_terms_with_var(poly, var)
+
+        result = rest_without_var
+        for var_power, rest in terms_with_var:
+            result += dist.get_moment(var_power) * rest
+        return result

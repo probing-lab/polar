@@ -1,11 +1,10 @@
 from singledispatchmethod import singledispatchmethod
-from diofant import fraction
 
 from program.assignment import DistAssignment, PolyAssignment
 from program.distribution import Normal, Uniform, Laplace, Exponential
 from .exceptions import TransformException
 from program.transformer.transformer import TreeTransformer
-from utils import get_unique_var
+from utils import get_unique_var, fraction
 
 
 class DistTransformer(TreeTransformer):

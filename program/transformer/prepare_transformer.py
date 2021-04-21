@@ -1,7 +1,5 @@
-from typing import List
 from .transformer import Transformer
 from program import Program
-from program.assignment import Assignment
 
 
 class PrepareTransformer(Transformer):

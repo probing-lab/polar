@@ -1,5 +1,5 @@
 from typing import Optional, List
-from diofant import sympify
+from symengine.lib.symengine_wrapper import sympify
 from .assignment import Assignment
 from .type import Type
 from utils import indent_string

@@ -1,5 +1,5 @@
 from typing import List
-from diofant import sympify
+from symengine import sympify
 from utils import get_unique_var
 from .transformer import Transformer
 from program import Program

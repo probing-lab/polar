@@ -1,5 +1,5 @@
 from typing import Set
-from diofant import sympify, Expr
+from symengine import sympify, Expr
 from .type import Type
 
 

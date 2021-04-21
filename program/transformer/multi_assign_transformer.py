@@ -1,4 +1,4 @@
-from diofant import symbols
+from symengine import symbols
 
 from .transformer import Transformer
 from program import Program

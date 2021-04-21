@@ -1,4 +1,4 @@
-from diofant import Expr
+from symengine.lib.symengine_wrapper import Expr
 from .distribution import Distribution
 from program.type import Finite
 

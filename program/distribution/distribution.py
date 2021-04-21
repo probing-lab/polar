@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Type, Set
-
-from diofant import Symbol, sympify, Rational
+from symengine.lib.symengine_wrapper import Symbol, sympify
+from utils import float_to_rational
 
 
 class Distribution(ABC):
@@ -11,7 +11,7 @@ class Distribution(ABC):
         for p in parameters:
             p = sympify(p)
             if p.is_Float:
-                p = Rational(str(p))
+                p = float_to_rational(p)
             params.append(p)
         self.set_parameters(params)
         super().__init__()

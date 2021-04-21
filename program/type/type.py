@@ -1,5 +1,5 @@
 from abc import ABC
-from diofant import Expr
+from symengine import Expr
 
 
 class Type(ABC):
