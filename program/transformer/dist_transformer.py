@@ -4,7 +4,7 @@ from program.assignment import DistAssignment, PolyAssignment
 from program.distribution import Normal, Uniform, Laplace, Exponential
 from .exceptions import TransformException
 from program.transformer.transformer import TreeTransformer
-from utils import get_unique_var, fraction
+from utils import get_unique_var
 
 
 class DistTransformer(TreeTransformer):

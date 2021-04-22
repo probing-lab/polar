@@ -25,10 +25,10 @@ arg_parser.add_argument(
 arg_parser.add_argument(
     "--goals",
     dest="goals",
-    type=int,
+    type=str,
+    default=[],
     nargs="+",
-    default=[1, 2, 3],
-    help="A list of moments MORA should consider"
+    help="A list of moments MORA should compute"
 )
 
 arg_parser.add_argument(
@@ -53,6 +53,9 @@ def main():
     if len(args.benchmarks) == 0:
         raise Exception("No benchmark given.")
 
+    if len(args.goals) == 0:
+        raise Exception("No goals given.")
+
     start = time.time()
     for benchmark in args.benchmarks:
         parser = Parser()
@@ -66,9 +69,13 @@ def main():
                 program = ConditionsToArithm().execute(program)
             program = PrepareTransformer().execute(program)
             print(program)
+
             rec_builder = RecBuilder(program)
-            recurrences = rec_builder.get_recurrences(sympify("x**2*y**2"))
-            print(recurrences[0])
+            for goal in args.goals:
+                monom = sympify(goal)
+                recurrences = rec_builder.get_recurrences(monom)
+                print(recurrences)
+
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:
             print(e)

@@ -104,6 +104,10 @@ class StructureTransformer(Transformer):
             return PolyAssignment.deterministic(var, str(value))
 
     def __assign__categorical__(self, args):
+        """
+        Helper function to for categorical assignment. Either keeps the structure or turns
+        it into an if-statement, depending on the configuration.
+        """
         var = args[0]
         polynomials = args[2].children[0::2]
         probabilities = args[2].children[1::2]
@@ -118,7 +122,7 @@ class StructureTransformer(Transformer):
 
     def __transform_categorical__(self, var, polynomials, probabilities):
         """
-        Helper function to transform the syntactic sugar categorical assignment
+        Helper function to transform a categorical assignment
         x = v1 {p1} v2 {p2} ...
         into an if-statement
         """

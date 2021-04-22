@@ -1,21 +1,37 @@
+from functools import lru_cache
 from typing import Set
 from symengine.lib.symengine_wrapper import Expr, Symbol
 from program import Program
 from program.assignment import Assignment
-from utils import get_terms_with_var
+from utils import get_terms_with_var, get_monoms
 
 
 class RecBuilder:
+    """
+    Class providing the construction of recurrences of monomials for a given program.
+    """
 
     program: Program
 
     def __init__(self, program: Program):
         self.program = program
 
+    @lru_cache(maxsize=None)
     def get_recurrences(self, monomial: Expr):
-        recurrence = self.get_recurrence(monomial)
-        return [recurrence]
+        to_process = {monomial}
+        processed = set()
+        recurrences = {}
+        while to_process:
+            next_monom = to_process.pop()
+            recurrences[next_monom] = self.get_recurrence(next_monom)
+            processed.add(next_monom)
+            monoms = get_monoms(recurrences[next_monom], constant_symbols=self.program.symbols)
+            for _, monom in monoms:
+                if monom not in processed:
+                    to_process.add(monom)
+        return recurrences
 
+    @lru_cache(maxsize=None)
     def get_recurrence(self, monomial: Expr):
         right_side = monomial
         last_assign_index = self.__get_last_assign_index__(monomial.free_symbols)

@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Set
 
-from symengine import symbols
 from program.type import Type
 from symengine.lib.symengine_wrapper import Expr, Symbol
 from program.condition import Condition, TrueCond, And
@@ -37,4 +36,8 @@ class Assignment(ABC):
 
     @abstractmethod
     def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
+        """
+        returns E(X) for X := Assignment^k * rest
+        relative to some given condition.
+        """
         pass
