@@ -4,3 +4,4 @@ from .multi_assign_transformer import MultiAssignTransformer
 from .type_inferer import TypeInferer
 from .conditions_to_arithm import ConditionsToArithm
 from .prepare_transformer import PrepareTransformer
+from .conditions_reducer import ConditionsReducer

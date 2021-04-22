@@ -1,11 +1,16 @@
 from abc import ABC, abstractmethod
-from symengine.lib.symengine_wrapper import Expr
+from typing import List, Tuple
+from symengine.lib.symengine_wrapper import Expr, Symbol
 
 
 class Condition(ABC):
 
     @abstractmethod
-    def simplify(self):
+    def simplify(self) -> "Condition":
+        pass
+
+    @abstractmethod
+    def reduce(self) -> List[Tuple[Symbol, Expr]]:
         pass
 
     @abstractmethod

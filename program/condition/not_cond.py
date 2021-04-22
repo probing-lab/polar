@@ -11,6 +11,9 @@ class Not(Condition):
         self.cond = self.cond.simplify()
         return self
 
+    def reduce(self):
+        return self.cond.reduce()
+
     def subs(self, substitutions):
         self.cond.subs(substitutions)
 

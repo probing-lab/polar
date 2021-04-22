@@ -9,6 +9,9 @@ class FalseCond(Condition):
     def simplify(self):
         return self
 
+    def reduce(self):
+        return []
+
     def subs(self, substitutions):
         pass
 

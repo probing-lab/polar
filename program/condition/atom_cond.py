@@ -1,6 +1,7 @@
-from symengine.lib.symengine_wrapper import sympify
+from symengine.lib.symengine_wrapper import sympify, Zero
 from program.condition import Condition
 from .exceptions import ArithmConversionException
+from utils import get_unique_var
 from program.type import Finite
 
 
@@ -18,8 +19,15 @@ class Atom(Condition):
         self.poly1 = self.poly1.subs(substitutions)
         self.poly2 = self.poly2.subs(substitutions)
 
-    def __str__(self):
-        return f"{self.poly1} {self.cop} {self.poly2}"
+    def reduce(self):
+        if self.poly1.is_Symbol and self.poly2.is_Integer:
+            return []
+
+        new_var = sympify(get_unique_var())
+        alias = self.poly1 - self.poly2
+        self.poly1 = new_var
+        self.poly2 = Zero()
+        return [(new_var, alias)]
 
     def is_canonical(self):
         return self.poly1.is_Symbol and self.poly2.is_Integer and self.cop == "=="
@@ -45,3 +53,6 @@ class Atom(Condition):
 
     def get_free_symbols(self):
         return self.poly1.free_symbols | self.poly2.free_symbols
+
+    def __str__(self):
+        return f"{self.poly1} {self.cop} {self.poly2}"

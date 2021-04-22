@@ -19,6 +19,9 @@ class Or(Condition):
             return self.cond1
         return self
 
+    def reduce(self):
+        return self.cond1.reduce() + self.cond2.reduce()
+
     def subs(self, substitutions):
         self.cond1.subs(substitutions)
         self.cond2.subs(substitutions)

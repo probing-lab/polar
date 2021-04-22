@@ -53,9 +53,6 @@ def main():
     if len(args.benchmarks) == 0:
         raise Exception("No benchmark given.")
 
-    if len(args.goals) == 0:
-        raise Exception("No goals given.")
-
     start = time.time()
     for benchmark in args.benchmarks:
         parser = Parser()
@@ -64,6 +61,7 @@ def main():
             program = DistTransformer().execute(program)
             program = IfTransformer().execute(program)
             program = MultiAssignTransformer().execute(program)
+            program = ConditionsReducer().execute(program)
             program = TypeInferer().execute(program)
             if args.cond2arithm:
                 program = ConditionsToArithm().execute(program)

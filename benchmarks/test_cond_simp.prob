@@ -1,0 +1,11 @@
+x = 0
+y = 0
+while true:
+    r = Bernoulli(0.5)
+    t = Bernoulli(0.3)
+    if r**2 - t == 0 && t + 4*r < 2*t**2 + t:
+        x = x + 1
+    else:
+        y = y + 1
+    end
+end
