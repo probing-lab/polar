@@ -13,9 +13,10 @@ class StructureTransformer(Transformer):
     """
     Lark transformer which transform the parse tree returned by lark into our own representations
     """
-    def __init__(self):
+    def __init__(self, transform_categoricals):
         super().__init__()
         self.program_variables = set()
+        self.transform_categoricals = transform_categoricals
 
     def program(self, args) -> Program:
         """
@@ -100,33 +101,39 @@ class StructureTransformer(Transformer):
         elif isinstance(value, Tree) and value.data == "categorical":
             return self.__assign__categorical__(args)
         else:
-            return PolyAssignment(var, str(value))
+            return PolyAssignment.deterministic(var, str(value))
 
     def __assign__categorical__(self, args):
+        var = args[0]
+        polynomials = args[2].children[0::2]
+        probabilities = args[2].children[1::2]
+        if len(probabilities) < len(polynomials):
+            last_param = f"1-{'-'.join(probabilities)}"
+            probabilities.append(last_param)
+
+        if self.transform_categoricals:
+            return self.__transform_categorical__(var, polynomials, probabilities)
+        else:
+            return PolyAssignment(var, polynomials, probabilities)
+
+    def __transform_categorical__(self, var, polynomials, probabilities):
         """
         Helper function to transform the syntactic sugar categorical assignment
         x = v1 {p1} v2 {p2} ...
         into an if-statement
         """
-        var = args[0]
-        assigns = args[2].children[0::2]
-        params = args[2].children[1::2]
-        if len(params) < len(assigns):
-            last_param = f"1-{'-'.join(params)}"
-            params.append(last_param)
-
         cat_var = get_unique_var()
-        cat_assign = DistAssignment(cat_var, Categorical(params))
+        cat_assign = DistAssignment(cat_var, Categorical(probabilities))
         conditions = []
         assignments = []
-        for i in range(len(assigns)):
+        for i in range(len(polynomials)):
             conditions.append(Atom(cat_var, "==", str(i)))
-            assignments.append([PolyAssignment(var, assigns[i])])
+            assignments.append([PolyAssignment.deterministic(var, polynomials[i])])
         return [cat_assign, IfStatem(conditions, assignments, mutually_exclusive=True)]
 
     def __assign__simult__(self, args):
         """
-        Helper function to transform
+        Helper function to transform simultaneous assignments into a sequence of non-simultaneous assignments
         """
         if len(args) % 2 == 0:
             raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")

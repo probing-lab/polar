@@ -1,5 +1,7 @@
 from typing import Optional
 
+from symengine.lib.symengine_wrapper import Expr
+
 from .assignment import Assignment
 from program.distribution import Distribution
 from program.type import Type
@@ -32,5 +34,7 @@ class DistAssignment(Assignment):
             return self.distribution.get_type()
         return None
 
-    def get_moment_of_content(self, k: int):
-        return self.distribution.get_moment(k)
+    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
+        if_cond = arithm_cond * self.distribution.get_moment(k) * rest
+        if_not_cond = (1 - arithm_cond) * (self.default ** k) * rest
+        return if_cond + if_not_cond

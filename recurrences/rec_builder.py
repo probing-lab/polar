@@ -21,24 +21,23 @@ class RecBuilder:
         last_assign_index = self.__get_last_assign_index__(monomial.free_symbols)
         for i in reversed(range(last_assign_index+1)):
             assignment = self.program.loop_body[i]
-            right_side = right_side.expand()
-            right_side = self.__replace_assign__(right_side, assignment)
+            if assignment.variable in right_side.free_symbols:
+                right_side = right_side.expand()
+                right_side = self.__replace_assign__(right_side, assignment)
         return right_side.simplify()
 
     def __get_last_assign_index__(self, variables: Set[Symbol]):
-        m = -1
+        max_index = -1
         for v in variables:
-            if self.program.var_to_index[v] > m:
-                m = self.program.var_to_index[v]
-        return m
+            if self.program.var_to_index[v] > max_index:
+                max_index = self.program.var_to_index[v]
+        return max_index
 
     def __replace_assign__(self, poly: Expr, assign: Assignment):
         cond = assign.condition.to_arithm(self.program)
-        not_cond = 1 - cond
         terms_with_var, rest_without_var = get_terms_with_var(poly, assign.variable)
 
         result = rest_without_var
         for var_power, rest in terms_with_var:
-            replacement = cond * assign.get_moment_of_content(var_power) + not_cond * (assign.default ** var_power)
-            result += replacement * rest
+            result += assign.get_moment(var_power, cond, rest)
         return result

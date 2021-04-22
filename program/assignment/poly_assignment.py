@@ -1,17 +1,36 @@
+from typing import List
+
 from symengine.lib.symengine_wrapper import Expr, sympify
+
+from utils import float_to_rational
 from .assignment import Assignment
 from program.condition import TrueCond
 
 
 class PolyAssignment(Assignment):
-    poly: Expr
+    polynomials: List[Expr]
+    probabilities: List[Expr]
 
-    def __init__(self, variable, poly):
+    def __init__(self, variable, polynomials, probabilities):
         super().__init__(variable)
-        self.poly = sympify(poly)
+        self.polynomials = [sympify(p) for p in polynomials]
+        self.probabilities = []
+        for p in probabilities:
+            p = sympify(p)
+            if p.is_Float:
+                p = float_to_rational(p)
+            self.probabilities.append(p)
+
+    @classmethod
+    def deterministic(cls, variable, polynomial):
+        return cls(variable, [polynomial], [1])
 
     def __str__(self):
-        result = str(self.variable) + " = " + str(self.poly)
+        result = str(self.variable) + " = " + str(self.polynomials[0])
+        for i in range(1, len(self.polynomials)):
+            result += " {" + str(self.probabilities[i-1]) + "} "
+            result += str(self.polynomials[i])
+
         if not isinstance(self.condition, TrueCond):
             result += "  |  " + str(self.condition) + "  :  " + str(self.default)
         return result
@@ -19,13 +38,21 @@ class PolyAssignment(Assignment):
     def subs(self, substitutions):
         self.default = self.default.subs(substitutions)
         self.condition.subs(substitutions)
-        self.poly = self.poly.subs(substitutions)
+        self.polynomials = [p.subs(substitutions) for p in self.polynomials]
+        self.probabilities = [p.subs(substitutions) for p in self.probabilities]
 
     def get_free_symbols(self):
-        return self.poly.free_symbols | self.condition.get_free_symbols()
+        symbols = self.condition.get_free_symbols()
+        for i in range(len(self.polynomials)):
+            symbols |= self.polynomials[i].free_symbols | self.probabilities[i].free_symbols
+        return symbols
 
     def get_assign_type(self):
         return None
 
-    def get_moment_of_content(self, k: int):
-        return self.poly ** k
+    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
+        if_cond = 0
+        for i in range(len(self.polynomials)):
+            if_cond += arithm_cond * self.probabilities[i] * (self.polynomials[i] ** k) * rest
+        if_not_cond = (1 - arithm_cond) * (self.default ** k) * rest
+        return if_cond + if_not_cond

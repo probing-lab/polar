@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Set
+
+from symengine import symbols
 from program.type import Type
-from symengine.lib.symengine_wrapper import Symbol, sympify
+from symengine.lib.symengine_wrapper import Expr, Symbol
 from program.condition import Condition, TrueCond, And
 
 
@@ -11,9 +13,9 @@ class Assignment(ABC):
     default: Symbol  # the value to assign if condition is false
 
     def __init__(self, variable, condition=TrueCond(), default=None):
-        self.variable = sympify(variable)
+        self.variable = Symbol(str(variable))
         self.condition = condition
-        self.default = sympify(default) if default else self.variable
+        self.default = Symbol(str(default)) if default else self.variable
 
     def add_to_condition(self, cond: Condition):
         self.condition = And(self.condition, cond)
@@ -34,5 +36,5 @@ class Assignment(ABC):
         pass
 
     @abstractmethod
-    def get_moment_of_content(self, k: int):
+    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
         pass

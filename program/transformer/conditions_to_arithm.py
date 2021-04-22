@@ -1,5 +1,5 @@
 from typing import List
-from symengine import sympify
+from symengine.lib.symengine_wrapper import sympify
 from utils import get_unique_var
 from .transformer import Transformer
 from program import Program
@@ -33,7 +33,7 @@ class ConditionsToArithm(Transformer):
                 continue
 
             if isinstance(assign, PolyAssignment):
-                assign.poly = arithm_cond * assign.poly + (1 - arithm_cond) * assign.default
+                assign.polynomials = [arithm_cond * p + (1 - arithm_cond) * assign.default for p in assign.polynomials]
                 assign.condition = TrueCond()
                 new_assignments.append(assign)
 
@@ -41,7 +41,7 @@ class ConditionsToArithm(Transformer):
                 new_var = sympify(get_unique_var())
                 dist_assign = DistAssignment(new_var, assign.distribution)
                 poly = arithm_cond * new_var + (1 - arithm_cond) * assign.default
-                poly_assign = PolyAssignment(assign.variable, poly)
+                poly_assign = PolyAssignment.deterministic(assign.variable, poly)
                 new_assignments.append(dist_assign)
                 new_assignments.append(poly_assign)
 

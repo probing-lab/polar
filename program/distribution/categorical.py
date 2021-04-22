@@ -1,11 +1,13 @@
 from functools import lru_cache
+from typing import List
+
 from symengine.lib.symengine_wrapper import Expr
 from .distribution import Distribution
 from program.type import FiniteRange
 
 
 class Categorical(Distribution):
-    probabilities: [Expr]
+    probabilities: List[Expr]
 
     def set_parameters(self, parameters):
         if len(parameters) == 0:
