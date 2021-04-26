@@ -31,7 +31,9 @@ class DistAssignment(Assignment):
 
     def get_assign_type(self) -> Optional[Type]:
         if self.variable == self.default:
-            return self.distribution.get_type()
+            assign_type = self.distribution.get_type()
+            assign_type.expression = self.variable
+            return assign_type
         return None
 
     def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):

@@ -22,7 +22,8 @@ class Program:
         self.index_to_var = {}  # initialized by prepare transformer
 
     def add_type(self, t: Type):
-        self.typedefs[t.expression] = t
+        if t is not None:
+            self.typedefs[t.expression] = t
 
     def add_types(self, ts: [Type]):
         for t in ts:

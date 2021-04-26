@@ -40,6 +40,7 @@ class ConditionsToArithm(Transformer):
             if isinstance(assign, DistAssignment):
                 new_var = sympify(get_unique_var())
                 dist_assign = DistAssignment(new_var, assign.distribution)
+                self.program.add_type(dist_assign.get_assign_type())
                 poly = arithm_cond * new_var + (1 - arithm_cond) * assign.default
                 poly_assign = PolyAssignment.deterministic(assign.variable, poly)
                 new_assignments.append(dist_assign)

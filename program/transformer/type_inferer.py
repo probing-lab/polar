@@ -11,8 +11,5 @@ class TypeInferer(Transformer):
 
     def execute(self, program: Program) -> Program:
         for assign in program.loop_body:
-            assign_type = assign.get_assign_type()
-            if assign_type:
-                assign_type.expression = assign.variable
-                program.add_type(assign_type)
+            program.add_type(assign.get_assign_type())
         return program
