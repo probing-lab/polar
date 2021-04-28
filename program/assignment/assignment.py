@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Set
+from typing import Union, Tuple, Set
 
-from program.type import Type
 from symengine.lib.symengine_wrapper import Expr, Symbol
 from program.condition import Condition, TrueCond, And
 
@@ -27,11 +26,15 @@ class Assignment(ABC):
         pass
 
     @abstractmethod
-    def get_assign_type(self) -> Optional[Type]:
+    def get_free_symbols(self, with_condition=True) -> Set[Symbol]:
         pass
 
     @abstractmethod
-    def get_free_symbols(self) -> Set[Symbol]:
+    def get_support(self) -> Union[Set[Expr], Tuple[Expr, Expr]]:
+        """
+        Returns either a set of expressions if the support is finite.
+        Otherwise it returns a tuple with a lower and upper bound for the support
+        """
         pass
 
     @abstractmethod

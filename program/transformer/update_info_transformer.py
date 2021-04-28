@@ -2,7 +2,7 @@ from .transformer import Transformer
 from program import Program
 
 
-class PrepareTransformer(Transformer):
+class UpdateInfoTransformer(Transformer):
     """
     Prepares some final data about the program. So it can be better processed afterwards.
     The transformer requires that the passed program is already flattened, meaning does not contain any if-statements.

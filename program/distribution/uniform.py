@@ -16,9 +16,6 @@ class Uniform(Distribution):
         #TODO
         pass
 
-    def get_type(self):
-        return None
-
     def subs(self, substitutions):
         self.a = self.a.subs(substitutions)
         self.b = self.b.subs(substitutions)
@@ -28,6 +25,9 @@ class Uniform(Distribution):
 
     def is_discrete(self):
         return False
+
+    def get_support(self):
+        return self.a, self.b
 
     def __str__(self):
         return f"Uniform({self.a}, {self.b})"

@@ -1,4 +1,4 @@
-from symengine.lib.symengine_wrapper import Expr
+from symengine.lib.symengine_wrapper import Expr, oo, Zero
 from .distribution import Distribution
 
 
@@ -14,9 +14,6 @@ class Exponential(Distribution):
         #TODO
         pass
 
-    def get_type(self):
-        return None
-
     def is_discrete(self):
         return False
 
@@ -25,6 +22,9 @@ class Exponential(Distribution):
 
     def get_free_symbols(self):
         return self.lamb.free_symbols
+
+    def get_support(self):
+        return Zero(), oo
 
     def __str__(self):
         return f"Exponential({self.lamb})"

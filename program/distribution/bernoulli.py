@@ -1,6 +1,5 @@
-from symengine.lib.symengine_wrapper import Expr
+from symengine.lib.symengine_wrapper import Expr, Zero, One
 from .distribution import Distribution
-from program.type import Finite
 
 
 class Bernoulli(Distribution):
@@ -14,9 +13,6 @@ class Bernoulli(Distribution):
     def get_moment(self, _: int):
         return self.p
 
-    def get_type(self) -> Finite:
-        return Finite([0, 1])
-
     def is_discrete(self):
         return True
 
@@ -25,6 +21,9 @@ class Bernoulli(Distribution):
 
     def get_free_symbols(self):
         return self.p.free_symbols
+
+    def get_support(self):
+        return {Zero(), One()}
 
     def __str__(self):
         return f"Bernoulli({self.p})"

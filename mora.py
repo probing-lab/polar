@@ -45,6 +45,21 @@ arg_parser.add_argument(
     help="If set converts all conditions to arithmetic ahead of the main computation"
 )
 
+arg_parser.add_argument(
+    "--disable_type_inference",
+    action="store_true",
+    default=False,
+    help="If set there won't be automatic type inference"
+)
+
+arg_parser.add_argument(
+    "--type_fp_iterations",
+    dest="type_fp_iterations",
+    default=10,
+    type=int,
+    help="Number of iterations in the fixedpoint computation of the type inference"
+)
+
 
 def main():
     args = arg_parser.parse_args()
@@ -58,14 +73,31 @@ def main():
         parser = Parser()
         try:
             program = parser.parse_file(benchmark, args.transform_categoricals)
+
+            # Transform non-constant distributions parameters
             program = DistTransformer().execute(program)
+
+            # Flatten if-statements
             program = IfTransformer().execute(program)
+
+            # Make sure every variable has only 1 assignment
             program = MultiAssignTransformer().execute(program)
+
+            # Create aliases for expressions in conditions.
             program = ConditionsReducer().execute(program)
-            program = TypeInferer().execute(program)
+
+            # Update program info like variables and symbols
+            program = UpdateInfoTransformer().execute(program)
+
+            # Infer types for variables
+            if not args.disable_type_inference:
+                program = TypeInferer(args.type_fp_iterations).execute(program)
+
+            # Convert all conditions to arithmetic
             if args.cond2arithm:
                 program = ConditionsToArithm().execute(program)
-            program = PrepareTransformer().execute(program)
+                program = UpdateInfoTransformer().execute(program)
+
             print(program)
 
             rec_builder = RecBuilder(program)

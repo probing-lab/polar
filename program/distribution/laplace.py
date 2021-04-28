@@ -1,4 +1,4 @@
-from symengine.lib.symengine_wrapper import Expr
+from symengine.lib.symengine_wrapper import Expr, oo
 from .distribution import Distribution
 
 
@@ -16,9 +16,6 @@ class Laplace(Distribution):
         #TODO
         pass
 
-    def get_type(self):
-        return None
-
     def is_discrete(self):
         return False
 
@@ -28,6 +25,9 @@ class Laplace(Distribution):
 
     def get_free_symbols(self):
         return self.mu.free_symbols.union(self.b.free_symbols)
+
+    def get_support(self):
+        return -oo, oo
 
     def __str__(self):
         return f"Laplace({self.mu}, {self.b})"

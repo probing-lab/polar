@@ -8,7 +8,7 @@ __types__ = {
 }
 
 
-def type_factory(type_name: str, parameters, expression: str) -> Type:
+def type_factory(type_name: str, parameters, variable: str) -> Type:
     if type_name in __types__:
-        return __types__[type_name](parameters, expression)
+        return __types__[type_name](parameters, variable)
     raise RuntimeError(f"Type {type_name} is not supported")

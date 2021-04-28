@@ -1,3 +1,4 @@
+from type_inference import FiniteFixedPointTyper
 from .transformer import Transformer
 from program import Program
 
@@ -6,10 +7,14 @@ class TypeInferer(Transformer):
     """
     Infers potential types of program variables and adds them to the program's type registry.
     The transformer requires that the passed program is flattened, meaning it does not contain any if-statements.
-    TODO: The current implementation is rudimentary and needs to be extended in the future.
+    Moreover, every variable is assumed to have only a single assignment.
     """
 
+    def __init__(self, fp_iterations: int):
+        self.fp_iterations = fp_iterations
+
     def execute(self, program: Program) -> Program:
-        for assign in program.loop_body:
-            program.add_type(assign.get_assign_type())
+        typer = FiniteFixedPointTyper(self.fp_iterations)
+        for t in typer.infer_types(program):
+            program.add_type(t)
         return program

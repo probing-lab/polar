@@ -1,6 +1,6 @@
 from abc import ABC
-from symengine import Expr
+from symengine.lib.symengine_wrapper import Symbol
 
 
 class Type(ABC):
-    expression: Expr
+    variable: Symbol

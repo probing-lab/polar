@@ -2,6 +2,7 @@ from symengine import symbols
 
 from .transformer import Transformer
 from program import Program
+from program.assignment import PolyAssignment
 
 
 class MultiAssignTransformer(Transformer):
@@ -22,6 +23,7 @@ class MultiAssignTransformer(Transformer):
             if assigns_count[var] > 1:
                 # Introduce new alias for var and from now on replace var with its alias
                 new_var = symbols(f"_{var}{assigns_per_var[var] - assigns_count[var] + 1}")
+                program.initial.append(PolyAssignment.deterministic(new_var, var))
                 assign.variable = new_var
                 substitutions[var] = new_var
                 assigns_count[var] -= 1

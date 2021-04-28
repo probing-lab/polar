@@ -1,9 +1,8 @@
 from functools import lru_cache
 from typing import List
 
-from symengine.lib.symengine_wrapper import Expr
+from symengine.lib.symengine_wrapper import Expr, sympify
 from .distribution import Distribution
-from program.type import FiniteRange
 
 
 class Categorical(Distribution):
@@ -21,9 +20,6 @@ class Categorical(Distribution):
             m += i*p
         return m
 
-    def get_type(self) -> FiniteRange:
-        return FiniteRange([0, len(self.probabilities) - 1])
-
     def is_discrete(self):
         return True
 
@@ -32,6 +28,9 @@ class Categorical(Distribution):
         for p in self.probabilities:
             symbols = symbols.union(p.free_symbols)
         return symbols
+
+    def get_support(self):
+        return {sympify(v) for v in range(len(self.probabilities))}
 
     def subs(self, substitutions):
         self.probabilities = [p.subs(substitutions) for p in self.probabilities]

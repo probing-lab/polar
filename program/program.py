@@ -23,7 +23,7 @@ class Program:
 
     def add_type(self, t: Type):
         if t is not None:
-            self.typedefs[t.expression] = t
+            self.typedefs[t.variable] = t
 
     def add_types(self, ts: [Type]):
         for t in ts:

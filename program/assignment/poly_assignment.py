@@ -41,14 +41,14 @@ class PolyAssignment(Assignment):
         self.polynomials = [p.subs(substitutions) for p in self.polynomials]
         self.probabilities = [p.subs(substitutions) for p in self.probabilities]
 
-    def get_free_symbols(self):
-        symbols = self.condition.get_free_symbols()
+    def get_free_symbols(self, with_condition=True):
+        symbols = self.condition.get_free_symbols() if with_condition else set()
         for i in range(len(self.polynomials)):
             symbols |= self.polynomials[i].free_symbols | self.probabilities[i].free_symbols
         return symbols
 
-    def get_assign_type(self):
-        return None
+    def get_support(self):
+        return set(self.polynomials)
 
     def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
         if_cond = 0

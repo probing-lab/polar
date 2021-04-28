@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Set
-from symengine.lib.symengine_wrapper import Symbol, sympify
+from typing import Union, Tuple, Set
+from symengine.lib.symengine_wrapper import Expr, Symbol, sympify
 from utils import float_to_rational
 
 
@@ -25,15 +25,19 @@ class Distribution(ABC):
         pass
 
     @abstractmethod
-    def get_type(self) -> Optional[Type]:
-        pass
-
-    @abstractmethod
     def is_discrete(self) -> bool:
         pass
 
     @abstractmethod
     def subs(self, substitutions):
+        pass
+
+    @abstractmethod
+    def get_support(self) -> Union[Set[Expr], Tuple[Expr, Expr]]:
+        """
+        Returns either a set of expressions if the support is finite.
+        Otherwise it returns a tuple with a lower and upper bound for the support
+        """
         pass
 
     @abstractmethod
