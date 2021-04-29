@@ -6,7 +6,7 @@ from program.assignment import Assignment, PolyAssignment
 
 class ConditionsReducer(Transformer):
     """
-    bla
+    Transforms all condition atoms in the program to the form: <variable> <comparison> <integer>
     """
     program: Program
 
