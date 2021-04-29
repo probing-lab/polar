@@ -35,8 +35,9 @@ class FiniteFixedPointTyper(Typer):
     # After this many iterations. Variables which change are considered to have failed.
     iterations: int
 
-    def __init__(self, iterations=10):
+    def __init__(self, iterations=10, max_values_before_fail=20):
         self.iterations = iterations
+        self.max_values_before_fail = max_values_before_fail
 
     def infer_types(self, program: Program) -> List[Type]:
         self.program = program
@@ -143,6 +144,8 @@ class FiniteFixedPointTyper(Typer):
             if not values_expr:
                 return False
             values |= values_expr
+            if len(values) > self.max_values_before_fail:
+                return False
         return values
 
     def __get_values_for_expr__(self, expr: Expr):
@@ -154,7 +157,13 @@ class FiniteFixedPointTyper(Typer):
         for var in variables:
             if self.state[var].has_failed:
                 return False
-            result = {expr.xreplace({var: value}) for expr in result for value in self.state[var].values}
+            new_result = set()
+            for expr in result:
+                for value in self.state[var].values:
+                    new_result.add(expr.xreplace({var: value}))
+                if len(new_result) > self.max_values_before_fail:
+                    return False
+            result = new_result
 
         return result
 
