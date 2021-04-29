@@ -93,6 +93,9 @@ def main():
             if not args.disable_type_inference:
                 program = TypeInferer(args.type_fp_iterations).execute(program)
 
+            # Turn all conditions into normalized form
+            program = ConditionsNormalizer().execute(program)
+
             # Convert all conditions to arithmetic
             if args.cond2arithm:
                 program = ConditionsToArithm().execute(program)

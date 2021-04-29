@@ -5,3 +5,4 @@ from .type_inferer import TypeInferer
 from .conditions_to_arithm import ConditionsToArithm
 from .update_info_transformer import UpdateInfoTransformer
 from .conditions_reducer import ConditionsReducer
+from .conditions_normalizer import ConditionsNormalizer

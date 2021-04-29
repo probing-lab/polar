@@ -14,6 +14,10 @@ class Condition(ABC):
         pass
 
     @abstractmethod
+    def get_normalized(self, program) -> "Condition":
+        pass
+
+    @abstractmethod
     def get_free_symbols(self):
         pass
 

@@ -22,6 +22,11 @@ class And(Condition):
     def reduce(self):
         return self.cond1.reduce() + self.cond2.reduce()
 
+    def get_normalized(self, program):
+        self.cond1 = self.cond1.get_normalized(program)
+        self.cond2 = self.cond2.get_normalized(program)
+        return self
+
     def subs(self, substitutions):
         self.cond1.subs(substitutions)
         self.cond2.subs(substitutions)

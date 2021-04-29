@@ -14,6 +14,10 @@ class Not(Condition):
     def reduce(self):
         return self.cond.reduce()
 
+    def get_normalized(self, program):
+        self.cond = self.cond.get_normalized(program)
+        return self
+
     def subs(self, substitutions):
         self.cond.subs(substitutions)
 

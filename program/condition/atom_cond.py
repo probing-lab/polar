@@ -1,7 +1,10 @@
 from symengine.lib.symengine_wrapper import sympify, Zero
-from program.condition import Condition
-from .exceptions import ArithmConversionException
-from utils import get_unique_var
+
+from .or_cond import Or
+from .false_cond import FalseCond
+from .condition import Condition
+from .exceptions import ArithmConversionException, NormalizingException
+from utils import get_unique_var, get_valid_values
 from program.type import Finite
 
 
@@ -19,8 +22,11 @@ class Atom(Condition):
         self.poly1 = self.poly1.subs(substitutions)
         self.poly2 = self.poly2.subs(substitutions)
 
+    def is_reduced(self):
+        return self.poly1.is_Symbol and self.poly2.is_Integer
+
     def reduce(self):
-        if self.poly1.is_Symbol and self.poly2.is_Integer:
+        if self.is_reduced():
             return []
 
         new_var = sympify(get_unique_var())
@@ -29,12 +35,34 @@ class Atom(Condition):
         self.poly2 = Zero()
         return [(new_var, alias)]
 
-    def is_canonical(self):
+    def is_normalized(self):
         return self.poly1.is_Symbol and self.poly2.is_Integer and self.cop == "=="
 
+    def get_normalized(self, program):
+        if not self.is_reduced():
+            raise NormalizingException(f"Atom {self} cannot be normalized because it's not reduced")
+
+        var = self.poly1
+        value = self.poly2
+        var_type = program.get_type(var)
+        if not isinstance(var_type, Finite):
+            raise NormalizingException(f"Variable {var} in atom {self} is not of finite type.")
+        valid_values = get_valid_values(var_type.values, self.cop, value)
+
+        if len(valid_values) == 0:
+            return FalseCond()
+        if len(valid_values) == 1:
+            return Atom(self.poly1.copy(), "==", valid_values.pop())
+
+        result = Atom(self.poly1.copy(), "==", valid_values.pop())
+        for v in valid_values:
+            result = Or(result, Atom(self.poly1.copy(), "==", v))
+
+        return result
+
     def to_arithm(self, program):
-        if not self.is_canonical():
-            raise ArithmConversionException(f"Atom {self} is not canonical")
+        if not self.is_normalized():
+            raise ArithmConversionException(f"Atom {self} is not normalized")
         var = self.poly1
         value = self.poly2
         var_type = program.get_type(var)

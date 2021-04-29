@@ -12,6 +12,9 @@ class FalseCond(Condition):
     def reduce(self):
         return []
 
+    def get_normalized(self, program):
+        return self
+
     def subs(self, substitutions):
         pass
 
