@@ -55,7 +55,7 @@ arg_parser.add_argument(
 arg_parser.add_argument(
     "--type_fp_iterations",
     dest="type_fp_iterations",
-    default=10,
+    default=100,
     type=int,
     help="Number of iterations in the fixedpoint computation of the type inference"
 )

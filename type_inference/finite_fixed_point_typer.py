@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Set, Dict, Tuple
+from typing import List, Set, Dict
 from symengine.lib.symengine_wrapper import Expr, Symbol
 
 from program import Program
@@ -35,7 +35,7 @@ class FiniteFixedPointTyper(Typer):
     # After this many iterations. Variables which change are considered to have failed.
     iterations: int
 
-    def __init__(self, iterations=10, max_values_before_fail=20):
+    def __init__(self, iterations=100, max_values_before_fail=20):
         self.iterations = iterations
         self.max_values_before_fail = max_values_before_fail
 
@@ -135,7 +135,7 @@ class FiniteFixedPointTyper(Typer):
         Returns all possible values an assignment can assign with respect to the current state.
         """
         support = assign.get_support()
-        if type(support) is Tuple:
+        if type(support) is tuple:
             return False
 
         values = set()
