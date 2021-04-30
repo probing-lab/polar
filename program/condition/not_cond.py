@@ -15,8 +15,8 @@ class Not(Condition):
         return self.cond.reduce()
 
     def get_normalized(self, program):
-        self.cond = self.cond.get_normalized(program)
-        return self
+        self.cond, failed_atoms = self.cond.get_normalized(program)
+        return self, failed_atoms
 
     def subs(self, substitutions):
         self.cond.subs(substitutions)
@@ -26,6 +26,9 @@ class Not(Condition):
 
     def get_free_symbols(self):
         return self.cond.get_free_symbols()
+
+    def get_conjuncts(self):
+        return [self]
 
     def __str__(self):
         return f"¬({self.cond})"

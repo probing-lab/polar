@@ -14,11 +14,15 @@ class Condition(ABC):
         pass
 
     @abstractmethod
-    def get_normalized(self, program) -> "Condition":
+    def get_normalized(self, program) -> Tuple["Condition", List["Condition"]]:
         pass
 
     @abstractmethod
     def get_free_symbols(self):
+        pass
+
+    @abstractmethod
+    def get_conjuncts(self) -> List["Condition"]:
         pass
 
     @abstractmethod

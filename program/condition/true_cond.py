@@ -13,13 +13,16 @@ class TrueCond(Condition):
         return []
 
     def get_normalized(self, program):
-        return self
+        return self, []
 
     def subs(self, substitutions):
         pass
 
     def get_free_symbols(self):
         return set()
+
+    def get_conjuncts(self):
+        return [self]
 
     def to_arithm(self, p):
         return sympify(1)

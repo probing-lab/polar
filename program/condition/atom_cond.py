@@ -46,19 +46,19 @@ class Atom(Condition):
         value = self.poly2
         var_type = program.get_type(var)
         if not isinstance(var_type, Finite):
-            raise NormalizingException(f"Variable {var} in atom {self} is not of finite type.")
+            return self, [self]
         valid_values = get_valid_values(var_type.values, self.cop, value)
 
         if len(valid_values) == 0:
-            return FalseCond()
+            return FalseCond(), []
         if len(valid_values) == 1:
-            return Atom(self.poly1.copy(), "==", valid_values.pop())
+            return Atom(self.poly1.copy(), "==", valid_values.pop()), []
 
         result = Atom(self.poly1.copy(), "==", valid_values.pop())
         for v in valid_values:
             result = Or(result, Atom(self.poly1.copy(), "==", v))
 
-        return result
+        return result, []
 
     def to_arithm(self, program):
         if not self.is_normalized():
@@ -78,6 +78,9 @@ class Atom(Condition):
             result *= t
 
         return result
+
+    def get_conjuncts(self):
+        return [self]
 
     def get_free_symbols(self):
         return self.poly1.free_symbols | self.poly2.free_symbols

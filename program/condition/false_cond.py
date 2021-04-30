@@ -12,14 +12,17 @@ class FalseCond(Condition):
     def reduce(self):
         return []
 
-    def get_normalized(self, program):
-        return self
+    def get_conjuncts(self, program):
+        return self, []
 
     def subs(self, substitutions):
         pass
 
     def to_arithm(self, _) -> Expr:
         return sympify(0)
+
+    def get_conjunctions(self):
+        return [self]
 
     def get_free_symbols(self):
         return set()

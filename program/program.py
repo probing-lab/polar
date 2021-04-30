@@ -18,8 +18,8 @@ class Program:
         self.initial = initial
         self.loop_guard = loop_guard
         self.loop_body = loop_body
-        self.var_to_index = {}  # initialized by prepare transformer
-        self.index_to_var = {}  # initialized by prepare transformer
+        self.var_to_index = {}  # initialized by info transformer
+        self.index_to_var = {}  # initialized by info transformer
 
     def add_type(self, t: Type):
         if t is not None:

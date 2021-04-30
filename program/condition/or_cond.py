@@ -23,9 +23,9 @@ class Or(Condition):
         return self.cond1.reduce() + self.cond2.reduce()
 
     def get_normalized(self, program):
-        self.cond1 = self.cond1.get_normalized(program)
-        self.cond2 = self.cond2.get_normalized(program)
-        return self
+        self.cond1, failed_atoms1 = self.cond1.get_normalized(program)
+        self.cond2, failed_atoms2 = self.cond2.get_normalized(program)
+        return self, failed_atoms1 + failed_atoms2
 
     def subs(self, substitutions):
         self.cond1.subs(substitutions)
@@ -38,6 +38,9 @@ class Or(Condition):
 
     def get_free_symbols(self):
         return self.cond1.get_free_symbols() | self.cond2.get_free_symbols()
+
+    def get_conjuncts(self):
+        return [self]
 
     def __str__(self):
         return f"({self.cond1} ∨ {self.cond2})"
