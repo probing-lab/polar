@@ -1,0 +1,2 @@
+class EvaluationException(Exception):
+    pass

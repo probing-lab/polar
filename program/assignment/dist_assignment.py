@@ -31,6 +31,9 @@ class DistAssignment(Assignment):
         self.condition.subs(substitutions)
         self.distribution.subs(substitutions)
 
+    def evaluate_right_side(self, state):
+        return self.distribution.sample(state)
+
     def get_support(self):
         return self.distribution.get_support()
 

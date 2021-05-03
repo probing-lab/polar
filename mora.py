@@ -10,6 +10,7 @@ from argparse import ArgumentParser
 from inputparser import Parser
 from program.transformer import *
 from recurrences import *
+from simulation import Simulator
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
 
@@ -22,12 +23,44 @@ arg_parser.add_argument(
 )
 
 arg_parser.add_argument(
+    "--simulate",
+    action="store_true",
+    default=False,
+    help="If set MORA simulates the program"
+)
+
+arg_parser.add_argument(
+    "--simulation_iter",
+    dest="simulation_iter",
+    default=100,
+    type=int,
+    help="Number of iterations after which the simulation stops."
+)
+
+arg_parser.add_argument(
+    "--number_samples",
+    dest="number_samples",
+    default=100,
+    type=int,
+    help="The number of samples to simulate."
+)
+
+arg_parser.add_argument(
     "--goals",
     dest="goals",
     type=str,
     default=[],
     nargs="+",
-    help="A list of moments MORA should compute"
+    help="A list of moments MORA should compute or simulate"
+)
+
+arg_parser.add_argument(
+    "--plot",
+    dest="plot",
+    type=str,
+    default=[],
+    nargs="+",
+    help="A list of moments MORA should plot. Only available in simulation mode."
 )
 
 arg_parser.add_argument(
@@ -67,6 +100,35 @@ def main():
     if len(args.benchmarks) == 0:
         raise Exception("No benchmark given.")
 
+    if args.simulate:
+        simulate(args)
+    else:
+        compute_moments(args)
+
+
+def simulate(args):
+    start = time.time()
+    for benchmark in args.benchmarks:
+        parser = Parser()
+        try:
+            program = parser.parse_file(benchmark, args.transform_categoricals)
+            print(program)
+
+            simulator = Simulator(args.simulation_iter)
+            result = simulator.simulate(program, args.goals, args.number_samples)
+            for goal, mean in result.get_average_goals().items():
+                print(f"Mean {goal}: {mean}")
+
+            for plot in args.plot:
+                result.plot_animated(plot)
+
+            print(f"Elapsed time: {time.time() - start} s")
+        except Exception as e:
+            print(e)
+            exit()
+
+
+def compute_moments(args):
     start = time.time()
     for benchmark in args.benchmarks:
         parser = Parser()
@@ -111,7 +173,6 @@ def main():
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:
             print(e)
-            raise e
             exit()
 
 

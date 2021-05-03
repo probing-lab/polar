@@ -1,8 +1,10 @@
 from functools import lru_cache
 from typing import List
+import random
 
 from symengine.lib.symengine_wrapper import Expr, sympify
 from .distribution import Distribution
+from .exceptions import EvaluationException
 
 
 class Categorical(Distribution):
@@ -31,6 +33,16 @@ class Categorical(Distribution):
 
     def get_support(self):
         return {sympify(v) for v in range(len(self.probabilities))}
+
+    def sample(self, state):
+        probabilities = []
+        for prob in self.probabilities:
+            p = prob.subs(state)
+            if not p.is_Number:
+                raise EvaluationException(f"Probability {prob} is not a number in state {state}")
+            probabilities.append(float(p))
+
+        return random.choices(range(len(probabilities)), weights=probabilities, k=1)[0]
 
     def subs(self, substitutions):
         self.probabilities = [p.subs(substitutions) for p in self.probabilities]

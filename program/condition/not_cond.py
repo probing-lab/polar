@@ -21,6 +21,9 @@ class Not(Condition):
     def subs(self, substitutions):
         self.cond.subs(substitutions)
 
+    def evaluate(self, state):
+        return not self.cond.evaluate(state)
+
     def to_arithm(self, p):
         return 1 - self.cond.to_arithm(p)
 

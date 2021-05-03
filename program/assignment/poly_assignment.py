@@ -1,10 +1,11 @@
 from typing import List
-
+import random
 from symengine.lib.symengine_wrapper import Expr, sympify
 
 from utils import float_to_rational
 from .assignment import Assignment
 from program.condition import TrueCond
+from .exceptions import EvaluationException
 
 
 class PolyAssignment(Assignment):
@@ -49,6 +50,23 @@ class PolyAssignment(Assignment):
 
     def get_support(self):
         return set(self.polynomials)
+
+    def evaluate_right_side(self, state):
+        probabilities = []
+        for prob in self.probabilities:
+            p = prob.subs(state)
+            if not p.is_Number:
+                raise EvaluationException(f"Probability {prob} is not a number in state {state}")
+            probabilities.append(float(p))
+
+        polynomials = []
+        for pol in self.polynomials:
+            p = pol.subs(state)
+            if not p.is_Number:
+                raise EvaluationException(f"Polynomial {pol} is not a number in state {state}")
+            polynomials.append(float(p))
+
+        return random.choices(polynomials, weights=probabilities, k=1)[0]
 
     def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
         if_cond = 0

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from symengine.lib.symengine_wrapper import Expr, Symbol
 
 
@@ -27,6 +27,10 @@ class Condition(ABC):
 
     @abstractmethod
     def subs(self, substitutions):
+        pass
+
+    @abstractmethod
+    def evaluate(self, state: Dict[Symbol, float]):
         pass
 
     @abstractmethod

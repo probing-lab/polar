@@ -1,6 +1,7 @@
 from symengine.lib.symengine_wrapper import Expr, Zero, One
 from .distribution import Distribution
-
+from .exceptions import EvaluationException
+from scipy.stats import bernoulli
 
 class Bernoulli(Distribution):
     p: Expr
@@ -18,6 +19,12 @@ class Bernoulli(Distribution):
 
     def subs(self, substitutions):
         self.p = self.p.subs(substitutions)
+
+    def sample(self, state):
+        p = self.p.subs(state)
+        if not p.is_Number:
+            raise EvaluationException(f"Parameter {self.p} doesn't evaluate to number with state {state}")
+        return bernoulli.rvs(float(p))
 
     def get_free_symbols(self):
         return self.p.free_symbols

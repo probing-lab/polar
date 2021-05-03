@@ -5,3 +5,7 @@ class ArithmConversionException(Exception):
 
 class NormalizingException(Exception):
     pass
+
+
+class EvaluationException(Exception):
+    pass

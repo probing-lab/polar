@@ -1,5 +1,7 @@
 from symengine.lib.symengine_wrapper import Expr, oo
 from .distribution import Distribution
+from .exceptions import EvaluationException
+from scipy.stats import laplace
 
 
 class Laplace(Distribution):
@@ -22,6 +24,13 @@ class Laplace(Distribution):
     def subs(self, substitutions):
         self.mu = self.mu.subs(substitutions)
         self.b = self.b.subs(substitutions)
+
+    def sample(self, state):
+        mu = self.mu.subs(state)
+        b = self.b.subs(state)
+        if not mu.is_Number or not b.is_Number:
+            raise EvaluationException(f"Parameters {self.mu}, {self.b} don't evaluate to numbers with state {state}")
+        return laplace.rvs(scale=float(b), loc=float(mu))
 
     def get_free_symbols(self):
         return self.mu.free_symbols.union(self.b.free_symbols)

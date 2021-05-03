@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Union, Tuple, Set
+from typing import Union, Tuple, Set, Dict
 
 from symengine.lib.symengine_wrapper import Expr, Symbol
+
+from .exceptions import EvaluationException
 from program.condition import Condition, TrueCond, And
 
 
@@ -21,8 +23,23 @@ class Assignment(ABC):
     def simplify_condition(self):
         self.condition = self.condition.simplify()
 
+    def evaluate(self, state: Dict[Symbol, float]):
+        if self.condition.evaluate(state):
+            result = self.evaluate_right_side(state)
+        else:
+            if self.default not in state:
+                raise EvaluationException(f"Tried to evaluate {self.default} which is not set in state {state}")
+            result = state[self.default]
+
+        state[self.variable] = float(result)
+        return state
+
     @abstractmethod
     def subs(self, substitutions):
+        pass
+
+    @abstractmethod
+    def evaluate_right_side(self, state: Dict[Symbol, float]):
         pass
 
     @abstractmethod

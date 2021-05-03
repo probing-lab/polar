@@ -18,6 +18,9 @@ class TrueCond(Condition):
     def subs(self, substitutions):
         pass
 
+    def evaluate(self, state):
+        return True
+
     def get_free_symbols(self):
         return set()
 

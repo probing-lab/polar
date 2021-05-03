@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union, Tuple, Set
+from typing import Union, Tuple, Set, Dict
 from symengine.lib.symengine_wrapper import Expr, Symbol, sympify
 from utils import float_to_rational
 
@@ -26,6 +26,10 @@ class Distribution(ABC):
 
     @abstractmethod
     def is_discrete(self) -> bool:
+        pass
+
+    @abstractmethod
+    def sample(self, state: Dict[Symbol, float]):
         pass
 
     @abstractmethod

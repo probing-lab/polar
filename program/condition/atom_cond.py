@@ -3,8 +3,8 @@ from symengine.lib.symengine_wrapper import sympify, Zero
 from .or_cond import Or
 from .false_cond import FalseCond
 from .condition import Condition
-from .exceptions import ArithmConversionException, NormalizingException
-from utils import get_unique_var, get_valid_values
+from .exceptions import ArithmConversionException, NormalizingException, EvaluationException
+from utils import get_unique_var, get_valid_values, evaluate_cop
 from program.type import Finite
 
 
@@ -21,6 +21,14 @@ class Atom(Condition):
     def subs(self, substitutions):
         self.poly1 = self.poly1.subs(substitutions)
         self.poly2 = self.poly2.subs(substitutions)
+
+    def evaluate(self, state):
+        poly1 = self.poly1.subs(state)
+        poly2 = self.poly2.subs(state)
+        if not poly1.is_Number or not poly2.is_Number:
+            raise EvaluationException(f"Atom {self} cannot be fully evaluated with state {state}")
+        result = evaluate_cop(float(poly1), self.cop, float(poly2))
+        return result
 
     def is_reduced(self):
         return self.poly1.is_Symbol and self.poly2.is_Integer

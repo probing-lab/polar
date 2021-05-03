@@ -1,5 +1,7 @@
 from symengine.lib.symengine_wrapper import Expr
 from .distribution import Distribution
+from .exceptions import EvaluationException
+from scipy.stats import uniform
 
 
 class Uniform(Distribution):
@@ -28,6 +30,13 @@ class Uniform(Distribution):
 
     def get_support(self):
         return self.a, self.b
+
+    def sample(self, state):
+        a = self.a.subs(state)
+        b = self.b.subs(state)
+        if not a.is_Number or not b.is_Number:
+            raise EvaluationException(f"Parameters {self.a}, {self.b} don't evaluate to numbers with state {state}")
+        return uniform.rvs(loc=float(a), scale=float(b) - float(a))
 
     def __str__(self):
         return f"Uniform({self.a}, {self.b})"

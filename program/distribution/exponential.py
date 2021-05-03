@@ -1,5 +1,7 @@
 from symengine.lib.symengine_wrapper import Expr, oo, Zero
 from .distribution import Distribution
+from .exceptions import EvaluationException
+from scipy.stats import expon
 
 
 class Exponential(Distribution):
@@ -19,6 +21,12 @@ class Exponential(Distribution):
 
     def subs(self, substitutions):
         self.lamb = self.lamb.subs(substitutions)
+
+    def sample(self, state):
+        lamb = self.lamb.subs(state)
+        if not lamb.is_Number:
+            raise EvaluationException(f"Parameter {self.lamb} doesn't evaluate to number with state {state}")
+        return expon.rvs(scale=1/float(lamb))
 
     def get_free_symbols(self):
         return self.lamb.free_symbols

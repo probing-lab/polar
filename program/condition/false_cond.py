@@ -18,6 +18,9 @@ class FalseCond(Condition):
     def subs(self, substitutions):
         pass
 
+    def evaluate(self, state):
+        return False
+
     def to_arithm(self, _) -> Expr:
         return sympify(0)
 
