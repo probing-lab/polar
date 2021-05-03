@@ -14,9 +14,8 @@ from recurrences import *
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
 
 arg_parser.add_argument(
-    "--benchmarks",
-    dest="benchmarks",
-    required=True,
+    "benchmarks",
+    metavar="benchmarks",
     type=str,
     nargs="+",
     help="A list of benchmarks to run MORA on"
