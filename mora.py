@@ -113,6 +113,7 @@ def simulate(args):
         try:
             program = parser.parse_file(benchmark, args.transform_categoricals)
             print(program)
+            print()
 
             simulator = Simulator(args.simulation_iter)
             result = simulator.simulate(program, args.goals, args.number_samples)
@@ -163,6 +164,7 @@ def compute_moments(args):
                 program = UpdateInfoTransformer().execute(program)
 
             print(program)
+            print()
 
             rec_builder = RecBuilder(program)
             for goal in args.goals:

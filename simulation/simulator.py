@@ -5,6 +5,7 @@ from program import Program
 from program.assignment import Assignment
 from program.ifstatem import IfStatem
 from .simulation_result import SimulationResult
+from progress.bar import Bar
 
 
 class Simulator:
@@ -15,18 +16,21 @@ class Simulator:
     iterations: int
 
     def __init__(self, iterations: int):
-        self.max_iterations = iterations
+        self.iterations = iterations
 
     def simulate(self, program: Program, goals: List[str], samples: int):
         result = []
+        sample_bar = Bar("Computing samples", max=samples)
         for _ in range(samples):
             states = [self.execute(program.initial, {})]
-            for _ in range(self.max_iterations):
+            for _ in range(self.iterations):
                 if not program.loop_guard.evaluate(states[-1]):
                     states.append(states[-1].copy())
                 else:
                     states.append(self.execute(program.loop_body, states[-1].copy()))
+            sample_bar.next()
             result.append(states)
+        sample_bar.finish()
         return SimulationResult(result, goals)
 
     @singledispatchmethod

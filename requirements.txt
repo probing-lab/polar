@@ -5,3 +5,4 @@ singledispatchmethod==1.0
 scipy==1.6.*
 numpy==1.20.*
 matplotlib==3.4.*
+progress==1.5
