@@ -1,13 +1,10 @@
-from typing import Optional, List
+from typing import Optional
 from symengine.lib.symengine_wrapper import sympify
-from .assignment import Assignment
 from .type import Type, Finite
 from utils import indent_string
 
 
 class Program:
-    initial: List[Assignment]
-    loop_body: List[Assignment]
     children = ["initial", "loop_body"]
 
     def __init__(self, types, variables, initial, loop_guard, loop_body):

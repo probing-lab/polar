@@ -1,11 +1,12 @@
+from typing import List
 from program.condition import Condition
 from utils import indent_string
 
 
 class IfStatem:
-    conditions: [Condition]
+    conditions: List[Condition]
     mutually_exclusive: bool  # Flag to signal that all conditions are mutually exclusive
-    branches: []
+    branches: List
     else_branch = None
 
     children = ["branches", "else_branch"]

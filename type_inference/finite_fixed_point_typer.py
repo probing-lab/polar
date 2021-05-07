@@ -109,7 +109,7 @@ class FiniteFixedPointTyper(Typer):
                 self.state[var] = Status(var_type.values, has_changed=False, is_locked=True, has_failed=False)
 
         # For variables with initial assignments, the initial state is given by the possible values it
-        # can take ofter the initialization part
+        # can take after the initialization part
         for assign in self.program.initial:
             if assign.variable not in self.state:
                 values = self.__get_values_for_assign__(assign)
