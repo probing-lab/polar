@@ -1,9 +1,10 @@
 from functools import lru_cache
-from typing import Set
+from typing import Set, List
 from symengine.lib.symengine_wrapper import Expr, Symbol
 from program import Program
 from program.assignment import Assignment
-from utils import get_terms_with_var, get_monoms
+from program.type import Finite
+from utils import get_terms_with_var, get_terms_with_vars, get_monoms
 
 
 class RecBuilder:
@@ -40,6 +41,7 @@ class RecBuilder:
             if assignment.variable in right_side.free_symbols:
                 right_side = right_side.expand()
                 right_side = self.__replace_assign__(right_side, assignment)
+        right_side = self.__reduce_powers__(right_side.expand())
         return right_side.simplify()
 
     def __get_last_assign_index__(self, variables: Set[Symbol]):
@@ -56,4 +58,17 @@ class RecBuilder:
         result = rest_without_var
         for var_power, rest in terms_with_var:
             result += assign.get_moment(var_power, cond, rest)
+        return result
+
+    def __reduce_powers__(self, poly: Expr):
+        terms_with_vars, rest_without_vars = get_terms_with_vars(poly, self.program.finite_variables)
+        finite_types: List[Finite] = [self.program.get_type(v) for v in self.program.finite_variables]
+
+        result = rest_without_vars
+        for var_powers, rest in terms_with_vars:
+            term = rest
+            for i in range(len(var_powers)):
+                term *= finite_types[i].reduce_power(var_powers[i])
+            result += term
+
         return result

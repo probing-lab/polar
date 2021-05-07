@@ -95,3 +95,6 @@ class Atom(Condition):
 
     def __str__(self):
         return f"{self.poly1} {self.cop} {self.poly2}"
+
+    def copy(self):
+        return Atom(self.poly1.copy(), self.cop, self.poly2.copy())

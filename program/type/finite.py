@@ -15,3 +15,12 @@ class Finite(Type):
 
     def __str__(self):
         return f"{self.variable} : Finite({', '.join([str(v) for v in self.values])})"
+
+    def reduce_power(self, power: int):
+        # TODO: implement
+        if power == 0:
+            return 1
+        if len(self.values) > 2:
+            return self.variable ** power
+        return self.variable
+

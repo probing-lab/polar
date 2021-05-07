@@ -29,3 +29,6 @@ class TrueCond(Condition):
 
     def to_arithm(self, p):
         return sympify(1)
+
+    def copy(self):
+        return TrueCond()

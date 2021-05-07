@@ -45,3 +45,6 @@ class And(Condition):
 
     def __str__(self):
         return f"({self.cond1} ∧ {self.cond2})"
+
+    def copy(self):
+        return And(self.cond1.copy(), self.cond2.copy())

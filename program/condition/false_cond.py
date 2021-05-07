@@ -29,3 +29,6 @@ class FalseCond(Condition):
 
     def get_free_symbols(self):
         return set()
+
+    def copy(self):
+        return TrueCond()

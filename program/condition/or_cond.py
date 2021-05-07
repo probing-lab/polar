@@ -47,3 +47,6 @@ class Or(Condition):
 
     def __str__(self):
         return f"({self.cond1} ∨ {self.cond2})"
+
+    def copy(self):
+        return Or(self.cond1.copy(), self.cond2.copy())

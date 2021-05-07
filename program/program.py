@@ -1,7 +1,7 @@
 from typing import Optional, List
 from symengine.lib.symengine_wrapper import sympify
 from .assignment import Assignment
-from .type import Type
+from .type import Type, Finite
 from utils import indent_string
 
 
@@ -12,6 +12,7 @@ class Program:
 
     def __init__(self, types, variables, initial, loop_guard, loop_body):
         self.typedefs = {}
+        self.finite_variables = []
         self.add_types(types)
         self.variables = {sympify(v) for v in variables}
         self.symbols = set()
@@ -24,6 +25,8 @@ class Program:
     def add_type(self, t: Type):
         if t is not None:
             self.typedefs[t.variable] = t
+        if isinstance(t, Finite) and t.variable not in self.finite_variables:
+            self.finite_variables.append(t.variable)
 
     def add_types(self, ts: [Type]):
         for t in ts:

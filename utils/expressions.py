@@ -1,4 +1,6 @@
-from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
+from typing import List
+
+from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero, sympify
 from sympy import Rational
 
 
@@ -13,6 +15,8 @@ def get_terms_with_var(poly: Expr, var: Symbol):
     not containing var.
     E.g: For poly=x**2*y*z - 2x + y + 2 returns
     [(2,y*z), (1,-2)], y+2
+
+    This function is a specialization of get_terms_with_var and implemented as duplication for performance reasons.
     """
     result = []
     rest = Zero()
@@ -32,6 +36,41 @@ def get_terms_with_var(poly: Expr, var: Symbol):
             power = part.args[1] if part.is_Pow else One()
 
         result.append((power, part_without_var))
+    return result, rest
+
+
+def get_terms_with_vars(poly: Expr, variables: List[Symbol]):
+    """
+    For a polynomial (flattened expression) and a given list of variable vars returns a list of all
+    monomials in the form (power of vars, part of monomial without vars) as well as the remaining polynomial
+    not containing var.
+    E.g: For poly=x**2*y*z*a - 2x*a + y + 2  and variables [x,a] returns
+    [([2,1],y*z), ([1,1],-2)], y + 2
+    """
+    result = []
+    rest = Zero()
+    terms = poly.args if poly.is_Add else [poly]
+    vars_set = set(variables)
+    vars_to_index = {var: i for i, var in enumerate(variables)}
+    for term in terms:
+        if not vars_set.intersection(term.free_symbols):
+            rest += term
+            continue
+
+        part_without_vars = One()
+        powers = [Zero()] * len(variables)
+        parts = term.args if term.is_Mul else [term]
+        for part in parts:
+            if len(part.free_symbols) == 0:
+                part_without_vars *= part
+                continue
+            part_var = next(iter(part.free_symbols))
+            if part_var not in vars_set:
+                part_without_vars *= part
+                continue
+            powers[vars_to_index[part_var]] = part.args[1] if part.is_Pow else One()
+
+        result.append((powers, part_without_vars))
     return result, rest
 
 

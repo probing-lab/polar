@@ -36,3 +36,7 @@ class Condition(ABC):
     @abstractmethod
     def to_arithm(self, program) -> Expr:
         pass
+
+    @abstractmethod
+    def copy(self) -> "Condition":
+        pass

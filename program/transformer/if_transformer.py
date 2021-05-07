@@ -24,14 +24,14 @@ class IfTransformer(TreeTransformer):
         for i, branch in enumerate(branches):
             current_condition = conditions[i] if ifstmt.mutually_exclusive else And(not_previous, conditions[i])
             for assign in branch:
-                assign.add_to_condition(current_condition)
+                assign.add_to_condition(current_condition.copy())
                 assign.simplify_condition()
-            not_previous = And(not_previous, Not(conditions[i]))
+            not_previous = And(not_previous, Not(conditions[i].copy()))
 
         all_assigns = [assign for branch in branches for assign in branch]
         if ifstmt.else_branch:
             for assign in ifstmt.else_branch:
-                assign.add_to_condition(not_previous)
+                assign.add_to_condition(not_previous.copy())
                 assign.simplify_condition()
             all_assigns += ifstmt.else_branch
 
