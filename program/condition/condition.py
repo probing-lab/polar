@@ -10,7 +10,7 @@ class Condition(ABC):
         pass
 
     @abstractmethod
-    def reduce(self) -> List[Tuple[Symbol, Expr]]:
+    def reduce(self, store) -> List[Tuple[Symbol, Expr]]:
         pass
 
     @abstractmethod

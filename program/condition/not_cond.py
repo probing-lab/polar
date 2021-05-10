@@ -11,8 +11,8 @@ class Not(Condition):
         self.cond = self.cond.simplify()
         return self
 
-    def reduce(self):
-        return self.cond.reduce()
+    def reduce(self, store):
+        return self.cond.reduce(store)
 
     def get_normalized(self, program):
         self.cond, failed_atoms = self.cond.get_normalized(program)

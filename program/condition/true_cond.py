@@ -9,7 +9,7 @@ class TrueCond(Condition):
     def simplify(self):
         return self
 
-    def reduce(self):
+    def reduce(self, store):
         return []
 
     def get_normalized(self, program):

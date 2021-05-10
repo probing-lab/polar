@@ -145,8 +145,14 @@ def compute_moments(args):
             # Make sure every variable has only 1 assignment
             program = MultiAssignTransformer().execute(program)
 
+            print(program)
+            print()
+
             # Create aliases for expressions in conditions.
             program = ConditionsReducer().execute(program)
+
+            print(program)
+            print()
 
             # Update program info like variables and symbols
             program = UpdateInfoTransformer().execute(program)

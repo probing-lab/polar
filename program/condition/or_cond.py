@@ -19,8 +19,8 @@ class Or(Condition):
             return self.cond1
         return self
 
-    def reduce(self):
-        return self.cond1.reduce() + self.cond2.reduce()
+    def reduce(self, store):
+        return self.cond1.reduce(store) + self.cond2.reduce(store)
 
     def get_normalized(self, program):
         self.cond1, failed_atoms1 = self.cond1.get_normalized(program)

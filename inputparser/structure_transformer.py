@@ -126,7 +126,7 @@ class StructureTransformer(Transformer):
         x = v1 {p1} v2 {p2} ...
         into an if-statement
         """
-        cat_var = get_unique_var()
+        cat_var = get_unique_var(name="c")
         cat_assign = DistAssignment(cat_var, Categorical(probabilities))
         conditions = []
         assignments = []
@@ -155,7 +155,7 @@ class StructureTransformer(Transformer):
             if var.type != "VARIABLE":
                 raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
 
-            new_var = get_unique_var()
+            new_var = get_unique_var(name="t")
             assignments1.append(self.assign([Token(b"VARIABLE", new_var), Token(b"ASSIGN", "="), value]))
             assignments1.append(self.assign([var, Token(b"ASSIGN", "="), new_var]))
         return assignments1 + assignments2

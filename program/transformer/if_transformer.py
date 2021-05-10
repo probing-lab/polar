@@ -41,7 +41,7 @@ class IfTransformer(TreeTransformer):
                 assign.simplify_condition()
                 # Remember variables which are appear a condition and are assigned within a branch
                 if assign.variable in condition_symbols:
-                    cond_subs[assign.variable] = get_unique_var()
+                    cond_subs[assign.variable] = get_unique_var(name="old")
             not_previous = And(not_previous, Not(conditions[i].copy()))
         all_assigns = [assign for branch in branches for assign in branch]
 
