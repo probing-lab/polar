@@ -36,5 +36,8 @@ class Not(Condition):
     def __str__(self):
         return f"¬({self.cond})"
 
+    def __eq__(self, obj):
+        return isinstance(obj, Not) and self.cond == obj.cond
+
     def copy(self):
         return Not(self.cond)

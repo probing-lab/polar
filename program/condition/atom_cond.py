@@ -96,5 +96,8 @@ class Atom(Condition):
     def __str__(self):
         return f"{self.poly1} {self.cop} {self.poly2}"
 
+    def __eq__(self, obj):
+        return isinstance(obj, Atom) and (self.poly1, self.cop, self.poly2) == (obj.poly1, obj.cop, obj.poly2)
+
     def copy(self):
         return Atom(self.poly1.copy(), self.cop, self.poly2.copy())

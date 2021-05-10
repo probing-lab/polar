@@ -30,5 +30,8 @@ class TrueCond(Condition):
     def to_arithm(self, p):
         return sympify(1)
 
+    def __eq__(self, obj):
+        return isinstance(obj, TrueCond)
+
     def copy(self):
         return TrueCond()

@@ -30,5 +30,8 @@ class FalseCond(Condition):
     def copy(self):
         return FalseCond()
 
+    def __eq__(self, obj):
+        return isinstance(obj, FalseCond)
+
     def get_normalized(self, program):
         return self, []
