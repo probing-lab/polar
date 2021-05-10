@@ -1,0 +1,9 @@
+types
+    x: Finite(0,1,2,3,4)
+end
+
+x = Categorical(1/4, 1/4, 1/4, 1/4)
+while true:
+    x = Categorical(1/4, 1/4, 1/4, 1/4)
+    y = x**8
+end
