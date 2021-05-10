@@ -99,5 +99,8 @@ class Atom(Condition):
     def __eq__(self, obj):
         return isinstance(obj, Atom) and (self.poly1, self.cop, self.poly2) == (obj.poly1, obj.cop, obj.poly2)
 
+    def __hash__(self):
+        return hash((self.poly1, self.cop, self.poly2))
+
     def copy(self):
         return Atom(self.poly1.copy(), self.cop, self.poly2.copy())
