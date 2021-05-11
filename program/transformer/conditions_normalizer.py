@@ -2,11 +2,10 @@ from typing import List, Set
 
 from symengine.lib.symengine_wrapper import Symbol
 
-from .exceptions import NormalizingException
 from .transformer import Transformer
 from program import Program
 from ..assignment import Assignment
-from ..condition import Condition
+from ..condition import Condition, Atom
 
 
 class ConditionsNormalizer(Transformer):
@@ -26,13 +25,25 @@ class ConditionsNormalizer(Transformer):
             normalized_condition, failed_atoms = assign.condition.get_normalized(self.program)
             assign.condition = normalized_condition
             if failed_atoms:
-                failed_variables = {atom.poly1 for atom in failed_atoms}
-                self.__try_abstract_failed_condition__(assign, failed_variables)
+                self.__try_abstract_failed_condition__(assign, failed_atoms)
 
-    def __try_abstract_failed_condition__(self, assign: Assignment, failed_variables: Set[Symbol]):
+    def __try_abstract_failed_condition__(self, assign: Assignment, failed_atoms: List[Atom]):
+        failed_variables = {v for a in failed_atoms for v in a.get_free_symbols()}
         good_conjuncts, bad_conjuncts = self.__partition_conjuncts__(assign.condition, failed_variables)
         failed_variables = {v for c in bad_conjuncts for v in c.get_free_symbols()}
-        # TODO: continue
+        # TODO
+        # Basic idea: If an atom "failed" we have to consider the whole conjunct it appears in as "failed",
+        # because separating them out of disjunctions would be be a mess. Then we are basically left
+        # with one bad condition C = Bad1 and Bad2 and Bad3 ... and Badk
+        # Now the following has to hold
+        #
+        # 1. C only depends is iteration independent
+        # 2. C is independent of variables in assignment which were already assigned in this iteration
+        # 3. C is independent of variables in good condition part which have already been assigned.
+        #
+        # Then we can replace C by Bernoulli(p) == 1 where p = P(C at current pos)
+        # If C already has been abstracted as Bernoulli(p) and none of the variables in C have been reassigned since
+        # then we use the old abstraction. If the have been reassigned we need to introduce a new abstraction.
         pass
 
     def __partition_conjuncts__(self, condition: Condition, failed_variables: Set[Symbol]):

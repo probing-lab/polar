@@ -30,4 +30,3 @@ class Finite(Type):
 
         reduced_powers, tmp_var = get_reduced_powers(self.__ordered_values__, power)
         return reduced_powers.xreplace({tmp_var: self.variable})
-
