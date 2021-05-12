@@ -13,18 +13,17 @@ def get_reduced_powers(values: Tuple, power: int) -> Tuple[Expr, Symbol]:
     tmp_var = Symbol("t")
     values_vector = Matrix([v ** power for v in values])
     var_vector = Matrix([tmp_var ** p for p in range(len(values))])
-    mat = __get_powers_transf_matrix__(values)
+    mat = __get_powers_transform_matrix__(values)
     return (values_vector.T * mat * var_vector)[0], tmp_var
 
 
 @lru_cache(maxsize=None)
-def __get_powers_transf_matrix__(values: Tuple):
-    values_vector = Matrix([v for v in values])
-    mat = zeros(values_vector.size, values_vector.size)
+def __get_powers_transform_matrix__(values: Tuple):
+    mat = zeros(len(values), len(values))
     for i in range(len(values)):
         for j in range(len(values)):
             if i == 0:
                 mat[i, j] = One()
             else:
-                mat[i, j] = values_vector[j] ** i
+                mat[i, j] = values[j] ** i
     return mat.inv()
