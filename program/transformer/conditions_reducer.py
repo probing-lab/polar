@@ -11,6 +11,7 @@ from program.condition import Atom
 class ConditionsReducer(Transformer):
     """
     Transforms all condition atoms in the program to the form: <variable> <comparison> <integer>
+    The transformer requires that the passed program is flattened, meaning it does not contain any if-statements.
     """
     program: Program
 
@@ -28,17 +29,6 @@ class ConditionsReducer(Transformer):
             for new_var, expression in aliases:
                 new_assignments.append(PolyAssignment.deterministic(new_var, expression.simplify()))
             new_assignments.append(assign)
-            store = self.__delete_from_store__(store, assign.variable)
+            store = {k: v for k, v in store.items() if assign.variable not in k.get_free_symbols()}
 
         return new_assignments
-
-    def __delete_from_store__(self, store: Dict[Atom, Symbol], variable: Symbol):
-        """
-        If a variable appearing in an atom gets assigned we can not use the same alias as previously
-        and need to delete it from the store.
-        """
-        new_store = {}
-        for atom, alias in store.items():
-            if variable not in atom.get_free_symbols():
-                new_store[atom] = alias
-        return new_store

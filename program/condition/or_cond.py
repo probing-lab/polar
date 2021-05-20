@@ -49,7 +49,10 @@ class Or(Condition):
         return f"({self.cond1} ∨ {self.cond2})"
 
     def __eq__(self, obj):
-        return isinstance(obj, And) and (self.cond1, self.cond2) == (obj.cond1, obj.cond2)
+        return isinstance(obj, Or) and (self.cond1, self.cond2) == (obj.cond1, obj.cond2)
+
+    def __hash__(self):
+        return hash(("OR", self.cond1, self.cond2))
 
     def copy(self):
         return Or(self.cond1.copy(), self.cond2.copy())

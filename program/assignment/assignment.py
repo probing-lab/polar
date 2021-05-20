@@ -43,7 +43,12 @@ class Assignment(ABC):
         pass
 
     @abstractmethod
-    def get_free_symbols(self, with_condition=True) -> Set[Symbol]:
+    def get_free_symbols(self, with_condition=True, with_default=True) -> Set[Symbol]:
+        """
+        Returns the free symbols in the assignments right side.
+        with_condtiion == True <==> symbols of condition are included
+        with_default == False <==> default symbol is not included if condition is syntactically TRUE
+        """
         pass
 
     @abstractmethod

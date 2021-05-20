@@ -39,5 +39,8 @@ class Not(Condition):
     def __eq__(self, obj):
         return isinstance(obj, Not) and self.cond == obj.cond
 
+    def __hash__(self):
+        return hash(("NOT", self.cond))
+
     def copy(self):
         return Not(self.cond)

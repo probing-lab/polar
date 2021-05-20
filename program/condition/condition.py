@@ -14,7 +14,7 @@ class Condition(ABC):
         pass
 
     @abstractmethod
-    def get_normalized(self, program) -> Tuple["Condition", List["Condition"]]:
+    def get_normalized(self, program) -> Tuple["Condition", List]:
         pass
 
     @abstractmethod

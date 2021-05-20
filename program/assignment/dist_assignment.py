@@ -20,10 +20,12 @@ class DistAssignment(Assignment):
             result += "  |  " + str(self.condition) + "  :  " + str(self.default)
         return result
 
-    def get_free_symbols(self, with_condition=False):
+    def get_free_symbols(self, with_condition=True, with_default=True):
         symbols = self.distribution.get_free_symbols()
         if with_condition:
             symbols |= self.condition.get_free_symbols()
+        if with_default or not isinstance(self.condition, TrueCond):
+            symbols.add(self.default)
         return symbols
 
     def subs(self, substitutions):

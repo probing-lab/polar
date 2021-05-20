@@ -3,8 +3,6 @@ from .condition import Condition
 
 
 class TrueCond(Condition):
-    def __str__(self):
-        return "true"
 
     def simplify(self):
         return self
@@ -30,8 +28,14 @@ class TrueCond(Condition):
     def to_arithm(self, p):
         return sympify(1)
 
+    def __str__(self):
+        return "true"
+
     def __eq__(self, obj):
         return isinstance(obj, TrueCond)
+
+    def __hash__(self):
+        return hash("TRUE")
 
     def copy(self):
         return TrueCond()

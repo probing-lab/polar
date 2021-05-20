@@ -3,8 +3,6 @@ from .condition import Condition
 
 
 class FalseCond(Condition):
-    def __str__(self):
-        return "false"
 
     def simplify(self):
         return self
@@ -30,8 +28,14 @@ class FalseCond(Condition):
     def copy(self):
         return FalseCond()
 
+    def __str__(self):
+        return "false"
+
     def __eq__(self, obj):
         return isinstance(obj, FalseCond)
+
+    def __hash__(self):
+        return hash("FALSE")
 
     def get_normalized(self, program):
         return self, []

@@ -167,7 +167,6 @@ def compute_moments(args):
             # Convert all conditions to arithmetic
             if args.cond2arithm:
                 program = ConditionsToArithm().execute(program)
-                program = UpdateInfoTransformer().execute(program)
 
             print(program)
             print()

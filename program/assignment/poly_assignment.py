@@ -42,10 +42,12 @@ class PolyAssignment(Assignment):
         self.polynomials = [p.subs(substitutions) for p in self.polynomials]
         self.probabilities = [p.subs(substitutions) for p in self.probabilities]
 
-    def get_free_symbols(self, with_condition=True):
+    def get_free_symbols(self, with_condition=True, with_default=True):
         symbols = self.condition.get_free_symbols() if with_condition else set()
         for i in range(len(self.polynomials)):
             symbols |= self.polynomials[i].free_symbols | self.probabilities[i].free_symbols
+        if with_default or not isinstance(self.condition, TrueCond):
+            symbols.add(self.default)
         return symbols
 
     def get_support(self):

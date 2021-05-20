@@ -1,6 +1,7 @@
 from typing import List
 from symengine.lib.symengine_wrapper import sympify
 from utils import get_unique_var
+from .update_info_transformer import UpdateInfoTransformer
 from .transformer import Transformer
 from program import Program
 from program.assignment import Assignment, PolyAssignment, DistAssignment
@@ -16,11 +17,14 @@ class ConditionsToArithm(Transformer):
     The transformer requires that the passed program is flattened, meaning it does not contain any if-statements.
     """
     program: Program
+    needs_info_update: bool = False
 
     def execute(self, program: Program) -> Program:
         self.program = program
         program.initial = self.__conditions_to_arithm__(program.initial)
         program.loop_body = self.__conditions_to_arithm__(program.loop_body)
+        if self.needs_info_update:
+            program = UpdateInfoTransformer().execute(program)
         return program
 
     def __conditions_to_arithm__(self, assignments: List[Assignment]):
@@ -45,5 +49,6 @@ class ConditionsToArithm(Transformer):
                 poly_assign = PolyAssignment.deterministic(assign.variable, poly)
                 new_assignments.append(dist_assign)
                 new_assignments.append(poly_assign)
+                self.needs_info_update = True
 
         return new_assignments

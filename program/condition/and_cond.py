@@ -49,5 +49,8 @@ class And(Condition):
     def __eq__(self, obj):
         return isinstance(obj, And) and (self.cond1, self.cond2) == (obj.cond1, obj.cond2)
 
+    def __hash__(self):
+        return hash(("AND", self.cond1, self.cond2))
+
     def copy(self):
         return And(self.cond1.copy(), self.cond2.copy())

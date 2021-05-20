@@ -16,8 +16,10 @@ class Program:
         self.initial = initial
         self.loop_guard = loop_guard
         self.loop_body = loop_body
-        self.var_to_index = {}  # initialized by info transformer
-        self.index_to_var = {}  # initialized by info transformer
+        self.abstracted_const_store = {}
+        self.var_to_index = {}     # initialized by info transformer
+        self.index_to_var = {}     # initialized by info transformer
+        self.dependency_info = {}  # initialized by info transformer
 
     def add_type(self, t: Type):
         if t is not None:
@@ -29,8 +31,20 @@ class Program:
         for t in ts:
             self.add_type(t)
 
-    def get_type(self, expression) -> Optional[Type]:
-        return self.typedefs.get(expression)
+    def get_type(self, variable) -> Optional[Type]:
+        return self.typedefs.get(variable)
+
+    def is_iteration_dependent(self, variable):
+        return self.dependency_info[variable].iteration_dependent
+
+    def is_dependent(self, var1, var2):
+        return var1 in self.dependency_info[var2].dependencies
+
+    def is_dependent_vars(self, variables1, variables2):
+        for v1 in variables1:
+            if any([self.is_dependent(v1, v2) for v2 in variables2]):
+                return True
+        return False
 
     def __str__(self):
         typedefs = "\n".join([str(t) for t in self.typedefs.values()])
@@ -42,4 +56,9 @@ class Program:
             string = f"types\n{indent_string(typedefs, 4)}\nend\n"
 
         string += f"{initial}\nwhile {str(self.loop_guard)}:\n{indent_string(body, 4)}\nend"
+
+        if len(self.abstracted_const_store) > 0:
+            abstractions = "\n".join([f"{prob} = P({cond})" for prob, cond in self.abstracted_const_store.items()])
+            string += f"\nwhere\n{indent_string(abstractions, 4)}"
+
         return string
