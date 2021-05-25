@@ -1,0 +1,11 @@
+
+f = 0
+x = 0
+y = 0
+p = 0
+while true:
+    f = Bernoulli(1/2)
+    x = x + f
+    y = y + 1 - f
+    p = x*y
+end

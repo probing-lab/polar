@@ -1,0 +1,8 @@
+
+x = Uniform(-1, 1)
+y = Uniform(-1, 1)
+while true:
+    x = x
+    y = y
+    s = s
+end

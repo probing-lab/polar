@@ -21,7 +21,7 @@ while true:
     end
 
     n = Normal(0,1)
-    if m > 1:
+    if n > 1:
         w = w + 1
     end
 end

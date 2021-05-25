@@ -1,0 +1,8 @@
+
+ahit = 0
+bhit = 0
+while true:
+    ahit = 1 {a} 0
+    bhit = 1 - a {b} 0
+    y = -ahit - bhit
+end

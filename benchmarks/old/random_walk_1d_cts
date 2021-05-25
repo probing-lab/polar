@@ -1,0 +1,7 @@
+
+v = 0
+x = 0
+while true:
+    v = Uniform(0,1)
+    x = x + v {7/10} x - v
+end

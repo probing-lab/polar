@@ -1,0 +1,8 @@
+
+x = 0
+while true:
+    u = Uniform(0,b)
+    g = Normal(0,1)
+    x = x - u {1/2} x + u
+    y = y + x + g
+end
