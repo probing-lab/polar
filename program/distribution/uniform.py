@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from symengine.lib.symengine_wrapper import Expr
 from .distribution import Distribution
 from .exceptions import EvaluationException
@@ -14,9 +16,9 @@ class Uniform(Distribution):
         self.a = parameters[0]
         self.b = parameters[1]
 
+    @lru_cache()
     def get_moment(self, k: int):
-        #TODO
-        pass
+        return (self.b ** (k+1) - self.a ** (k+1)) / ((k+1) * (self.a - self.b))
 
     def subs(self, substitutions):
         self.a = self.a.subs(substitutions)

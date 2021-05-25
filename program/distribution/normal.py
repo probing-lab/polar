@@ -1,7 +1,10 @@
-from symengine.lib.symengine_wrapper import Expr, oo
+from functools import lru_cache
+
+from symengine.lib.symengine_wrapper import Expr, oo, Rational, sympy2symengine
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import norm
+from sympy.stats import Normal, E
 import math
 
 
@@ -15,9 +18,10 @@ class Normal(Distribution):
         self.mu = parameters[0]
         self.sigma2 = parameters[1]
 
+    @lru_cache()
     def get_moment(self, k: int):
-        #TODO
-        pass
+        x = Normal("x", self.mu, self.sigma2 ** (1/2))
+        return sympy2symengine(E(x ** k))
 
     def is_discrete(self):
         return False

@@ -1,4 +1,5 @@
-from symengine.lib.symengine_wrapper import Expr, oo, Zero
+from functools import lru_cache
+from symengine.lib.symengine_wrapper import Expr, oo, Zero, factorial
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import expon
@@ -12,9 +13,9 @@ class Exponential(Distribution):
             raise RuntimeError("Exponential distribution requires 1 parameter")
         self.lamb = parameters[0]
 
+    @lru_cache()
     def get_moment(self, k: int):
-        #TODO
-        pass
+        return factorial(k) / (self.lamb ** k)
 
     def is_discrete(self):
         return False

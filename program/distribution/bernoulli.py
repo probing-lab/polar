@@ -3,6 +3,7 @@ from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import bernoulli
 
+
 class Bernoulli(Distribution):
     p: Expr
 
