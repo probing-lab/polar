@@ -9,14 +9,16 @@ from utils import get_monoms
 class Recurrences:
 
     program: Program
-    recurrence_dict: Dict[Symbol, Expr]
+    recurrence_dict: Dict[Expr, Expr]
+    init_values_dict: Dict[Expr, Expr]
     recurrence_matrix: Matrix
-    variables: List[Symbol]
+    variables: List[Expr]
     is_inhomogeneous = False
 
-    def __init__(self, recurrence_dict: Dict[Symbol, Expr], program: Program):
+    def __init__(self, recurrence_dict: Dict[Expr, Expr], init_values_dict: Dict[Expr, Expr], program: Program):
         self.program = program
         self.recurrence_dict = recurrence_dict
+        self.init_values_dict = init_values_dict
         self.variables = list(recurrence_dict.keys())
         self.__init_data__()
 

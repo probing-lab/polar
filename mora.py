@@ -5,11 +5,11 @@ For the command line arguments run the script with "--help".
 """
 import glob
 import time
-from symengine.lib.symengine_wrapper import sympify
+from symengine.lib.symengine_wrapper import sympify, Symbol
 from argparse import ArgumentParser
 from inputparser import Parser
 from program.transformer import *
-from recurrences import *
+from recurrences import RecBuilder
 from simulation import Simulator
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")

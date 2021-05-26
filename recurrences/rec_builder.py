@@ -31,7 +31,10 @@ class RecBuilder:
             for _, monom in monoms:
                 if monom not in processed:
                     to_process.add(monom)
-        return Recurrences(recurrence_dict, self.program)
+
+        init_values_dict = self.get_initial_values(processed)
+        print(init_values_dict)
+        return Recurrences(recurrence_dict, init_values_dict, self.program)
 
     @lru_cache(maxsize=None)
     def get_recurrence(self, monomial: Expr):
@@ -73,3 +76,21 @@ class RecBuilder:
             result += term
 
         return result
+
+    def get_initial_values(self, monomials: Set[Expr]):
+        result = {}
+        for monom in monomials:
+            result[monom] = self.get_initial_value(monom)
+        return result
+
+    def get_initial_value(self, monom: Expr):
+        result = monom
+        for assign in reversed(self.program.initial):
+            if assign.variable in result.free_symbols:
+                result = self.__replace_assign__(result, assign)
+                result = result.expand()
+
+        for sym in monom.free_symbols.difference(self.program.symbols):
+            result = result.xreplace({sym: Symbol(f"{sym}0")})
+
+        return result.expand()
