@@ -4,6 +4,7 @@ from symengine.lib.symengine_wrapper import Expr, Symbol
 from program import Program
 from program.assignment import Assignment
 from program.type import Finite
+from .recurrences import Recurrences
 from utils import get_terms_with_var, get_terms_with_vars, get_monoms
 
 
@@ -18,19 +19,19 @@ class RecBuilder:
         self.program = program
 
     @lru_cache(maxsize=None)
-    def get_recurrences(self, monomial: Expr):
+    def get_recurrences(self, monomial: Expr) -> Recurrences:
         to_process = {monomial}
         processed = set()
-        recurrences = {}
+        recurrence_dict = {}
         while to_process:
             next_monom = to_process.pop()
-            recurrences[next_monom] = self.get_recurrence(next_monom)
+            recurrence_dict[next_monom] = self.get_recurrence(next_monom)
             processed.add(next_monom)
-            monoms = get_monoms(recurrences[next_monom], constant_symbols=self.program.symbols)
+            monoms = get_monoms(recurrence_dict[next_monom], constant_symbols=self.program.symbols)
             for _, monom in monoms:
                 if monom not in processed:
                     to_process.add(monom)
-        return recurrences
+        return Recurrences(recurrence_dict, self.program)
 
     @lru_cache(maxsize=None)
     def get_recurrence(self, monomial: Expr):

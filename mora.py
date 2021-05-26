@@ -136,6 +136,9 @@ def compute_moments(args):
         try:
             program = parser.parse_file(benchmark, args.transform_categoricals)
 
+            print(program)
+            print()
+
             # Transform non-constant distributions parameters
             program = DistTransformer().execute(program)
 
@@ -145,14 +148,8 @@ def compute_moments(args):
             # Make sure every variable has only 1 assignment
             program = MultiAssignTransformer().execute(program)
 
-            print(program)
-            print()
-
             # Create aliases for expressions in conditions.
             program = ConditionsReducer().execute(program)
-
-            print(program)
-            print()
 
             # Update program info like variables and symbols
             program = UpdateInfoTransformer().execute(program)
@@ -175,7 +172,8 @@ def compute_moments(args):
             for goal in args.goals:
                 monom = sympify(goal)
                 recurrences = rec_builder.get_recurrences(monom)
-                print(recurrences)
+                print(recurrences.recurrence_dict)
+                print(recurrences.recurrence_matrix)
 
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:

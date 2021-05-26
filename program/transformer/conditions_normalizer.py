@@ -10,6 +10,7 @@ from program.assignment import Assignment, DistAssignment
 from program.condition import Condition, Atom, TrueCond, And
 from utils import get_unique_var
 from program.distribution import Bernoulli
+from program.type import Finite
 
 
 class ConditionsNormalizer(Transformer):
@@ -89,13 +90,14 @@ class ConditionsNormalizer(Transformer):
             new_var = Symbol(get_unique_var(name="a"))
             new_prob = Symbol(get_unique_var(name="prob"))
             abstraction_assign = DistAssignment(new_var, Bernoulli([new_prob]))
+            self.program.add_type(Finite([0, 1], new_var))
             abstraction_store[bad_condition] = new_var
             new_assignments.append(abstraction_assign)
             self.program.abstracted_const_store[new_prob] = bad_condition.copy()
             abstraction_store[bad_condition] = new_var
             abstracted_vars |= bad_condition.get_free_symbols()
 
-        assign.condition = And(good_condition, Atom(abstraction_store[bad_condition], "==", One()))
+        assign.condition = And(good_condition, Atom(abstraction_store[bad_condition], "==", One())).simplify()
 
     def __partition_condition__(self, condition: Condition, failed_variables: Set[Symbol]):
         good_condition = TrueCond()
