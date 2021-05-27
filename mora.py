@@ -5,11 +5,11 @@ For the command line arguments run the script with "--help".
 """
 import glob
 import time
-from symengine.lib.symengine_wrapper import sympify, Symbol
+from symengine.lib.symengine_wrapper import sympify
 from argparse import ArgumentParser
 from inputparser import Parser
 from program.transformer import *
-from recurrences import RecBuilder
+from recurrences import RecBuilder, RecurrenceSolver
 from simulation import Simulator
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
@@ -172,8 +172,9 @@ def compute_moments(args):
             for goal in args.goals:
                 monom = sympify(goal)
                 recurrences = rec_builder.get_recurrences(monom)
-                print(recurrences.recurrence_dict)
-                print(recurrences.recurrence_matrix)
+                solver = RecurrenceSolver()
+                solver.set_recurrences(recurrences)
+                solver.solve()
 
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:

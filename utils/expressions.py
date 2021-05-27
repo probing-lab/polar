@@ -1,11 +1,17 @@
 from typing import List
 
-from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero, sympify
-from sympy import Rational
+from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
+from sympy import Rational, sympify
 
 
 def float_to_rational(expr: Expr):
     return sympy2symengine(Rational(str(expr)))
+
+
+def get_all_roots(poly: Expr):
+    poly = sympify(str(poly)).as_poly()
+    roots = poly.all_roots(multiple=False)
+    return [(sympy2symengine(r), m) for r, m in roots]
 
 
 def get_terms_with_var(poly: Expr, var: Symbol):

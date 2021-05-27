@@ -12,6 +12,7 @@ class Recurrences:
     recurrence_dict: Dict[Expr, Expr]
     init_values_dict: Dict[Expr, Expr]
     recurrence_matrix: Matrix
+    init_values_vector: Matrix
     variables: List[Expr]
     is_inhomogeneous = False
 
@@ -34,10 +35,22 @@ class Recurrences:
                     self.is_inhomogeneous = True
             coefficients.append(list(current_coeffs.values()))
 
+        initial_values = [self.init_values_dict[v] for v in self.variables]
+
         if self.is_inhomogeneous:
+            initial_values.append(One())
             for cs in coefficients:
                 if len(cs) == len(self.variables):
                     cs.append(Zero())
             coefficients.append([Zero() for _ in self.variables] + [One()])
 
+        self.init_values_vector = Matrix(initial_values)
         self.recurrence_matrix = Matrix(coefficients)
+
+    def get_values_up_to_n(self, n: int):
+        results = [self.init_values_vector]
+        last = self.init_values_vector
+        for _ in range(n):
+            last = self.recurrence_matrix * last
+            results.append(last)
+        return results

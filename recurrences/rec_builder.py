@@ -33,7 +33,6 @@ class RecBuilder:
                     to_process.add(monom)
 
         init_values_dict = self.get_initial_values(processed)
-        print(init_values_dict)
         return Recurrences(recurrence_dict, init_values_dict, self.program)
 
     @lru_cache(maxsize=None)
