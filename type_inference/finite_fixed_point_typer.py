@@ -125,7 +125,7 @@ class FiniteFixedPointTyper(Typer):
         # before its assignment in the loop body.
         running_symbols = set()
         for assign in self.program.loop_body:
-            running_symbols |= assign.get_free_symbols()
+            running_symbols |= assign.get_free_symbols(with_default=False)
             if assign.variable not in self.state:
                 values = {Symbol(str(assign.variable) + "0")} if assign.variable in running_symbols else set()
                 self.state[assign.variable] = Status(values, has_changed=True, is_locked=False, has_failed=False)

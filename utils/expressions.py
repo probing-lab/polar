@@ -5,18 +5,19 @@ from sympy import Rational, sympify, linsolve
 
 
 def float_to_rational(expr: Expr):
-    return sympy2symengine(Rational(str(expr)))
+    return sympy2symengine(Rational(sympify(expr)))
 
 
-def get_all_roots(poly: Expr):
-    poly = sympify(str(poly)).as_poly()
+def get_all_roots(poly: Expr, var: Symbol):
+    var = sympify(var)
+    poly = sympify(poly).as_poly(var)
     roots = poly.all_roots(multiple=False)
     return [(sympy2symengine(r), m) for r, m in roots]
 
 
 def solve_linear(equations, unknowns):
-    equations = [sympify(str(e)) for e in equations]
-    unknowns = [sympify(str(u)) for u in unknowns]
+    equations = [sympify(e) for e in equations]
+    unknowns = [sympify(u) for u in unknowns]
     sol = linsolve(equations, unknowns)
     sol = [sympy2symengine(s) for s in sol.args[0]]
     return sol

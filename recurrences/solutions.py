@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import List, Set
 
 from symengine.lib.symengine_wrapper import Expr, Symbol, Zero
@@ -10,6 +11,7 @@ from .recurrences import Recurrences
 class RecurrencesSolutions:
 
     n: Symbol
+    t: Symbol
     monomials: Set[Expr]
     recurrences: Recurrences
     characteristic_poly: Expr
@@ -25,11 +27,11 @@ class RecurrencesSolutions:
         self.__compute_general_solution__()
 
     def __compute_charcteristic_poly__(self):
-        self.characteristic_poly = characteristic_poly(self.recurrences.recurrence_matrix)
+        self.characteristic_poly, self.t = characteristic_poly(self.recurrences.recurrence_matrix)
 
     def __compute_general_solution__(self):
         unknowns = []
-        roots = get_all_roots(self.characteristic_poly)
+        roots = get_all_roots(self.characteristic_poly, self.t)
         solution = Zero()
         count = 0
         for root, multiplicity in roots:
@@ -42,6 +44,7 @@ class RecurrencesSolutions:
         self.gen_sol_unknowns = unknowns
         self.general_solution = solution
 
+    @lru_cache(maxsize=None)
     def get(self, monomial: Expr):
         if monomial not in self.monomials:
             raise SolverException(f"Monomial {monomial} not in current system of recurrences")
