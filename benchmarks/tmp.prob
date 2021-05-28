@@ -1,6 +1,6 @@
 x = 1
 y = 1
 while true:
-    x = x + y {1/3} x - y
+    x = x + a*y {1/3} x - b*y
     y = y + x {1/3} y - x
 end

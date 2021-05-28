@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from symengine.lib.symengine_wrapper import Matrix, Symbol, Expr, Zero, One
+from symengine.lib.symengine_wrapper import Matrix, Expr, Zero, One
 
 from program import Program
 from utils import get_monoms
@@ -30,10 +30,12 @@ class Recurrences:
             current_coeffs = default.copy()
             monoms = get_monoms(self.recurrence_dict[v], constant_symbols=self.program.symbols, with_constant=True)
             for coeff, monom in monoms:
-                current_coeffs[monom] = coeff
                 if monom == 1:
+                    current_coeffs[monom] = coeff
                     self.is_inhomogeneous = True
-            coefficients.append(list(current_coeffs.values()))
+                else:
+                    current_coeffs[monom] += coeff
+            coefficients.append([c.expand() for c in current_coeffs.values()])
 
         initial_values = [self.init_values_dict[v] for v in self.variables]
 
