@@ -18,7 +18,7 @@ class Uniform(Distribution):
 
     @lru_cache()
     def get_moment(self, k: int):
-        return (self.b ** (k+1) - self.a ** (k+1)) / ((k+1) * (self.a - self.b))
+        return (self.b ** (k+1) - self.a ** (k+1)) / ((k+1) * (self.b - self.a))
 
     def subs(self, substitutions):
         self.a = self.a.subs(substitutions)

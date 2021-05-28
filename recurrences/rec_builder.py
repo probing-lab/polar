@@ -45,6 +45,8 @@ class RecBuilder:
                 right_side = right_side.expand()
                 right_side = self.__replace_assign__(right_side, assignment).expand()
                 right_side = self.__reduce_powers__(right_side)
+
+        right_side = self.__reduce_powers__(right_side)
         return right_side.simplify()
 
     def __get_last_assign_index__(self, variables: Set[Symbol]):

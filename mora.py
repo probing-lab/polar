@@ -9,7 +9,7 @@ from symengine.lib.symengine_wrapper import sympify
 from argparse import ArgumentParser
 from inputparser import Parser
 from program.transformer import *
-from recurrences import RecBuilder, RecurrenceSolver
+from recurrences import RecBuilder, RecurrencesSolutions
 from simulation import Simulator
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
@@ -172,9 +172,8 @@ def compute_moments(args):
             for goal in args.goals:
                 monom = sympify(goal)
                 recurrences = rec_builder.get_recurrences(monom)
-                solver = RecurrenceSolver()
-                solver.set_recurrences(recurrences)
-                solver.solve()
+                solutions = RecurrencesSolutions(recurrences)
+                print(solutions.get(monom))
 
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:

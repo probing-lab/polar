@@ -1,7 +1,7 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, sympify
+from sympy import Rational, sympify, linsolve
 
 
 def float_to_rational(expr: Expr):
@@ -12,6 +12,14 @@ def get_all_roots(poly: Expr):
     poly = sympify(str(poly)).as_poly()
     roots = poly.all_roots(multiple=False)
     return [(sympy2symengine(r), m) for r, m in roots]
+
+
+def solve_linear(equations, unknowns):
+    equations = [sympify(str(e)) for e in equations]
+    unknowns = [sympify(str(u)) for u in unknowns]
+    sol = linsolve(equations, unknowns)
+    sol = [sympy2symengine(s) for s in sol.args[0]]
+    return sol
 
 
 def get_terms_with_var(poly: Expr, var: Symbol):
