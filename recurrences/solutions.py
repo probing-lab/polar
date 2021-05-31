@@ -64,15 +64,14 @@ class RecurrencesSolutions:
         monom_index = self.monom_to_index[monomial]
         concrete_values = [self.recurrences.init_values_vector]
         equations = []
-        for n in range(number_equations):
-            if n > 0:
-                concrete_values.append(self.recurrences.recurrence_matrix * concrete_values[-1])
+        for n in range(1, number_equations+1):
+            concrete_values.append(self.recurrences.recurrence_matrix * concrete_values[-1])
             eq = (self.general_solution.xreplace({self.n: n}) - concrete_values[n][monom_index]).expand()
             equations.append(eq)
         concrete_unknowns = solve_linear(equations, self.gen_sol_unknowns)
 
         not_solved = self.__any_is_still_unknown__(concrete_unknowns)
-        next_n = number_equations
+        next_n = number_equations+1
         while not_solved:
             concrete_values.append(self.recurrences.recurrence_matrix * concrete_values[-1])
             eq = (self.general_solution.xreplace({self.n: next_n}) - concrete_values[-1][monom_index]).expand()

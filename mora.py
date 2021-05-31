@@ -11,6 +11,7 @@ from inputparser import Parser
 from program.transformer import *
 from recurrences import RecBuilder, RecurrencesSolutions
 from simulation import Simulator
+from sympy import symbols, N
 
 arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
 
@@ -20,6 +21,14 @@ arg_parser.add_argument(
     type=str,
     nargs="+",
     help="A list of benchmarks to run MORA on"
+)
+
+arg_parser.add_argument(
+    "--eval_at_n",
+    dest="eval_at_n",
+    default=-1,
+    type=int,
+    help="Iteration number to evaluate the expressions at"
 )
 
 arg_parser.add_argument(
@@ -187,7 +196,10 @@ def compute_moments(args):
                 monom = sympify(goal)
                 recurrences = rec_builder.get_recurrences(monom)
                 solutions = RecurrencesSolutions(recurrences, args.numeric_roots, args.numeric_croots)
-                print(solutions.get(monom))
+                solution = solutions.get(monom)
+                print(solution)
+                if args.eval_at_n >= 0:
+                    print(N(solution.subs({symbols("n", integer=True, positive=True): args.eval_at_n})))
 
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:

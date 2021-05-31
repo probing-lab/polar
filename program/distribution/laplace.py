@@ -4,6 +4,7 @@ from symengine.lib.symengine_wrapper import Expr, oo, sympy2symengine
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import laplace
+from sympy import Rational
 from sympy.stats import E, Laplace as LaplaceRV
 
 
@@ -20,7 +21,7 @@ class Laplace(Distribution):
     @lru_cache()
     def get_moment(self, k: int):
         x = LaplaceRV("x", self.mu, self.b)
-        return sympy2symengine(E(x ** k))
+        return sympy2symengine(Rational(E(x ** k)))
 
     def is_discrete(self):
         return False
