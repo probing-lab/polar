@@ -17,6 +17,7 @@ class RecurrencesSolutions:
     characteristic_poly: Poly
     general_solution: Expr
     gen_sol_unknowns: List[Symbol]
+    gen_sol_unknowns_set: Set[Symbol]
     numeric_roots: bool
     numeric_croots: bool
 
@@ -46,6 +47,7 @@ class RecurrencesSolutions:
                     solution += term
                     count += 1
         self.gen_sol_unknowns = unknowns
+        self.gen_sol_unknowns_set = set(unknowns)
         self.general_solution = solution
 
     @lru_cache(maxsize=None)
@@ -84,6 +86,6 @@ class RecurrencesSolutions:
 
     def __any_is_still_unknown__(self, solutions):
         for s in solutions:
-            if s.is_Symbol and s in self.gen_sol_unknowns:
+            if s.free_symbols & set(self.gen_sol_unknowns_set):
                 return True
         return False
