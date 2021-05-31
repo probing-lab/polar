@@ -1,26 +1,26 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, sympify, linsolve
+from sympy import Rational, sympify, linsolve, Poly, N, ComplexRootOf
 
 
 def float_to_rational(expr: Expr):
     return sympy2symengine(Rational(sympify(expr)))
 
 
-def get_all_roots(poly: Expr, var: Symbol):
-    var = sympify(var)
-    poly = sympify(poly).as_poly(var)
+def get_all_roots(poly: Poly, numeric=False, numeric_croots=False):
     roots = poly.all_roots(multiple=False)
-    return [(sympy2symengine(r), m) for r, m in roots]
+    result = []
+    for r, m in roots:
+        if numeric or (numeric_croots and isinstance(r, ComplexRootOf)):
+            r = N(r)
+        result.append((r, m))
+    return result
 
 
 def solve_linear(equations, unknowns):
-    equations = [sympify(e) for e in equations]
-    unknowns = [sympify(u) for u in unknowns]
     sol = linsolve(equations, unknowns)
-    sol = [sympy2symengine(s) for s in sol.args[0]]
-    return sol
+    return sol.args[0]
 
 
 def get_terms_with_var(poly: Expr, var: Symbol):
@@ -89,7 +89,7 @@ def get_terms_with_vars(poly: Expr, variables: List[Symbol]):
     return result, rest
 
 
-def get_monoms(poly: Expr, constant_symbols=None, with_constant=False):
+def get_monoms(poly: Expr, constant_symbols=None, with_constant=False, zero=Zero(), one=One()):
     """
     For a given polynomial returns a list of its monomials with separated coefficients - (coeff, monom).
     The polynomial is assumed to be in all symbols it contains minus constant_symbols.
@@ -99,15 +99,15 @@ def get_monoms(poly: Expr, constant_symbols=None, with_constant=False):
         constant_symbols = set()
 
     monoms = []
-    constant = Zero()
+    constant = zero
     terms = poly.args if poly.is_Add else [poly]
     for term in terms:
         if not term.free_symbols.difference(constant_symbols):
             constant += term
             continue
 
-        coeff = One()
-        monom = One()
+        coeff = one
+        monom = one
         parts = term.args if term.is_Mul else [term]
         for part in parts:
             if part.free_symbols.difference(constant_symbols):

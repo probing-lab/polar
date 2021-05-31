@@ -92,6 +92,20 @@ arg_parser.add_argument(
     help="Number of iterations in the fixedpoint computation of the type inference"
 )
 
+arg_parser.add_argument(
+    "--numeric_roots",
+    action="store_true",
+    default=False,
+    help="If set the roots in the recurrence computation will be computed numerically"
+)
+
+arg_parser.add_argument(
+    "--numeric_croots",
+    action="store_true",
+    default=False,
+    help="If set the complex roots in the recurrence computation will be computed numerically"
+)
+
 
 def main():
     args = arg_parser.parse_args()
@@ -172,7 +186,7 @@ def compute_moments(args):
             for goal in args.goals:
                 monom = sympify(goal)
                 recurrences = rec_builder.get_recurrences(monom)
-                solutions = RecurrencesSolutions(recurrences)
+                solutions = RecurrencesSolutions(recurrences, args.numeric_roots, args.numeric_croots)
                 print(solutions.get(monom))
 
             print(f"Elapsed time: {time.time() - start} s")
