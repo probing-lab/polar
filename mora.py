@@ -115,6 +115,14 @@ arg_parser.add_argument(
     help="If set the complex roots in the recurrence computation will be computed numerically"
 )
 
+arg_parser.add_argument(
+    "--numeric_eps",
+    dest="numeric_eps",
+    default=1e-10,
+    type=float,
+    help="Interval epsilon for the potential approximation of roots"
+)
+
 
 def main():
     args = arg_parser.parse_args()
@@ -195,12 +203,18 @@ def compute_moments(args):
             for goal in args.goals:
                 monom = sympify(goal)
                 recurrences = rec_builder.get_recurrences(monom)
-                solutions = RecurrencesSolutions(recurrences, args.numeric_roots, args.numeric_croots)
+                solutions = RecurrencesSolutions(recurrences, args.numeric_roots, args.numeric_croots, args.numeric_eps)
                 solution = solutions.get(monom)
+                print(f"E({goal}) = ")
                 print(solution)
+                print()
                 if args.eval_at_n >= 0:
                     print(N(solution.subs({symbols("n", integer=True, positive=True): args.eval_at_n})))
 
+                if solutions.is_exact:
+                    print("Solutions are exact")
+                else:
+                    print("Solutions are rounded")
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:
             print(e)

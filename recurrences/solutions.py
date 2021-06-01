@@ -20,12 +20,15 @@ class RecurrencesSolutions:
     gen_sol_unknowns_set: Set[Symbol]
     numeric_roots: bool
     numeric_croots: bool
+    numeric_eps: float
+    is_exact: bool
 
-    def __init__(self, recurrences: Recurrences, numeric_roots: bool, numeric_croots: bool):
+    def __init__(self, recurrences: Recurrences, numeric_roots: bool, numeric_croots: bool, numeric_eps: float):
         self.n = symbols("n", integer=True, positive=True)
         self.recurrences = recurrences
         self.numeric_roots = numeric_roots
         self.numeric_croots = numeric_croots
+        self.numeric_eps = numeric_eps
         self.monomials = set(recurrences.variables)
         self.monom_to_index = {m: i for m, i in zip(recurrences.variables, range(len(recurrences.variables)))}
         self.characteristic_poly = self.recurrences.recurrence_matrix.charpoly()
@@ -33,7 +36,8 @@ class RecurrencesSolutions:
 
     def __compute_general_solution__(self):
         unknowns = []
-        roots = get_all_roots(self.characteristic_poly, self.numeric_roots, self.numeric_croots)
+        roots, self.is_exact = get_all_roots(
+            self.characteristic_poly, self.numeric_roots, self.numeric_croots, self.numeric_eps)
         solution = sympify(0)
         count = 0
         for root, multiplicity in roots:

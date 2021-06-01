@@ -8,18 +8,26 @@ def float_to_rational(expr: Expr):
     return sympy2symengine(Rational(sympify(expr)))
 
 
-def get_all_roots(poly: Poly, numeric=False, numeric_croots=False):
+def get_all_roots(poly: Poly, numeric=False, numeric_croots=False, eps=1e-10):
+    exact = True
+
     if numeric:
-        roots = poly.intervals(eps=1e-10)
-        return [((h + l) / 2, m) for (h, l), m in roots]
+        roots = poly.intervals(eps=eps)
+        result = []
+        for (h, l), m in roots:
+            result.append(((h + l) / 2, m))
+            if h != l:
+                exact = False
+        return result, exact
 
     roots = poly.all_roots(multiple=False)
     result = []
     for r, m in roots:
         if numeric_croots and isinstance(r, ComplexRootOf):
             r = N(r)
+            exact = False
         result.append((r, m))
-    return result
+    return result, exact
 
 
 def solve_linear(equations, unknowns):
