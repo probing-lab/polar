@@ -9,10 +9,14 @@ def float_to_rational(expr: Expr):
 
 
 def get_all_roots(poly: Poly, numeric=False, numeric_croots=False):
+    if numeric:
+        roots = poly.intervals(eps=1e-10)
+        return [((h + l) / 2, m) for (h, l), m in roots]
+
     roots = poly.all_roots(multiple=False)
     result = []
     for r, m in roots:
-        if numeric or (numeric_croots and isinstance(r, ComplexRootOf)):
+        if numeric_croots and isinstance(r, ComplexRootOf):
             r = N(r)
         result.append((r, m))
     return result
