@@ -1,12 +1,9 @@
-types
-    x1: Finite(0,1)
-    x2: Finite(0,1)
-    x3: Finite(0,1)
-end
-
 x1 = 1
+token1 = 1
 x2 = 1
+token2 = 1
 x3 = 1
+token3 = 1
 while true:
     x1o, x2o, x3o = x1, x2, x3
 
@@ -27,4 +24,24 @@ while true:
     else:
         x3 = x2o
     end
+
+    if x1 == x3:
+        token1 = 1
+    else:
+        token1 = 0
+    end
+
+    if x2 == x1:
+        token2 = 1
+    else:
+        token2 = 0
+    end
+
+    if x3 == x2:
+        token3 = 1
+    else:
+        token3 = 0
+    end
+
+    numtokens = token1 + token2 + token3
 end

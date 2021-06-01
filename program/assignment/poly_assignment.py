@@ -51,7 +51,10 @@ class PolyAssignment(Assignment):
         return symbols
 
     def get_support(self):
-        return set(self.polynomials)
+        result = set(self.polynomials)
+        if not isinstance(self.condition, TrueCond):
+            result.add(self.default)
+        return result
 
     def evaluate_right_side(self, state):
         probabilities = []
