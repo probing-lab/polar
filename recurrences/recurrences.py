@@ -10,7 +10,6 @@ class Recurrences:
     """
     Class for storing a system of recurrences. The class uses (and converts everything to) sympy
     """
-
     program: Program
     recurrence_dict: Dict[Expr, Expr]
     init_values_dict: Dict[Expr, Expr]
@@ -27,9 +26,14 @@ class Recurrences:
         self.__init_data__()
 
     def __init_data__(self):
+        """
+        Initializes the recurrence matrix as well as the initial value vector
+        """
         coefficients = []
         default = {w: sympify(0) for w in self.variables}
         for v in self.variables:
+            # Every variable is described by one recurrence relation depending on other variables
+            # So in every row we collect the dependency coefficients
             current_coeffs = default.copy()
             monoms = get_monoms(
                 self.recurrence_dict[v],
@@ -38,6 +42,7 @@ class Recurrences:
                 zero=sympify(0), one=sympify(1)
             )
             for coeff, monom in monoms:
+                # one monom might appear multiple times in monoms
                 if monom == 1:
                     current_coeffs[monom] = coeff
                     self.is_inhomogeneous = True
@@ -47,6 +52,8 @@ class Recurrences:
 
         initial_values = [self.init_values_dict[v] for v in self.variables]
 
+        # If the system is inhomogeneous (constant inhomogeneous part). Then we need to fill
+        # up those recurrence coefficients which are homogeneous with "0".
         if self.is_inhomogeneous:
             initial_values.append(sympify(1))
             for cs in coefficients:
