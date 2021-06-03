@@ -9,7 +9,8 @@ from symengine.lib.symengine_wrapper import sympify
 from argparse import ArgumentParser
 from inputparser import Parser
 from program.transformer import *
-from recurrences import RecBuilder, RecurrencesSolutions
+from recurrences import RecBuilder
+from recurrences.solver import RecurrenceSolver
 from simulation import Simulator
 from sympy import symbols, N
 
@@ -203,15 +204,15 @@ def compute_moments(args):
             for goal in args.goals:
                 monom = sympify(goal)
                 recurrences = rec_builder.get_recurrences(monom)
-                solutions = RecurrencesSolutions(recurrences, args.numeric_roots, args.numeric_croots, args.numeric_eps)
-                solution = solutions.get(monom)
+                solver = RecurrenceSolver(recurrences, args.numeric_roots, args.numeric_croots, args.numeric_eps)
+                solution = solver.get(monom)
                 print(f"E({goal}) = ")
                 print(solution)
                 print()
                 if args.eval_at_n >= 0:
                     print(N(solution.subs({symbols("n", integer=True, positive=True): args.eval_at_n})))
 
-                if solutions.is_exact:
+                if solver.is_exact:
                     print("Solutions are exact")
                 else:
                     print("Solutions are rounded")

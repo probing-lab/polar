@@ -35,6 +35,19 @@ def solve_linear(equations, unknowns):
     return sol.args[0]
 
 
+def without_piecewise(expr):
+    """
+    Removes the Piecewise from an expression by assuming that all restricting assumptions are false.
+    """
+    if not expr.args:
+        return expr
+
+    if expr.is_Piecewise:
+        return without_piecewise(expr.args[-1].expr)
+
+    return expr.func(*[without_piecewise(a) for a in expr.args])
+
+
 def get_terms_with_var(poly: Expr, var: Symbol):
     """
     For a polynomial (flattened expression) and a given variable var returns a list of all

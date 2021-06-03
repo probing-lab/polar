@@ -3,12 +3,13 @@ from typing import List, Set
 
 from sympy import symbols, Symbol, Expr, Poly, sympify
 
+from .solver import Solver
 from utils import get_all_roots, solve_linear
-from .exceptions import SolverException
-from .recurrences import Recurrences
+from recurrences.exceptions import SolverException
+from recurrences import Recurrences
 
 
-class RecurrencesSolutions:
+class CyclicSolver(Solver):
 
     n: Symbol
     t: Symbol
@@ -21,7 +22,7 @@ class RecurrencesSolutions:
     numeric_roots: bool
     numeric_croots: bool
     numeric_eps: float
-    is_exact: bool
+    __is_exact: bool
 
     def __init__(self, recurrences: Recurrences, numeric_roots: bool, numeric_croots: bool, numeric_eps: float):
         self.n = symbols("n", integer=True, positive=True)
@@ -29,14 +30,14 @@ class RecurrencesSolutions:
         self.numeric_roots = numeric_roots
         self.numeric_croots = numeric_croots
         self.numeric_eps = numeric_eps
-        self.monomials = set(recurrences.variables)
-        self.monom_to_index = {m: i for m, i in zip(recurrences.variables, range(len(recurrences.variables)))}
+        self.monomials = set(recurrences.monomials)
+        self.monom_to_index = {m: i for m, i in zip(recurrences.monomials, range(len(recurrences.monomials)))}
         self.characteristic_poly = self.recurrences.recurrence_matrix.charpoly()
         self.__compute_general_solution__()
 
     def __compute_general_solution__(self):
         unknowns = []
-        roots, self.is_exact = get_all_roots(
+        roots, self.__is_exact = get_all_roots(
             self.characteristic_poly, self.numeric_roots, self.numeric_croots, self.numeric_eps)
         solution = sympify(0)
         count = 0
@@ -53,6 +54,10 @@ class RecurrencesSolutions:
         self.gen_sol_unknowns = unknowns
         self.gen_sol_unknowns_set = set(unknowns)
         self.general_solution = solution
+
+    @property
+    def is_exact(self) -> bool:
+        return self.__is_exact
 
     @lru_cache(maxsize=None)
     def get(self, monomial):
