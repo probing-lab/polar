@@ -21,8 +21,8 @@ class UpdateInfoTransformer(Transformer):
         return program
 
     def __set_variables_and_symbols__(self):
-        variables_initial = self.__get_all_variables__(self.program.initial)
-        variables_body = self.__get_all_variables__(self.program.loop_body)
+        variables_initial = [a.variable for a in self.program.initial]
+        variables_body = [a.variable for a in self.program.loop_body]
         self.program.variables = set(variables_initial) | set(variables_body)
         self.program.var_to_index = {v: i for i, v in enumerate(variables_body)}
         self.program.index_to_var = {i: v for i, v in enumerate(variables_body)}
@@ -55,9 +55,6 @@ class UpdateInfoTransformer(Transformer):
             if info1.ancestors & info2.ancestors:
                 info1.dependencies.add(v2)
                 info2.dependencies.add(v1)
-
-    def __get_all_variables__(self, assignments):
-        return [a.variable for a in assignments]
 
     def __get_all_symbols__(self, assignments):
         all_symbols = set()

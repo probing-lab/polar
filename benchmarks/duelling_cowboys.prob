@@ -1,0 +1,21 @@
+turn = 0
+continue = 1
+ahit = 0
+bhit = 0
+while continue >= 0:
+    if turn == 0:
+        ahit = Bernoulli(a)
+        if ahit == 1:
+            continue = 0
+        else:
+            turn = 1
+        end
+    else:
+        bhit = Bernoulli(b)
+        if bhit == 1:
+            continue = 0
+        else:
+            turn = 1
+        end
+    end
+end

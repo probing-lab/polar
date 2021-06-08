@@ -186,6 +186,8 @@ def compute_moments(args):
             # Update program info like variables and symbols
             program = UpdateInfoTransformer().execute(program)
 
+            print(program)
+
             # Infer types for variables
             if not args.disable_type_inference:
                 program = TypeInferer(args.type_fp_iterations).execute(program)
