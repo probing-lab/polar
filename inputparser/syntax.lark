@@ -16,7 +16,7 @@ atom: arithm COP arithm | TRUE | FALSE
 ?statem: assign
        | if_statem
 
-if_statem: "if" condition ":" (_NL)+ statems ("else if" condition ":" (_NL)+ statems)* ["else" ":" (_NL)+ statems] "end"
+if_statem: "if" condition ":" (_NL)+ statems ("elif" condition ":" (_NL)+ statems)* ["else" ":" (_NL)+ statems] "end"
 statems: statem ((_NL)+ statem)* (_NL)+
 
 program: [typedefs] initial "while" loop_guard ":" loop_body "end"

@@ -157,5 +157,5 @@ class StructureTransformer(Transformer):
 
             new_var = get_unique_var(name="t")
             assignments1.append(self.assign([Token(b"VARIABLE", new_var), Token(b"ASSIGN", "="), value]))
-            assignments1.append(self.assign([var, Token(b"ASSIGN", "="), new_var]))
+            assignments2.append(self.assign([var, Token(b"ASSIGN", "="), new_var]))
         return assignments1 + assignments2

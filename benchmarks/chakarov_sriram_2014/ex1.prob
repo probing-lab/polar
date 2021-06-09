@@ -1,0 +1,12 @@
+x = -5 {1/2} 3
+y = -3 {1/2} 5
+count = 0
+while x + y <= 10:
+    flip = Bernoulli(3/4)
+    if flip == 1:
+        change = 0 {1/2} 2
+        x = x + change
+        y = y + 2
+    end
+    count = count + 1
+end

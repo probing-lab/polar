@@ -13,13 +13,16 @@ class Categorical(Distribution):
     def set_parameters(self, parameters):
         if len(parameters) == 0:
             raise RuntimeError("Categorical distribution requires >=1 parameters")
-        self.probabilities = [p for p in parameters]
+        s = sum(parameters)
+        if s.is_Number and s != 1:
+            raise RuntimeError("Categorical distribution parameters need to sum up to 1")
+        self.probabilities = parameters
 
     @lru_cache()
     def get_moment(self, k: int):
         m = 0
         for i, p in enumerate(self.probabilities):
-            m += i*p
+            m += (i ** k) * p
         return m
 
     def is_discrete(self):
