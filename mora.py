@@ -183,6 +183,9 @@ def compute_moments(args):
             # Create aliases for expressions in conditions.
             program = ConditionsReducer().execute(program)
 
+            # Replace/Add constants in loop body
+            program = ConstantsTransformer().execute(program)
+
             # Update program info like variables and symbols
             program = UpdateInfoTransformer().execute(program)
 
