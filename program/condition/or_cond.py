@@ -32,7 +32,7 @@ class Or(Condition):
         self.cond2.subs(substitutions)
 
     def evaluate(self, state):
-        return self.cond1.evaluate(state) or self.cond1.evaluate(state)
+        return self.cond1.evaluate(state) or self.cond2.evaluate(state)
 
     def to_arithm(self, p):
         not_cond1 = 1 - self.cond1.to_arithm(p)

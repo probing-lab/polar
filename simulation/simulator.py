@@ -35,7 +35,7 @@ class Simulator:
 
     @singledispatchmethod
     def execute(self, program_element, state: Dict[Symbol, float]):
-        return state
+        raise RuntimeError(f"Unknown program element in simulation, {program_element}")
 
     @execute.register
     def _(self, program_element: list, state: Dict[Symbol, float]):

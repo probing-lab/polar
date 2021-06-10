@@ -32,7 +32,7 @@ class And(Condition):
         self.cond2.subs(substitutions)
 
     def evaluate(self, state):
-        return self.cond1.evaluate(state) and self.cond1.evaluate(state)
+        return self.cond1.evaluate(state) and self.cond2.evaluate(state)
 
     def get_conjuncts(self):
         return self.cond1.get_conjuncts() + self.cond2.get_conjuncts()
