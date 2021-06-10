@@ -50,6 +50,7 @@ class Simulator:
                 return self.execute(program_element.branches[i], state)
         if program_element.else_branch:
             return self.execute(program_element.else_branch, state)
+        return state
 
     @execute.register
     def _(self, program_element: Assignment, state: Dict[Symbol, float]):

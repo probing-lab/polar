@@ -35,7 +35,7 @@ class FiniteFixedPointTyper(Typer):
     # After this many iterations. Variables which change are considered to have failed.
     iterations: int
 
-    def __init__(self, iterations=100, max_values_before_fail=20):
+    def __init__(self, iterations=100, max_values_before_fail=25):
         self.iterations = iterations
         self.max_values_before_fail = max_values_before_fail
 

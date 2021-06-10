@@ -158,6 +158,7 @@ def simulate(args):
             print(f"Elapsed time: {time.time() - start} s")
         except Exception as e:
             print(e)
+            raise e
             exit()
 
 

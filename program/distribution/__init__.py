@@ -5,12 +5,14 @@ from .normal import Normal
 from .laplace import Laplace
 from .exponential import Exponential
 from .uniform import Uniform
+from .discrete_uniform import DiscreteUniform
 
 __distributions__ = {
     "Bernoulli": Bernoulli,
     "Normal": Normal,
     "Categorical": Categorical,
     "Uniform": Uniform,
+    "DiscreteUniform": DiscreteUniform,
     "Laplace": Laplace,
     "Exponential": Exponential
 }
