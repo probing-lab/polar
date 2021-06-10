@@ -1,0 +1,8 @@
+while 0 < n && 0 < m:
+    case = Bernoulli(1/2)
+    if case == 0:
+        n = n - 1
+    else:
+        m = m - 1
+    end
+end

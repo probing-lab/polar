@@ -1,0 +1,7 @@
+while x + 3 <= n:
+    if y < m:
+        y = y + 1 {1/2} y
+    else:
+        x = x {1/4} x + 1 {1/4} x + 2 {1/4} x + 3
+    end
+end

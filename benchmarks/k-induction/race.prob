@@ -1,0 +1,9 @@
+r = 0
+while h <= t:
+    flip = Bernoulli(1/2)
+    if flip == 1:
+        r = Categorical(1/11, 1/11, 1/11, 1/11, 1/11, 1/11, 1/11, 1/11, 1/11, 1/11, 1/11)
+        h = h + r
+    end
+    t = t + 1
+end

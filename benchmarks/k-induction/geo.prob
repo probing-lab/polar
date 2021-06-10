@@ -1,0 +1,8 @@
+while f == 1:
+    case = Bernoulli(1/2)
+    if case == 1:
+        f = 0
+    else:
+        c = c + 1
+    end
+end

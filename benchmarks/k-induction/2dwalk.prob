@@ -1,0 +1,16 @@
+x = 0
+y = 0
+distance = 0
+while distance < n:
+    direction = Categorical(1/4, 1/4, 1/4, 1/4)
+    step = Uniform(0, 2)
+    if direction == 0:
+        x = x + step
+    elif direction == 1:
+        x = x - step
+    elif direction == 2:
+        y = y + step
+    elif direction == 3:
+        y = y - step
+    end
+end

@@ -1,0 +1,4 @@
+while x < n:
+    r = Bernoulli(1/2)
+    x = x + r
+end

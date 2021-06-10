@@ -1,0 +1,39 @@
+types
+    l: Finite(0, 1)
+    g: Finite(0, 1)
+    s: Finite(0, 1)
+end
+l = 0
+g = 0
+s = 0
+i = 0
+d = 0
+n = 100
+while true:
+    i = Bernoulli(1/3)
+    d = Bernoulli(2/5)
+    if i == 0 && d == 0:
+        g = Bernoulli(7/10)
+    else:
+        if i == 0 && d == 1:
+            g = Bernoulli(19/20)
+        else:
+            if i == 1 && d == 0:
+                g = Bernoulli(1/10)
+            else:
+                g = Bernoulli(1/2)
+            end
+        end
+    end
+    if i == 0:
+        s = Bernoulli(1/20)
+    else:
+        s = Bernoulli(4/5)
+    end
+    if g == 0:
+        l = Bernoulli(1/10)
+    else:
+        l = Bernoulli(3/5)
+    end
+    n = n - 1
+end

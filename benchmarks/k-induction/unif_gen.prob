@@ -1,0 +1,21 @@
+elow = elow0
+ehigh = ehigh0
+n = ehigh - elow + 1
+c = 0
+running = 0
+while running == 0:
+    v = 2*v
+    c = 2*c + 1 {1/2} 2*c
+    if v >= n:
+        if n > c:
+            running = 1
+        else:
+            v = v - n
+            c = c - n
+        end
+    end
+
+    if running /= 0:
+        c = elow + c
+    end
+end
