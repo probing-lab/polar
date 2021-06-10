@@ -1,0 +1,6 @@
+x = 0
+n = 0
+while n - m + 1 <= 0:
+    x = x + 1 {p} x
+    n = n + 1
+end

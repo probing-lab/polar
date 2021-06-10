@@ -1,8 +1,6 @@
 turn = 0
 continue = 1
-ahit = 0
-bhit = 0
-while continue >= 0:
+while continue == 1:
     if turn == 0:
         ahit = Bernoulli(a)
         if ahit == 1:
@@ -15,7 +13,7 @@ while continue >= 0:
         if bhit == 1:
             continue = 0
         else:
-            turn = 1
+            turn = 0
         end
     end
 end

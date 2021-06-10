@@ -1,11 +1,11 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, sympify, linsolve, Poly, N, ComplexRootOf
+from sympy import Rational, linsolve, Poly, N, ComplexRootOf
 
 
 def float_to_rational(expr: Expr):
-    return sympy2symengine(Rational(sympify(expr)))
+    return sympy2symengine(Rational(str(expr)))
 
 
 def get_all_roots(poly: Poly, numeric=False, numeric_croots=False, eps=1e-10):

@@ -1,0 +1,8 @@
+x = 0
+flip = 0
+while flip == 0:
+    flip = Bernoulli(p)
+    if flip == 0:
+        x = x + 1
+    end
+end

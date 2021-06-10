@@ -1,0 +1,5 @@
+counter = 0
+while x > 0 && x < m:
+    x = x + 1 {p} x - 1
+    counter = counter + 1
+end
