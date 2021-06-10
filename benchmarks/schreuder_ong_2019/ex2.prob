@@ -1,0 +1,6 @@
+while x <= 10:
+    a = Normal(u1, s1)
+    b = Normal(u2, s2)
+    x = x + a*x*y
+    y = y + b*x*y
+end
