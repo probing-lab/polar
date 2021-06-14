@@ -1,6 +1,6 @@
 from functools import lru_cache
 from typing import Set, List
-from symengine.lib.symengine_wrapper import Expr, Symbol
+from symengine.lib.symengine_wrapper import Expr, Symbol, sympify
 from program import Program
 from program.assignment import Assignment
 from program.type import Finite
@@ -20,6 +20,7 @@ class RecBuilder:
 
     @lru_cache(maxsize=None)
     def get_recurrences(self, monomial: Expr) -> Recurrences:
+        monomial = sympify(monomial)
         to_process = {monomial}
         processed = set()
         recurrence_dict = {}
