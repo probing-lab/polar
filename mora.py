@@ -11,8 +11,9 @@ from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
+from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
+from sympy import N
 from simulation import Simulator
-from sympy import symbols, sympify, simplify, Piecewise
 from utils import indent_string
 from termcolor import colored
 
@@ -172,9 +173,8 @@ def simulate(args):
             print()
 
             for goal, mean in result.get_average_goals().items():
-                goal = sympify(goal)
-                if goal.is_Piecewise:
-                    print(f"P({goal.args[0].cond}) = {mean}")
+                if isinstance(goal, Piecewise):
+                    print(f"P({goal.args[1]}) = {mean}")
                 else:
                     print(f"E({goal}) = {mean}")
             print()
@@ -212,6 +212,7 @@ def compute_symbolically(args):
                     raise RuntimeError(f"Goal type {goal_type} does not exist.")
         except Exception as e:
             print(e)
+            raise e
             exit()
 
 
@@ -224,8 +225,8 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        moment_at_n = moment.subs({symbols("n", integer=True, positive=True): args.at_n})
-        print(f"E({monom} | n={args.at_n}) = {moment_at_n}")
+        moment_at_n = moment.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        print(f"E({monom} | n={args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
     print()
 
 
@@ -253,15 +254,16 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args):
         print(colored("Solution is rounded", "yellow"))
 
     if args.at_n >= 0:
-        bounds_at_n = [b.subs({symbols("n", integer=True, positive=True): args.at_n}) for b in bounds]
+        bounds_at_n = [b.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand() for b in bounds]
         can_take_min = all([not b.free_symbols for b in bounds_at_n])
         if can_take_min:
-            print(f"P({monom} >= {a} | n={args.at_n}) <= {min(bounds_at_n)}")
+            bound_at_n = min(bounds_at_n)
+            print(f"P({monom} >= {a} | n={args.at_n}) <= {bound_at_n} ≅ {N(bound_at_n)}")
         else:
             print(f"P({monom} >= {a} | n={args.at_n}) <= minimum of")
             count = 1
             for bound_at_n in bounds_at_n:
-                print(indent_string(f"({count}) {bound_at_n}", 4))
+                print(indent_string(f"({count}) {bound_at_n} ≅ {N(bound_at_n)}", 4))
                 count += 1
     print()
 
@@ -270,7 +272,8 @@ def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args):
     monom, a = goal_data[0], goal_data[1]
     second_moment, is_exact2 = get_moment(monom ** 2, solvers, rec_builder, args)
     first_moment, is_exact1 = get_moment(monom, solvers, rec_builder, args)
-    bound = simplify(((first_moment - a) ** 2) / (second_moment - 2*a*first_moment + a**2))
+    bound = ((first_moment - a) ** 2) / (second_moment - 2*a*first_moment + a**2)
+    bound = bound.simplify()
     print(f"Assuming {monom - a} is non-negative.")
     print(f"P({monom} > {a}) >= {bound}")
     if is_exact1 and is_exact2:
@@ -278,8 +281,8 @@ def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        bound_at_n = bound.subs({symbols("n", integer=True, positive=True): args.at_n})
-        print(f"P({monom} > {a} | n={args.at_n}) >= {bound_at_n}")
+        bound_at_n = bound.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        print(f"P({monom} > {a} | n={args.at_n}) >= {bound_at_n} ≅ {N(bound_at_n)}")
     print()
 
 
@@ -287,10 +290,10 @@ def get_moment(monom, solvers, rec_builder, args):
     if monom not in solvers:
         recurrences = rec_builder.get_recurrences(monom)
         s = RecurrenceSolver(recurrences, args.numeric_roots, args.numeric_croots, args.numeric_eps)
-        solvers.update({m: s for m in recurrences.monomials})
+        solvers.update({sympify(m): s for m in recurrences.monomials})
 
     solver = solvers[monom]
-    return solver.get(monom), solver.is_exact
+    return sympify(solver.get(monom)), solver.is_exact
 
 
 def prepare_program(benchmark, args):

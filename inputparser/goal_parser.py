@@ -1,5 +1,5 @@
 from .exceptions import ParseException
-from sympy import sympify
+from symengine.lib.symengine_wrapper import sympify
 
 MOMENT = "MOMENT"
 TAIL_BOUND_UPPER = "TAIL_BOUND_UPPER"
@@ -10,6 +10,10 @@ class GoalParser:
 
     @staticmethod
     def parse(goal: str):
+        # TODO: makes this nice
+        if goal.endswith(" >= ?") or goal.endswith(" <= ?"):
+            goal = goal[0:-5]
+
         if len(goal) < 3 or goal[1] != "(" or goal[-1] != ")":
             raise ParseException(f"Malformed goal {goal}")
 
