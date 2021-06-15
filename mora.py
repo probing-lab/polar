@@ -212,7 +212,6 @@ def compute_symbolically(args):
                     raise RuntimeError(f"Goal type {goal_type} does not exist.")
         except Exception as e:
             print(e)
-            raise e
             exit()
 
 
