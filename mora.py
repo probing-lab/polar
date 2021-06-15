@@ -12,7 +12,7 @@ from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from simulation import Simulator
-from sympy import symbols, simplify
+from sympy import symbols, sympify, simplify, Piecewise
 from utils import indent_string
 from termcolor import colored
 
@@ -77,11 +77,9 @@ arg_parser.add_argument(
 
 arg_parser.add_argument(
     "--plot",
-    dest="plot",
-    type=str,
-    default=[],
-    nargs="+",
-    help="A list of moments MORA should plot. Only available in simulation mode."
+    action="store_true",
+    default=False,
+    help="Flag to plot the simulation results"
 )
 
 arg_parser.add_argument(
@@ -155,18 +153,35 @@ def simulate(args):
             print(program)
             print()
 
+            goals = []
+            for goal in args.goals:
+                goal_type, goal_data = GoalParser.parse(goal)
+                if goal_type == MOMENT:
+                    goals.append(goal_data[0])
+                if goal_type == TAIL_BOUND_UPPER:
+                    goals.append(Piecewise((1, goal_data[0] >= goal_data[1]), (0, True)))
+                if goal_type == TAIL_BOUND_LOWER:
+                    goals.append(Piecewise((1, goal_data[0] > goal_data[1]), (0, True)))
+
+            simulator = Simulator(args.simulation_iter)
+            result = simulator.simulate(program, goals, args.number_samples)
+
             print(colored("---------------------", "cyan"))
             print(colored("- Simulation Result -", "cyan"))
             print(colored("---------------------", "cyan"))
             print()
 
-            simulator = Simulator(args.simulation_iter)
-            result = simulator.simulate(program, args.goals, args.number_samples)
             for goal, mean in result.get_average_goals().items():
-                print(f"Mean {goal}: {mean}")
+                goal = sympify(goal)
+                if goal.is_Piecewise:
+                    print(f"P({goal.args[0].cond}) = {mean}")
+                else:
+                    print(f"E({goal}) = {mean}")
+            print()
 
-            for plot in args.plot:
-                result.plot_animated(plot)
+            if args.plot:
+                for goal in goals:
+                    result.plot_animated(goal)
 
         except Exception as e:
             print(e)

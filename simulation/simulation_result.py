@@ -5,9 +5,9 @@ import matplotlib
 
 from typing import Dict, List
 from statistics import mean
-from symengine.lib.symengine_wrapper import sympify
+from symengine.lib.symengine_wrapper import sympify, Expr, Piecewise
 
-State = Dict[str, float]
+State = Dict[Expr, float]
 Run = List[State]
 
 
@@ -17,11 +17,11 @@ class SimulationResult:
     """
 
     samples: List[Run]
-    goals: List[str]
+    goals: List[Expr]
 
-    def __init__(self, samples: List[Run], goals: List[str]):
+    def __init__(self, samples: List[Run], goals: List):
         self.samples = samples
-        self.goals = goals
+        self.goals = [sympify(g) for g in goals]
         self.__preprocess_samples__()
 
     def __preprocess_samples__(self):
@@ -29,7 +29,7 @@ class SimulationResult:
         for run in self.samples:
             new_run = []
             for state in run:
-                state = {str(k): v for k, v in state.items()}
+                state = {sympify(k): v for k, v in state.items()}
                 goal_values = {g: float(sympify(g).subs(state)) for g in self.goals}
                 state.update(goal_values)
                 new_run.append(state)
@@ -42,7 +42,8 @@ class SimulationResult:
             result[goal] = mean([run[iteration][goal] for run in self.samples])
         return result
 
-    def get_prepared_data(self, goal: str):
+    def get_prepared_data(self, goal):
+        goal = sympify(goal)
         data = []
         for run in self.samples:
             run_data = []
@@ -52,7 +53,8 @@ class SimulationResult:
 
         return np.array(data).T
 
-    def plot_animated(self, goal: str):
+    def plot_animated(self, goal):
+        goal = sympify(goal)
         matplotlib.use("TkAgg")
         data = self.get_prepared_data(goal)
         number_iter, number_samples = data.shape
@@ -71,6 +73,7 @@ class SimulationResult:
         ax.set_ylim(top=number_samples/2)
         interval = 30000 / number_iter
         ani = animation.FuncAnimation(fig, func=prepare_animation(bar_container), interval=interval, frames=number_iter, repeat=False)
-        plt.xlabel(f"Empirical distribution of {goal}")
+        description = f"[{goal.args[1]}]" if isinstance(goal, Piecewise) else str(goal)
+        plt.xlabel(f"Empirical distribution of {description}")
         plt.ylabel("Counts")
         plt.show()

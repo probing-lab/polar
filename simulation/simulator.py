@@ -18,7 +18,7 @@ class Simulator:
     def __init__(self, iterations: int):
         self.iterations = iterations
 
-    def simulate(self, program: Program, goals: List[str], samples: int):
+    def simulate(self, program: Program, goals: List, samples: int):
         result = []
         sample_bar = Bar("Computing samples", max=samples)
         for _ in range(samples):
