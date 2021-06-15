@@ -27,6 +27,7 @@ class RecBuilder:
         while to_process:
             next_monom = to_process.pop()
             recurrence_dict[next_monom] = self.get_recurrence(next_monom)
+            print(f"{next_monom} = {recurrence_dict[next_monom]}")
             processed.add(next_monom)
             monoms = get_monoms(recurrence_dict[next_monom], constant_symbols=self.program.symbols)
             for _, monom in monoms:
