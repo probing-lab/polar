@@ -2,16 +2,17 @@
 
 This runnable script allows the user to run MORA on probabilistic programs stored in files
 For the command line arguments run the script with "--help".
+#TODO: cleanup this file
 """
 import glob
 import time
 from argparse import ArgumentParser
-from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND
+from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from simulation import Simulator
-from sympy import symbols
+from sympy import symbols, simplify
 from utils import indent_string
 from termcolor import colored
 
@@ -188,8 +189,10 @@ def compute_symbolically(args):
                 goal_type, goal_data = GoalParser.parse(goal)
                 if goal_type == MOMENT:
                     handle_moment_goal(goal_data, solvers, rec_builder, args)
-                elif goal_type == TAIL_BOUND:
-                    handle_tail_bound_goal(goal_data, solvers, rec_builder, args)
+                elif goal_type == TAIL_BOUND_UPPER:
+                    handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args)
+                elif goal_type == TAIL_BOUND_LOWER:
+                    handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args)
                 else:
                     raise RuntimeError(f"Goal type {goal_type} does not exist.")
         except Exception as e:
@@ -211,7 +214,7 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args):
     print()
 
 
-def handle_tail_bound_goal(goal_data, solvers, rec_builder, args):
+def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args):
     monom, a = goal_data[0], goal_data[1]
     moments = {}
     is_always_exact = True
@@ -245,6 +248,23 @@ def handle_tail_bound_goal(goal_data, solvers, rec_builder, args):
             for bound_at_n in bounds_at_n:
                 print(indent_string(f"({count}) {bound_at_n}", 4))
                 count += 1
+    print()
+
+
+def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args):
+    monom, a = goal_data[0], goal_data[1]
+    second_moment, is_exact2 = get_moment(monom ** 2, solvers, rec_builder, args)
+    first_moment, is_exact1 = get_moment(monom, solvers, rec_builder, args)
+    bound = simplify(((first_moment - a) ** 2) / (second_moment - 2*a*first_moment + a**2))
+    print(f"Assuming {monom - a} is non-negative.")
+    print(f"P({monom} > {a}) >= {bound}")
+    if is_exact1 and is_exact2:
+        print(colored("Solution is exact", "green"))
+    else:
+        print(colored("Solution is rounded", "yellow"))
+    if args.at_n >= 0:
+        bound_at_n = bound.subs({symbols("n", integer=True, positive=True): args.at_n})
+        print(f"P({monom} > {a} | n={args.at_n}) >= {bound_at_n}")
     print()
 
 

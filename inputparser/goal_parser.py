@@ -2,7 +2,8 @@ from .exceptions import ParseException
 from sympy import sympify
 
 MOMENT = "MOMENT"
-TAIL_BOUND = "TAIL_BOUND"
+TAIL_BOUND_UPPER = "TAIL_BOUND_UPPER"
+TAIL_BOUND_LOWER = "TAIL_BOUND_LOWER"
 
 
 class GoalParser:
@@ -25,10 +26,16 @@ class GoalParser:
 
     @staticmethod
     def __parse_tail_bound__(between_brackets: str):
-        if between_brackets.find(">=") < 0:
+        if between_brackets.find(">=") >= 0:
+            bound_type = TAIL_BOUND_UPPER
+            split_str = ">="
+        elif between_brackets.find(">") >= 0:
+            bound_type = TAIL_BOUND_LOWER
+            split_str = ">"
+        else:
             raise ParseException(f"Error in tail bound goal {between_brackets}")
-        tokens = between_brackets.split(">=")
+        tokens = between_brackets.split(split_str)
         if len(tokens) != 2:
             raise ParseException(f"Error in tail bound goal {between_brackets}")
         tokens = [sympify(t.strip()) for t in tokens]
-        return TAIL_BOUND, tokens
+        return bound_type, tokens

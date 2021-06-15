@@ -1,2 +1,2 @@
 from .parser import Parser
-from .goal_parser import GoalParser, MOMENT, TAIL_BOUND
+from .goal_parser import GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
