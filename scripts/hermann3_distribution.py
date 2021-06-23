@@ -7,9 +7,9 @@ p1 = Symbol("p1", real=True)
 p2 = Symbol("p2", real=True)
 p3 = Symbol("p3", real=True)
 
-m1 = 1 + 2*3**(-n)
-m2 = 1 + 8*3**(-n)
-m3 = 1 + 26*3**(-n)
+m1 = 1 + 2*4**(-n)
+m2 = 1 + 8*4**(-n)
+m3 = 1 + 26*4**(-n)
 
 equations = [
     p0 + p1 + p2 + p3 - 1,

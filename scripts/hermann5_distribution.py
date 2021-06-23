@@ -1,7 +1,7 @@
 from sympy import *
 from sympy.solvers.solveset import linsolve
 
-n = Symbol("n", integer=True, positive=True)
+
 p0 = Symbol("p0", real=True)
 p1 = Symbol("p1", real=True)
 p2 = Symbol("p2", real=True)
