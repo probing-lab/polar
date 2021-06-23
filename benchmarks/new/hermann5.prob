@@ -1,3 +1,4 @@
+p = 1/3
 x1 = 1
 token1 = 1
 x2 = 1
@@ -12,31 +13,31 @@ while true:
     x1o, x2o, x3o, x4o, x5o = x1, x2, x3, x4, x5
 
     if x1o == x5o:
-        x1 = Bernoulli(1/3)
+        x1 = Bernoulli(p)
     else:
         x1 = x5o
     end
 
     if x2o == x1o:
-        x2 = Bernoulli(1/3)
+        x2 = Bernoulli(p)
     else:
         x2 = x1o
     end
 
     if x3o == x2o:
-        x3 = Bernoulli(1/3)
+        x3 = Bernoulli(p)
     else:
         x3 = x2o
     end
 
     if x4o == x3o:
-        x4 = Bernoulli(1/3)
+        x4 = Bernoulli(p)
     else:
         x4 = x3o
     end
 
     if x5o == x4o:
-        x5 = Bernoulli(1/3)
+        x5 = Bernoulli(p)
     else:
         x5 = x4o
     end
