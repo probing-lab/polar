@@ -1,0 +1,6 @@
+
+x = 2
+while true:
+    step = Uniform(0,1)
+    x = x + step {0.7} x - step
+end
