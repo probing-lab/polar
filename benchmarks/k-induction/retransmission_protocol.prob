@@ -2,7 +2,7 @@ fail = 0
 sent = 0
 totalfail = 0
 while sent < tosend && fail < maxfail:
-    success = Bernoulli(0.9)
+    success = Bernoulli(p)
     if success == 1:
         fail = 0
         sent = sent + 1
