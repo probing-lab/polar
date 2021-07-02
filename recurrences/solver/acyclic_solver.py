@@ -42,10 +42,13 @@ class AcyclicSolver(Solver):
         if rec_coeff == 0:
             return inhom_part
 
-        hom_solution = (rec_coeff ** self.n) * self.recurrences.init_values_vector[monom_index]
+        return self.__solve_rec_by_summing__(rec_coeff, self.recurrences.init_values_vector[monom_index], inhom_part)
+
+    @lru_cache(maxsize=None)
+    def __solve_rec_by_summing__(self, rec_coeff, init_value, inhom_part):
+        hom_solution = (rec_coeff ** self.n) * init_value
         k = symbols('_k', integer=True, positive=True)
         summand = ((rec_coeff ** k) * inhom_part.xreplace({self.n: self.n - k})).simplify()
         particular_solution = summation(summand, (k, 0, (self.n - 1)))
         particular_solution = without_piecewise(particular_solution)
-        solution = (hom_solution + particular_solution).simplify()
-        return solution
+        return (hom_solution + particular_solution).simplify()
