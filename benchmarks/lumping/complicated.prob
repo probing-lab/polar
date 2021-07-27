@@ -1,0 +1,10 @@
+while true:
+    s = Bernoulli(1 / 3)
+    v = v + 1 {1 / 2} v + 2
+    if s == 0:
+        x, y = x + x*y + v, 2*x + y + x*y + v
+    else:
+        x, y = x + y + 3*x*y + v, 2*y + x + 3*x*y + v
+    end 
+    t = c * x**2 + d * x*y + f * y**2
+end

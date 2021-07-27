@@ -26,12 +26,20 @@ class RecBuilder:
         recurrence_dict = {}
         while to_process:
             next_monom = to_process.pop()
+            #print(next_monom)
             recurrence_dict[next_monom] = self.get_recurrence(next_monom)
             processed.add(next_monom)
             monoms = get_monoms(recurrence_dict[next_monom], constant_symbols=self.program.symbols)
             for _, monom in monoms:
                 if monom not in processed:
                     to_process.add(monom)
+
+
+            print()
+            print(f"recurrence for {next_monom}")
+            print(recurrence_dict[next_monom])
+            print()
+
 
         init_values_dict = self.get_initial_values(processed)
         return Recurrences(recurrence_dict, init_values_dict, self.program)

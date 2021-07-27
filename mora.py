@@ -191,8 +191,9 @@ def simulate(args):
 def compute_symbolically(args):
     for benchmark in args.benchmarks:
         try:
-            program = prepare_program(benchmark, args)
+            program = prepare_program(benchmark, args) #transformed program
             rec_builder = RecBuilder(program)
+            print("REC_BUILDER: {} {}".format(type(rec_builder), rec_builder))
             solvers = {}
 
             print(colored("-------------------", "cyan"))
@@ -203,6 +204,7 @@ def compute_symbolically(args):
             for goal in args.goals:
                 goal_type, goal_data = GoalParser.parse(goal)
                 if goal_type == MOMENT:
+                    print("GOAL_DATA: {} {}".format(type(goal_data), goal_data))
                     handle_moment_goal(goal_data, solvers, rec_builder, args)
                 elif goal_type == TAIL_BOUND_UPPER:
                     handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args)
@@ -216,8 +218,18 @@ def compute_symbolically(args):
 
 
 def handle_moment_goal(goal_data, solvers, rec_builder, args):
+
+    print("FUNC HANDLE_MOMENT_GOAL")
+    print("GOAL_DATA:", goal_data)
+
     monom = goal_data[0]
+
+    print("MONOM:", monom)
+
     moment, is_exact = get_moment(monom, solvers, rec_builder, args)
+
+    print("MOMENT:", moment)
+
     print(f"E({monom}) = {moment}")
     if is_exact:
         print(colored("Solution is exact", "green"))
@@ -341,7 +353,12 @@ def main():
 
     start = time.time()
     args = arg_parser.parse_args()
+
+    print("ARGS: {} {}".format(type(args), args))
+
     args.benchmarks = [b for bs in map(glob.glob, args.benchmarks) for b in bs]
+
+    print("ARGS.BENCHMARKS {}".format(args.benchmarks))
 
     if len(args.benchmarks) == 0:
         raise Exception("No benchmark given.")
