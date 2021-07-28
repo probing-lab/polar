@@ -338,6 +338,9 @@ def prepare_program(benchmark, args):
     if args.cond2arithm:
         program = ConditionsToArithm().execute(program)
 
+
+    ###implement variable dependency
+
     print(colored("-----------------------", "magenta"))
     print(colored("- Transformed program -", "magenta"))
     print(colored("-----------------------", "magenta"))

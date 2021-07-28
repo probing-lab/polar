@@ -62,6 +62,12 @@ class UpdateInfoTransformer(Transformer):
             all_symbols |= assign.get_free_symbols()
         return all_symbols
 
+    def __set_structural_dependencies__(self):
+        #self.good_variables = ?
+        #self.bad_variables = ?
+        pass
+
+
 
 @dataclass
 class DependencyInfo:

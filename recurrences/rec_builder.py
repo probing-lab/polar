@@ -41,6 +41,9 @@ class RecBuilder:
             print()
 
 
+    # TODO: Implement a get_recurrences function inputting a polynomial: Expr
+    # Adding up the recurrenes of teach monomial in the polynomial
+
         init_values_dict = self.get_initial_values(processed)
         return Recurrences(recurrence_dict, init_values_dict, self.program)
 
