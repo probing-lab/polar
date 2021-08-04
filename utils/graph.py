@@ -16,9 +16,10 @@ class Graph:
             self.V += 1
 
     def add_edge(self, v, u, e):  # v to u
+        print("ADD_EDGE {} {} {}".format(v, u, e))
         assert (v in self.nodes) and (u in self.nodes), "NODES NOT ADDED"
         v, u = self.nodes[v], self.nodes[u]
-        if e > self.adj[v][u]:
+        if e > self.adj[v][u]:  # polynomial dependency found after than linear dependency --> replace it
             self.adj[v][u] = e
 
     def __repr__(self):
