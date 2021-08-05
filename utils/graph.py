@@ -31,14 +31,13 @@ class Graph:
 
         return res
 
-
     def __get_all_possible_cycles(self):
         result = []
         ps = []  # powerset of {0, 1, ..., self.V - 1}
-        for i in range(2 ** (self.V)):
+        for i in range(2 ** self.V):
             cur = []
             for j in range(self.V):
-                if ((i & (1 << j)) > 0):
+                if (i & (1 << j)) > 0:
                     cur.append(j)
             ps.append(cur)
 
@@ -49,14 +48,19 @@ class Graph:
 
         return result
 
-    def get_bad_nodes(self): #all nodes appreading in a cycle with a least on type 2 edge
+    def get_bad_nodes(self):  # all nodes appearing in a cycle with a least on type 2 edge
         bad = set()
         candidate = self.__get_all_possible_cycles()
 
         for cand in candidate:
             has_non_linear_edge = False
             cycle = True
-            if len(cand) < 2:
+
+            if len(cand) == 1:
+                if self.adj[cand[0]][cand[0]] == 2:
+                    print("Found cycle {}".format(cand))
+                    print("Bad cycle detected!")
+                    bad.add(cand[0])
                 continue
 
             for i in range(len(cand) - 1):
@@ -68,11 +72,13 @@ class Graph:
                 if self.adj[v][u] == 2:
                     has_non_linear_edge = True
 
-            if self.adj[cand[-1]][cand[0]] == 0:
-                cycle = False
-            if cycle == True:
+            if len(cand) > 1:
+                if self.adj[cand[-1]][cand[0]] == 0:
+                    cycle = False
+
+            if cycle:
                 print("Found cycle {}".format(cand))
-            if cycle == True and has_non_linear_edge == True:
+            if cycle and has_non_linear_edge:
                 print("Bad cycle detected!")
                 for v in cand:
                     bad.add(v)
@@ -86,17 +92,15 @@ class Graph:
         return result
 
 
-
-
 if __name__ == '__main__':
     g = Graph()
     g.add_node("a")
     g.add_node("b")
     g.add_node("c")
     g.add_node("d")
-    #g.add_node("e")
-    #g.add_node("f")
-    #g.add_node("g")
+    # g.add_node("e")
+    # g.add_node("f")
+    # g.add_node("g")
     g.add_node("h")
     g.add_node("i")
     g.add_node("j")
@@ -109,9 +113,9 @@ if __name__ == '__main__':
     g.add_edge("c", "d", 1)
     g.add_edge("a", "d", 1)
 
-    #g.add_edge("e", "f", 1)
-    #g.add_edge("f", "g", 2)
-    #g.add_edge("g", "e", 1)
+    # g.add_edge("e", "f", 1)
+    # g.add_edge("f", "g", 2)
+    # g.add_edge("g", "e", 1)
 
     g.add_edge("d", "i", 1)
     g.add_edge("i", "h", 1)
@@ -124,4 +128,3 @@ if __name__ == '__main__':
     print()
 
     print(g.get_bad_nodes())
-
