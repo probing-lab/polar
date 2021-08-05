@@ -1,0 +1,7 @@
+s = 0
+while true:
+    s = 1 - s
+    x = 2*x + y**2 + s
+    y = 2*y - y**2 + 2*s
+    t = a*x + b*y + c + d*s
+end
