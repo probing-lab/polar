@@ -1,0 +1,6 @@
+while true:
+    p = 2*x
+    x = 3*z
+    z = y**2
+    y = 4*z
+end
