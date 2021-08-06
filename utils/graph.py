@@ -48,6 +48,16 @@ class Graph:
 
         return result
 
+    def dfs(self, v, mark):
+        for i in range(self.V):
+            if mark[i]:
+                continue
+            if self.adj[i][v]:  # i has an edge to v
+                mark[i] = True
+                self.dfs(i, mark)
+
+
+
     def get_bad_nodes(self):  # all nodes appearing in a cycle with a least on type 2 edge
         bad = set()
         candidate = self.__get_all_possible_cycles()
@@ -82,6 +92,17 @@ class Graph:
                 print("Bad cycle detected!")
                 for v in cand:
                     bad.add(v)
+
+        mark = [False] * self.V
+        for v in bad:
+            mark[v] = True
+
+        for v in bad:
+            self.dfs(v, mark)
+
+        for i in range(self.V):  # add new found bad variables (those having a path to a bad cycle)
+            if mark[i]:
+                bad.add(i)
 
         result = []
         for v in bad:
