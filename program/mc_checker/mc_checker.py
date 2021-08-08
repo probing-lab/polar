@@ -26,8 +26,6 @@ class MCChecker:
 
     @classmethod
     def get_mc_variables(cls, program: Program) -> Tuple[GoodVars, BadVars]:
-        # TODO implement
-
         print("##########PROGRAM VARIABLES##########")
         print(program.variables)
         vars_to_index = {var: i for i, var in enumerate(program.variables)}
@@ -35,13 +33,12 @@ class MCChecker:
 
         dependency_graph = graph.Graph()
         for assign in program.loop_body:
-            print("Adding node {}".format(str(assign.variable)))
-            dependency_graph.add_node(str(assign.variable))
+            print("Adding node {}".format(assign.variable))
+            dependency_graph.add_node(assign.variable)
         print()
         print("##########FINITE VARIABLES##########")
         print(program.finite_variables)
         print()
-
 
         print("##########ASSIGNMENTS:############")
         for assign in program.loop_body:
@@ -52,8 +49,6 @@ class MCChecker:
                     monoms, const = expressions.get_terms_with_vars(poly, program.variables)
                     print("Poly: {} , Monomials: {}".format(poly, monoms))
 
-                    # assign_var_idx = MCChecker.get_idx_var(assign.variable, vars_to_index)
-
                     for powers, coeff in monoms:
                         non_zero_powers = sum([1 for p in powers if p > 0])
                         print("monom: {} , non_zero_powers: {}".format(powers, non_zero_powers))
@@ -63,15 +58,15 @@ class MCChecker:
                                 if powers[i] > 0:
                                     rhs_var = MCChecker.get_var_idx(i, vars_to_index)
                                     if powers[i] == 1:
-                                        dependency_graph.add_edge(str(assign.variable), str(rhs_var), 1)
+                                        dependency_graph.add_edge(assign.variable, rhs_var, 1)
                                     else:
-                                        dependency_graph.add_edge(str(assign.variable), str(rhs_var), 2)
+                                        dependency_graph.add_edge(assign.variable, rhs_var, 2)
 
                         else:  # polynomial dependency on all non zero powers
                             for i in range(len(powers)):
                                 if powers[i] > 0:
                                     rhs_var = MCChecker.get_var_idx(i, vars_to_index)
-                                    dependency_graph.add_edge(str(assign.variable), str(rhs_var), 2)
+                                    dependency_graph.add_edge(assign.variable, rhs_var, 2)
 
 
             elif isinstance(assign, DistAssignment):
@@ -80,6 +75,11 @@ class MCChecker:
             print("------------------------")
 
         bad_variables = dependency_graph.get_bad_nodes()
-        print("Bad Nodes: {}".format(bad_variables))
 
-        return set(), set()
+
+        good_variables = set()
+        for v in program.variables:
+            if v not in bad_variables:
+                good_variables.add(v)
+
+        return set(good_variables), set(bad_variables)
