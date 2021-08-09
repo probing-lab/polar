@@ -142,6 +142,22 @@ arg_parser.add_argument(
     help="The number of moments to consider when computing Markov's inequality"
 )
 
+arg_parser.add_argument(
+    "--mc_comb",
+    dest="mc_comb",
+    type=str,
+    nargs="*",
+    help="TODO write help message"
+)
+
+arg_parser.add_argument(
+    "--mc_comb_deg",
+    dest="mc_comb_deg",
+    default=2,
+    type=int,
+    help="TODO write help message"
+)
+
 
 def simulate(args):
     for benchmark in args.benchmarks:
@@ -355,6 +371,9 @@ def main():
 
     if args.simulate:
         simulate(args)
+    elif args.mc_comb is not None:
+        print(args.mc_comb)
+        print(args.mc_comb_deg)
     else:
         compute_symbolically(args)
     print(f"Elapsed time: {time.time() - start} s")
