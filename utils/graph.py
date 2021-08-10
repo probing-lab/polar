@@ -1,10 +1,10 @@
 import itertools
+from program import Program
 
 class Graph:
 
-    def __init__(self):
-        self.MAX_NODES = 20
-        self.adj = [[0] * self.MAX_NODES for i in range(self.MAX_NODES)]
+    def __init__(self, program: Program):
+        self.adj = [[0] * len(program.variables) for i in range(len(program.variables))]
         self.nodes = {}  # hashing objects into numbers
         self.V = 0
 
@@ -16,11 +16,15 @@ class Graph:
             self.V += 1
 
     def add_edge(self, v, u, e):  # v to u
-        print("ADD_EDGE {} {} {}".format(v, u, e))
+        # print("ADD_EDGE {} {} {}".format(v, u, e))
         assert (v in self.nodes) and (u in self.nodes), "NODES NOT ADDED"
         v, u = self.nodes[v], self.nodes[u]
+
+        # print(f"v and u are {v} {u}")
+
         if e > self.adj[v][u]:  # polynomial dependency found after than linear dependency --> replace it
             self.adj[v][u] = e
+
 
     def __repr__(self):
         res = ""
@@ -68,8 +72,8 @@ class Graph:
 
             if len(cand) == 1:
                 if self.adj[cand[0]][cand[0]] == 2:
-                    print("Found cycle {}".format(cand))
-                    print("Bad cycle detected!")
+                    # print("Found cycle {}".format(cand))
+                    # print("Bad cycle detected!")
                     bad.add(cand[0])
                 continue
 
@@ -87,9 +91,10 @@ class Graph:
                     cycle = False
 
             if cycle:
-                print("Found cycle {}".format(cand))
+                # print("Found cycle {}".format(cand))
+                pass
             if cycle and has_non_linear_edge:
-                print("Bad cycle detected!")
+                # print("Bad cycle detected!")
                 for v in cand:
                     bad.add(v)
 
