@@ -65,7 +65,8 @@ class RecBuilder:
             poly_rec += item[1] * self.get_recurrence(term)
             poly += term
 
-        print(f"recurrence for candidate is {poly_rec.expand()}")
+        print(f"candidate_rec_n-1 {poly_rec.expand()}")
+        return poly_rec.expand()
 
 
     @lru_cache(maxsize=None)

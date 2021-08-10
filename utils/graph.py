@@ -19,12 +19,8 @@ class Graph:
         # print("ADD_EDGE {} {} {}".format(v, u, e))
         assert (v in self.nodes) and (u in self.nodes), "NODES NOT ADDED"
         v, u = self.nodes[v], self.nodes[u]
-
-        # print(f"v and u are {v} {u}")
-
         if e > self.adj[v][u]:  # polynomial dependency found after than linear dependency --> replace it
             self.adj[v][u] = e
-
 
     def __repr__(self):
         res = ""
@@ -32,7 +28,6 @@ class Graph:
             for j in range(self.V):
                 res += str(self.adj[i][j])
             res += "\n"
-
         return res
 
     def __get_all_possible_cycles(self):
@@ -44,12 +39,10 @@ class Graph:
                 if (i & (1 << j)) > 0:
                     cur.append(j)
             ps.append(cur)
-
         for s in ps:
             cur = list(itertools.permutations(s))
             for perm in cur:
                 result.append(list(perm))
-
         return result
 
     def dfs(self, v, mark):
@@ -60,23 +53,18 @@ class Graph:
                 mark[i] = True
                 self.dfs(i, mark)
 
-
-
     def get_bad_nodes(self):  # all nodes appearing in a cycle with a least on type 2 edge
         bad = set()
         candidate = self.__get_all_possible_cycles()
-
         for cand in candidate:
             has_non_linear_edge = False
             cycle = True
-
             if len(cand) == 1:
                 if self.adj[cand[0]][cand[0]] == 2:
                     # print("Found cycle {}".format(cand))
                     # print("Bad cycle detected!")
                     bad.add(cand[0])
                 continue
-
             for i in range(len(cand) - 1):
                 v = cand[i]
                 u = cand[i + 1]
@@ -85,11 +73,9 @@ class Graph:
                     break
                 if self.adj[v][u] == 2:
                     has_non_linear_edge = True
-
             if len(cand) > 1:
                 if self.adj[cand[-1]][cand[0]] == 0:
                     cycle = False
-
             if cycle:
                 # print("Found cycle {}".format(cand))
                 pass
@@ -97,18 +83,14 @@ class Graph:
                 # print("Bad cycle detected!")
                 for v in cand:
                     bad.add(v)
-
         mark = [False] * self.V
         for v in bad:
             mark[v] = True
-
         for v in bad:
             self.dfs(v, mark)
-
         for i in range(self.V):  # add new found bad variables (those having a path to a bad cycle)
             if mark[i]:
                 bad.add(i)
-
         result = []
         for v in bad:
             for u in self.nodes.keys():

@@ -16,6 +16,7 @@ from sympy import N
 from simulation import Simulator
 from utils import indent_string, get_unique_var
 from termcolor import colored
+from program.mc_comb_finder import MCCombFinder
 
 header = """
   __  __  ____  _____            
@@ -355,36 +356,8 @@ def prepare_program(benchmark, args):
     return program
 
 
-def get_candidate_terms(pos, vars, deg, pw, s):
-    if pos == len(vars):
-        if s == 0: # constant
-            return 0, {0}
-        term = 1
-        for i in range(pos):
-            term = term * (vars[i] ** pw[i])
-        coeff = Symbol(get_unique_var())
-        term = coeff * term
 
-        return term, {coeff}
-
-    ans = 0
-    coefficients = set()
-    for i in range(deg + 1):
-        if s + i <= deg:
-            pw[pos] = i
-            expr, c = get_candidate_terms(pos + 1, vars, deg, pw, s + i)
-            if expr == 0:
-                continue
-            ans += expr
-            for elem in c:
-                coefficients.add(elem)
-    return ans, coefficients,
-
-def get_candidate(vars, deg):
-    ans, coeffs = get_candidate_terms(0, vars, deg, [0] * len(vars), 0)
-    return ans, coeffs
-
-def find_combinations(args):
+def find_mc_combination(args):
     combination_vars = []
     if len(args.mc_comb) != 0:
         combination_vars = [sympify(v) for v in args.mc_comb]
@@ -392,19 +365,23 @@ def find_combinations(args):
 
     for benchmark in args.benchmarks:
         try:
-            program = prepare_program(benchmark, args) # Transformed Program
+            program = prepare_program(benchmark, args)  # Transformed Program
+            if len(combination_vars) == 0:
+                combination_vars = list(program.non_mc_variables)
+
+            print(f"bad variables: {program.non_mc_variables}")
+            print(f"good variables: {program.mc_variables}")
+
+            candidate, candidate_coefficients = MCCombFinder.get_candidate(combination_vars, combination_deg)
+            print("candidate_n = {}".format(candidate))
+            # print("Coefficients: {}".format(candidate_coefficients))
+
             rec_builder = RecBuilder(program)
-            solvers = {}
+            candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
+            good_set = MCCombFinder.get_good_set(candidate_rec, program.non_mc_variables, program.variables)
+            rhs_good_part, good_coeffs = MCCombFinder.get_good_poly(good_set)
 
-            if len(combination_vars) == 0:  # TODO: Get all bad variables for candidate
-                pass
-
-            candidate, candidate_coefficients = get_candidate(combination_vars, combination_deg)
-            print("Candidate: {}".format(candidate))
-            print("Coefficients: {}".format(candidate_coefficients))
-
-            rec_builder = RecBuilder(program)
-            rec_builder.get_recurrence_poly(candidate, combination_vars)
+            print(f"rhs_good_sum: {rhs_good_part}")
 
             print(colored("-------------------", "cyan"))
             print(colored("- Analysis Result -", "cyan"))
@@ -412,7 +389,6 @@ def find_combinations(args):
             print()
 
         except Exception as e:
-            raise e
             print(e)
             exit()
 
@@ -436,7 +412,7 @@ def main():
     if args.simulate:
         simulate(args)
     elif args.mc_comb is not None:
-        find_combinations(args)
+        find_mc_combination(args)
     else:
         compute_symbolically(args)
     print(f"Elapsed time: {time.time() - start} s")
