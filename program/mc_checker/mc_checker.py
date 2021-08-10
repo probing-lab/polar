@@ -4,8 +4,7 @@ from symengine.lib.symengine_wrapper import Symbol
 from program import Program
 from program.assignment import PolyAssignment
 from program.assignment import DistAssignment
-from utils import graph
-from utils import expressions
+from utils import graph, expressions
 
 
 GoodVars = Set[Symbol]
@@ -26,33 +25,33 @@ class MCChecker:
 
     @classmethod
     def get_mc_variables(cls, program: Program) -> Tuple[GoodVars, BadVars]:
-        print("##########PROGRAM VARIABLES##########")
-        print(program.variables)
+        # print("##########PROGRAM VARIABLES##########")
+        # print(program.variables)
         vars_to_index = {var: i for i, var in enumerate(program.variables)}
-        print(vars_to_index)
+        # print(vars_to_index)
 
-        dependency_graph = graph.Graph()
+        dependency_graph = graph.Graph(program)
         for assign in program.loop_body:
-            print("Adding node {}".format(assign.variable))
+            # print("Adding node {}".format(assign.variable))
             dependency_graph.add_node(assign.variable)
-        print()
-        print("##########FINITE VARIABLES##########")
-        print(program.finite_variables)
-        print()
+        # print()
+        # print("##########FINITE VARIABLES##########")
+        # print(program.finite_variables)
+        # print()
 
-        print("##########ASSIGNMENTS:############")
+        # print("##########ASSIGNMENTS:############")
         for assign in program.loop_body:
             if isinstance(assign, PolyAssignment):
-                print("Current assignment: {}".format(assign))
+                # print("Current assignment: {}".format(assign))
                 for poly in assign.polynomials:
                     # TODO: handle dependencies in assignments including if-statements
                     monoms, const = expressions.get_terms_with_vars(poly, program.variables)
-                    print("Poly: {} , Monomials: {}".format(poly, monoms))
+                    # print("Poly: {} , Monomials: {}".format(poly, monoms))
 
                     for powers, coeff in monoms:
                         non_zero_powers = sum([1 for p in powers if p > 0])
-                        print("monom: {} , non_zero_powers: {}".format(powers, non_zero_powers))
-                        print()
+                        # print("monom: {} , non_zero_powers: {}".format(powers, non_zero_powers))
+                        # print()
                         if non_zero_powers == 1:  # linear dependency
                             for i in range(len(powers)):
                                 if powers[i] > 0:
@@ -70,16 +69,21 @@ class MCChecker:
 
 
             elif isinstance(assign, DistAssignment):
-                print("Current assignment: {}".format(assign))
+                pass
+                # print("Current assignment: {}".format(assign))
 
-            print("------------------------")
+            # print("------------------------")
 
+        # print("Checking for cycles...")
         bad_variables = dependency_graph.get_bad_nodes()
-
+        # print("Bad cycles checked!")
 
         good_variables = set()
         for v in program.variables:
             if v not in bad_variables:
                 good_variables.add(v)
+
+        print("goods: {}".format(good_variables))
+        print("bad: {}".format(bad_variables))
 
         return set(good_variables), set(bad_variables)
