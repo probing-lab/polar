@@ -11,10 +11,10 @@ from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
+from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify, Expr
 from sympy import N
 from simulation import Simulator
-from utils import indent_string
+from utils import indent_string, get_unique_var
 from termcolor import colored
 
 header = """
@@ -207,7 +207,7 @@ def simulate(args):
 def compute_symbolically(args):
     for benchmark in args.benchmarks:
         try:
-            program = prepare_program(benchmark, args) #transformed program
+            program = prepare_program(benchmark, args)  # transformed program
             rec_builder = RecBuilder(program)
             solvers = {}
 
@@ -355,6 +355,70 @@ def prepare_program(benchmark, args):
     return program
 
 
+def get_candidate_terms(pos, vars, deg, pw, s):
+    if pos == len(vars):
+        if s == 0: # constant
+            return 0, {0}
+        term = 1
+        for i in range(pos):
+            term = term * (vars[i] ** pw[i])
+        coeff = Symbol(get_unique_var())
+        term = coeff * term
+
+        return term, {coeff}
+
+    ans = 0
+    coefficients = set()
+    for i in range(deg + 1):
+        if s + i <= deg:
+            pw[pos] = i
+            expr, c = get_candidate_terms(pos + 1, vars, deg, pw, s + i)
+            if expr == 0:
+                continue
+            ans += expr
+            for elem in c:
+                coefficients.add(elem)
+    return ans, coefficients,
+
+def get_candidate(vars, deg):
+    ans, coeffs = get_candidate_terms(0, vars, deg, [0] * len(vars), 0)
+    return ans, coeffs
+
+def find_combinations(args):
+    combination_vars = []
+    if len(args.mc_comb) != 0:
+        combination_vars = [sympify(v) for v in args.mc_comb]
+    combination_deg = args.mc_comb_deg
+
+    for benchmark in args.benchmarks:
+        try:
+            program = prepare_program(benchmark, args) # Transformed Program
+            rec_builder = RecBuilder(program)
+            solvers = {}
+
+            if len(combination_vars) == 0:  # TODO: Get all bad variables for candidate
+                pass
+
+            candidate, candidate_coefficients = get_candidate(combination_vars, combination_deg)
+            print("Candidate: {}".format(candidate))
+            print("Coefficients: {}".format(candidate_coefficients))
+
+            rec_builder = RecBuilder(program)
+            rec_builder.get_recurrence_poly(candidate, combination_vars)
+
+            print(colored("-------------------", "cyan"))
+            print(colored("- Analysis Result -", "cyan"))
+            print(colored("-------------------", "cyan"))
+            print()
+
+        except Exception as e:
+            raise e
+            print(e)
+            exit()
+
+
+
+
 def main():
     print(colored(header, "green"))
     print()
@@ -372,8 +436,7 @@ def main():
     if args.simulate:
         simulate(args)
     elif args.mc_comb is not None:
-        print(args.mc_comb)
-        print(args.mc_comb_deg)
+        find_combinations(args)
     else:
         compute_symbolically(args)
     print(f"Elapsed time: {time.time() - start} s")

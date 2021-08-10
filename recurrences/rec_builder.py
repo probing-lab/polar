@@ -26,7 +26,6 @@ class RecBuilder:
         recurrence_dict = {}
         while to_process:
             next_monom = to_process.pop()
-            #print(next_monom)
             recurrence_dict[next_monom] = self.get_recurrence(next_monom)
             processed.add(next_monom)
             monoms = get_monoms(recurrence_dict[next_monom], constant_symbols=self.program.symbols)
@@ -34,18 +33,40 @@ class RecBuilder:
                 if monom not in processed:
                     to_process.add(monom)
 
-
             print()
             print(f"recurrence for {next_monom}")
             print(recurrence_dict[next_monom])
             print()
 
-
-    # TODO: Implement a get_recurrences function inputting a polynomial: Expr
-    # Adding up the recurrenes of teach monomial in the polynomial
-
         init_values_dict = self.get_initial_values(processed)
         return Recurrences(recurrence_dict, init_values_dict, self.program)
+
+    @classmethod
+    def get_idx_var(cls, v, vars_to_index):
+        return vars_to_index[v]
+
+    @classmethod
+    def get_var_idx(cls, i, vars_to_index):
+        for var in vars_to_index.keys():
+            if vars_to_index[var] == i:
+                return var
+
+    def get_recurrence_poly(self, poly: Expr, variables: List[Symbol]):
+        monoms = get_terms_with_vars(poly, variables)
+        monoms = monoms[0]
+        vars_to_index = {var: i for i, var in enumerate(variables)}
+        poly = 0
+        poly_rec = 0
+        for item in monoms:
+            monom = item[0]
+            term = 1
+            for i in range(len(monom)):
+                term *= self.get_var_idx(i, vars_to_index) ** monom[i]
+            poly_rec += item[1] * self.get_recurrence(term)
+            poly += term
+
+        print(f"recurrence for candidate is {poly_rec.expand()}")
+
 
     @lru_cache(maxsize=None)
     def get_recurrence(self, monomial: Expr):
@@ -64,6 +85,8 @@ class RecBuilder:
     def __get_last_assign_index__(self, variables: Set[Symbol]):
         max_index = -1
         for v in variables:
+            if v not in self.program.var_to_index:
+                return len(variables) - 1
             if self.program.var_to_index[v] > max_index:
                 max_index = self.program.var_to_index[v]
         return max_index
