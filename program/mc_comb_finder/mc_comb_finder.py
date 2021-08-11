@@ -1,7 +1,6 @@
-# from symengine import Eq
-
 from utils import get_unique_var
 from symengine.lib.symengine_wrapper import Symbol, solve
+from sympy import linsolve, sympify
 from utils import expressions
 
 
@@ -94,7 +93,7 @@ class MCCombFinder:
         print(f"good_coeffs: {good_coeffs}")
         print(f"candidate_coeffs: {candidate_coefficients}")
 
-        k = Symbol('k')
+        k = Symbol(get_unique_var("k"))
         candidate = (k * candidate).expand()
         print()
         print(f"variables of equation: {list(candidate_coefficients) + [k] + list(good_coeffs)}")
@@ -122,11 +121,24 @@ class MCCombFinder:
 
         print(f"equation_terms: {equation_terms}")
 
-
         equations = []
+        k_equation = None
         for eq in equation_terms.values():
+            if k in eq.free_symbols:
+                k_equation = eq
             equations.append(eq)
 
         print(f"equations = {equations}")
-        sol = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs))
-        print(f"sol = {sol}")
+        k_solution = solve(k_equation, k)
+        if len(k_solution.args) != 1:
+            # TODO: there is no solution
+            pass
+        k_value = k_solution.args[0]
+        if not k_value.is_Number:
+            # TODO: should not happen but still handle
+            pass
+        equations = [sympify(eq.xreplace({k: k_value}).expand()) for eq in equations]
+        unknowns = [sympify(u) for u in (candidate_coefficients | good_coeffs)]
+        solutions = linsolve(equations, unknowns)
+        pass
+        #print(f"sol = {sol}")
