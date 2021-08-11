@@ -16,6 +16,7 @@ class StructureTransformer(Transformer):
     def __init__(self, transform_categoricals):
         super().__init__()
         self.program_variables = set()
+        self.artificial_variables = set()
         self.transform_categoricals = transform_categoricals
 
     def program(self, args) -> Program:
@@ -33,7 +34,8 @@ class StructureTransformer(Transformer):
         loop_guard = lg.children[0]
         loop_body = lb.children[0]
 
-        return Program(typedefs, self.program_variables, initial, loop_guard, loop_body)
+        original_variables = self.program_variables - self.artificial_variables
+        return Program(typedefs, self.program_variables, original_variables, initial, loop_guard, loop_body)
 
     def dist(self, args):
         dist_name = str(args[0])
@@ -156,6 +158,7 @@ class StructureTransformer(Transformer):
                 raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
 
             new_var = get_unique_var(name="t")
+            self.artificial_variables.add(new_var)
             assignments1.append(self.assign([Token(b"VARIABLE", new_var), Token(b"ASSIGN", "="), value]))
             assignments2.append(self.assign([var, Token(b"ASSIGN", "="), new_var]))
         return assignments1 + assignments2
