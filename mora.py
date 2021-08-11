@@ -373,15 +373,15 @@ def find_mc_combination(args):
             print(f"good variables: {program.mc_variables}")
 
             candidate, candidate_coefficients = MCCombFinder.get_candidate(combination_vars, combination_deg)
-            print("candidate_n = {}".format(candidate))
+            print(f"candidate_n = {candidate}")
             # print("Coefficients: {}".format(candidate_coefficients))
 
             rec_builder = RecBuilder(program)
             candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
+            print(f"candidate_rec_n-1 = {candidate_rec}")
             good_set = MCCombFinder.get_good_set(candidate_rec, program.non_mc_variables, program.variables)
-            rhs_good_part, good_coeffs = MCCombFinder.get_good_poly(good_set)
 
-            print(f"rhs_good_sum: {rhs_good_part}")
+            MCCombFinder.find_good_combination(candidate, candidate_rec, good_set, candidate_coefficients, program.variables)
 
             print(colored("-------------------", "cyan"))
             print(colored("- Analysis Result -", "cyan"))
