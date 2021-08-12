@@ -107,6 +107,14 @@ arg_parser.add_argument(
 )
 
 arg_parser.add_argument(
+    "--anim_time",
+    dest="anim_time",
+    default=10.0,
+    type=float,
+    help="The duration of plot animations in seconds"
+)
+
+arg_parser.add_argument(
     "--yscale",
     dest="yscale",
     type=str,
@@ -236,7 +244,7 @@ def plot(args):
             simulator = Simulator(args.simulation_iter)
             result = simulator.simulate(program, [monom], args.number_samples)
             if args.states_plot:
-                result.plot_states_animated(monom, first_moment, second_moment)
+                result.plot_states_animated(monom, args.anim_time, first_moment, second_moment)
             else:
                 result.plot_runs(monom, first_moment, second_moment, args.yscale)
 
