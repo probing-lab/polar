@@ -5,7 +5,7 @@ class Graph:
 
     def __init__(self, program: Program):
         self.adj = [[0] * len(program.variables) for i in range(len(program.variables))]
-        self.nodes = {}  # hashing objects into numbers
+        self.nodes = {}
         self.V = 0
 
     def add_node(self, v):
@@ -15,11 +15,10 @@ class Graph:
             self.nodes[v] = self.V
             self.V += 1
 
-    def add_edge(self, v, u, e):  # v to u
-        # print("ADD_EDGE {} {} {}".format(v, u, e))
+    def add_edge(self, v, u, e):
         assert (v in self.nodes) and (u in self.nodes), "NODES NOT ADDED"
         v, u = self.nodes[v], self.nodes[u]
-        if e > self.adj[v][u]:  # polynomial dependency found after than linear dependency --> replace it
+        if e > self.adj[v][u]:
             self.adj[v][u] = e
 
     def __repr__(self):
@@ -32,7 +31,7 @@ class Graph:
 
     def __get_all_possible_cycles(self):
         result = []
-        ps = []  # powerset of {0, 1, ..., self.V - 1}
+        ps = []
         for i in range(2 ** self.V):
             cur = []
             for j in range(self.V):
@@ -49,11 +48,11 @@ class Graph:
         for i in range(self.V):
             if mark[i]:
                 continue
-            if self.adj[i][v]:  # i has an edge to v
+            if self.adj[i][v]:
                 mark[i] = True
                 self.dfs(i, mark)
 
-    def get_bad_nodes(self):  # all nodes appearing in a cycle with a least on type 2 edge
+    def get_bad_nodes(self):
         bad = set()
         candidate = self.__get_all_possible_cycles()
         for cand in candidate:
@@ -61,8 +60,6 @@ class Graph:
             cycle = True
             if len(cand) == 1:
                 if self.adj[cand[0]][cand[0]] == 2:
-                    # print("Found cycle {}".format(cand))
-                    # print("Bad cycle detected!")
                     bad.add(cand[0])
                 continue
             for i in range(len(cand) - 1):
@@ -77,10 +74,8 @@ class Graph:
                 if self.adj[cand[-1]][cand[0]] == 0:
                     cycle = False
             if cycle:
-                # print("Found cycle {}".format(cand))
                 pass
             if cycle and has_non_linear_edge:
-                # print("Bad cycle detected!")
                 for v in cand:
                     bad.add(v)
         mark = [False] * self.V
@@ -88,7 +83,7 @@ class Graph:
             mark[v] = True
         for v in bad:
             self.dfs(v, mark)
-        for i in range(self.V):  # add new found bad variables (those having a path to a bad cycle)
+        for i in range(self.V):
             if mark[i]:
                 bad.add(i)
         result = []
@@ -96,8 +91,7 @@ class Graph:
             for u in self.nodes.keys():
                 if self.nodes[u] == v:
                     result.append(u)
-
-        return result
+        return set(result)
 
 
 if __name__ == '__main__':
@@ -106,9 +100,7 @@ if __name__ == '__main__':
     g.add_node("b")
     g.add_node("c")
     g.add_node("d")
-    # g.add_node("e")
-    # g.add_node("f")
-    # g.add_node("g")
+
     g.add_node("h")
     g.add_node("i")
     g.add_node("j")
@@ -120,10 +112,6 @@ if __name__ == '__main__':
     g.add_edge("b", "c", 2)
     g.add_edge("c", "d", 1)
     g.add_edge("a", "d", 1)
-
-    # g.add_edge("e", "f", 1)
-    # g.add_edge("f", "g", 2)
-    # g.add_edge("g", "e", 1)
 
     g.add_edge("d", "i", 1)
     g.add_edge("i", "h", 1)

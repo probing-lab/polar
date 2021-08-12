@@ -14,7 +14,7 @@ from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify, Expr
 from sympy import N
 from simulation import Simulator
-from utils import indent_string, get_unique_var
+from utils import indent_string
 from termcolor import colored
 from program.mc_comb_finder import MCCombFinder
 
@@ -148,7 +148,7 @@ arg_parser.add_argument(
     dest="mc_comb",
     type=str,
     nargs="*",
-    help="TODO write help message"
+    help="The variables to include in the moment computable combination candidate"
 )
 
 arg_parser.add_argument(
@@ -156,7 +156,7 @@ arg_parser.add_argument(
     dest="mc_comb_deg",
     default=2,
     type=int,
-    help="TODO write help message"
+    help="The maximum degree of a monomial in the moment computable candidate"
 )
 
 
@@ -208,7 +208,7 @@ def simulate(args):
 def compute_symbolically(args):
     for benchmark in args.benchmarks:
         try:
-            program = prepare_program(benchmark, args)  # transformed program
+            program = prepare_program(benchmark, args)
             rec_builder = RecBuilder(program)
             solvers = {}
 
@@ -233,11 +233,8 @@ def compute_symbolically(args):
 
 
 def handle_moment_goal(goal_data, solvers, rec_builder, args):
-
     monom = goal_data[0]
-
     moment, is_exact = get_moment(monom, solvers, rec_builder, args)
-
     print(f"E({monom}) = {moment}")
     if is_exact:
         print(colored("Solution is exact", "green"))
@@ -346,8 +343,6 @@ def prepare_program(benchmark, args):
     if args.cond2arithm:
         program = ConditionsToArithm().execute(program)
 
-
-
     print(colored("-----------------------", "magenta"))
     print(colored("- Transformed program -", "magenta"))
     print(colored("-----------------------", "magenta"))
@@ -358,31 +353,23 @@ def prepare_program(benchmark, args):
 
 
 def find_mc_combination(args):
-    combination_vars = []
-    if len(args.mc_comb) != 0:
-        combination_vars = [sympify(v) for v in args.mc_comb]
     combination_deg = args.mc_comb_deg
-
     for benchmark in args.benchmarks:
         try:
-            program = prepare_program(benchmark, args)  # Transformed Program
+            program = prepare_program(benchmark, args)
+            combination_vars = []
             if len(combination_vars) == 0:
-                combination_vars = list(program.non_mc_variables)
-
-            print(f"bad variables: {program.non_mc_variables}")
-            print(f"good variables: {program.mc_variables}")
-
+                for var in program.non_mc_variables:
+                    if var in program.original_variables:
+                        combination_vars.append(var)
+            else:
+                combination_vars = [sympify(v) for v in args.mc_comb]
             candidate, candidate_coefficients = MCCombFinder.get_candidate(combination_vars, combination_deg)
-            print(f"candidate_n = {candidate}")
-            # print("Coefficients: {}".format(candidate_coefficients))
-
             rec_builder = RecBuilder(program)
             candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
-            print(f"candidate_rec_n-1 = {candidate_rec}")
             good_set = MCCombFinder.get_good_set(candidate_rec, program.non_mc_variables, program.variables)
-
-            MCCombFinder.find_good_combination(candidate, candidate_rec, good_set, candidate_coefficients, program.variables)
-
+            k, solution = MCCombFinder.find_good_combination(candidate, candidate_rec, good_set, candidate_coefficients, program.variables)
+            print(f"k = {k}, solution = {solution}")
             print(colored("-------------------", "cyan"))
             print(colored("- Analysis Result -", "cyan"))
             print(colored("-------------------", "cyan"))
@@ -402,9 +389,7 @@ def main():
 
     start = time.time()
     args = arg_parser.parse_args()
-
     args.benchmarks = [b for bs in map(glob.glob, args.benchmarks) for b in bs]
-
 
     if len(args.benchmarks) == 0:
         raise Exception("No benchmark given.")

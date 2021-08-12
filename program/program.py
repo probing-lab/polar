@@ -21,8 +21,8 @@ class Program:
         self.var_to_index = {}      # initialized by info transformer
         self.index_to_var = {}      # initialized by info transformer
         self.dependency_info = {}   # initialized by info transformer
-        self.mc_variables = set()      # TODO: initialize by info transformer
-        self.non_mc_variables = set()  # TODO: initialize by info transformer
+        self.mc_variables = set()      # initialize by info transformer
+        self.non_mc_variables = set()  # initialize by info transformer
 
     def add_type(self, t: Type):
         if t is not None:
