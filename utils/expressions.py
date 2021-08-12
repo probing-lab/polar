@@ -144,3 +144,24 @@ def get_monoms(poly: Expr, constant_symbols=None, with_constant=False, zero=Zero
     if with_constant and constant != 0:
         monoms.append((constant, One()))
     return monoms
+
+def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
+    monoms = get_monoms(poly, [k])
+    k_coeff = None
+    neg = False
+    for coeff, var in monoms:
+        if coeff == k:
+            k_coeff = var
+        if coeff == -k:
+            k_coeff = var
+            neg = True
+
+    k_coeff_coeff_sum = 0
+    for coeff, var in monoms:
+        if var == k_coeff and coeff != k and coeff != -k:
+            k_coeff_coeff_sum += coeff
+
+    if not neg:
+        k_coeff_coeff_sum = -k_coeff_coeff_sum
+    print(f"coeff of {k_coeff} = {k_coeff_coeff_sum}")
+    return k_coeff_coeff_sum
