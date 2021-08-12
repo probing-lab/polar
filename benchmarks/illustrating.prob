@@ -1,5 +1,5 @@
 
-toggle, sum, x, y, z = 0, s0, 1, 1, 1
+toggle, sum, x, y, z = 0, 0, 1, 1, 1
 while true:
     toggle = 1 - toggle
     if toggle == 0:

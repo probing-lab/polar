@@ -2,10 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib
+from matplotlib.lines import Line2D
 
 from typing import Dict, List
 from statistics import mean
 from symengine.lib.symengine_wrapper import sympify, Expr, Piecewise
+from sympy import sympify as symsym, re
 
 State = Dict[Expr, float]
 Run = List[State]
@@ -53,7 +55,48 @@ class SimulationResult:
 
         return np.array(data).T
 
-    def plot_animated(self, goal):
+    def plot_runs(self, goal, first_moment=None, second_moment=None, yscale="linear", file_name="plot.pdf"):
+        fig, ax = plt.subplots()
+        goal = sympify(goal)
+        plt.ylabel("$\mathbb{R}$", rotation=0)
+        ax.set_yscale(yscale)
+        plt.xlabel("n")
+        store = [[] for _ in range(len(self.samples[0]))]
+        labels = []
+        for run in self.samples:
+            data = [state[goal] for state in run]
+            for i in range(len(data)):
+                store[i].append(data[i])
+            ax.plot(range(len(run)), data, linewidth=1, color="grey", alpha=0.1)
+        labels.append(Line2D([0], [0], label="Samples", color="grey"))
+
+        def eval(n, exact):
+            result = exact.xreplace({symsym("n"): n})
+            return float(re(result.expand()))
+
+        xs = np.linspace(0, len(self.samples[0]), len(self.samples[0]) * 4)
+
+        if first_moment:
+            data = [eval(x, first_moment) for x in xs]
+            ax.plot(xs, data, color="red", linewidth=2)
+            labels.append(Line2D([0], [0], label="$\mathbb{E}(" + str(goal) + "_n)$", color="red"))
+
+        if first_moment and second_moment:
+            variance = second_moment - (first_moment ** 2)
+            std = variance ** (1 / 2)
+
+            data = [eval(x, first_moment + 2 * std) for x in xs]
+            ax.plot(xs, data, ":", color="red", linewidth=1.5)
+
+            data = [eval(x, first_moment - 2 * std) for x in xs]
+            ax.plot(xs, data, ":", color="red", linewidth=1.5)
+            labels.append(Line2D([0], [0], linestyle=":", label="$\pm 2 Std(" + str(goal) + "_n)$", color='red'))
+
+        ax.legend(handles=labels)
+        plt.savefig(file_name)
+        plt.show()
+
+    def plot_states_animated(self, goal, first_moment=None, second_moment=None):
         goal = sympify(goal)
         matplotlib.use("TkAgg")
         data = self.get_prepared_data(goal)
