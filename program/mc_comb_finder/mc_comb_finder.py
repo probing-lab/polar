@@ -1,6 +1,6 @@
 from utils import get_unique_var
-from symengine.lib.symengine_wrapper import Symbol, solve
-from sympy import linsolve, sympify, simplify
+from symengine.lib.symengine_wrapper import Symbol
+from sympy import linsolve, sympify, simplify, solve
 from utils import expressions
 
 
@@ -73,6 +73,20 @@ class MCCombFinder:
         return rhs_good_part, symbols
 
     @classmethod
+    def __solution_exact__(cls, equations, solution):
+        nequations = []
+        nequations_variables = set()
+        okay = True
+        for eq in equations:
+            substituted_equation = eq.subs(solution).simplify()
+            if not substituted_equation.is_number:
+                okay = False
+                nequations.append(substituted_equation)
+                for symb in substituted_equation.free_symbols:
+                    nequations_variables.add(symb)
+        return okay, nequations, nequations_variables
+
+    @classmethod
     def find_good_combination(cls, candidate, candidate_rec, good_set, candidate_coefficients, program_variables):
         rhs_good_part, good_coeffs = MCCombFinder.get_good_poly(good_set)
         k = Symbol(get_unique_var("k"))
@@ -91,21 +105,31 @@ class MCCombFinder:
             equation_terms[monom] = equation_terms.get(monom, 0) - coeff
 
         equations = []
-        k_equations = []
+
         for eq in equation_terms.values():
-            if k in eq.free_symbols:
-                k_equations.append(eq)
             equations.append(eq)
 
-        for keq in k_equations:
-            print(f"keq = {keq}")
-            k_solution = expressions.solve_by_equating_coefficients(keq, list(candidate_coefficients) + [k], k)
+        solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict = True)
 
-            k_value = k_solution
-            print(f"k_value = {k_value}")
-            equations = [sympify(eq.xreplace({k: k_value}).expand()) for eq in equations]
-            unknowns = [sympify(u) for u in (candidate_coefficients | good_coeffs)]
-            solutions = linsolve(equations, unknowns)
-            print(f"solutions = {solutions}")
-            print()
-            print()
+        print(f"solutions = {solutions}")
+        final_solutions = []
+        for solution in solutions:
+            solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
+            while not solution_exact:
+                nsolutions = solve(nequations, nequations_variables)
+                if type(nsolutions) is list:
+                    if len(nsolutions) == 0: #TODO: handle multiple solutions case
+                        break
+                    for nsolution in nsolutions:
+                        for var in solution.keys():
+                            solution[var] = solution[var].subs(nsolution).simplify()
+                else:  # one solution case
+                    for var in solution.keys():
+                        solution[var] = solution[var].subs(nsolutions).simplify()
+                for var in nsolutions:
+                    solution[var] = nsolutions[var]
+                solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
+
+            final_solutions.append(solution)
+
+        print(final_solutions)
