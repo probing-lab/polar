@@ -2,7 +2,6 @@
 
 This runnable script allows the user to run MORA on probabilistic programs stored in files
 For the command line arguments run the script with "--help".
-#TODO: cleanup this file
 """
 import glob
 import time
@@ -15,6 +14,7 @@ from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
 from sympy import N
 from simulation import Simulator
+from plots import StatesPlot, RunsPlot
 from utils import indent_string
 from termcolor import colored
 
@@ -107,11 +107,39 @@ arg_parser.add_argument(
 )
 
 arg_parser.add_argument(
+    "--max_y",
+    dest="max_y",
+    type=int,
+    help="The maximum value on the y axis of the states plot."
+)
+
+arg_parser.add_argument(
+    "--anim_iter",
+    action="store_true",
+    default=False,
+    help="If true the iterations are animated in the runs plot."
+)
+
+arg_parser.add_argument(
+    "--anim_runs",
+    action="store_true",
+    default=False,
+    help="If true the runs are animated in the runs plot."
+)
+
+arg_parser.add_argument(
     "--anim_time",
     dest="anim_time",
     default=10.0,
     type=float,
-    help="The duration of plot animations in seconds"
+    help="The duration of plot animations in seconds. It is not exact as the time needed to compute the frame is neglected"
+)
+
+arg_parser.add_argument(
+    "--anim_iterations",
+    action="store_true",
+    default=False,
+    help="If true the iterations are animated in the runs plot"
 )
 
 arg_parser.add_argument(
@@ -244,9 +272,11 @@ def plot(args):
             simulator = Simulator(args.simulation_iter)
             result = simulator.simulate(program, [monom], args.number_samples)
             if args.states_plot:
-                result.plot_states_animated(monom, args.anim_time, first_moment, second_moment)
+                states_plot = StatesPlot(result, monom, args.anim_time, args.max_y, first_moment, second_moment)
+                states_plot.draw()
             else:
-                result.plot_runs(monom, first_moment, second_moment, args.yscale)
+                runs_plot = RunsPlot(result, monom, args.yscale, args.anim_iter, args.anim_runs, args.anim_time, first_moment, second_moment)
+                runs_plot.draw()
 
         except Exception as e:
             raise e
