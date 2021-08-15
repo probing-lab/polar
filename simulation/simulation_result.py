@@ -1,11 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import matplotlib
-
 from typing import Dict, List
 from statistics import mean
-from symengine.lib.symengine_wrapper import sympify, Expr, Piecewise
+from symengine.lib.symengine_wrapper import sympify, Expr
 
 State = Dict[Expr, float]
 Run = List[State]
@@ -13,7 +9,7 @@ Run = List[State]
 
 class SimulationResult:
     """
-    Provides the functionality to compute statistics for and plot the result of simulating a program.
+    Provides the functionality to compute statistics for the result of simulating a program.
     """
 
     samples: List[Run]
@@ -52,28 +48,3 @@ class SimulationResult:
             data.append(run_data)
 
         return np.array(data).T
-
-    def plot_animated(self, goal):
-        goal = sympify(goal)
-        matplotlib.use("TkAgg")
-        data = self.get_prepared_data(goal)
-        number_iter, number_samples = data.shape
-        HIST_BINS = np.linspace(data.min(), data.max(), 100)
-
-        def prepare_animation(bar_container):
-            def animate(frame_number):
-                n, _ = np.histogram(data[frame_number], HIST_BINS)
-                for count, rect in zip(n, bar_container.patches):
-                    rect.set_height(count)
-                return bar_container.patches
-            return animate
-
-        fig, ax = plt.subplots()
-        _, _, bar_container = ax.hist(data[0], HIST_BINS, lw=1, ec="yellow", fc="blue", alpha=0.5)
-        ax.set_ylim(top=number_samples/2)
-        interval = 30000 / number_iter
-        ani = animation.FuncAnimation(fig, func=prepare_animation(bar_container), interval=interval, frames=number_iter, repeat=False)
-        description = f"[{goal.args[1]}]" if isinstance(goal, Piecewise) else str(goal)
-        plt.xlabel(f"Empirical distribution of {description}")
-        plt.ylabel("Counts")
-        plt.show()

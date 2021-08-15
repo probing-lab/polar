@@ -1,7 +1,7 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, linsolve, Poly, N, ComplexRootOf
+from sympy import Rational, linsolve, Poly, N, ComplexRootOf, sympify, re
 
 
 def float_to_rational(expr: Expr):
@@ -144,3 +144,8 @@ def get_monoms(poly: Expr, constant_symbols=None, with_constant=False, zero=Zero
     if with_constant and constant != 0:
         monoms.append((constant, One()))
     return monoms
+
+
+def eval_re(subs, expression):
+    result = expression.xreplace({sympify(k): v for k, v in subs.items()})
+    return float(re(result.expand()))

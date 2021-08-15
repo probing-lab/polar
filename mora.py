@@ -2,10 +2,10 @@
 
 This runnable script allows the user to run MORA on probabilistic programs stored in files
 For the command line arguments run the script with "--help".
-#TODO: cleanup this file
 """
 import glob
 import time
+from copy import deepcopy
 from argparse import ArgumentParser
 from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
 from program.transformer import *
@@ -14,6 +14,7 @@ from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
 from sympy import N
 from simulation import Simulator
+from plots import StatesPlot, RunsPlot
 from utils import indent_string
 from termcolor import colored
 
@@ -78,9 +79,75 @@ arg_parser.add_argument(
 
 arg_parser.add_argument(
     "--plot",
+    dest="plot",
+    type=str,
+    default="",
+    help="A monomial to plot"
+)
+
+arg_parser.add_argument(
+    "--states_plot",
     action="store_true",
     default=False,
-    help="Flag to plot the simulation results"
+    help="If true the states distribution gets plotted in an animated way"
+)
+
+arg_parser.add_argument(
+    "--plot_expectation",
+    action="store_true",
+    default=False,
+    help="If true the exact expectation gets included in the plot"
+)
+
+arg_parser.add_argument(
+    "--plot_std",
+    action="store_true",
+    default=False,
+    help="If true the exact standard deviation gets included in the plot"
+)
+
+arg_parser.add_argument(
+    "--max_y",
+    dest="max_y",
+    type=int,
+    help="The maximum value on the y axis of the states plot."
+)
+
+arg_parser.add_argument(
+    "--anim_iter",
+    action="store_true",
+    default=False,
+    help="If true the iterations are animated in the runs plot."
+)
+
+arg_parser.add_argument(
+    "--anim_runs",
+    action="store_true",
+    default=False,
+    help="If true the runs are animated in the runs plot."
+)
+
+arg_parser.add_argument(
+    "--anim_time",
+    dest="anim_time",
+    default=10.0,
+    type=float,
+    help="The duration of plot animations in seconds. (Only the saved plots adhere to this option)"
+)
+
+arg_parser.add_argument(
+    "--anim_iterations",
+    action="store_true",
+    default=False,
+    help="If true the iterations are animated in the runs plot"
+)
+
+arg_parser.add_argument(
+    "--yscale",
+    dest="yscale",
+    type=str,
+    default="linear",
+    help="The y-scale for the plot"
 )
 
 arg_parser.add_argument(
@@ -179,9 +246,43 @@ def simulate(args):
                     print(f"E({goal}) = {mean}")
             print()
 
-            if args.plot:
-                for goal in goals:
-                    result.plot_animated(goal)
+        except Exception as e:
+            print(e)
+            exit()
+
+
+def plot(args):
+    for benchmark in args.benchmarks:
+        try:
+            monom = sympify(args.plot)
+            first_moment = second_moment = None
+            if args.plot_expectation or args.plot_std:
+                program = prepare_program(benchmark, args)
+                rec_builder = RecBuilder(program)
+                solvers = {}
+                solver_args = deepcopy(args)
+                solver_args.numeric_roots = True
+                solver_args.numeric_croots = True
+                solver_args.numeric_eps = 0.0000001
+                if args.plot_std:
+                    second_moment, _ = get_moment(monom ** 2, solvers, rec_builder, solver_args)
+                first_moment, _ = get_moment(monom, solvers, rec_builder, solver_args)
+
+            program = Parser().parse_file(benchmark, args.transform_categoricals)
+            simulator = Simulator(args.simulation_iter)
+            result = simulator.simulate(program, [monom], args.number_samples)
+            if args.states_plot:
+                states_plot = StatesPlot(result, monom, args.anim_time, args.max_y, first_moment, second_moment)
+                states_plot.draw()
+                print("Rendering and saving plot")
+                states_plot.save("plot")
+                print("Plot saved.")
+            else:
+                runs_plot = RunsPlot(result, monom, args.yscale, args.anim_iter, args.anim_runs, args.anim_time, first_moment, second_moment)
+                runs_plot.draw()
+                print("Rendering and saving plot")
+                runs_plot.save("plot")
+                print("Plot saved.")
 
         except Exception as e:
             print(e)
@@ -348,6 +449,8 @@ def main():
 
     if args.simulate:
         simulate(args)
+    if args.plot:
+        plot(args)
     else:
         compute_symbolically(args)
     print(f"Elapsed time: {time.time() - start} s")
