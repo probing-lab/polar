@@ -132,7 +132,7 @@ arg_parser.add_argument(
     dest="anim_time",
     default=10.0,
     type=float,
-    help="The duration of plot animations in seconds. It is not exact as the time needed to compute the frame is neglected"
+    help="The duration of plot animations in seconds. (Only the saved plots adhere to this option)"
 )
 
 arg_parser.add_argument(
@@ -274,12 +274,17 @@ def plot(args):
             if args.states_plot:
                 states_plot = StatesPlot(result, monom, args.anim_time, args.max_y, first_moment, second_moment)
                 states_plot.draw()
+                print("Rendering and saving plot")
+                states_plot.save("plot")
+                print("Plot saved.")
             else:
                 runs_plot = RunsPlot(result, monom, args.yscale, args.anim_iter, args.anim_runs, args.anim_time, first_moment, second_moment)
                 runs_plot.draw()
+                print("Rendering and saving plot")
+                runs_plot.save("plot")
+                print("Plot saved.")
 
         except Exception as e:
-            raise e
             print(e)
             exit()
 

@@ -18,6 +18,13 @@ class StatesPlot:
         self.anim_time = anim_time
         self.first_moment = first_moment
         self.second_moment = second_moment
+        self.plt = None
+        self.ani = None
+        self.fps = -1
+
+    def save(self, filename):
+        self.ani.save(filename + ".gif", fps=self.fps)
+
 
     def draw(self):
         goal = sympify(self.goal)
@@ -26,6 +33,7 @@ class StatesPlot:
         number_iter, number_samples = data.shape
         HIST_BINS = np.linspace(data.min(), data.max(), 100)
         labels = []
+        frames_factor = 1
         expectations = None
         if self.first_moment:
             expectations = [eval_re({"n": n}, self.first_moment) for n in range(number_iter)]
@@ -37,6 +45,7 @@ class StatesPlot:
 
         def prepare_animation(bar_container, expectation_line, std_line_0, std_line_1):
             def animate(frame_number):
+                frame_number = int(frames_factor * frame_number)
                 n, _ = np.histogram(data[frame_number], HIST_BINS)
                 for count, rect in zip(n, bar_container.patches):
                     rect.set_height(count)
@@ -66,13 +75,14 @@ class StatesPlot:
             std_line_1 = ax.axvline(x=stds[0][1], linestyle="dotted", color="red", linewidth=2)
             labels.append(Line2D([0], [0], linestyle=":", label="$\pm 2 Std(" + str(goal) + "_n)$", color='red'))
         ax.set_ylim(top=self.max_y if self.max_y else number_samples / 2)
-        interval = (self.anim_time * 1000) / number_iter
-        ani = animation.FuncAnimation(fig, func=prepare_animation(bar_container, expectation_line, std_line_0,
-                                                                  std_line_1), interval=interval,
-                                      frames=number_iter, repeat=False)
+        self.fps = min(int(number_iter / self.anim_time), 30)
+        number_rendered_frames = int(self.fps * self.anim_time)
+        frames_factor = number_iter / number_rendered_frames
+        self.ani = animation.FuncAnimation(fig, func=prepare_animation(bar_container, expectation_line, std_line_0, std_line_1), interval=int(1000 / self.fps), frames=number_rendered_frames, repeat=False)
         description = f"[{goal.args[1]}]" if isinstance(goal, Piecewise) else str(goal)
         plt.xlabel(f"Empirical distribution of {description}")
         plt.ylabel("Counts")
         if labels:
             ax.legend(handles=labels)
+        self.plt = plt
         plt.show()

@@ -17,8 +17,17 @@ class RunsPlot:
         self.anim_iter = anim_iter
         self.anim_runs = anim_runs
         self.anim_time = anim_time
+        self.fps = -1
         self.first_moment = first_moment
         self.second_moment = second_moment
+        self.plt = None
+        self.ani = None
+
+    def save(self, filename):
+        if self.anim_iter or self.anim_runs:
+            self.ani.save(filename + ".gif", fps=self.fps)
+        else:
+            self.plt.savefig(filename + ".pdf")
 
     def draw(self):
         fig, ax = plt.subplots()
@@ -32,6 +41,7 @@ class RunsPlot:
         first_moment = self.first_moment
         second_moment = self.second_moment
         store = [[] for _ in range(iterations)]
+        frame_factor = 1
         labels = []
 
         run_data = []
@@ -57,6 +67,7 @@ class RunsPlot:
         objects = []
 
         def iter_animation(frame_number):
+            frame_number = int(frames_factor * frame_number)
             for o in objects:
                 o.remove()
             objects.clear()
@@ -71,13 +82,42 @@ class RunsPlot:
             for r in run_data:
                 objects.extend(ax.plot(range(frame_number), r[:frame_number], linewidth=1, color="grey", alpha=0.1))
 
-        legend = ax.legend(handles=labels)
-        if self.anim_iter:
-            iter_animation(iterations)
+        def runs_animation(frame_number):
+            frame_number = int(frames_factor * frame_number)
             for o in objects:
                 o.remove()
             objects.clear()
-            ani = animation.FuncAnimation(fig, iter_animation, iterations, interval=self.anim_time * 1000 / iterations)
+            run_index, run_iter = divmod(frame_number, iterations)
+            for i in range(run_index):
+                objects.extend(ax.plot(range(iterations), run_data[i], linewidth=1, color="grey", alpha=0.1))
+            objects.extend(ax.plot(range(run_iter), run_data[run_index-1][:run_iter], linewidth=1, color="blue"))
+
+        legend = ax.legend(handles=labels)
+        if self.anim_iter:
+            self.fps = min(int(iterations / self.anim_time), 30)
+            number_rendered_frames = int(self.fps * self.anim_time)
+            frames_factor = iterations / number_rendered_frames
+            iter_animation(number_rendered_frames)
+            for o in objects:
+                o.remove()
+            objects.clear()
+            self.ani = animation.FuncAnimation(fig, iter_animation, number_rendered_frames, interval=int(1000 / self.fps))
+        elif self.anim_runs:
+            if first_moment:
+                ax.plot(xs, expectation_data, color="red", linewidth=2)
+            if first_moment and second_moment:
+                ax.plot(xs, std_data_1, ":", color="red", linewidth=1.5)
+                ax.plot(xs, std_data_2, ":", color="red", linewidth=1.5)
+            number_real_frames = len(samples) * iterations
+            self.fps = min(int(number_real_frames / self.anim_time), 30)
+            number_rendered_frames = int(self.fps * self.anim_time)
+            frames_factor = number_real_frames / number_rendered_frames
+            runs_animation(number_rendered_frames)
+            for o in objects:
+                o.remove()
+            objects.clear()
+            self.ani = animation.FuncAnimation(fig, runs_animation, number_rendered_frames, interval=int(1000 / self.fps))
         else:
             iter_animation(iterations)
+        self.plt = plt
         plt.show()
