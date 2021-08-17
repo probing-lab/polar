@@ -2,6 +2,7 @@ from utils import get_unique_var
 from symengine.lib.symengine_wrapper import Symbol
 from sympy import linsolve, sympify, simplify, solve
 from utils import expressions
+from random import randint
 
 
 class MCCombFinder:
@@ -87,14 +88,44 @@ class MCCombFinder:
         return okay, nequations, nequations_variables
 
     @classmethod
+    def __get_concrete_solution__(cls, solution):
+        concrete = True
+        for var in solution.keys():
+            if not solution[var].is_number:
+                concrete = False
+        if concrete:
+            return solution
+
+        cand_var = None
+        for var in solution.keys():
+            if not solution[var].is_number:
+                cand_var = var
+
+        rand_value = 1 # Can be changed to some other nice random number
+        equations = []
+        for var in solution.keys():
+            equations.append(solution[var].subs({cand_var: rand_value}))
+
+        symbols = []
+        equations = []
+        for key in solution.keys():
+            symbols.append(key)
+            equations.append(solution[key])
+
+        solution = solve(equations, symbols, dict = True)
+
+        return cls.__get_concrete_solution__(solution)
+
+
+    @classmethod
     def find_good_combination(cls, candidate, candidate_rec, good_set, candidate_coefficients, program_variables):
         rhs_good_part, good_coeffs = MCCombFinder.get_good_poly(good_set)
         k = Symbol(get_unique_var("k"))
-        candidate = (k * candidate).expand()
+        kcandidate = (k * candidate).expand()
 
         equation_terms = {}
         candidate_rec_monoms = expressions.get_monoms(candidate_rec, candidate_coefficients, with_constant=True)
-        kcandidate_monoms = expressions.get_monoms(candidate, candidate_coefficients | {k}, with_constant=True)
+        kcandidate_monoms = expressions.get_monoms(kcandidate, candidate_coefficients | {k}, with_constant=True)
         good_part_monoms = expressions.get_monoms(rhs_good_part, good_coeffs, with_constant=True)
 
         for coeff, monom in candidate_rec_monoms:
@@ -111,25 +142,5 @@ class MCCombFinder:
 
         solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict = True)
 
-        print(f"solutions = {solutions}")
-        final_solutions = []
-        for solution in solutions:
-            solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
-            while not solution_exact:
-                nsolutions = solve(nequations, nequations_variables)
-                if type(nsolutions) is list:
-                    if len(nsolutions) == 0: #TODO: handle multiple solutions case
-                        break
-                    for nsolution in nsolutions:
-                        for var in solution.keys():
-                            solution[var] = solution[var].subs(nsolution).simplify()
-                else:  # one solution case
-                    for var in solution.keys():
-                        solution[var] = solution[var].subs(nsolutions).simplify()
-                for var in nsolutions:
-                    solution[var] = nsolutions[var]
-                solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
+        print(f"solutions: {solutions}")
 
-            final_solutions.append(solution)
-
-        print(final_solutions)
