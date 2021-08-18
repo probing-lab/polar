@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.lines import Line2D
 
+from .plot import Plot
 from simulation import SimulationResult
 from utils import eval_re
 
 
-class RunsPlot:
+class RunsPlot(Plot):
 
     def __init__(self, simulation_result: SimulationResult, goal, yscale="linear", anim_iter=False, anim_runs=False, anim_time=10, first_moment=None, second_moment=None):
         self.simulation_result = simulation_result
@@ -22,14 +23,9 @@ class RunsPlot:
         self.second_moment = second_moment
         self.plt = None
         self.ani = None
+        self.__build__()
 
-    def save(self, filename):
-        if self.anim_iter or self.anim_runs:
-            self.ani.save(filename + ".gif", fps=self.fps)
-        else:
-            self.plt.savefig(filename + ".pdf")
-
-    def draw(self):
+    def __build__(self):
         fig, ax = plt.subplots()
         goal = sympify(self.goal)
         plt.ylabel("$\mathbb{R}$", rotation=0)
@@ -90,7 +86,7 @@ class RunsPlot:
             run_index, run_iter = divmod(frame_number, iterations)
             for i in range(run_index):
                 objects.extend(ax.plot(range(iterations), run_data[i], linewidth=1, color="grey", alpha=0.1))
-            objects.extend(ax.plot(range(run_iter), run_data[run_index-1][:run_iter], linewidth=1, color="blue"))
+            objects.extend(ax.plot(range(run_iter), run_data[run_index - 1][:run_iter], linewidth=1, color="blue"))
 
         legend = ax.legend(handles=labels)
         if self.anim_iter:
@@ -101,7 +97,8 @@ class RunsPlot:
             for o in objects:
                 o.remove()
             objects.clear()
-            self.ani = animation.FuncAnimation(fig, iter_animation, number_rendered_frames, interval=int(1000 / self.fps))
+            self.ani = animation.FuncAnimation(fig, iter_animation, number_rendered_frames,
+                                               interval=int(1000 / self.fps))
         elif self.anim_runs:
             if first_moment:
                 ax.plot(xs, expectation_data, color="red", linewidth=2)
@@ -116,8 +113,18 @@ class RunsPlot:
             for o in objects:
                 o.remove()
             objects.clear()
-            self.ani = animation.FuncAnimation(fig, runs_animation, number_rendered_frames, interval=int(1000 / self.fps))
+            self.ani = animation.FuncAnimation(fig, runs_animation, number_rendered_frames,
+                                               interval=int(1000 / self.fps))
         else:
+            frames_factor = 1
             iter_animation(iterations)
         self.plt = plt
+
+    def save(self, filename):
+        if self.anim_iter or self.anim_runs:
+            self.ani.save(filename + ".gif", fps=self.fps)
+        else:
+            self.plt.savefig(filename + ".pdf")
+
+    def draw(self):
         plt.show()

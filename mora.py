@@ -151,6 +151,13 @@ arg_parser.add_argument(
 )
 
 arg_parser.add_argument(
+    "--save",
+    action="store_true",
+    default=False,
+    help="If true and in plotting mode the plot is saved to a file."
+)
+
+arg_parser.add_argument(
     "--transform_categoricals",
     action="store_true",
     default=False,
@@ -272,19 +279,18 @@ def plot(args):
             simulator = Simulator(args.simulation_iter)
             result = simulator.simulate(program, [monom], args.number_samples)
             if args.states_plot:
-                states_plot = StatesPlot(result, monom, args.anim_time, args.max_y, first_moment, second_moment)
-                states_plot.draw()
+                p = StatesPlot(result, monom, args.anim_time, args.max_y, first_moment, second_moment)
+            else:
+                p = RunsPlot(result, monom, args.yscale, args.anim_iter, args.anim_runs, args.anim_time, first_moment, second_moment)
+            if args.save:
                 print("Rendering and saving plot")
-                states_plot.save("plot")
+                p.save("plot")
                 print("Plot saved.")
             else:
-                runs_plot = RunsPlot(result, monom, args.yscale, args.anim_iter, args.anim_runs, args.anim_time, first_moment, second_moment)
-                runs_plot.draw()
-                print("Rendering and saving plot")
-                runs_plot.save("plot")
-                print("Plot saved.")
+                p.draw()
 
         except Exception as e:
+            raise e
             print(e)
             exit()
 

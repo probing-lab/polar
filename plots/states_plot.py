@@ -5,11 +5,12 @@ import matplotlib.animation as animation
 import matplotlib
 from matplotlib.lines import Line2D
 
+from .plot import Plot
 from simulation import SimulationResult
 from utils import eval_re
 
 
-class StatesPlot:
+class StatesPlot(Plot):
 
     def __init__(self, simulation_result: SimulationResult, goal, anim_time, max_y=None, first_moment=None, second_moment=None):
         self.simulation_result = simulation_result
@@ -21,12 +22,9 @@ class StatesPlot:
         self.plt = None
         self.ani = None
         self.fps = -1
+        self.__build__()
 
-    def save(self, filename):
-        self.ani.save(filename + ".gif", fps=self.fps)
-
-
-    def draw(self):
+    def __build__(self):
         goal = sympify(self.goal)
         matplotlib.use("TkAgg")
         data = self.simulation_result.get_prepared_data(goal)
@@ -78,11 +76,18 @@ class StatesPlot:
         self.fps = min(int(number_iter / self.anim_time), 30)
         number_rendered_frames = int(self.fps * self.anim_time)
         frames_factor = number_iter / number_rendered_frames
-        self.ani = animation.FuncAnimation(fig, func=prepare_animation(bar_container, expectation_line, std_line_0, std_line_1), interval=int(1000 / self.fps), frames=number_rendered_frames, repeat=False)
+        self.ani = animation.FuncAnimation(fig, func=prepare_animation(bar_container, expectation_line, std_line_0,
+                                                                       std_line_1), interval=int(1000 / self.fps),
+                                           frames=number_rendered_frames, repeat=False)
         description = f"[{goal.args[1]}]" if isinstance(goal, Piecewise) else str(goal)
         plt.xlabel(f"Empirical distribution of {description}")
         plt.ylabel("Counts")
         if labels:
             ax.legend(handles=labels)
         self.plt = plt
+
+    def save(self, filename):
+        self.ani.save(filename + ".gif", fps=self.fps)
+
+    def draw(self):
         plt.show()
