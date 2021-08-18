@@ -368,13 +368,14 @@ def find_mc_combination(args):
             rec_builder = RecBuilder(program)
             candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
             good_set = MCCombFinder.get_good_set(candidate_rec, program.non_mc_variables, program.variables)
-            MCCombFinder.find_good_combination(candidate, candidate_rec, good_set, candidate_coefficients, program.variables)
+            MCCombFinder.find_good_combination(candidate, candidate_rec, good_set, candidate_coefficients, program, args.numeric_roots, args.numeric_croots, args.numeric_eps)
             print(colored("-------------------", "cyan"))
             print(colored("- Analysis Result -", "cyan"))
             print(colored("-------------------", "cyan"))
             print()
 
         except Exception as e:
+            raise e
             print(e)
             exit()
 

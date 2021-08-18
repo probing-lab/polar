@@ -1,8 +1,12 @@
+import recurrences
 from utils import get_unique_var
 from symengine.lib.symengine_wrapper import Symbol
 from sympy import linsolve, sympify, simplify, solve
 from utils import expressions
-from random import randint
+from recurrences.solver import recurrence_solver
+from recurrences import Recurrences, RecBuilder
+from program import Program
+
 
 
 class MCCombFinder:
@@ -116,11 +120,25 @@ class MCCombFinder:
 
         return cls.__get_concrete_solution__(solution)
 
+    @classmethod
+    def __solution_exact__(cls, equations, solution):
+        nequations = []
+        nequations_variables = set()
+        okay = True
+        for eq in equations:
+            substituted_equation = eq.subs(solution).simplify()
+            if not substituted_equation.is_number:
+                okay = False
+                nequations.append(substituted_equation)
+                for symb in substituted_equation.free_symbols:
+                    nequations_variables.add(symb)
+        return okay, nequations, nequations_variables
 
     @classmethod
-    def find_good_combination(cls, candidate, candidate_rec, good_set, candidate_coefficients, program_variables):
+    def find_good_combination(cls, candidate, candidate_rec, good_set, candidate_coefficients, program: Program, numeric_roots, numeric_croots, numeric_eps):
+        global recurrence_solver
         rhs_good_part, good_coeffs = MCCombFinder.get_good_poly(good_set)
-        k = Symbol(get_unique_var("k"))
+        k = Symbol(get_unique_var("k"), nonzero=True)
         kcandidate = (k * candidate).expand()
 
         equation_terms = {}
@@ -142,5 +160,42 @@ class MCCombFinder:
 
         solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict = True)
 
-        print(f"solutions: {solutions}")
+        print(f"initial solutions = {solutions}")
+        final_solutions = []
+        for solution in solutions:
+            solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
+            wrong_solution = False
+            while not solution_exact:
+                nsolutions = solve(nequations, nequations_variables)
+                if type(nsolutions) is list:
+                    if len(nsolutions) == 0:
+                        wrong_solution = True
+                        break
+                    # TODO: handle multiple solutions case
+                else:  # one solution case
+                    for var in solution.keys():
+                        solution[var] = solution[var].subs(nsolutions).simplify()
+                    for var in nsolutions:
+                        solution[var] = nsolutions[var]
+                solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
+            if not wrong_solution:
+                final_solutions.append(solution)
 
+        print(f"final solutions: {final_solutions}")
+
+        good_part_solution = 0
+        for coeff, monom in good_part_monoms:
+            if monom == 1:
+                good_part_solution += coeff
+                continue
+            rec_builder = RecBuilder(program)
+            recs = rec_builder.get_recurrences(monom)
+            rec_solver = recurrence_solver.RecurrenceSolver(
+                recurrences = recs,
+                numeric_roots = numeric_roots,
+                numeric_croots = numeric_croots,
+                numeric_eps = numeric_eps
+            )
+            good_part_solution += coeff * rec_solver.get(monom)
+
+        print(f"good_part_solved: {good_part_solution}")

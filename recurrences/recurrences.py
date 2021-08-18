@@ -1,6 +1,6 @@
 from typing import Dict, List, Set
 
-from sympy import sympify, Expr, Matrix
+from sympy import sympify, Expr, Matrix, Symbol
 
 from program import Program
 from utils import get_monoms
@@ -20,16 +20,20 @@ class Recurrences:
     dependencies: Dict[Expr, Set[Expr]]
     is_acyclic: bool
     is_inhomogeneous = False
+    constant_symbols: List[Symbol]
 
-    def __init__(self, recurrence_dict, init_values_dict, program: Program):
+    def __init__(self, recurrence_dict, init_values_dict, program: Program, const_symbols: List[Symbol] = None):
         self.program = program
         self.recurrence_dict = {sympify(k): sympify(v) for k, v in recurrence_dict.items()}
         self.init_values_dict = {sympify(k): sympify(v) for k, v in init_values_dict.items()}
         self.monomials = list(self.recurrence_dict.keys())
         self.dependencies = {}
+        if const_symbols is None:
+            self.constant_symbols = program.symbols
+        else:
+            self.constant_symbols = const_symbols
         self.__init_data__()
         self.__init_is_acyclic__()
-        pass
 
     def __init_data__(self):
         """
@@ -43,7 +47,7 @@ class Recurrences:
             current_coeffs = default.copy()
             monoms = get_monoms(
                 self.recurrence_dict[v],
-                constant_symbols={sympify(s) for s in self.program.symbols},
+                constant_symbols={sympify(s) for s in self.constant_symbols},
                 with_constant=True,
                 zero=sympify(0), one=sympify(1)
             )
