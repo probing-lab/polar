@@ -1,7 +1,7 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, linsolve, Poly, N, ComplexRootOf
+from sympy import Rational, linsolve, Poly, N, ComplexRootOf, sympify, re
 
 
 def float_to_rational(expr: Expr):
@@ -145,6 +145,7 @@ def get_monoms(poly: Expr, constant_symbols=None, with_constant=False, zero=Zero
         monoms.append((constant, One()))
     return monoms
 
+
 def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
     monoms = get_monoms(poly, [k])
     k_coeff = None
@@ -165,3 +166,7 @@ def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
         k_coeff_coeff_sum = -k_coeff_coeff_sum
     print(f"coeff of {k_coeff} = {k_coeff_coeff_sum}")
     return k_coeff_coeff_sum
+
+def eval_re(subs, expression):
+    result = expression.xreplace({sympify(k): v for k, v in subs.items()})
+    return float(re(result.expand()))
