@@ -1,12 +1,9 @@
-import recurrences
-from utils import get_unique_var
+from utils import get_unique_var, solve_rec_by_summing, get_terms_with_vars, get_monoms
 from symengine.lib.symengine_wrapper import Symbol
-from sympy import linsolve, sympify, simplify, solve
-from utils import expressions
-from recurrences.solver import recurrence_solver
-from recurrences import Recurrences, RecBuilder
+from sympy import solve, symbols, sympify
+from recurrences import RecBuilder
 from program import Program
-
+from recurrences.solver import RecurrenceSolver
 
 
 class MCCombFinder:
@@ -46,7 +43,7 @@ class MCCombFinder:
     @classmethod
     def get_good_set(cls, candidate_rec, bad_variables, variables):
         result = set()
-        monoms = expressions.get_terms_with_vars(candidate_rec, variables)[0]
+        monoms = get_terms_with_vars(candidate_rec, variables)[0]
         index_to_vars = {i: var for i, var in enumerate(variables)}
         for monom, coeff in monoms:
             bad = False
@@ -142,9 +139,9 @@ class MCCombFinder:
         kcandidate = (k * candidate).expand()
 
         equation_terms = {}
-        candidate_rec_monoms = expressions.get_monoms(candidate_rec, candidate_coefficients, with_constant=True)
-        kcandidate_monoms = expressions.get_monoms(kcandidate, candidate_coefficients | {k}, with_constant=True)
-        good_part_monoms = expressions.get_monoms(rhs_good_part, good_coeffs, with_constant=True)
+        candidate_rec_monoms = get_monoms(candidate_rec, candidate_coefficients, with_constant=True)
+        kcandidate_monoms = get_monoms(kcandidate, candidate_coefficients | {k}, with_constant=True)
+        good_part_monoms = get_monoms(rhs_good_part, good_coeffs, with_constant=True)
 
         for coeff, monom in candidate_rec_monoms:
             equation_terms[monom] = equation_terms.get(monom, 0) + coeff
@@ -190,7 +187,7 @@ class MCCombFinder:
                 continue
             rec_builder = RecBuilder(program)
             recs = rec_builder.get_recurrences(monom)
-            rec_solver = recurrence_solver.RecurrenceSolver(
+            rec_solver = RecurrenceSolver(
                 recurrences = recs,
                 numeric_roots = numeric_roots,
                 numeric_croots = numeric_croots,
@@ -199,3 +196,14 @@ class MCCombFinder:
             good_part_solution += coeff * rec_solver.get(monom)
 
         print(f"good_part_solved: {good_part_solution}")
+
+        n = symbols("n", integer=True, positive=True)
+
+        print("*********************")
+        for solution in final_solutions:
+            if sympify(k) not in solution:
+                continue
+
+            print(solution)
+            print(f"E({candidate})[n] = {solution[sympify(k)]}*E({candidate})[n - 1] + {good_part_solution}")
+            print(solve_rec_by_summing(rec_coeff=solution[sympify(k)],init_value=1,inhom_part=good_part_solution,n=n))
