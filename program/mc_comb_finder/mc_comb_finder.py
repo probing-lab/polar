@@ -60,7 +60,7 @@ class MCCombFinder:
         return result
 
     @classmethod
-    def get_good_poly(cls, good_set):
+    def __get_good_poly__(cls, good_set):
         rhs_good_part = 0
         symbols = set()
         for term in good_set:
@@ -89,35 +89,6 @@ class MCCombFinder:
         return okay, nequations, nequations_variables
 
     @classmethod
-    def __get_concrete_solution__(cls, solution):
-        concrete = True
-        for var in solution.keys():
-            if not solution[var].is_number:
-                concrete = False
-        if concrete:
-            return solution
-
-        cand_var = None
-        for var in solution.keys():
-            if not solution[var].is_number:
-                cand_var = var
-
-        rand_value = 1 # Can be changed to some other nice random number
-        equations = []
-        for var in solution.keys():
-            equations.append(solution[var].subs({cand_var: rand_value}))
-
-        symbols = []
-        equations = []
-        for key in solution.keys():
-            symbols.append(key)
-            equations.append(solution[key])
-
-        solution = solve(equations, symbols, dict = True)
-
-        return cls.__get_concrete_solution__(solution)
-
-    @classmethod
     def __solution_exact__(cls, equations, solution):
         nequations = []
         nequations_variables = set()
@@ -134,7 +105,7 @@ class MCCombFinder:
     @classmethod
     def find_good_combination(cls, candidate, candidate_rec, good_set, candidate_coefficients, program: Program, numeric_roots, numeric_croots, numeric_eps):
         global recurrence_solver
-        rhs_good_part, good_coeffs = MCCombFinder.get_good_poly(good_set)
+        rhs_good_part, good_coeffs = cls.__get_good_poly__(good_set)
         k = Symbol(get_unique_var("k"), nonzero=True)
         kcandidate = (k * candidate).expand()
 
@@ -157,7 +128,6 @@ class MCCombFinder:
 
         solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict = True)
 
-        print(f"initial solutions = {solutions}")
         final_solutions = []
         for solution in solutions:
             solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
@@ -178,7 +148,7 @@ class MCCombFinder:
             if not wrong_solution:
                 final_solutions.append(solution)
 
-        print(f"final solutions: {final_solutions}")
+        print(f"Solutions to equation: {final_solutions}")
 
         good_part_solution = 0
         for coeff, monom in good_part_monoms:
@@ -195,15 +165,13 @@ class MCCombFinder:
             )
             good_part_solution += coeff * rec_solver.get(monom)
 
-        print(f"good_part_solved: {good_part_solution}")
-
         n = symbols("n", integer=True, positive=True)
 
-        print("*********************")
+        print("****************************************")
+        print(f"candidate = {candidate}")
         for solution in final_solutions:
             if sympify(k) not in solution:
                 continue
-
             print(solution)
-            print(f"E({candidate})[n] = {solution[sympify(k)]}*E({candidate})[n - 1] + {good_part_solution}")
-            print(solve_rec_by_summing(rec_coeff=solution[sympify(k)],init_value=1,inhom_part=good_part_solution,n=n))
+            print(f"E({candidate.xreplace(solution)})[n] = {solution[sympify(k)]}*E({candidate.xreplace(solution)})[n - 1] + ({good_part_solution})")
+            print(f"solved recursion = {solve_rec_by_summing(rec_coeff=solution[sympify(k)],init_value=1,inhom_part=sympify(good_part_solution),n=n)}")
