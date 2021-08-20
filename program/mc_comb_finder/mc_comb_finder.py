@@ -165,7 +165,7 @@ class MCCombFinder:
             )
             good_part_solution += coeff * rec_solver.get(monom)
 
-        n = symbols("n", integer=True, positive=True)
+        good_part_solution = good_part_solution.xreplace({sympify("n"): sympify("n") - 1})
 
         print("****************************************")
         print(f"candidate = {candidate}")
@@ -174,4 +174,5 @@ class MCCombFinder:
                 continue
             print(solution)
             print(f"E({candidate.xreplace(solution)})[n] = {solution[sympify(k)]}*E({candidate.xreplace(solution)})[n - 1] + ({good_part_solution})")
-            print(f"solved recursion = {solve_rec_by_summing(rec_coeff=solution[sympify(k)],init_value=1,inhom_part=sympify(good_part_solution),n=n)}")
+            ans = solve_rec_by_summing(rec_coeff=solution[sympify(k)],init_value=1,inhom_part=sympify(good_part_solution))
+            print(f"solved recursion = {ans}")
