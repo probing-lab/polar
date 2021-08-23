@@ -3,9 +3,12 @@ from utils import without_piecewise, get_unique_var
 
 
 def solve_rec_by_summing(rec_coeff, init_value, inhom_part):
+    n = None
     for item in inhom_part.free_symbols:
         if str(item) == "n":
             n = item
+    if n is None:
+        n = symbols("n", integer=True, positive=True)
 
     print(f"solving c[n] = {rec_coeff}c[n - 1] + {inhom_part}")
 

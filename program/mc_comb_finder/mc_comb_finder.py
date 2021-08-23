@@ -175,4 +175,5 @@ class MCCombFinder:
             print(solution)
             print(f"E({candidate.xreplace(solution)})[n] = {solution[sympify(k)]}*E({candidate.xreplace(solution)})[n - 1] + ({good_part_solution})")
             ans = solve_rec_by_summing(rec_coeff=solution[sympify(k)],init_value=1,inhom_part=sympify(good_part_solution))
+            ans = ans.xreplace(solution)
             print(f"solved recursion = {ans}")
