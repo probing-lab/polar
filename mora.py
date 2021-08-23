@@ -15,7 +15,7 @@ from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify, Expr
 from sympy import N
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from utils import indent_string
+from utils import indent_string, get_terms_with_vars
 from termcolor import colored
 from program.mc_comb_finder import MCCombFinder
 
@@ -312,6 +312,18 @@ def plot(args):
             exit()
 
 
+def moment_computable(poly: Expr, program):
+    monoms = get_terms_with_vars(poly = poly, variables=program.variables)[0]
+    index_to_vars = {i: var for i, var in enumerate(program.variables)}
+    for monom in monoms:
+        power = monom[0]
+        for i in range(len(power)):
+            if power[i] > 0:
+                cur_var = index_to_vars[i]
+                if cur_var in program.non_mc_variables:
+                    return False
+    return True
+
 def compute_symbolically(args):
     for benchmark in args.benchmarks:
         try:
@@ -327,7 +339,11 @@ def compute_symbolically(args):
             for goal in args.goals:
                 goal_type, goal_data = GoalParser.parse(goal)
                 if goal_type == MOMENT:
-                    handle_moment_goal(goal_data, solvers, rec_builder, args)
+                    if moment_computable(goal_data[0], program):
+                        handle_moment_goal(goal_data, solvers, rec_builder, args)
+                    else:
+                        print(f"E({goal_data[0]}) is not computable. Try running with --mc_comb. There might be a moment computable goal by combining {program.non_mc_variables}")
+
                 elif goal_type == TAIL_BOUND_UPPER:
                     handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args)
                 elif goal_type == TAIL_BOUND_LOWER:
