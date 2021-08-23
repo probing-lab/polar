@@ -65,7 +65,6 @@ class UpdateInfoTransformer(Transformer):
         return all_symbols
 
     def __set_mc_variables__(self):
-        # TODO set self.program.mc_variables and self.program.non_mc_variables
         mc_vars, non_mc_vars = MCChecker.get_mc_variables(self.program)
         self.program.mc_variables = mc_vars
         self.program.non_mc_variables = non_mc_vars
