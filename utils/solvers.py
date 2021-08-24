@@ -1,7 +1,6 @@
 from sympy import symbols, summation
 from utils import without_piecewise, get_unique_var
 
-
 def solve_rec_by_summing(rec_coeff, init_value, inhom_part):
     n = None
     for item in inhom_part.free_symbols:
@@ -9,9 +8,6 @@ def solve_rec_by_summing(rec_coeff, init_value, inhom_part):
             n = item
     if n is None:
         n = symbols("n", integer=True, positive=True)
-
-    print(f"solving c[n] = {rec_coeff}c[n - 1] + {inhom_part}")
-
     hom_solution = (rec_coeff ** n) * init_value
     k = symbols(get_unique_var('k'), integer=True, positive=True)
     summand = ((rec_coeff ** k) * inhom_part.xreplace({n: n - k})).simplify()

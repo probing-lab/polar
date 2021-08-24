@@ -488,13 +488,14 @@ def find_mc_combination(args):
             else:
                 combination_vars = [sympify(v) for v in args.mc_comb]
 
-            MCCombFinder.find_good_combination(
-                combination_vars, combination_deg ,program, args.numeric_roots, args.numeric_croots, args.numeric_eps
-            )
             print(colored("-------------------", "cyan"))
             print(colored("- Analysis Result -", "cyan"))
             print(colored("-------------------", "cyan"))
             print()
+
+            MCCombFinder.find_good_combination(
+                combination_vars, combination_deg ,program, args.numeric_roots, args.numeric_croots, args.numeric_eps
+            )
 
         except Exception as e:
             raise e

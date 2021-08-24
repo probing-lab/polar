@@ -192,7 +192,6 @@ class MCCombFinder:
             rhs_good_part, good_coeffs, numeric_roots, numeric_croots, numeric_eps, program
         )
 
-        print("*****************************************************************************************************")
         print(f"candidate = {candidate}")
         print()
 
