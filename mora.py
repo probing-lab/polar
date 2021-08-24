@@ -7,7 +7,7 @@ import glob
 import time
 from copy import deepcopy
 from argparse import ArgumentParser
-from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
+from inputparser import Parser, GoalParser, MOMENT, CUMULANT, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
@@ -15,7 +15,7 @@ from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
 from sympy import N
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from utils import indent_string
+from utils import indent_string, raw_moments_to_cumulants
 from termcolor import colored
 
 header = """
@@ -311,6 +311,8 @@ def compute_symbolically(args):
                 goal_type, goal_data = GoalParser.parse(goal)
                 if goal_type == MOMENT:
                     handle_moment_goal(goal_data, solvers, rec_builder, args)
+                elif goal_type == CUMULANT:
+                    handle_cumulant_goal(goal_data, solvers, rec_builder, args)
                 elif goal_type == TAIL_BOUND_UPPER:
                     handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args)
                 elif goal_type == TAIL_BOUND_LOWER:
@@ -335,6 +337,26 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args):
         print(f"E({monom} | n={args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
     print()
 
+
+def handle_cumulant_goal(goal_data, solvers, rec_builder, args):
+    number = goal_data[0]
+    monom = goal_data[1]
+    moments = {}
+    all_exact = True
+    for i in reversed(range(1, number+1)):
+        moment, is_exact = get_moment(monom ** i, solvers, rec_builder, args)
+        all_exact = all_exact and is_exact
+        moments[i] = moment
+    cumulants = raw_moments_to_cumulants(moments)
+    print(f"k{number}({monom}) = {cumulants[number]}")
+    if all_exact:
+        print(colored("Solution is exact", "green"))
+    else:
+        print(colored("Solution is rounded", "yellow"))
+    if args.at_n >= 0:
+        cumulant_at_n = cumulants[number].xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        print(f"k{number}({monom} | n={args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
+    print()
 
 def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args):
     monom, a = goal_data[0], goal_data[1]
