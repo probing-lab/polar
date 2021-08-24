@@ -2,7 +2,7 @@ from typing import List
 import random
 from symengine.lib.symengine_wrapper import Expr, sympify
 
-from utils import float_to_rational
+from utils import float_to_rational, get_monoms
 from .assignment import Assignment
 from program.condition import TrueCond
 from .exceptions import EvaluationException
@@ -14,7 +14,21 @@ class PolyAssignment(Assignment):
 
     def __init__(self, variable, polynomials, probabilities):
         super().__init__(variable)
-        self.polynomials = [sympify(p) for p in polynomials]
+        # self.polynomials = [sympify(p) for p in polynomials]
+
+        self.polynomials = []
+        print()
+        for poly in polynomials:
+            expanded_poly = sympify(poly).expand()
+            monoms = get_monoms(expanded_poly)
+            term = 0
+            for coeff, monom in monoms:
+                ncoeff = coeff
+                if coeff.is_Float:
+                    ncoeff = float_to_rational(coeff)
+                term += sympify(ncoeff) * sympify(monom)
+            self.polynomials.append(sympify(term))
+
         self.probabilities = []
         for p in probabilities:
             p = sympify(p)
