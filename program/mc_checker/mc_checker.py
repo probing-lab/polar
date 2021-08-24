@@ -27,7 +27,7 @@ class MCChecker:
         for assign in program.loop_body:
             if isinstance(assign, PolyAssignment):
                 for poly in assign.polynomials:
-                    monoms, const = expressions.get_terms_with_vars(poly, program.variables)
+                    monoms, const = expressions.get_terms_with_vars(poly.expand(), program.variables)
                     for powers, coeff in monoms:
                         non_zero_powers = sum([1 for p in powers if p > 0])
                         if non_zero_powers == 1:
