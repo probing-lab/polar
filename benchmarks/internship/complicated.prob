@@ -5,6 +5,5 @@ while true:
         x, y = x + x*y + v, 2*x + y + x*y + v
     else:
         x, y = x + y + 3*x*y + v, 2*y + x + 3*x*y + v
-    end 
-    t = c * x**2 + d * x*y + f * y**2
+    end
 end

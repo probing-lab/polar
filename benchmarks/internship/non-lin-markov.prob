@@ -1,4 +1,4 @@
-x, y = 0, 0
+x, y = 0, 1
 while true:
     s = Bernoulli(1/2)
     if s == 0:

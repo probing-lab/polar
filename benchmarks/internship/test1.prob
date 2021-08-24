@@ -1,4 +1,6 @@
 s = 0
+x = 2
+y = 1
 while true:
     s = 1 - s
     x = 2*x + y**2 + s
