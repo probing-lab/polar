@@ -342,7 +342,7 @@ def compute_symbolically(args):
                     if moment_computable(goal_data[0], program):
                         handle_moment_goal(goal_data, solvers, rec_builder, args)
                     else:
-                        print(f"E({goal_data[0]}) is not computable. Try running with --mc_comb. There might be a moment computable goal by combining {program.non_mc_variables}")
+                        print(f"E({goal_data[0]}) is not computable. Try running with --mc_comb. There might be a moment computable goal by combining {program.non_mc_variables.intersection(program.original_variables)}")
 
                 elif goal_type == TAIL_BOUND_UPPER:
                     handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args)
@@ -487,11 +487,10 @@ def find_mc_combination(args):
                         combination_vars.append(var)
             else:
                 combination_vars = [sympify(v) for v in args.mc_comb]
-            candidate, candidate_coefficients = MCCombFinder.get_candidate(combination_vars, combination_deg)
-            rec_builder = RecBuilder(program)
-            candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
-            good_set = MCCombFinder.get_good_set(candidate_rec, program.non_mc_variables, program.variables)
-            MCCombFinder.find_good_combination(candidate, candidate_rec, good_set, candidate_coefficients, program, args.numeric_roots, args.numeric_croots, args.numeric_eps)
+
+            MCCombFinder.find_good_combination(
+                combination_vars, combination_deg ,program, args.numeric_roots, args.numeric_croots, args.numeric_eps
+            )
             print(colored("-------------------", "cyan"))
             print(colored("- Analysis Result -", "cyan"))
             print(colored("-------------------", "cyan"))
