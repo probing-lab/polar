@@ -17,10 +17,9 @@ class PolyAssignment(Assignment):
         # self.polynomials = [sympify(p) for p in polynomials]
 
         self.polynomials = []
-        print()
         for poly in polynomials:
             expanded_poly = sympify(poly).expand()
-            monoms = get_monoms(expanded_poly)
+            monoms = get_monoms(expanded_poly, with_constant=True)
             term = 0
             for coeff, monom in monoms:
                 ncoeff = coeff
