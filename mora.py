@@ -7,7 +7,7 @@ import glob
 import time
 from copy import deepcopy
 from argparse import ArgumentParser
-from inputparser import Parser, GoalParser, MOMENT, CUMULANT, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
+from inputparser import Parser, GoalParser, MOMENT, CUMULANT, CENTRAL, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
@@ -15,7 +15,7 @@ from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
 from sympy import N
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from utils import indent_string, raw_moments_to_cumulants
+from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals
 from termcolor import colored
 
 header = """
@@ -313,6 +313,8 @@ def compute_symbolically(args):
                     handle_moment_goal(goal_data, solvers, rec_builder, args)
                 elif goal_type == CUMULANT:
                     handle_cumulant_goal(goal_data, solvers, rec_builder, args)
+                elif goal_type == CENTRAL:
+                    handle_central_moment_goal(goal_data, solvers, rec_builder, args)
                 elif goal_type == TAIL_BOUND_UPPER:
                     handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args)
                 elif goal_type == TAIL_BOUND_LOWER:
@@ -341,15 +343,10 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args):
 def handle_cumulant_goal(goal_data, solvers, rec_builder, args):
     number = goal_data[0]
     monom = goal_data[1]
-    moments = {}
-    all_exact = True
-    for i in reversed(range(1, number+1)):
-        moment, is_exact = get_moment(monom ** i, solvers, rec_builder, args)
-        all_exact = all_exact and is_exact
-        moments[i] = moment
+    moments, is_exact = get_all_moments(monom, number, solvers, rec_builder, args)
     cumulants = raw_moments_to_cumulants(moments)
     print(f"k{number}({monom}) = {cumulants[number]}")
-    if all_exact:
+    if is_exact:
         print(colored("Solution is exact", "green"))
     else:
         print(colored("Solution is rounded", "yellow"))
@@ -358,16 +355,26 @@ def handle_cumulant_goal(goal_data, solvers, rec_builder, args):
         print(f"k{number}({monom} | n={args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
     print()
 
+
+def handle_central_moment_goal(goal_data, solvers, rec_builder, args):
+    number = goal_data[0]
+    monom = goal_data[1]
+    moments, is_exact = get_all_moments(monom, number, solvers, rec_builder, args)
+    central_moments = raw_moments_to_centrals(moments)
+    print(f"c{number}({monom}) = {central_moments[number]}")
+    if is_exact:
+        print(colored("Solution is exact", "green"))
+    else:
+        print(colored("Solution is rounded", "yellow"))
+    if args.at_n >= 0:
+        central_at_n = central_moments[number].xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        print(f"c{number}({monom} | n={args.at_n}) = {central_at_n} ≅ {N(central_at_n)}")
+    print()
+
+
 def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args):
     monom, a = goal_data[0], goal_data[1]
-    moments = {}
-    is_always_exact = True
-    for k in reversed(range(1, args.tail_bound_moments + 1)):
-        monom_power = monom ** k
-        moment, is_exact = get_moment(monom_power, solvers, rec_builder, args)
-        moments[k] = moment
-        is_always_exact = is_always_exact and is_exact
-
+    moments, is_exact = get_all_moments(monom, args.tail_bound_moments, solvers, rec_builder, args)
     bounds = [m / (a ** k) for k, m in moments.items()]
     bounds.reverse()
     print(f"Assuming {monom} is non-negative.")
@@ -376,7 +383,7 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args):
     for bound in bounds:
         print(indent_string(f"({count}) {bound}", 4))
         count += 1
-    if is_always_exact:
+    if is_exact:
         print(colored("Solution is exact", "green"))
     else:
         print(colored("Solution is rounded", "yellow"))
@@ -398,13 +405,12 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args):
 
 def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args):
     monom, a = goal_data[0], goal_data[1]
-    second_moment, is_exact2 = get_moment(monom ** 2, solvers, rec_builder, args)
-    first_moment, is_exact1 = get_moment(monom, solvers, rec_builder, args)
-    bound = ((first_moment - a) ** 2) / (second_moment - 2*a*first_moment + a**2)
+    moments, is_exact = get_all_moments(monom, 2, solvers, rec_builder, args)
+    bound = ((moments[1] - a) ** 2) / (moments[2] - 2*a*moments[1] + a**2)
     bound = bound.simplify()
     print(f"Assuming {monom - a} is non-negative.")
     print(f"P({monom} > {a}) >= {bound}")
-    if is_exact1 and is_exact2:
+    if is_exact:
         print(colored("Solution is exact", "green"))
     else:
         print(colored("Solution is rounded", "yellow"))
@@ -422,6 +428,16 @@ def get_moment(monom, solvers, rec_builder, args):
 
     solver = solvers[monom]
     return sympify(solver.get(monom)), solver.is_exact
+
+
+def get_all_moments(monom, max_moment, solvers, rec_builder, args):
+    moments = {}
+    all_exact = True
+    for i in reversed(range(1, max_moment + 1)):
+        moment, is_exact = get_moment(monom ** i, solvers, rec_builder, args)
+        all_exact = all_exact and is_exact
+        moments[i] = moment
+    return moments, all_exact
 
 
 def prepare_program(benchmark, args):
