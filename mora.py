@@ -11,6 +11,7 @@ from inputparser import Parser, GoalParser, MOMENT, CUMULANT, CENTRAL, TAIL_BOUN
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
+from expansions import GramCharlierExpansion
 from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
 from sympy import N
 from simulation import Simulator
@@ -75,6 +76,22 @@ arg_parser.add_argument(
     default=[],
     nargs="+",
     help="A list of moments MORA should compute or simulate"
+)
+
+arg_parser.add_argument(
+    "--gram_charlier",
+    dest="gram_charlier",
+    type=str,
+    default="",
+    help="A monomial to perform the gram-charlier expansion with"
+)
+
+arg_parser.add_argument(
+    "--gram_charlier_order",
+    dest="gram_charlier_order",
+    default=4,
+    type=int,
+    help="The number of samples to simulate."
 )
 
 arg_parser.add_argument(
@@ -290,12 +307,27 @@ def plot(args):
                 p.draw()
 
         except Exception as e:
-            raise e
             print(e)
             exit()
 
 
-def compute_symbolically(args):
+def compute_gram_charlier(args):
+    for benchmark in args.benchmarks:
+        try:
+            monom = sympify(args.gram_charlier)
+            program = prepare_program(benchmark, args)
+            rec_builder = RecBuilder(program)
+            solvers = {}
+            moments, is_exact = get_all_moments(monom, args.gram_charlier_order, solvers, rec_builder, args)
+            cumulants = raw_moments_to_cumulants(moments)
+            expansion = GramCharlierExpansion(cumulants)
+            print(expansion())
+        except Exception as e:
+            print(e)
+            exit()
+
+
+def compute_goals(args):
     for benchmark in args.benchmarks:
         try:
             program = prepare_program(benchmark, args)
@@ -495,8 +527,10 @@ def main():
         simulate(args)
     if args.plot:
         plot(args)
+    if args.gram_charlier:
+        compute_gram_charlier(args)
     else:
-        compute_symbolically(args)
+        compute_goals(args)
     print(f"Elapsed time: {time.time() - start} s")
 
 
