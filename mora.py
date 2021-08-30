@@ -14,6 +14,7 @@ from recurrences.solver import RecurrenceSolver
 from expansions import GramCharlierExpansion
 from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
 from sympy import N
+from sympy.plotting import plot as symplot
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
 from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals
@@ -320,8 +321,15 @@ def compute_gram_charlier(args):
             solvers = {}
             moments, is_exact = get_all_moments(monom, args.gram_charlier_order, solvers, rec_builder, args)
             cumulants = raw_moments_to_cumulants(moments)
+            if args.at_n >= 0:
+                n = Symbol("n", integer=True, positive=True)
+                cumulants = {i: c.xreplace({n: args.at_n}) for i, c in cumulants.items()}
+
             expansion = GramCharlierExpansion(cumulants)
-            print(expansion())
+            density = expansion()
+            print(density)
+            if args.at_n >= 0:
+                symplot(density, (Symbol("x"), -10, 10))
         except Exception as e:
             print(e)
             exit()
