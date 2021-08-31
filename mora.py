@@ -329,7 +329,7 @@ def compute_gram_charlier(args):
             density = expansion()
             print(density)
             if args.at_n >= 0:
-                symplot(density, (Symbol("x"), -10, 10))
+                symplot(density, (Symbol("x"), -100, 100))
         except Exception as e:
             print(e)
             exit()
