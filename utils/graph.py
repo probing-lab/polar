@@ -15,7 +15,6 @@ class Graph:
             self.V += 1
 
     def add_edge(self, v, u, e):
-        assert (v in self.nodes) and (u in self.nodes), "NODES NOT ADDED"
         v, u = u, v
         v, u = self.nodes[v], self.nodes[u]
         if e > self.adj[v][u]:
@@ -65,29 +64,3 @@ class Graph:
                     if self.nodes[u] == i:
                         result.add(u)
         return result
-
-
-if __name__ == '__main__':
-    g = Graph()
-    g.add_node("a")
-    g.add_node("b")
-    g.add_node("c")
-    g.add_node("d")
-    g.add_node("e")
-    g.add_node("f")
-
-    print(g.nodes)
-    print()
-
-    g.add_edge("a", "b", 2)
-    g.add_edge("b", "c", 1)
-    g.add_edge("c", "d", 1)
-    g.add_edge("d", "a", 1)
-
-    g.add_edge("b", "e", 1)
-    g.add_edge("f", "b", 1)
-
-    print(g)
-    print()
-
-    print(g.get_bad_nodes())
