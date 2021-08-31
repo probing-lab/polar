@@ -480,6 +480,9 @@ def find_mc_combination(args):
     for benchmark in args.benchmarks:
         try:
             program = prepare_program(benchmark, args)
+            if len(program.non_mc_variables) == 0:
+                print(f"--mc-comb not applicable to {benchmark} since all variables are moment computable.")
+                continue
             combination_vars = []
             if len(combination_vars) == 0:
                 for var in program.non_mc_variables:
@@ -487,7 +490,6 @@ def find_mc_combination(args):
                         combination_vars.append(var)
             else:
                 combination_vars = [sympify(v) for v in args.mc_comb]
-
             print(colored("-------------------", "cyan"))
             print(colored("- Analysis Result -", "cyan"))
             print(colored("-------------------", "cyan"))
