@@ -1,0 +1,10 @@
+while true:
+    g = Normal(1, 2)
+    a, b, c, d = a**2 + 2*b*c - d*f + b, d*f - a**2 + 2*b*d + 2*c, g - b*c - b*d + (1/2)*a, g*b {1/2} f*c
+    flip = Bernoulli(1/2)
+    if flip == 0:
+        f =  f-1 {1/2} f+2
+    else:
+        f = f+g {1/3} f*g
+    end
+end
