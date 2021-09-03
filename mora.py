@@ -11,7 +11,7 @@ from inputparser import Parser, GoalParser, MOMENT, CUMULANT, CENTRAL, TAIL_BOUN
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from expansions import GramCharlierExpansion
+from expansions import GramCharlierExpansion, CornishFisherExpansion
 from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
 from sympy import N
 from sympy.plotting import plot as symplot
@@ -92,7 +92,23 @@ arg_parser.add_argument(
     dest="gram_charlier_order",
     default=4,
     type=int,
-    help="The number of samples to simulate."
+    help="The number of cumulants to compute for the expansion"
+)
+
+arg_parser.add_argument(
+    "--cornish_fisher",
+    dest="cornish_fisher",
+    type=str,
+    default="",
+    help="A monomial to perform the cornish-fisher expansion with"
+)
+
+arg_parser.add_argument(
+    "--cornish_fisher_order",
+    dest="cornish_fisher_order",
+    default=4,
+    type=int,
+    help="The number of cumulants to compute for the expansion."
 )
 
 arg_parser.add_argument(
@@ -317,19 +333,26 @@ def compute_gram_charlier(args):
         try:
             monom = sympify(args.gram_charlier)
             program = prepare_program(benchmark, args)
-            rec_builder = RecBuilder(program)
-            solvers = {}
-            moments, is_exact = get_all_moments(monom, args.gram_charlier_order, solvers, rec_builder, args)
-            cumulants = raw_moments_to_cumulants(moments)
-            if args.at_n >= 0:
-                n = Symbol("n", integer=True, positive=True)
-                cumulants = {i: c.xreplace({n: args.at_n}) for i, c in cumulants.items()}
-
+            cumulants = get_all_cumulants(program, monom, args.gram_charlier_order, args)
             expansion = GramCharlierExpansion(cumulants)
             density = expansion()
             print(density)
             if args.at_n >= 0:
-                symplot(density, (Symbol("x"), -100, 100))
+                symplot(density, (Symbol("x"), -10, 10))
+        except Exception as e:
+            print(e)
+            exit()
+
+
+def compute_cornish_fisher(args):
+    for benchmark in args.benchmarks:
+        try:
+            monom = sympify(args.cornish_fisher)
+            program = prepare_program(benchmark, args)
+            cumulants = get_all_cumulants(program, monom, args.cornish_fisher_order, args)
+            expansion = CornishFisherExpansion(cumulants)
+            density = expansion()
+            print(density)
         except Exception as e:
             print(e)
             exit()
@@ -470,6 +493,17 @@ def get_moment(monom, solvers, rec_builder, args):
     return sympify(solver.get(monom)), solver.is_exact
 
 
+def get_all_cumulants(program, monom, max_cumulant, args):
+    rec_builder = RecBuilder(program)
+    solvers = {}
+    moments, is_exact = get_all_moments(monom, max_cumulant, solvers, rec_builder, args)
+    cumulants = raw_moments_to_cumulants(moments)
+    if args.at_n >= 0:
+        n = Symbol("n", integer=True, positive=True)
+        cumulants = {i: c.xreplace({n: args.at_n}) for i, c in cumulants.items()}
+    return cumulants
+
+
 def get_all_moments(monom, max_moment, solvers, rec_builder, args):
     moments = {}
     all_exact = True
@@ -533,10 +567,12 @@ def main():
 
     if args.simulate:
         simulate(args)
-    if args.plot:
+    elif args.plot:
         plot(args)
-    if args.gram_charlier:
+    elif args.gram_charlier:
         compute_gram_charlier(args)
+    elif args.cornish_fisher:
+        compute_cornish_fisher(args)
     else:
         compute_goals(args)
     print(f"Elapsed time: {time.time() - start} s")
