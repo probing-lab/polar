@@ -399,7 +399,7 @@ def get_moment(monom, solvers, rec_builder, args):
         solvers.update({sympify(m): s for m in recurrences.monomials})
 
     solver = solvers[monom]
-    return sympify(solver.get(monom)), solver.is_exact
+    return solver.get(monom), solver.is_exact
 
 
 def prepare_program(benchmark, args):
