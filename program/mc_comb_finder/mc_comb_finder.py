@@ -1,6 +1,6 @@
 from utils import get_unique_var, solve_rec_by_summing, get_terms_with_vars, get_monoms
 from symengine.lib.symengine_wrapper import Symbol
-from sympy import solve, symbols, sympify
+from sympy import solve, sympify
 from recurrences import RecBuilder
 from program import Program
 from recurrences.solver import RecurrenceSolver
@@ -197,7 +197,6 @@ class MCCombFinder:
 
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in nice_solutions:
-            print(solution)
             ans = solve_rec_by_summing(
                 rec_coeff=solution[sympify(k)],
                 init_value=initial_candidate,
