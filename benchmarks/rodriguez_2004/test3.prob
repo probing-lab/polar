@@ -1,6 +1,6 @@
 a, s, t = 0, 1, 1
-while true:
+while s <= 10:
     a, s, t = a+1, s+t+2, t+2
 end
 
-# E(t) = 2a + 1 , E(s) = a^2 + 2a + 1
+# E(t) = a**2 + 2*a + 1
