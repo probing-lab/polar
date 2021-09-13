@@ -18,6 +18,7 @@ class LoopGuardTransformer(Transformer):
         statements, condition = self.__collapse_first_level_ifs__(program.loop_body)
         condition = And(program.loop_guard, condition).simplify()
         program.loop_guard = TrueCond()
+        condition.is_loop_guard = True
         if not isinstance(condition, TrueCond):
             program.loop_body = [IfStatem([condition], [statements])]
         return program

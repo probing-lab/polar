@@ -57,5 +57,5 @@ class And(Condition):
     def __hash__(self):
         return hash(("AND", self.cond1, self.cond2))
 
-    def copy(self):
+    def __simple_copy__(self):
         return And(self.cond1.copy(), self.cond2.copy())

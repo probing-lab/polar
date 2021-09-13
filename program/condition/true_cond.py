@@ -40,5 +40,5 @@ class TrueCond(Condition):
     def __hash__(self):
         return hash("TRUE")
 
-    def copy(self):
+    def __simple_copy__(self):
         return TrueCond()

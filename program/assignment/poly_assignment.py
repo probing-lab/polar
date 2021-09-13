@@ -46,13 +46,13 @@ class PolyAssignment(Assignment):
         symbols = self.condition.get_free_symbols() if with_condition else set()
         for i in range(len(self.polynomials)):
             symbols |= self.polynomials[i].free_symbols | self.probabilities[i].free_symbols
-        if with_default or not isinstance(self.condition, TrueCond):
+        if with_default or not self.condition.is_implied_by_loop_guard():
             symbols.add(self.default)
         return symbols
 
     def get_support(self):
         result = set(self.polynomials)
-        if not isinstance(self.condition, TrueCond):
+        if not self.condition.is_implied_by_loop_guard():
             result.add(self.default)
         return result
 

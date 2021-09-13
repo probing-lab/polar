@@ -2,7 +2,6 @@ from typing import List
 
 from singledispatchmethod import singledispatchmethod
 
-from program import Program
 from program.condition import TrueCond, And, Not, Condition
 from program.ifstatem import IfStatem
 from program.assignment import Assignment, PolyAssignment
