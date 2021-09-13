@@ -318,6 +318,7 @@ def compute_symbolically(args):
                 else:
                     raise RuntimeError(f"Goal type {goal_type} does not exist.")
         except Exception as e:
+            raise e
             print(e)
             exit()
 
@@ -412,6 +413,8 @@ def prepare_program(benchmark, args):
     print(program)
     print()
 
+    # Transform the loop-guard into an if-statement
+    program = LoopGuardTransformer().execute(program)
     # Transform non-constant distributions parameters
     program = DistTransformer().execute(program)
     # Flatten if-statements

@@ -47,7 +47,7 @@ class Assignment(ABC):
         """
         Returns the free symbols in the assignments right side.
         with_condtiion == True <==> symbols of condition are included
-        with_default == False <==> default symbol is not included if condition is syntactically TRUE
+        with_default == False <==> default symbol is excluded if condition is syntactically TRUE
         """
         pass
 
