@@ -16,10 +16,10 @@ class LoopGuardTransformer(Transformer):
 
     def execute(self, program: Program) -> Program:
         statements, condition = self.__collapse_first_level_ifs__(program.loop_body)
-        program.invariant = And(program.loop_guard, condition).simplify()
+        condition = And(program.loop_guard, condition).simplify()
         program.loop_guard = TrueCond()
-        if not isinstance(program.invariant, TrueCond):
-            program.loop_body = [IfStatem([program.invariant], [statements])]
+        if not isinstance(condition, TrueCond):
+            program.loop_body = [IfStatem([condition], [statements])]
         return program
 
     def __collapse_first_level_ifs__(self, statements: List) -> Tuple[List, Condition]:

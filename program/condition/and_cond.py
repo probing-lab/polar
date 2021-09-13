@@ -43,6 +43,11 @@ class And(Condition):
     def get_free_symbols(self):
         return self.cond1.get_free_symbols() | self.cond2.get_free_symbols()
 
+    def is_implied_by_loop_guard(self):
+        if self.is_loop_guard:
+            return True
+        return self.cond1.is_implied_by_loop_guard() and self.cond1.is_implied_by_loop_guard()
+
     def __str__(self):
         return f"({self.cond1} ∧ {self.cond2})"
 

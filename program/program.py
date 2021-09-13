@@ -17,7 +17,6 @@ class Program:
         self.loop_guard = loop_guard
         self.loop_body = loop_body
         self.abstracted_const_store = {}
-        self.invariant = None      # initialized by loop guard transformer
         self.var_to_index = {}     # initialized by info transformer
         self.index_to_var = {}     # initialized by info transformer
         self.dependency_info = {}  # initialized by info transformer

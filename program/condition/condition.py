@@ -5,6 +5,12 @@ from symengine.lib.symengine_wrapper import Expr, Symbol
 
 class Condition(ABC):
 
+    is_loop_guard: bool = False
+
+    @abstractmethod
+    def is_implied_by_loop_guard(self):
+        pass
+
     @abstractmethod
     def simplify(self) -> "Condition":
         pass

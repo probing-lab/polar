@@ -2,6 +2,7 @@ from typing import List
 
 from singledispatchmethod import singledispatchmethod
 
+from program import Program
 from program.condition import TrueCond, And, Not, Condition
 from program.ifstatem import IfStatem
 from program.assignment import Assignment, PolyAssignment
@@ -46,7 +47,7 @@ class IfTransformer(TreeTransformer):
                     else:
                         current_rename_subs[assign.variable] = get_unique_var(name="old")
                         rename_subs[assign.variable] = current_rename_subs[assign.variable]
-            extra_condition = current_condition.copy()
+            extra_condition = current_condition.copy().simplify()
             extra_condition.subs(current_rename_subs)
 
             # Add the branch conditions to the assignments

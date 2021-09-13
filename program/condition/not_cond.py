@@ -33,6 +33,9 @@ class Not(Condition):
     def get_conjuncts(self):
         return [self]
 
+    def is_implied_by_loop_guard(self):
+        return self.is_loop_guard
+
     def __str__(self):
         return f"¬({self.cond})"
 

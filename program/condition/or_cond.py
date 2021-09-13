@@ -45,6 +45,11 @@ class Or(Condition):
     def get_conjuncts(self):
         return [self]
 
+    def is_implied_by_loop_guard(self):
+        if self.is_loop_guard:
+            return True
+        return self.cond1.is_implied_by_loop_guard() or self.cond1.is_implied_by_loop_guard()
+
     def __str__(self):
         return f"({self.cond1} ∨ {self.cond2})"
 
