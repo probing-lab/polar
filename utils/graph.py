@@ -1,12 +1,10 @@
-from program import Program
-
-
 class Graph:
     """
     Responsible for storing program variable dependencies graph.
     """
-    def __init__(self, program: Program):
-        self.adj = [[0] * len(program.variables) for i in range(len(program.variables))]
+
+    def __init__(self, variables_cnt):
+        self.adj = [[0] * variables_cnt for i in range(variables_cnt)]
         self.nodes = {}
         self.V = 0
 

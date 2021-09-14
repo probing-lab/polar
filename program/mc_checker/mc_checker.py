@@ -3,7 +3,7 @@ from typing import Set, Tuple
 from symengine.lib.symengine_wrapper import Symbol
 from program import Program
 from program.assignment import PolyAssignment
-from utils import expressions, graph
+from utils import expressions, Graph
 
 
 GoodVars = Set[Symbol]
@@ -20,8 +20,7 @@ class MCChecker:
     @classmethod
     def __get_dependency_graph__(cls, program: Program):
         index_to_vars = {i: var for i, var in enumerate(program.variables)}
-        dependency_graph = graph.Graph(program)
-
+        dependency_graph = Graph(len(program.variables))
         for assign in program.loop_body:
             dependency_graph.add_node(assign.variable)
         for assign in program.loop_body:

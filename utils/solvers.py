@@ -1,6 +1,7 @@
 from sympy import symbols, summation
 from utils import without_piecewise, get_unique_var
 
+
 def solve_rec_by_summing(rec_coeff, init_value, inhom_part):
     n = None
     for item in inhom_part.free_symbols:

@@ -167,6 +167,20 @@ def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
     print(f"coeff of {k_coeff} = {k_coeff_coeff_sum}")
     return k_coeff_coeff_sum
 
+
 def eval_re(subs, expression):
     result = expression.xreplace({sympify(k): v for k, v in subs.items()})
     return float(re(result.expand()))
+
+
+def is_moment_computable(poly: Expr, program):
+    monoms = get_terms_with_vars(poly=poly, variables=program.variables)[0]
+    index_to_vars = {i: var for i, var in enumerate(program.variables)}
+    for monom in monoms:
+        power = monom[0]
+        for i in range(len(power)):
+            if power[i] > 0:
+                cur_var = index_to_vars[i]
+                if cur_var in program.non_mc_variables:
+                    return False
+    return True

@@ -11,11 +11,11 @@ from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify, Expr
+from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
 from sympy import N
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from utils import indent_string, get_terms_with_vars
+from utils import indent_string, is_moment_computable
 from termcolor import colored
 from program.mc_comb_finder import MCCombFinder
 
@@ -289,8 +289,8 @@ def plot(args):
                 solver_args.numeric_croots = True
                 solver_args.numeric_eps = 0.0000001
                 if args.plot_std:
-                    second_moment, _ = get_moment(monom ** 2, solvers, rec_builder, solver_args)
-                first_moment, _ = get_moment(monom, solvers, rec_builder, solver_args)
+                    second_moment, _ = get_moment(monom ** 2, solvers, rec_builder, solver_args, program)
+                first_moment, _ = get_moment(monom, solvers, rec_builder, solver_args, program)
 
             program = Parser().parse_file(benchmark, args.transform_categoricals)
             simulator = Simulator(args.simulation_iter)
@@ -298,7 +298,8 @@ def plot(args):
             if args.states_plot:
                 p = StatesPlot(result, monom, args.anim_time, args.max_y, first_moment, second_moment)
             else:
-                p = RunsPlot(result, monom, args.yscale, args.anim_iter, args.anim_runs, args.anim_time, first_moment, second_moment)
+                p = RunsPlot(result, monom, args.yscale, args.anim_iter, args.anim_runs, args.anim_time, first_moment,
+                             second_moment)
             if args.save:
                 print("Rendering and saving plot")
                 p.save("plot")
@@ -311,18 +312,6 @@ def plot(args):
             print(e)
             exit()
 
-
-def moment_computable(poly: Expr, program):
-    monoms = get_terms_with_vars(poly = poly, variables=program.variables)[0]
-    index_to_vars = {i: var for i, var in enumerate(program.variables)}
-    for monom in monoms:
-        power = monom[0]
-        for i in range(len(power)):
-            if power[i] > 0:
-                cur_var = index_to_vars[i]
-                if cur_var in program.non_mc_variables:
-                    return False
-    return True
 
 def compute_symbolically(args):
     for benchmark in args.benchmarks:
@@ -339,18 +328,11 @@ def compute_symbolically(args):
             for goal in args.goals:
                 goal_type, goal_data = GoalParser.parse(goal)
                 if goal_type == MOMENT:
-                    if moment_computable(goal_data[0], program):
-                        handle_moment_goal(goal_data, solvers, rec_builder, args)
-                    else:
-                        print(f"E({goal_data[0]}) is not computable. Try running with --mc_comb. "
-                              f"There might be a moment computable goal by combining "
-                              f"{program.non_mc_variables.intersection(program.original_variables)}"
-                        )
-
+                    handle_moment_goal(goal_data, solvers, rec_builder, args, program)
                 elif goal_type == TAIL_BOUND_UPPER:
-                    handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args)
+                    handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program)
                 elif goal_type == TAIL_BOUND_LOWER:
-                    handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args)
+                    handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args, program)
                 else:
                     raise RuntimeError(f"Goal type {goal_type} does not exist.")
         except Exception as e:
@@ -358,9 +340,9 @@ def compute_symbolically(args):
             exit()
 
 
-def handle_moment_goal(goal_data, solvers, rec_builder, args):
+def handle_moment_goal(goal_data, solvers, rec_builder, args, program):
     monom = goal_data[0]
-    moment, is_exact = get_moment(monom, solvers, rec_builder, args)
+    moment, is_exact = get_moment(monom, solvers, rec_builder, args, program)
     print(f"E({monom}) = {moment}")
     if is_exact:
         print(colored("Solution is exact", "green"))
@@ -372,13 +354,13 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args):
     print()
 
 
-def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args):
+def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program):
     monom, a = goal_data[0], goal_data[1]
     moments = {}
     is_always_exact = True
     for k in reversed(range(1, args.tail_bound_moments + 1)):
         monom_power = monom ** k
-        moment, is_exact = get_moment(monom_power, solvers, rec_builder, args)
+        moment, is_exact = get_moment(monom_power, solvers, rec_builder, args, program)
         moments[k] = moment
         is_always_exact = is_always_exact and is_exact
 
@@ -410,11 +392,11 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args):
     print()
 
 
-def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args):
+def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args, program):
     monom, a = goal_data[0], goal_data[1]
-    second_moment, is_exact2 = get_moment(monom ** 2, solvers, rec_builder, args)
-    first_moment, is_exact1 = get_moment(monom, solvers, rec_builder, args)
-    bound = ((first_moment - a) ** 2) / (second_moment - 2*a*first_moment + a**2)
+    second_moment, is_exact2 = get_moment(monom ** 2, solvers, rec_builder, args, program)
+    first_moment, is_exact1 = get_moment(monom, solvers, rec_builder, args, program)
+    bound = ((first_moment - a) ** 2) / (second_moment - 2 * a * first_moment + a ** 2)
     bound = bound.simplify()
     print(f"Assuming {monom - a} is non-negative.")
     print(f"P({monom} > {a}) >= {bound}")
@@ -428,7 +410,10 @@ def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args):
     print()
 
 
-def get_moment(monom, solvers, rec_builder, args):
+def get_moment(monom, solvers, rec_builder, args, program):
+    if not is_moment_computable(monom, program):
+        raise Exception(f"{monom} is not moment computable.")
+
     if monom not in solvers:
         recurrences = rec_builder.get_recurrences(monom)
         s = RecurrenceSolver(recurrences, args.numeric_roots, args.numeric_croots, args.numeric_eps)
@@ -477,7 +462,6 @@ def prepare_program(benchmark, args):
     return program
 
 
-
 def find_mc_combination(args):
     combination_deg = args.mc_comb_deg
     for benchmark in args.benchmarks:
@@ -499,15 +483,13 @@ def find_mc_combination(args):
             print()
 
             MCCombFinder.find_good_combination(
-                combination_vars, combination_deg ,program, args.numeric_roots, args.numeric_croots, args.numeric_eps
+                combination_vars, combination_deg, program, args.numeric_roots, args.numeric_croots, args.numeric_eps
             )
 
         except Exception as e:
             raise e
             print(e)
             exit()
-
-
 
 
 def main():
