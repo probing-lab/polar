@@ -1,12 +1,4 @@
-money = 1
-coin = 0
-games = 0
-while coin == 0:
-    if coin == 0:
-        games = games + 1
-        coin = Bernoulli(1/2)
-        if coin == 0:
-            money = 2*money
-        end
-    end
+a = 2
+while a == 2:
+    a = Bernoulli(1/2)
 end

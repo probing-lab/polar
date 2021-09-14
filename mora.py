@@ -290,7 +290,6 @@ def plot(args):
                 p.draw()
 
         except Exception as e:
-            raise e
             print(e)
             exit()
 
@@ -457,7 +456,7 @@ def main():
 
     if args.simulate:
         simulate(args)
-    if args.plot:
+    elif args.plot:
         plot(args)
     else:
         compute_symbolically(args)

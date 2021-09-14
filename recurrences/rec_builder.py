@@ -75,7 +75,7 @@ class RecBuilder:
             term = rest
             for i in range(len(var_powers)):
                 term *= finite_types[i].reduce_power(var_powers[i])
-            result += term
+            result += term.expand()
 
         return result
 
