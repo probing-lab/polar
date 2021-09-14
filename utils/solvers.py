@@ -14,13 +14,3 @@ def solve_rec_by_summing(rec_coeff, init_value, inhom_part):
     particular_solution = summation(summand, (k, 0, (n - 1)))
     particular_solution = without_piecewise(particular_solution)
     return (hom_solution + particular_solution).simplify()
-
-if __name__ == '__main__':
-    n = symbols("n", integer=True, positive=True)
-    inhom_part = n
-    ans = solve_rec_by_summing(
-        rec_coeff=1,
-        init_value=1,
-        inhom_part=inhom_part
-    )
-    print(ans)

@@ -68,8 +68,6 @@ class RecBuilder:
     def __get_last_assign_index__(self, variables: Set[Symbol]):
         max_index = -1
         for v in variables:
-            # if v not in self.program.var_to_index:
-                # return len(variables) - 1
             if self.program.var_to_index[v] > max_index:
                 max_index = self.program.var_to_index[v]
         return max_index
