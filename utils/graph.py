@@ -1,7 +1,10 @@
 from program import Program
 
-class Graph:
 
+class Graph:
+    """
+    Responsible for storing program variable dependencies graph.
+    """
     def __init__(self, program: Program):
         self.adj = [[0] * len(program.variables) for i in range(len(program.variables))]
         self.nodes = {}
@@ -28,7 +31,6 @@ class Graph:
             res += "\n"
         return res
 
-
     def __dfs__(self, v, mark):
         mark[v] = True
         for i in range(self.V):
@@ -36,6 +38,11 @@ class Graph:
                 self.__dfs__(i, mark)
 
     def get_bad_nodes(self):
+        """
+        Responsible for detecting bad variables in dependency graph. A variable is bad iff
+        1. It appears on a cycle with at least one non-linear dependency typed edge.
+        2. Is reachable from any vertex of any cycle described above.
+        """
         bad = [False] * self.V
         for v in range(self.V):
             for u in range(self.V):

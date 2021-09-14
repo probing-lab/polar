@@ -116,6 +116,9 @@ class MCCombFinder:
 
     @classmethod
     def __get_nice_solutions__(cls, solutions, equations, candidate, k):
+        """
+        Keeps plugging in solutions of SymPy and solving new-made equations until all evaluate to zero
+        """
         nice_solutions = []
         for solution in solutions:
             solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
@@ -126,7 +129,7 @@ class MCCombFinder:
                     if len(nsolutions) == 0:
                         wrong_solution = True
                         break
-                else:  # single solution case
+                else:
                     for var in solution.keys():
                         solution[var] = solution[var].subs(nsolutions).simplify()
                     for var in nsolutions:
@@ -185,7 +188,7 @@ class MCCombFinder:
         solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict = True)
         nice_solutions = cls.__get_nice_solutions__(solutions, equations, candidate, k)
         if len(nice_solutions) == 0:
-            print(f"No combination found with degree {combination_deg}. Try using upper degrees.")
+            print(f"No combination found with degree {combination_deg}. Try using other degrees.")
             return
 
         good_part_solution = cls.__solve_good_part__(

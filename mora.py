@@ -342,7 +342,10 @@ def compute_symbolically(args):
                     if moment_computable(goal_data[0], program):
                         handle_moment_goal(goal_data, solvers, rec_builder, args)
                     else:
-                        print(f"E({goal_data[0]}) is not computable. Try running with --mc_comb. There might be a moment computable goal by combining {program.non_mc_variables.intersection(program.original_variables)}")
+                        print(f"E({goal_data[0]}) is not computable. Try running with --mc_comb. "
+                              f"There might be a moment computable goal by combining "
+                              f"{program.non_mc_variables.intersection(program.original_variables)}"
+                        )
 
                 elif goal_type == TAIL_BOUND_UPPER:
                     handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args)
@@ -481,7 +484,7 @@ def find_mc_combination(args):
         try:
             program = prepare_program(benchmark, args)
             if len(program.non_mc_variables) == 0:
-                print(f"--mc-comb not applicable to {benchmark} since all variables are moment computable.")
+                print(f"--mc_comb not applicable to {benchmark} since all variables are already moment computable.")
                 continue
             combination_vars = []
             if len(combination_vars) == 0:
