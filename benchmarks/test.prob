@@ -1,4 +1,6 @@
-w, x, y, z = 1, 1, 1, 1
+b = 0
 while true:
-    w, x, y, z = w + y, -w + x + 2*y, x - y, z + w*y
+    a = Normal(5, 1)
+    b = 1 - b
+    c = (a**2)*(b**5)*c
 end
