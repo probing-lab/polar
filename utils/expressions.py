@@ -1,7 +1,7 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, linsolve, Poly, sympify, re, ComplexRootOf, N
+from sympy import Rational, linsolve, Poly, sympify, re, ComplexRootOf, N, symbols
 
 
 def float_to_rational(expr: Expr):
@@ -168,9 +168,12 @@ def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
     return k_coeff_coeff_sum
 
 
-def eval_re(subs, expression):
-    result = expression.xreplace({sympify(k): v for k, v in subs.items()})
-    return float(re(result.expand()))
+def eval_re(n, expression):
+    result = expression.xreplace({
+        symbols("n"): n,
+        symbols("n", positive=True, integer=True): n
+    })
+    return re(result.expand())
 
 
 def numerify_croots(expression):

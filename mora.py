@@ -371,6 +371,7 @@ def compute_gram_charlier(args):
             if args.at_n >= 0:
                 symplot(density, (Symbol("x"), -10, 10))
         except Exception as e:
+            raise e
             print(e)
             exit()
 
@@ -429,7 +430,7 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args, program):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        moment_at_n = eval_re(moment, {"n": args.at_n}).expand()
+        moment_at_n = eval_re(args.at_n, moment).expand()
         print(f"E({monom} | n={args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
     print()
 
@@ -445,7 +446,7 @@ def handle_cumulant_goal(goal_data, solvers, rec_builder, args, program):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        cumulant_at_n = eval_re(cumulants[number], {"n": args.at_n}).expand()
+        cumulant_at_n = eval_re(args.at_n, cumulants[number]).expand()
         print(f"k{number}({monom} | n={args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
     print()
 
@@ -461,7 +462,7 @@ def handle_central_moment_goal(goal_data, solvers, rec_builder, args, program):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        central_at_n = eval_re(central_moments[number], {"n": args.at_n}).expand()
+        central_at_n = eval_re(args.at_n, central_moments[number]).expand()
         print(f"c{number}({monom} | n={args.at_n}) = {central_at_n} ≅ {N(central_at_n)}")
     print()
 
@@ -483,7 +484,7 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program)
         print(colored("Solution is rounded", "yellow"))
 
     if args.at_n >= 0:
-        bounds_at_n = [eval_re(b, {"n": args.at_n}).expand() for b in bounds]
+        bounds_at_n = [eval_re(args.at_n, b).expand() for b in bounds]
         can_take_min = all([not b.free_symbols for b in bounds_at_n])
         if can_take_min:
             bound_at_n = min(bounds_at_n)
@@ -509,7 +510,7 @@ def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args, program)
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        bound_at_n = eval_re({"n": args.at_n}, bound)
+        bound_at_n = eval_re(args.at_n, bound)
         print(f"P({monom} > {a} | n={args.at_n}) >= {bound_at_n} ≅ {N(bound_at_n)}")
     print()
 
@@ -538,7 +539,7 @@ def get_all_cumulants(program, monom, max_cumulant, args):
     moments, is_exact = get_all_moments(monom, max_cumulant, solvers, rec_builder, args, program)
     cumulants = raw_moments_to_cumulants(moments)
     if args.at_n >= 0:
-        cumulants = {i: eval_re(c, {"n": args.at_n}) for i, c in cumulants.items()}
+        cumulants = {i: eval_re(args.at_n, c) for i, c in cumulants.items()}
     return cumulants
 
 
