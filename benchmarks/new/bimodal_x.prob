@@ -1,7 +1,3 @@
-types
-c: Finite(0,1,2)
-end
-
 x = 2
 xlow = 0
 xup = 0
