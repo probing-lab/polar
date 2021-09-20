@@ -1,0 +1,12 @@
+x, y, z = a, b, c
+s = 0
+while true:
+    s = 1 - s
+    if s == 0:
+        x, y, z = 2*x, (1/2)*(y-1), x + z
+    else:
+        x, y, z = 2*x, (1/2)*y, z
+    end
+end
+
+# E(z + x*y) = ab + c

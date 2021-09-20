@@ -7,19 +7,22 @@ from utils import indent_string
 class Program:
     children = ["initial", "loop_body"]
 
-    def __init__(self, types, variables, initial, loop_guard, loop_body):
+    def __init__(self, types, variables, original_variables, initial, loop_guard, loop_body):
         self.typedefs = {}
         self.finite_variables = []
         self.add_types(types)
+        self.original_variables = {sympify(v) for v in original_variables}
         self.variables = {sympify(v) for v in variables}
         self.symbols = set()
         self.initial = initial
         self.loop_guard = loop_guard
         self.loop_body = loop_body
         self.abstracted_const_store = {}
-        self.var_to_index = {}     # initialized by info transformer
-        self.index_to_var = {}     # initialized by info transformer
-        self.dependency_info = {}  # initialized by info transformer
+        self.var_to_index = {}          # initialized by info transformer
+        self.index_to_var = {}          # initialized by info transformer
+        self.dependency_info = {}       # initialized by info transformer
+        self.mc_variables = set()       # initialize by info transformer
+        self.non_mc_variables = set()   # initialize by info transformer
 
     def add_type(self, t: Type):
         if t is not None:
