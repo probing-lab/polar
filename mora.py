@@ -11,11 +11,11 @@ from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
+from symengine.lib.symengine_wrapper import Piecewise, sympify
 from sympy import N
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from utils import indent_string, is_moment_computable
+from utils import indent_string, is_moment_computable, eval_re
 from termcolor import colored
 from program.mc_comb_finder import MCCombFinder
 
@@ -306,9 +306,7 @@ def plot(args):
                 print("Plot saved.")
             else:
                 p.draw()
-
         except Exception as e:
-            raise e
             print(e)
             exit()
 
@@ -349,7 +347,7 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args, program):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        moment_at_n = moment.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        moment_at_n = eval_re(moment, {"n": args.at_n}).expand()
         print(f"E({monom} | n={args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
     print()
 
@@ -378,7 +376,7 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program)
         print(colored("Solution is rounded", "yellow"))
 
     if args.at_n >= 0:
-        bounds_at_n = [b.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand() for b in bounds]
+        bounds_at_n = [eval_re(b, {"n": args.at_n}).expand() for b in bounds]
         can_take_min = all([not b.free_symbols for b in bounds_at_n])
         if can_take_min:
             bound_at_n = min(bounds_at_n)
@@ -405,7 +403,7 @@ def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args, program)
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        bound_at_n = bound.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        bound_at_n = eval_re({"n": args.at_n}, bound)
         print(f"P({monom} > {a} | n={args.at_n}) >= {bound_at_n} ≅ {N(bound_at_n)}")
     print()
 
@@ -487,7 +485,6 @@ def find_mc_combination(args):
             )
 
         except Exception as e:
-            raise e
             print(e)
             exit()
 
