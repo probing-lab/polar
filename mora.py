@@ -430,7 +430,6 @@ def get_moment(monom, solvers, rec_builder, args, program):
         recurrences = rec_builder.get_recurrences(monom)
         s = RecurrenceSolver(recurrences, args.numeric_roots, args.numeric_croots, args.numeric_eps)
         solvers.update({sympify(m): s for m in recurrences.monomials})
-
     solver = solvers[monom]
     moment = solver.get(monom)
 
@@ -467,6 +466,8 @@ def prepare_program(benchmark, args):
     # Infer types for variables
     if not args.disable_type_inference:
         program = TypeInferer(args.type_fp_iterations).execute(program)
+    # Update dependency graph (because finite variables are now detected)
+    program = UpdateInfoTransformer().execute(program)
     # Turn all conditions into normalized form
     program = ConditionsNormalizer().execute(program)
     # Convert all conditions to arithmetic
