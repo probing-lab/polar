@@ -1,0 +1,11 @@
+s = 0
+while true:
+    s = 1 - s
+    tmp = x + z - y
+    if s == 0:
+        x = x + y
+    else:
+        z = z + y
+    end
+    y = tmp
+end

@@ -145,6 +145,28 @@ def get_monoms(poly: Expr, constant_symbols=None, with_constant=False, zero=Zero
     return monoms
 
 
+def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
+    monoms = get_monoms(poly, [k])
+    k_coeff = None
+    neg = False
+    for coeff, var in monoms:
+        if coeff == k:
+            k_coeff = var
+        if coeff == -k:
+            k_coeff = var
+            neg = True
+
+    k_coeff_coeff_sum = 0
+    for coeff, var in monoms:
+        if var == k_coeff and coeff != k and coeff != -k:
+            k_coeff_coeff_sum += coeff
+
+    if not neg:
+        k_coeff_coeff_sum = -k_coeff_coeff_sum
+    print(f"coeff of {k_coeff} = {k_coeff_coeff_sum}")
+    return k_coeff_coeff_sum
+
+
 def eval_re(subs, expression):
     result = expression.xreplace({sympify(k): v for k, v in subs.items()})
     return float(re(result.expand()))
@@ -156,3 +178,16 @@ def numerify_croots(expression):
     Returns the new expression and a boolean which is true iff no croots where found
     """
     return expression, False
+
+
+def is_moment_computable(poly: Expr, program):
+    monoms = get_terms_with_vars(poly=poly, variables=program.variables)[0]
+    index_to_vars = {i: var for i, var in enumerate(program.variables)}
+    for monom in monoms:
+        power = monom[0]
+        for i in range(len(power)):
+            if power[i] > 0:
+                cur_var = index_to_vars[i]
+                if cur_var in program.non_mc_variables:
+                    return False
+    return True

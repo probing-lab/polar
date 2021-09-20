@@ -1,0 +1,10 @@
+s = 0
+x = 2
+y = 1
+z = 0
+while true:
+    s = Bernoulli(1/2)
+    z = z - 1 {1/2} z + 2
+    x = 2*x + y**2 + s + z
+    y = 2*y - y**2 + 2*s
+end
