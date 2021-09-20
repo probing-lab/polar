@@ -1,6 +1,6 @@
 from functools import lru_cache
 from typing import Set, List
-from symengine.lib.symengine_wrapper import Expr, Symbol, sympify
+from symengine.lib.symengine_wrapper import Expr, Symbol, sympify, One, Zero
 from program import Program
 from program.assignment import Assignment
 from program.type import Finite
@@ -36,20 +36,18 @@ class RecBuilder:
         init_values_dict = self.get_initial_values(processed)
         return Recurrences(recurrence_dict, init_values_dict, self.program)
 
-
     def get_recurrence_poly(self, poly: Expr, variables: List[Symbol]):
         monoms = get_terms_with_vars(poly, variables)
         monoms = monoms[0]
         index_to_vars = {i: var for i, var in enumerate(variables)}
-        poly, poly_rec = 0, 0
+        poly, poly_rec = Zero(), Zero()
         for monom, coeff in monoms:
-            term = 1
+            term = One()
             for i in range(len(monom)):
                 term *= index_to_vars[i] ** monom[i]
             poly_rec += coeff * self.get_recurrence(term)
             poly += term
         return poly_rec.expand()
-
 
     @lru_cache(maxsize=None)
     def get_recurrence(self, monomial: Expr):
