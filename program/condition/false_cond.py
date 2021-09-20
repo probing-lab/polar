@@ -25,7 +25,10 @@ class FalseCond(Condition):
     def get_free_symbols(self):
         return set()
 
-    def copy(self):
+    def is_implied_by_loop_guard(self):
+        return self.is_loop_guard
+
+    def __simple_copy__(self):
         return FalseCond()
 
     def __str__(self):

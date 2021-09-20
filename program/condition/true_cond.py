@@ -4,6 +4,9 @@ from .condition import Condition
 
 class TrueCond(Condition):
 
+    def is_implied_by_loop_guard(self):
+        return True
+
     def simplify(self):
         return self
 
@@ -37,5 +40,5 @@ class TrueCond(Condition):
     def __hash__(self):
         return hash("TRUE")
 
-    def copy(self):
+    def __simple_copy__(self):
         return TrueCond()

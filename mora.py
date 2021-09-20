@@ -12,7 +12,7 @@ from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import Piecewise, sympify
-from sympy import N
+from sympy import N, limit, Symbol, oo
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
 from utils import indent_string, is_moment_computable, eval_re
@@ -28,7 +28,7 @@ header = """
  |_|  |_|\____/|_|  \_\/_/    \_\  By the PROBING group
 """
 
-arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
+arg_parser = ArgumentParser(description="Run MORA on probabilistic loops stored in files")
 
 arg_parser.add_argument(
     "benchmarks",
@@ -215,6 +215,20 @@ arg_parser.add_argument(
     default=2,
     type=int,
     help="The number of moments to consider when computing Markov's inequality"
+)
+
+arg_parser.add_argument(
+    "--trivial_guard",
+    action="store_true",
+    default=False,
+    help="If set any loop guard will be overridden with 'true'"
+)
+
+arg_parser.add_argument(
+    "--after_loop",
+    action="store_true",
+    default=False,
+    help="If set fixedpoints/limits are used to compute the moments after the loop"
 )
 
 arg_parser.add_argument(
@@ -418,7 +432,12 @@ def get_moment(monom, solvers, rec_builder, args, program):
         solvers.update({sympify(m): s for m in recurrences.monomials})
 
     solver = solvers[monom]
-    return solver.get(monom), solver.is_exact
+    moment = solver.get(monom)
+
+    if args.after_loop:
+        moment = limit(moment, Symbol("n", integer=True, positive=True), oo)
+
+    return moment, solver.is_exact
 
 
 def prepare_program(benchmark, args):
@@ -431,6 +450,8 @@ def prepare_program(benchmark, args):
     print(program)
     print()
 
+    # Transform the loop-guard into an if-statement
+    program = LoopGuardTransformer(args.trivial_guard).execute(program)
     # Transform non-constant distributions parameters
     program = DistTransformer().execute(program)
     # Flatten if-statements

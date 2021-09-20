@@ -45,6 +45,11 @@ class Or(Condition):
     def get_conjuncts(self):
         return [self]
 
+    def is_implied_by_loop_guard(self):
+        if self.is_loop_guard:
+            return True
+        return self.cond1.is_implied_by_loop_guard() or self.cond1.is_implied_by_loop_guard()
+
     def __str__(self):
         return f"({self.cond1} ∨ {self.cond2})"
 
@@ -54,5 +59,5 @@ class Or(Condition):
     def __hash__(self):
         return hash(("OR", self.cond1, self.cond2))
 
-    def copy(self):
+    def __simple_copy__(self):
         return Or(self.cond1.copy(), self.cond2.copy())

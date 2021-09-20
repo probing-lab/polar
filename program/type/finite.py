@@ -27,6 +27,8 @@ class Finite(Type):
             return 1
         if self.binary:
             return self.variable
+        if power < len(self.values):
+            return self.variable ** power
 
         reduced_powers, tmp_var = get_reduced_powers(self.__ordered_values__, power)
         return reduced_powers.xreplace({tmp_var: self.variable})
