@@ -3,6 +3,7 @@ from symengine.lib.symengine_wrapper import Symbol
 from itertools import combinations
 
 from .transformer import Transformer
+from program.mc_checker import MCChecker
 from program import Program
 from dataclasses import dataclass, field
 
@@ -18,6 +19,7 @@ class UpdateInfoTransformer(Transformer):
         self.program = program
         self.__set_variables_and_symbols__()
         self.__set_dependencies__()
+        self.__set_mc_variables__()
         return program
 
     def __set_variables_and_symbols__(self):
@@ -61,6 +63,11 @@ class UpdateInfoTransformer(Transformer):
         for assign in assignments:
             all_symbols |= assign.get_free_symbols()
         return all_symbols
+
+    def __set_mc_variables__(self):
+        mc_vars, non_mc_vars = MCChecker.get_mc_variables(self.program)
+        self.program.mc_variables = mc_vars
+        self.program.non_mc_variables = non_mc_vars
 
 
 @dataclass
