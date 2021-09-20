@@ -14,7 +14,16 @@ class LoopGuardTransformer(Transformer):
     if cond1 and cond2: stuff end
     """
 
+    trivial_guard: bool = False
+
+    def __init__(self, trivial_guard: bool):
+        self.trivial_guard = trivial_guard
+
     def execute(self, program: Program) -> Program:
+        if self.trivial_guard:
+            program.loop_guard = TrueCond()
+            return program
+
         statements, condition = self.__collapse_first_level_ifs__(program.loop_body)
         condition = And(program.loop_guard, condition).simplify()
         program.loop_guard = TrueCond()
