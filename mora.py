@@ -12,12 +12,12 @@ from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from expansions import GramCharlierExpansion, CornishFisherExpansion
-from symengine.lib.symengine_wrapper import Piecewise, Symbol, sympify
-from sympy import N
+from symengine.lib.symengine_wrapper import Piecewise, sympify
+from sympy import N, limit, Symbol, oo
 from sympy.plotting import plot as symplot
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, is_moment_computable
+from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, is_moment_computable, eval_re
 from termcolor import colored
 from program.mc_comb_finder import MCCombFinder
 
@@ -30,7 +30,7 @@ header = """
  |_|  |_|\____/|_|  \_\/_/    \_\  By the PROBING group
 """
 
-arg_parser = ArgumentParser(description="Run MORA on probabilistic programs stored in files")
+arg_parser = ArgumentParser(description="Run MORA on probabilistic loops stored in files")
 
 arg_parser.add_argument(
     "benchmarks",
@@ -252,6 +252,20 @@ arg_parser.add_argument(
 )
 
 arg_parser.add_argument(
+    "--trivial_guard",
+    action="store_true",
+    default=False,
+    help="If set any loop guard will be overridden with 'true'"
+)
+
+arg_parser.add_argument(
+    "--after_loop",
+    action="store_true",
+    default=False,
+    help="If set fixedpoints/limits are used to compute the moments after the loop"
+)
+
+arg_parser.add_argument(
     "--mc_comb",
     dest="mc_comb",
     type=str,
@@ -340,7 +354,6 @@ def plot(args):
                 print("Plot saved.")
             else:
                 p.draw()
-
         except Exception as e:
             print(e)
             exit()
@@ -416,7 +429,7 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args, program):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        moment_at_n = moment.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        moment_at_n = eval_re(moment, {"n": args.at_n}).expand()
         print(f"E({monom} | n={args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
     print()
 
@@ -432,7 +445,7 @@ def handle_cumulant_goal(goal_data, solvers, rec_builder, args, program):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        cumulant_at_n = cumulants[number].xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        cumulant_at_n = eval_re(cumulants[number], {"n": args.at_n}).expand()
         print(f"k{number}({monom} | n={args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
     print()
 
@@ -448,7 +461,7 @@ def handle_central_moment_goal(goal_data, solvers, rec_builder, args, program):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        central_at_n = central_moments[number].xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        central_at_n = eval_re(central_moments[number], {"n": args.at_n}).expand()
         print(f"c{number}({monom} | n={args.at_n}) = {central_at_n} ≅ {N(central_at_n)}")
     print()
 
@@ -470,7 +483,7 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program)
         print(colored("Solution is rounded", "yellow"))
 
     if args.at_n >= 0:
-        bounds_at_n = [b.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand() for b in bounds]
+        bounds_at_n = [eval_re(b, {"n": args.at_n}).expand() for b in bounds]
         can_take_min = all([not b.free_symbols for b in bounds_at_n])
         if can_take_min:
             bound_at_n = min(bounds_at_n)
@@ -496,7 +509,7 @@ def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args, program)
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        bound_at_n = bound.xreplace({Symbol("n", integer=True, positive=True): args.at_n}).expand()
+        bound_at_n = eval_re({"n": args.at_n}, bound)
         print(f"P({monom} > {a} | n={args.at_n}) >= {bound_at_n} ≅ {N(bound_at_n)}")
     print()
 
@@ -511,7 +524,12 @@ def get_moment(monom, solvers, rec_builder, args, program):
         solvers.update({sympify(m): s for m in recurrences.monomials})
 
     solver = solvers[monom]
-    return sympify(solver.get(monom)), solver.is_exact
+    moment = solver.get(monom)
+
+    if args.after_loop:
+        moment = limit(moment, Symbol("n", integer=True, positive=True), oo)
+
+    return moment, solver.is_exact
 
 
 def get_all_cumulants(program, monom, max_cumulant, args):
@@ -520,8 +538,7 @@ def get_all_cumulants(program, monom, max_cumulant, args):
     moments, is_exact = get_all_moments(monom, max_cumulant, solvers, rec_builder, args, program)
     cumulants = raw_moments_to_cumulants(moments)
     if args.at_n >= 0:
-        n = Symbol("n", integer=True, positive=True)
-        cumulants = {i: c.xreplace({n: args.at_n}) for i, c in cumulants.items()}
+        cumulants = {i: eval_re(c, {"n": args.at_n}) for i, c in cumulants.items()}
     return cumulants
 
 
@@ -545,6 +562,8 @@ def prepare_program(benchmark, args):
     print(program)
     print()
 
+    # Transform the loop-guard into an if-statement
+    program = LoopGuardTransformer(args.trivial_guard).execute(program)
     # Transform non-constant distributions parameters
     program = DistTransformer().execute(program)
     # Flatten if-statements
@@ -599,7 +618,6 @@ def find_mc_combination(args):
             )
 
         except Exception as e:
-            raise e
             print(e)
             exit()
 

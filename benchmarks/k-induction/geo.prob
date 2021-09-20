@@ -1,3 +1,4 @@
+f = 1
 while f == 1:
     case = Bernoulli(1/2)
     if case == 1:

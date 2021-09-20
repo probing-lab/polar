@@ -7,3 +7,4 @@ from .update_info_transformer import UpdateInfoTransformer
 from .conditions_reducer import ConditionsReducer
 from .conditions_normalizer import ConditionsNormalizer
 from .constants_transformer import ConstantsTransformer
+from .loop_guard_transformer import LoopGuardTransformer

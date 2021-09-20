@@ -95,6 +95,9 @@ class Atom(Condition):
 
         return result
 
+    def is_implied_by_loop_guard(self):
+        return self.is_loop_guard
+
     def get_conjuncts(self):
         return [self]
 
@@ -110,5 +113,5 @@ class Atom(Condition):
     def __hash__(self):
         return hash((self.poly1, self.cop, self.poly2))
 
-    def copy(self):
+    def __simple_copy__(self):
         return Atom(self.poly1.copy(), self.cop, self.poly2.copy())

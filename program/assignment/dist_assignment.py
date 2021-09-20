@@ -1,5 +1,3 @@
-from typing import Optional
-
 from symengine.lib.symengine_wrapper import Expr
 
 from .assignment import Assignment
@@ -24,7 +22,7 @@ class DistAssignment(Assignment):
         symbols = self.distribution.get_free_symbols()
         if with_condition:
             symbols |= self.condition.get_free_symbols()
-        if with_default or not isinstance(self.condition, TrueCond):
+        if with_default or self.condition.is_implied_by_loop_guard():
             symbols.add(self.default)
         return symbols
 
