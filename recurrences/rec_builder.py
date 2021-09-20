@@ -36,6 +36,21 @@ class RecBuilder:
         init_values_dict = self.get_initial_values(processed)
         return Recurrences(recurrence_dict, init_values_dict, self.program)
 
+
+    def get_recurrence_poly(self, poly: Expr, variables: List[Symbol]):
+        monoms = get_terms_with_vars(poly, variables)
+        monoms = monoms[0]
+        index_to_vars = {i: var for i, var in enumerate(variables)}
+        poly, poly_rec = 0, 0
+        for monom, coeff in monoms:
+            term = 1
+            for i in range(len(monom)):
+                term *= index_to_vars[i] ** monom[i]
+            poly_rec += coeff * self.get_recurrence(term)
+            poly += term
+        return poly_rec.expand()
+
+
     @lru_cache(maxsize=None)
     def get_recurrence(self, monomial: Expr):
         right_side = monomial
@@ -69,14 +84,12 @@ class RecBuilder:
     def __reduce_powers__(self, poly: Expr):
         terms_with_vars, rest_without_vars = get_terms_with_vars(poly, self.program.finite_variables)
         finite_types: List[Finite] = [self.program.get_type(v) for v in self.program.finite_variables]
-
         result = rest_without_vars
         for var_powers, rest in terms_with_vars:
             term = rest
             for i in range(len(var_powers)):
                 term *= finite_types[i].reduce_power(var_powers[i])
             result += term
-
         return result
 
     def get_initial_values(self, monomials: Set[Expr]):
