@@ -462,7 +462,7 @@ def prepare_program(benchmark, args):
     # Replace/Add constants in loop body
     program = ConstantsTransformer().execute(program)
     # Update program info like variables and symbols
-    program = UpdateInfoTransformer().execute(program)
+    program = UpdateInfoTransformer(ignore_mc_variables=True).execute(program)
     # Infer types for variables
     if not args.disable_type_inference:
         program = TypeInferer(args.type_fp_iterations).execute(program)
