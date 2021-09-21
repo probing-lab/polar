@@ -65,10 +65,13 @@ class CyclicSolver(Solver):
         if monomial not in self.monomials:
             raise SolverException(f"Monomial {monomial} not in current system of recurrences")
 
-        concrete_unknowns = self.__solve_for_unknowns__(monomial)
-        unknown_subs = {u: s for u, s in zip(self.gen_sol_unknowns, concrete_unknowns)}
-        solution = self.general_solution.xreplace(unknown_subs).expand()
-        return solution
+        solution = self.general_solution
+        if self.gen_sol_unknowns:
+            concrete_unknowns = self.__solve_for_unknowns__(monomial)
+            unknown_subs = {u: s for u, s in zip(self.gen_sol_unknowns, concrete_unknowns)}
+            solution = self.general_solution.xreplace(unknown_subs)
+
+        return solution.expand()
 
     def __solve_for_unknowns__(self, monomial: Expr):
         number_equations = len(self.gen_sol_unknowns)
