@@ -3,9 +3,11 @@ from symengine.lib.symengine_wrapper import Symbol
 from itertools import combinations
 
 from .transformer import Transformer
-from program.mc_checker import MCChecker
 from program import Program
+from program.mc_checker import MCChecker
+from program.assignment import DistAssignment
 from dataclasses import dataclass, field
+
 
 
 class UpdateInfoTransformer(Transformer):
@@ -14,17 +16,27 @@ class UpdateInfoTransformer(Transformer):
     The transformer requires that the passed program is already flattened, meaning does not contain any if-statements.
     """
     program: Program
+    ignore_mc_variables: bool
+
+    def __init__(self, ignore_mc_variables: bool = False):
+        self.ignore_mc_variables = ignore_mc_variables
 
     def execute(self, program: Program) -> Program:
         self.program = program
         self.__set_variables_and_symbols__()
         self.__set_dependencies__()
-        self.__set_mc_variables__()
+        if not self.ignore_mc_variables:
+            self.__set_mc_variables__()
         return program
 
     def __set_variables_and_symbols__(self):
         variables_initial = [a.variable for a in self.program.initial]
-        variables_body = [a.variable for a in self.program.loop_body]
+        variables_body = []
+        self.program.dist_variables = []
+        for assign in self.program.loop_body:
+            variables_body.append(assign.variable)
+            if isinstance(assign, DistAssignment):
+                self.program.dist_variables.append(assign.variable)
         self.program.variables = set(variables_initial) | set(variables_body)
         self.program.var_to_index = {v: i for i, v in enumerate(variables_body)}
         self.program.index_to_var = {i: v for i, v in enumerate(variables_body)}

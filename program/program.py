@@ -10,6 +10,7 @@ class Program:
     def __init__(self, types, variables, original_variables, initial, loop_guard, loop_body):
         self.typedefs = {}
         self.finite_variables = []
+        self.dist_variables = []
         self.add_types(types)
         self.original_variables = {sympify(v) for v in original_variables}
         self.variables = {sympify(v) for v in variables}
