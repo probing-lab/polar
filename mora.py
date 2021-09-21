@@ -417,6 +417,7 @@ def compute_goals(args):
                 else:
                     raise RuntimeError(f"Goal type {goal_type} does not exist.")
         except Exception as e:
+            raise e
             print(e)
             exit()
 
@@ -527,7 +528,7 @@ def get_moment(monom, solvers, rec_builder, args, program):
     moment = solver.get(monom)
 
     if args.after_loop:
-        moment = limit(moment, Symbol("n", integer=True, positive=True), oo)
+        moment = limit(moment, Symbol("n", integer=True), oo)
 
     return moment, solver.is_exact
 

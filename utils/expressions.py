@@ -171,7 +171,7 @@ def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
 def eval_re(n, expression):
     result = expression.xreplace({
         symbols("n"): n,
-        symbols("n", positive=True, integer=True): n
+        symbols("n", integer=True): n
     })
     return re(result.expand())
 

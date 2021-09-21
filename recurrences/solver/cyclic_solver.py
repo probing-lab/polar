@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import List, Set
 
-from sympy import symbols, Symbol, Expr, Poly, sympify
+from sympy import symbols, Symbol, Expr, Poly, sympify, Piecewise
 
 from .solver import Solver
 from utils import get_all_roots, solve_linear
@@ -22,10 +22,10 @@ class CyclicSolver(Solver):
     numeric_roots: bool
     numeric_croots: bool
     numeric_eps: float
-    __is_exact: bool
+    __is_exact__: bool
 
     def __init__(self, recurrences: Recurrences, numeric_roots: bool, numeric_croots: bool, numeric_eps: float):
-        self.n = symbols("n", integer=True, positive=True)
+        self.n = symbols("n", integer=True)
         self.recurrences = recurrences
         self.numeric_roots = numeric_roots
         self.numeric_croots = numeric_croots
@@ -37,7 +37,7 @@ class CyclicSolver(Solver):
 
     def __compute_general_solution__(self):
         unknowns = []
-        roots, self.__is_exact = get_all_roots(
+        roots, self.__is_exact__ = get_all_roots(
             self.characteristic_poly, self.numeric_roots, self.numeric_croots, self.numeric_eps)
         solution = sympify(0)
         count = 0
@@ -57,7 +57,7 @@ class CyclicSolver(Solver):
 
     @property
     def is_exact(self) -> bool:
-        return self.__is_exact
+        return self.__is_exact__
 
     @lru_cache(maxsize=None)
     def get(self, monomial):
@@ -70,6 +70,8 @@ class CyclicSolver(Solver):
             concrete_unknowns = self.__solve_for_unknowns__(monomial)
             unknown_subs = {u: s for u, s in zip(self.gen_sol_unknowns, concrete_unknowns)}
             solution = self.general_solution.xreplace(unknown_subs)
+
+        solution = self.__add_beginning_values__(solution, self.monom_to_index[monomial])
 
         return solution.expand()
 
@@ -95,6 +97,17 @@ class CyclicSolver(Solver):
             not_solved = self.__any_is_still_unknown__(concrete_unknowns)
 
         return concrete_unknowns
+
+    def __add_beginning_values__(self, solution, monom_index):
+        beginning_values = [self.recurrences.init_values_vector]
+        for _ in range(self.characteristic_poly.degree()-1):
+            beginning_values.append(self.recurrences.recurrence_matrix * beginning_values[-1])
+
+        pieces = []
+        for i, v in enumerate(beginning_values):
+            pieces.append((v[monom_index], self.n <= i))
+        pieces.append((solution, True))
+        return Piecewise(*pieces)
 
     def __any_is_still_unknown__(self, solutions):
         for s in solutions:
