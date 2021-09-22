@@ -1,4 +1,6 @@
 a = 2
-while a == 2:
-    a = Bernoulli(1/2)
+x = 0
+while true:
+    a = Normal(2, 1)
+    x = x + a
 end
