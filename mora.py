@@ -369,7 +369,9 @@ def compute_gram_charlier(args):
             density = expansion()
             print(density)
             if args.at_n >= 0:
-                symplot(density, (Symbol("x"), -10, 10))
+                mu = float(cumulants[1])
+                sigma = float(cumulants[2]) ** (1/2)
+                symplot(density, (Symbol("x"), mu - 5*sigma, mu + 5*sigma))
         except Exception as e:
             print(e)
             exit()
@@ -385,7 +387,7 @@ def compute_cornish_fisher(args):
             quantile_function = expansion()
             print(quantile_function)
             if args.at_n >= 0:
-                symplot(quantile_function, (Symbol("p"), 0, 1))
+                symplot(quantile_function, (Symbol("p"), 0.01, 0.99))
         except Exception as e:
             print(e)
             exit()
