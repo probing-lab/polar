@@ -50,14 +50,14 @@ class RunsPlot(Plot):
 
         xs = np.linspace(0, len(samples[0]), iterations * exact_resolution)
         if first_moment:
-            expectation_data = [eval_re({"n": x}, first_moment) for x in xs]
+            expectation_data = [float(eval_re(x, first_moment)) for x in xs]
             labels.append(Line2D([0], [0], label="$\mathbb{E}(" + str(goal) + "_n)$", color="red"))
 
         if first_moment and second_moment:
             variance = second_moment - (first_moment ** 2)
             std = variance ** (1 / 2)
-            std_data_1 = [eval_re({"n": x}, first_moment + 2 * std) for x in xs]
-            std_data_2 = [eval_re({"n": x}, first_moment - 2 * std) for x in xs]
+            std_data_1 = [float(eval_re(x, first_moment + 2 * std)) for x in xs]
+            std_data_2 = [float(eval_re(x, first_moment - 2 * std)) for x in xs]
             labels.append(Line2D([0], [0], linestyle=":", label="$\pm 2 Std(" + str(goal) + "_n)$", color='red'))
 
         objects = []

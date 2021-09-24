@@ -1,4 +1,4 @@
 a = 2
-while a == 2:
-    a = Bernoulli(1/2)
+while true:
+    a = Normal(10, 1)
 end

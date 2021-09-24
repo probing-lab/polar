@@ -22,7 +22,7 @@ class DistAssignment(Assignment):
         symbols = self.distribution.get_free_symbols()
         if with_condition:
             symbols |= self.condition.get_free_symbols()
-        if with_default or self.condition.is_implied_by_loop_guard():
+        if with_default or not self.condition.is_implied_by_loop_guard():
             symbols.add(self.default)
         return symbols
 

@@ -7,15 +7,17 @@ import glob
 import time
 from copy import deepcopy
 from argparse import ArgumentParser
-from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
+from inputparser import Parser, GoalParser, MOMENT, CUMULANT, CENTRAL, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
 from program.transformer import *
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
+from expansions import GramCharlierExpansion, CornishFisherExpansion
 from symengine.lib.symengine_wrapper import Piecewise, sympify
 from sympy import N, limit, Symbol, oo
+from sympy.plotting import plot as symplot
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from utils import indent_string, is_moment_computable, eval_re
+from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, is_moment_computable, eval_re
 from termcolor import colored
 from program.mc_comb_finder import MCCombFinder
 
@@ -76,6 +78,38 @@ arg_parser.add_argument(
     default=[],
     nargs="+",
     help="A list of moments MORA should compute or simulate"
+)
+
+arg_parser.add_argument(
+    "--gram_charlier",
+    dest="gram_charlier",
+    type=str,
+    default="",
+    help="A monomial to perform the gram-charlier expansion with"
+)
+
+arg_parser.add_argument(
+    "--gram_charlier_order",
+    dest="gram_charlier_order",
+    default=4,
+    type=int,
+    help="The number of cumulants to compute for the expansion"
+)
+
+arg_parser.add_argument(
+    "--cornish_fisher",
+    dest="cornish_fisher",
+    type=str,
+    default="",
+    help="A monomial to perform the cornish-fisher expansion with"
+)
+
+arg_parser.add_argument(
+    "--cornish_fisher_order",
+    dest="cornish_fisher_order",
+    default=4,
+    type=int,
+    help="The number of cumulants to compute for the expansion."
 )
 
 arg_parser.add_argument(
@@ -325,7 +359,41 @@ def plot(args):
             exit()
 
 
-def compute_symbolically(args):
+def compute_gram_charlier(args):
+    for benchmark in args.benchmarks:
+        try:
+            monom = sympify(args.gram_charlier)
+            program = prepare_program(benchmark, args)
+            cumulants = get_all_cumulants(program, monom, args.gram_charlier_order, args)
+            expansion = GramCharlierExpansion(cumulants)
+            density = expansion()
+            print(density)
+            if args.at_n >= 0:
+                mu = float(cumulants[1])
+                sigma = float(cumulants[2]) ** (1/2)
+                symplot(density, (Symbol("x"), mu - 5*sigma, mu + 5*sigma))
+        except Exception as e:
+            print(e)
+            exit()
+
+
+def compute_cornish_fisher(args):
+    for benchmark in args.benchmarks:
+        try:
+            monom = sympify(args.cornish_fisher)
+            program = prepare_program(benchmark, args)
+            cumulants = get_all_cumulants(program, monom, args.cornish_fisher_order, args)
+            expansion = CornishFisherExpansion(cumulants)
+            quantile_function = expansion()
+            print(quantile_function)
+            if args.at_n >= 0:
+                symplot(quantile_function, (Symbol("p"), 0.01, 0.99))
+        except Exception as e:
+            print(e)
+            exit()
+
+
+def compute_goals(args):
     for benchmark in args.benchmarks:
         try:
             program = prepare_program(benchmark, args)
@@ -341,6 +409,10 @@ def compute_symbolically(args):
                 goal_type, goal_data = GoalParser.parse(goal)
                 if goal_type == MOMENT:
                     handle_moment_goal(goal_data, solvers, rec_builder, args, program)
+                elif goal_type == CUMULANT:
+                    handle_cumulant_goal(goal_data, solvers, rec_builder, args, program)
+                elif goal_type == CENTRAL:
+                    handle_central_moment_goal(goal_data, solvers, rec_builder, args, program)
                 elif goal_type == TAIL_BOUND_UPPER:
                     handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program)
                 elif goal_type == TAIL_BOUND_LOWER:
@@ -348,6 +420,7 @@ def compute_symbolically(args):
                 else:
                     raise RuntimeError(f"Goal type {goal_type} does not exist.")
         except Exception as e:
+            raise e
             print(e)
             exit()
 
@@ -361,21 +434,46 @@ def handle_moment_goal(goal_data, solvers, rec_builder, args, program):
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        moment_at_n = eval_re(moment, {"n": args.at_n}).expand()
+        moment_at_n = eval_re(args.at_n, moment).expand()
         print(f"E({monom} | n={args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
+    print()
+
+
+def handle_cumulant_goal(goal_data, solvers, rec_builder, args, program):
+    number = goal_data[0]
+    monom = goal_data[1]
+    moments, is_exact = get_all_moments(monom, number, solvers, rec_builder, args, program)
+    cumulants = raw_moments_to_cumulants(moments)
+    print(f"k{number}({monom}) = {cumulants[number]}")
+    if is_exact:
+        print(colored("Solution is exact", "green"))
+    else:
+        print(colored("Solution is rounded", "yellow"))
+    if args.at_n >= 0:
+        cumulant_at_n = eval_re(args.at_n, cumulants[number]).expand()
+        print(f"k{number}({monom} | n={args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
+    print()
+
+
+def handle_central_moment_goal(goal_data, solvers, rec_builder, args, program):
+    number = goal_data[0]
+    monom = goal_data[1]
+    moments, is_exact = get_all_moments(monom, number, solvers, rec_builder, args, program)
+    central_moments = raw_moments_to_centrals(moments)
+    print(f"c{number}({monom}) = {central_moments[number]}")
+    if is_exact:
+        print(colored("Solution is exact", "green"))
+    else:
+        print(colored("Solution is rounded", "yellow"))
+    if args.at_n >= 0:
+        central_at_n = eval_re(args.at_n, central_moments[number]).expand()
+        print(f"c{number}({monom} | n={args.at_n}) = {central_at_n} ≅ {N(central_at_n)}")
     print()
 
 
 def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program):
     monom, a = goal_data[0], goal_data[1]
-    moments = {}
-    is_always_exact = True
-    for k in reversed(range(1, args.tail_bound_moments + 1)):
-        monom_power = monom ** k
-        moment, is_exact = get_moment(monom_power, solvers, rec_builder, args, program)
-        moments[k] = moment
-        is_always_exact = is_always_exact and is_exact
-
+    moments, is_exact = get_all_moments(monom, args.tail_bound_moments, solvers, rec_builder, args, program)
     bounds = [m / (a ** k) for k, m in moments.items()]
     bounds.reverse()
     print(f"Assuming {monom} is non-negative.")
@@ -384,13 +482,13 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program)
     for bound in bounds:
         print(indent_string(f"({count}) {bound}", 4))
         count += 1
-    if is_always_exact:
+    if is_exact:
         print(colored("Solution is exact", "green"))
     else:
         print(colored("Solution is rounded", "yellow"))
 
     if args.at_n >= 0:
-        bounds_at_n = [eval_re(b, {"n": args.at_n}).expand() for b in bounds]
+        bounds_at_n = [eval_re(args.at_n, b).expand() for b in bounds]
         can_take_min = all([not b.free_symbols for b in bounds_at_n])
         if can_take_min:
             bound_at_n = min(bounds_at_n)
@@ -406,18 +504,17 @@ def handle_tail_bound_upper_goal(goal_data, solvers, rec_builder, args, program)
 
 def handle_tail_bound_lower_goal(goal_data, solvers, rec_builder, args, program):
     monom, a = goal_data[0], goal_data[1]
-    second_moment, is_exact2 = get_moment(monom ** 2, solvers, rec_builder, args, program)
-    first_moment, is_exact1 = get_moment(monom, solvers, rec_builder, args, program)
-    bound = ((first_moment - a) ** 2) / (second_moment - 2 * a * first_moment + a ** 2)
+    moments, is_exact = get_all_moments(monom, 2, solvers, rec_builder, args, program)
+    bound = ((moments[1] - a) ** 2) / (moments[2] - 2*a*moments[1] + a**2)
     bound = bound.simplify()
     print(f"Assuming {monom - a} is non-negative.")
     print(f"P({monom} > {a}) >= {bound}")
-    if is_exact1 and is_exact2:
+    if is_exact:
         print(colored("Solution is exact", "green"))
     else:
         print(colored("Solution is rounded", "yellow"))
     if args.at_n >= 0:
-        bound_at_n = eval_re({"n": args.at_n}, bound)
+        bound_at_n = eval_re(args.at_n, bound)
         print(f"P({monom} > {a} | n={args.at_n}) >= {bound_at_n} ≅ {N(bound_at_n)}")
     print()
 
@@ -434,9 +531,29 @@ def get_moment(monom, solvers, rec_builder, args, program):
     moment = solver.get(monom)
 
     if args.after_loop:
-        moment = limit(moment, Symbol("n", integer=True, positive=True), oo)
+        moment = limit(moment, Symbol("n", integer=True), oo)
 
     return moment, solver.is_exact
+
+
+def get_all_cumulants(program, monom, max_cumulant, args):
+    rec_builder = RecBuilder(program)
+    solvers = {}
+    moments, is_exact = get_all_moments(monom, max_cumulant, solvers, rec_builder, args, program)
+    cumulants = raw_moments_to_cumulants(moments)
+    if args.at_n >= 0:
+        cumulants = {i: eval_re(args.at_n, c) for i, c in cumulants.items()}
+    return cumulants
+
+
+def get_all_moments(monom, max_moment, solvers, rec_builder, args, program):
+    moments = {}
+    all_exact = True
+    for i in reversed(range(1, max_moment + 1)):
+        moment, is_exact = get_moment(monom ** i, solvers, rec_builder, args, program)
+        all_exact = all_exact and is_exact
+        moments[i] = moment
+    return moments, all_exact
 
 
 def prepare_program(benchmark, args):
@@ -529,8 +646,12 @@ def main():
         find_mc_combination(args)
     elif args.plot:
         plot(args)
+    elif args.gram_charlier:
+        compute_gram_charlier(args)
+    elif args.cornish_fisher:
+        compute_cornish_fisher(args)
     else:
-        compute_symbolically(args)
+        compute_goals(args)
     print(f"Elapsed time: {time.time() - start} s")
 
 

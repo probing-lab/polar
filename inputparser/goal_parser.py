@@ -3,6 +3,8 @@ from symengine.lib.symengine_wrapper import sympify
 import re
 
 MOMENT = "MOMENT"
+CUMULANT = "CUMULANT"
+CENTRAL = "CENTRAL"
 TAIL_BOUND_UPPER = "TAIL_BOUND_UPPER"
 TAIL_BOUND_LOWER = "TAIL_BOUND_LOWER"
 
@@ -16,9 +18,25 @@ class GoalParser:
 
         if goal[0] == "E":
             return GoalParser.__parse_moment__(goal)
+        if goal[0] == "k":
+            return GoalParser.__parse_moment_relative__(goal, CUMULANT)
+        if goal[0] == "c":
+            return GoalParser.__parse_moment_relative__(goal, CENTRAL)
         if goal[0] == "P":
             return GoalParser.__parse_tail_bound__(goal)
         raise ParseException(f"Unknown goal {goal}")
+
+    @staticmethod
+    def __parse_moment_relative__(goal: str, kind):
+        bracket_pos = goal.find("(")
+        if bracket_pos < 0 or goal[-1] != ")":
+            raise ParseException(f"Malformed goal {goal}")
+        try:
+            number = int(goal[1:bracket_pos])
+            between_brackets = goal[bracket_pos+1:-1].strip()
+            return kind, [number, sympify(between_brackets)]
+        except Exception:
+            raise ParseException(f"Malformed goal {goal}")
 
     @staticmethod
     def __parse_moment__(goal: str):
