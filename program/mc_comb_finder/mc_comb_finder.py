@@ -188,16 +188,12 @@ class MCCombFinder:
         solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict = True)
         nice_solutions = cls.__get_nice_solutions__(solutions, equations, candidate, k)
         if len(nice_solutions) == 0:
-            print(f"No combination found with degree {combination_deg}. Try using other degrees.")
-            return
+            return None
 
         good_part_solution = cls.__solve_good_part__(
             rhs_good_part, good_coeffs, numeric_roots, numeric_croots, numeric_eps, program
         )
-
-        print(f"candidate = {candidate}")
-        print()
-
+        combinations = []
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in nice_solutions:
             ans = solve_rec_by_summing(
@@ -206,5 +202,5 @@ class MCCombFinder:
                 inhom_part=sympify(good_part_solution)
             )
             ans = ans.xreplace(solution)
-            print(f"E({candidate.xreplace(solution)})[n] = {ans}")
-            print()
+            combinations.append((candidate.xreplace(solution), ans))
+        return combinations

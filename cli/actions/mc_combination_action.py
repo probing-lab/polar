@@ -28,11 +28,18 @@ class MCCombinationAction(Action):
                     combination_vars.append(var)
         else:
             combination_vars = [sympify(v) for v in self.cli_args.mc_comb]
+
         print(colored("-------------------", "cyan"))
         print(colored("- Analysis Result -", "cyan"))
         print(colored("-------------------", "cyan"))
         print()
 
-        MCCombFinder.find_good_combination(
+        combinations = MCCombFinder.find_good_combination(
             combination_vars, combination_deg, program, self.cli_args.numeric_roots, self.cli_args.numeric_croots, self.cli_args.numeric_eps
         )
+        if combinations == None:
+            print(f"No combination found with degree {combination_deg}. Try using other degrees.")
+        else:
+            for combination in combinations:
+                candidate, solution = combination[0], combination[1]
+                print(f"E({candidate})[n] = {solution}")
