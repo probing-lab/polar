@@ -45,15 +45,16 @@ def get_all_moments(monom, max_moment, solvers, rec_builder, cli_args, program):
     return moments, all_exact
 
 
-def prepare_program(benchmark, cli_args):
+def prepare_program(benchmark, cli_args, print_progress=True):
     parser = Parser()
     program = parser.parse_file(benchmark, cli_args.transform_categoricals)
 
-    print(colored("------------------", "magenta"))
-    print(colored("- Parsed program -", "magenta"))
-    print(colored("------------------", "magenta"))
-    print(program)
-    print()
+    if print_progress:
+        print(colored("------------------", "magenta"))
+        print(colored("- Parsed program -", "magenta"))
+        print(colored("------------------", "magenta"))
+        print(program)
+        print()
 
     # Transform the loop-guard into an if-statement
     program = LoopGuardTransformer(cli_args.trivial_guard).execute(program)
@@ -80,9 +81,10 @@ def prepare_program(benchmark, cli_args):
     if cli_args.cond2arithm:
         program = ConditionsToArithm().execute(program)
 
-    print(colored("-----------------------", "magenta"))
-    print(colored("- Transformed program -", "magenta"))
-    print(colored("-----------------------", "magenta"))
-    print(program)
-    print()
+    if print_progress:
+        print(colored("-----------------------", "magenta"))
+        print(colored("- Transformed program -", "magenta"))
+        print(colored("-----------------------", "magenta"))
+        print(program)
+        print()
     return program

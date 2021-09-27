@@ -1,10 +1,11 @@
+import os
 from lark import Lark
 
 from program import Program
 from .structure_transformer import StructureTransformer
 from .arithmetic_transformer import ArithmeticToStringTransformer
 
-GRAMMAR_FILE_PATH = "inputparser/syntax.lark"
+GRAMMAR_FILE_PATH = os.path.dirname(__file__) + "/syntax.lark"
 
 
 class Parser:
