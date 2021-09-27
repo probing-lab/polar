@@ -1,0 +1,13 @@
+a, b = 0, 0
+while true:
+    p = Bernoulli(1/2)
+    if p == 1:
+        a = a + 1
+        b = b + 2
+    else:
+        a = a + 2
+        b = b + 1
+    end
+end
+
+# E(a + b) = 3*n

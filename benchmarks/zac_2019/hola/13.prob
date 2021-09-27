@@ -1,0 +1,11 @@
+j, k, s = 2, 0, 1
+while true:
+    if s == 1:
+        j = j + 2
+        k = k + 1
+    else:
+        j = j + 4
+    end
+end
+
+# E(j) = E(2*k + 2)

@@ -1,0 +1,13 @@
+w, z, x, y = 1, 0, 0, 0
+while true:
+    if w == 1:
+        x = x + 1
+        w = 1 - w
+    end
+    if z == 0:
+        y = y + 1
+        z = 1 - z
+    end
+end
+
+# E(x) = E(y)
