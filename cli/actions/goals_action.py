@@ -72,7 +72,7 @@ class GoalsAction(Action):
         else:
             print(colored("Solution is rounded", "yellow"))
         if self.cli_args.at_n >= 0:
-            cumulant_at_n = eval_re(args.at_n, cumulants[number]).expand()
+            cumulant_at_n = eval_re(self.cli_args.at_n, cumulants[number]).expand()
             print(f"k{number}({monom} | n={self.cli_args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
         print()
 

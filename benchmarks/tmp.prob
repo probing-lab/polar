@@ -1,4 +1,8 @@
-a = 2
-while true:
-    a = Normal(10, 1)
+continue = 1
+x = 1
+runtime = 0
+while continue == 1:
+    continue = 0 {1/2} 1
+    x = 2*x
+    runtime = runtime + 1
 end

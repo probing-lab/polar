@@ -1,6 +1,6 @@
 from typing import Dict
 from sympy import Expr, sympify
-from math import comb
+from math import factorial
 
 
 def raw_moments_to_cumulants(moments: Dict[int, Expr]):
@@ -22,3 +22,7 @@ def raw_moments_to_centrals(moments: Dict[int, Expr]):
             c_i += comb(i, j) * ((-1) ** (i-j)) * m_j * (moments[1] ** (i-j))
         centrals[i] = c_i.expand()
     return centrals
+
+
+def comb(n, k):
+    return 0 if k > n else factorial(n) / (factorial(k) * factorial(n - k))

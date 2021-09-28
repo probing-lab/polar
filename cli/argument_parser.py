@@ -231,3 +231,6 @@ class ArgumentParser:
             raise Exception("No benchmark given. Run with '--help' for more information.")
 
         return args
+
+    def get_defaults(self):
+        return self.argument_parser.parse_args({"benchmarks": []})
