@@ -1,6 +1,6 @@
-"""This file is part of MORA
+"""This file is part of Polar
 
-This runnable script allows the user to run MORA on probabilistic programs stored in files
+This runnable script allows the user to run Polar on probabilistic programs stored in files
 For the command line arguments run the script with "--help".
 """
 import time
