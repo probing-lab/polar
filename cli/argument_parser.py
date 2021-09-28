@@ -5,13 +5,13 @@ import glob
 class ArgumentParser:
     
     def __init__(self):
-        self.argument_parser = ArgParser(description="Run MORA on probabilistic loops stored in files")
+        self.argument_parser = ArgParser(description="Run Polar on probabilistic loops stored in files")
         self.argument_parser.add_argument(
             "benchmarks",
             metavar="benchmarks",
             type=str,
             nargs="+",
-            help="A list of benchmarks to run MORA on"
+            help="A list of benchmarks to run Polar on"
         )
         self.argument_parser.add_argument(
             "--at_n",
@@ -24,7 +24,7 @@ class ArgumentParser:
             "--simulate",
             action="store_true",
             default=False,
-            help="If set MORA simulates the program"
+            help="If set Polar simulates the program"
         )
         self.argument_parser.add_argument(
             "--simulation_iter",
@@ -46,7 +46,7 @@ class ArgumentParser:
             type=str,
             default=[],
             nargs="+",
-            help="A list of moments MORA should compute or simulate"
+            help="A list of moments Polar should compute or simulate"
         )
         self.argument_parser.add_argument(
             "--gram_charlier",
