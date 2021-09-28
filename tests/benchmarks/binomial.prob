@@ -3,3 +3,7 @@ x = 0
 while true:
     x = x + 1 {p} x
 end
+
+#test: raw; x; 0; n*p
+#test: raw; x**2; 0; n*p*(p*(n-1)+1)
+#test: raw; x**3; 0; n*p*(n**2*p**2 - 3*n*p**2 + 3*n*p + 2*p**2 - 3*p + 1)

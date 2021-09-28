@@ -404,3 +404,5 @@ while true:
         r49 = 1
     end
 end
+
+#test: raw; total; 0; 50 - 100*2**(-n)

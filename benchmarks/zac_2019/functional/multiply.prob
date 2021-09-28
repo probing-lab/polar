@@ -1,0 +1,4 @@
+i, r = 0, 0
+while true:
+    r = r + m
+end

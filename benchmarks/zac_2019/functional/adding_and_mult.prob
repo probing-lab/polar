@@ -1,0 +1,5 @@
+j, k = 1, 1
+while true:
+    j = 2*j
+    k = k+k
+end

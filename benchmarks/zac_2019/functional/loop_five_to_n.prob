@@ -1,0 +1,6 @@
+x = 1
+while true:
+    x = 5*x + 3
+end
+
+# x*4 = 7 * 5**n - 3
