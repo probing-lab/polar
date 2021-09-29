@@ -3,7 +3,7 @@ import glob
 
 
 class ArgumentParser:
-    
+
     def __init__(self):
         self.argument_parser = ArgParser(description="Run Polar on probabilistic loops stored in files")
         self.argument_parser.add_argument(

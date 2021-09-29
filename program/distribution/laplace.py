@@ -45,4 +45,3 @@ class Laplace(Distribution):
 
     def __str__(self):
         return f"Laplace({self.mu}, {self.b})"
-

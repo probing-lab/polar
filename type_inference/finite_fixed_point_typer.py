@@ -15,10 +15,15 @@ class Status:
     """
     Describes the status of one variable in the fixedpoint computation
     """
-    values: Set[Expr]   # All possible values the variable can assume
-    has_changed: bool   # Flag the check whether the values set has changed within the last iteration
-    has_failed: bool    # Flat to check whether infering a finite type has failed
-    is_locked: bool     # Flag to check whether the status has been locked, because the typing of the variable failed or the type has been fixed by user.
+    # All possible values the variable can assume
+    values: Set[Expr]
+    # Flag the check whether the values set has changed within the last iteration
+    has_changed: bool
+    # Flat to check whether infering a finite type has failed
+    has_failed: bool
+    # Flag to check whether the status has been locked,
+    # because the typing of the variable failed or the type has been fixed by user.
+    is_locked: bool
 
 
 class FiniteFixedPointTyper(Typer):

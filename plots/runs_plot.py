@@ -11,7 +11,8 @@ from utils import eval_re
 
 class RunsPlot(Plot):
 
-    def __init__(self, simulation_result: SimulationResult, goal, yscale="linear", anim_iter=False, anim_runs=False, anim_time=10, first_moment=None, second_moment=None):
+    def __init__(self, simulation_result: SimulationResult, goal, yscale="linear", anim_iter=False, anim_runs=False,
+                 anim_time=10, first_moment=None, second_moment=None):
         self.simulation_result = simulation_result
         self.goal = goal
         self.yscale = yscale
@@ -37,7 +38,6 @@ class RunsPlot(Plot):
         first_moment = self.first_moment
         second_moment = self.second_moment
         store = [[] for _ in range(iterations)]
-        frame_factor = 1
         labels = []
 
         run_data = []
@@ -88,7 +88,7 @@ class RunsPlot(Plot):
                 objects.extend(ax.plot(range(iterations), run_data[i], linewidth=1, color="grey", alpha=0.1))
             objects.extend(ax.plot(range(run_iter), run_data[run_index - 1][:run_iter], linewidth=1, color="blue"))
 
-        legend = ax.legend(handles=labels)
+        ax.legend(handles=labels)
         if self.anim_iter:
             self.fps = min(int(iterations / self.anim_time), 30)
             number_rendered_frames = int(self.fps * self.anim_time)

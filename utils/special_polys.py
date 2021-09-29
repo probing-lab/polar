@@ -1,4 +1,4 @@
-from sympy import hermite_poly, Symbol, sqrt, bell
+from sympy import hermite_poly, Symbol, bell
 from symengine.lib.symengine_wrapper import Zero, sqrt, sympify
 
 

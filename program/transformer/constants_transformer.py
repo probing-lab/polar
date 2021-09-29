@@ -30,7 +30,9 @@ class ConstantsTransformer(Transformer):
                 continue
 
             # Constant is a single fixed value
-            if isinstance(assign, PolyAssignment) and isinstance(assign.condition, TrueCond) and len(assign.polynomials) == 1:
+            if isinstance(assign, PolyAssignment) \
+                    and isinstance(assign.condition, TrueCond) \
+                    and len(assign.polynomials) == 1:
                 fixed_constants[assign.variable] = assign.polynomials[0]
                 continue
 

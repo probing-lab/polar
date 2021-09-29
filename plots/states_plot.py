@@ -12,7 +12,8 @@ from utils import eval_re
 
 class StatesPlot(Plot):
 
-    def __init__(self, simulation_result: SimulationResult, goal, anim_time, max_y=None, first_moment=None, second_moment=None):
+    def __init__(self, simulation_result: SimulationResult, goal, anim_time, max_y=None, first_moment=None,
+                 second_moment=None):
         self.simulation_result = simulation_result
         self.max_y = max_y
         self.goal = goal

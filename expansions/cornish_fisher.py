@@ -46,4 +46,5 @@ class CornishFisherExpansion:
 
     @lru_cache(maxsize=None)
     def a(self, k):
-        return sympy2symengine(self.cumulants[k+2]) / (factorial(k+2) * sqrt(sympy2symengine(self.cumulants[2])) ** (k+2))
+        return sympy2symengine(
+            self.cumulants[k+2]) / (factorial(k+2) * sqrt(sympy2symengine(self.cumulants[2])) ** (k+2))

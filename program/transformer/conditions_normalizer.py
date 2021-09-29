@@ -86,7 +86,8 @@ class ConditionsNormalizer(Transformer):
 
         if bad_condition not in abstraction_store:
             if self.program.is_dependent_vars(bad_condition.get_free_symbols(), abstracted_vars):
-                raise NormalizingException(f"Can't normalize condition {bad_condition}, because of variable dependency between abstraced variables")
+                raise NormalizingException(f"Can't normalize condition {bad_condition}, "
+                                           f"because of variable dependency between abstracted variables")
             new_var = Symbol(get_unique_var(name="a"))
             new_prob = Symbol(get_unique_var(name="prob"))
             abstraction_assign = DistAssignment(new_var, Bernoulli([new_prob]))

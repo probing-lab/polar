@@ -40,7 +40,10 @@ class MCChecker:
                 for poly in assign.polynomials:
                     monoms, const = expressions.get_terms_with_vars(poly.expand(), program.variables)
                     for powers, coeff in monoms:
-                        infinite_vars_cnt = sum([1 if powers[i] > 0 and not cls.__is_simple__(index_to_vars[i], program) else 0 for i in range(len(powers))])
+                        infinite_vars_cnt = sum(
+                            [1 if powers[i] > 0 and not cls.__is_simple__(index_to_vars[i], program) else 0
+                             for i in range(len(powers))]
+                        )
                         infinite_var_pw = cls.__get_infinite_var_power__(powers, program)
                         if infinite_vars_cnt <= 1:
                             for i in range(len(powers)):

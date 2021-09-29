@@ -37,7 +37,8 @@ class Normal(Distribution):
         mu = self.mu.subs(state)
         sigma2 = self.sigma2.subs(state)
         if not mu.is_Number or not sigma2.is_Number:
-            raise EvaluationException(f"Parameters {self.mu}, {self.sigma2} don't evaluate to numbers with state {state}")
+            raise EvaluationException(
+                f"Parameters {self.mu}, {self.sigma2} don't evaluate to numbers with state {state}")
         return norm.rvs(loc=float(mu), scale=math.sqrt(float(sigma2)))
 
     def get_free_symbols(self):

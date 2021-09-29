@@ -113,7 +113,6 @@ class MCCombFinder:
             equations.append(eq)
         return equations
 
-
     @classmethod
     def __get_nice_solutions__(cls, solutions, equations, candidate, k):
         """
@@ -169,7 +168,6 @@ class MCCombFinder:
         good_part_solution = good_part_solution.xreplace({sympify("n"): sympify("n") - 1})
         return good_part_solution
 
-
     @classmethod
     def find_good_combination(cls, combination_vars, combination_deg, program: Program,
                               numeric_roots, numeric_croots, numeric_eps):
@@ -185,7 +183,7 @@ class MCCombFinder:
         equations = cls.__construct_equations__(
             candidate_rec, candidate_coefficients, kcandidate, rhs_good_part, good_coeffs, k
         )
-        solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict = True)
+        solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict=True)
         nice_solutions = cls.__get_nice_solutions__(solutions, equations, candidate, k)
         if len(nice_solutions) == 0:
             return None

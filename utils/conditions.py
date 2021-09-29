@@ -38,4 +38,3 @@ def evaluate_cop(left, cop: str, right):
         return left > right
 
     raise RuntimeError(f"Unknown comparison operator {cop}")
-

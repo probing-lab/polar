@@ -9,7 +9,6 @@ from program.assignment import DistAssignment
 from dataclasses import dataclass, field
 
 
-
 class UpdateInfoTransformer(Transformer):
     """
     Prepares some final data about the program. So it can be better processed afterwards.

@@ -1,5 +1,7 @@
 from inputparser import Parser
-from program.transformer import *
+from program.transformer import LoopGuardTransformer, DistTransformer, IfTransformer, MultiAssignTransformer, \
+    ConditionsReducer, ConstantsTransformer, UpdateInfoTransformer, TypeInferer, ConditionsNormalizer, \
+    ConditionsToArithm
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import sympify

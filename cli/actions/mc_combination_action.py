@@ -35,9 +35,10 @@ class MCCombinationAction(Action):
         print()
 
         combinations = MCCombFinder.find_good_combination(
-            combination_vars, combination_deg, program, self.cli_args.numeric_roots, self.cli_args.numeric_croots, self.cli_args.numeric_eps
+            combination_vars, combination_deg, program, self.cli_args.numeric_roots, self.cli_args.numeric_croots,
+            self.cli_args.numeric_eps
         )
-        if combinations == None:
+        if combinations is None:
             print(f"No combination found with degree {combination_deg}. Try using other degrees.")
         else:
             for combination in combinations:
