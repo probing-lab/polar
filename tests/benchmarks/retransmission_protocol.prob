@@ -1,8 +1,8 @@
 fail = 0
 sent = 0
 totalfail = 0
-while sent < tosend && fail < maxfail:
-    success = Bernoulli(0.9)
+while true:
+    success = Bernoulli(p)
     if success == 1:
         fail = 0
         sent = sent + 1
@@ -11,3 +11,7 @@ while sent < tosend && fail < maxfail:
         totalfail = totalfail + 1
     end
 end
+
+#test: raw; fail; 0; (p*(1 - p)**n - p - (1 - p)**n + 1)/p
+#test: raw; fail**2; 0; (p**2*(1 - p)**n + p*(p + 2*(1 - p)**n*(n - 1)*(p - 1) + (1 - p)**n - 1) - 2*p - 2*(1 - p)**n + 2)/p**2
+#test: raw; fail**3; 0; (p**3*(1 - p)**n*(3*n*(n - 1) + 1) + p**2*(3*n*(1 - n)*(1 - p)**n - p - (1 - p)**n + 1) + 6*p*(1 - p)**n*(n - 1)*(p - 1) + 6*p*(p + (1 - p)**n - 1) - 6*p - 6*(1 - p)**n + 6)/p**3

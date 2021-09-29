@@ -4,14 +4,14 @@ ahit = 0
 bhit = 0
 while continue == 1:
     if turn == 0:
-        ahit = Bernoulli(a)
+        ahit = Bernoulli(1/3)
         if ahit == 1:
             continue = 0
         else:
             turn = 1
         end
     else:
-        bhit = Bernoulli(b)
+        bhit = Bernoulli(1/4)
         if bhit == 1:
             continue = 0
         else:
@@ -19,3 +19,7 @@ while continue == 1:
         end
     end
 end
+
+#test: raw; ahit; 0; -(-1/2)**n*2**(n/2)/3 + (-1/2)**n*sqrt(2)*2**(n/2)/6 + 2/3 - 2**(-n/2)/3 - sqrt(2)*2**(-n/2)/6
+#test: raw; ahit**2; 0; -(-1/2)**n*2**(n/2)/3 + (-1/2)**n*sqrt(2)*2**(n/2)/6 + 2/3 - 2**(-n/2)/3 - sqrt(2)*2**(-n/2)/6
+#test: raw; ahit**10; 0; -(-1/2)**n*2**(n/2)/3 + (-1/2)**n*sqrt(2)*2**(n/2)/6 + 2/3 - 2**(-n/2)/3 - sqrt(2)*2**(-n/2)/6

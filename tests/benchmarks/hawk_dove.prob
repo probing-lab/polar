@@ -38,3 +38,7 @@ while true:
         end
     end
 end
+
+#test: raw; p1bal; 0; n*v*(c - v)/(2*c)
+#test: raw; p1bal**2; 0; n*v**2*(c**2*n + 2*c**2 - 2*c*n*v + 4*c*v + n*v**2 - 2*v**2)/(4*c**2)
+#test: raw; p1bal**3; 0; n*v**2*(-4*c**4 + c**3*n**2*v + 6*c**3*n*v - 6*c**3*v - 3*c**2*n**2*v**2 + 6*c**2*n*v**2 + 3*c**2*v**2 + 3*c*n**2*v**3 - 18*c*n*v**3 + 12*c*v**3 - n**2*v**4 + 6*n*v**4 - 5*v**4)/(8*c**3)

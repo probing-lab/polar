@@ -11,3 +11,7 @@ while true:
     y = y + f*u2
     s = x + y
 end
+
+#test: raw; s; 0; 3*n*p
+#test: raw; s**2; 0; n*p*(27*n*p - 27*p + 32)/3
+#test: raw; s**3; 0; 3*n*p*(9*n**2*p**2 - 27*n*p**2 + 32*n*p + 18*p**2 - 32*p + 14)

@@ -6,7 +6,7 @@ token2 = 1
 x3 = 1
 token3 = 1
 numtokens = token1 + token2 + token3
-while numtokens > 1:
+while true:
     x1o, x2o, x3o = x1, x2, x3
 
     if x1o == x3o:
@@ -47,3 +47,7 @@ while numtokens > 1:
 
     numtokens = token1 + token2 + token3
 end
+
+#test: raw; numtokens; 3; 1 + 2*4**(-n)
+#test: raw; numtokens**2; 9; 1 + 8*4**(-n)
+#test: raw; numtokens**3; 27; 1 + 26*4**(-n)
