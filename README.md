@@ -32,3 +32,21 @@ source .venv/bin/activate
 ```
 pip install -r requirements.txt
 ```
+
+## Run Tests
+
+You can run the automatic test suite with:
+
+```
+python -m unittest
+```
+
+To run `flake8`, a tool for style guide enforcement, first install it with:
+```
+pip install flake 8
+```
+
+After installation `flake8` can be executed by running:
+```
+flake8 .
+```
