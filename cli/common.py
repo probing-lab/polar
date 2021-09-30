@@ -5,9 +5,7 @@ from program.transformer import LoopGuardTransformer, DistTransformer, IfTransfo
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import sympify
-from sympy import limit_seq, Symbol
-from utils import raw_moments_to_cumulants, is_moment_computable, eval_re, unpack_piecewise
-from termcolor import colored
+from utils import raw_moments_to_cumulants, is_moment_computable, eval_re
 
 
 def get_moment(monom, solvers, rec_builder, cli_args, program):
@@ -20,10 +18,6 @@ def get_moment(monom, solvers, rec_builder, cli_args, program):
         solvers.update({sympify(m): s for m in recurrences.monomials})
     solver = solvers[monom]
     moment = solver.get(monom)
-
-    if cli_args.after_loop:
-        moment = unpack_piecewise(moment)
-        moment = limit_seq(moment, Symbol("n", integer=True))
 
     return moment, solver.is_exact
 
@@ -48,16 +42,9 @@ def get_all_moments(monom, max_moment, solvers, rec_builder, cli_args, program):
     return moments, all_exact
 
 
-def prepare_program(benchmark, cli_args, print_progress=True):
+def prepare_program(benchmark, cli_args):
     parser = Parser()
     program = parser.parse_file(benchmark, cli_args.transform_categoricals)
-
-    if print_progress:
-        print(colored("------------------", "magenta"))
-        print(colored("- Parsed program -", "magenta"))
-        print(colored("------------------", "magenta"))
-        print(program)
-        print()
 
     # Transform the loop-guard into an if-statement
     program = LoopGuardTransformer(cli_args.trivial_guard).execute(program)
@@ -84,10 +71,4 @@ def prepare_program(benchmark, cli_args, print_progress=True):
     if cli_args.cond2arithm:
         program = ConditionsToArithm().execute(program)
 
-    if print_progress:
-        print(colored("-----------------------", "magenta"))
-        print(colored("- Transformed program -", "magenta"))
-        print(colored("-----------------------", "magenta"))
-        print(program)
-        print()
     return program

@@ -4,6 +4,7 @@ from .plot_action import PlotAction
 from .gram_charlier_action import GramCharlierAction
 from .cornish_fisher_action import CornishFisherAction
 from .mc_combination_action import MCCombinationAction
+from .print_benchmark_action import PrintBenchmarkAction
 from .goals_action import GoalsAction
 
 
@@ -24,4 +25,4 @@ class ActionFactory:
         if cli_args.mc_comb is not None:
             return MCCombinationAction(cli_args)
 
-        raise Exception("Could not construct action. Run with '--help' for more information.")
+        return PrintBenchmarkAction(cli_args)

@@ -28,7 +28,7 @@ def create_raw_moment_test(benchmark, monom, initial_value, general_form):
 
 def get_raw_moment(benchmark, monom):
     args = ArgumentParser().get_defaults()
-    program = prepare_program(benchmark, args, print_progress=False)
+    program = prepare_program(benchmark, args)
     rec_builder = RecBuilder(program)
     recurrences = rec_builder.get_recurrences(monom)
     solver = RecurrenceSolver(recurrences, False, False, 0)

@@ -6,8 +6,8 @@ from .action import Action
 from inputparser import GoalParser, MOMENT, CUMULANT, CENTRAL, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from sympy import N
-from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re
+from sympy import N, limit_seq, Symbol
+from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re, unpack_piecewise
 from termcolor import colored
 from cli.common import prepare_program, get_moment, get_all_moments
 
@@ -51,6 +51,9 @@ class GoalsAction(Action):
     def handle_moment_goal(self, goal_data):
         monom = goal_data[0]
         moment, is_exact = get_moment(monom, self.solvers, self.rec_builder, self.cli_args, self.program)
+        if self.cli_args.after_loop:
+            moment = unpack_piecewise(moment)
+            moment = limit_seq(moment, Symbol("n", integer=True))
         print(f"E({monom}) = {moment}")
         if is_exact:
             print(colored("Solution is exact", "green"))
@@ -66,14 +69,18 @@ class GoalsAction(Action):
         monom = goal_data[1]
         moments, is_exact = get_all_moments(monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
         cumulants = raw_moments_to_cumulants(moments)
-        print(f"k{number}({monom}) = {cumulants[number]}")
+        cumulant = cumulants[number]
+        if self.cli_args.after_loop:
+            cumulant = unpack_piecewise(cumulant)
+            cumulant = limit_seq(cumulant, Symbol("n", integer=True))
         if is_exact:
             print(colored("Solution is exact", "green"))
         else:
             print(colored("Solution is rounded", "yellow"))
         if self.cli_args.at_n >= 0:
-            cumulant_at_n = eval_re(self.cli_args.at_n, cumulants[number]).expand()
+            cumulant_at_n = eval_re(self.cli_args.at_n, cumulant).expand()
             print(f"k{number}({monom} | n={self.cli_args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
+        print(f"k{number}({monom}) = {cumulant}")
         print()
 
     def handle_central_moment_goal(self, goal_data):
@@ -81,13 +88,17 @@ class GoalsAction(Action):
         monom = goal_data[1]
         moments, is_exact = get_all_moments(monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
         central_moments = raw_moments_to_centrals(moments)
-        print(f"c{number}({monom}) = {central_moments[number]}")
+        central_moment = central_moments[number]
+        if self.cli_args.after_loop:
+            central_moment = unpack_piecewise(central_moment)
+            central_moment = limit_seq(central_moment, Symbol("n", integer=True))
+        print(f"c{number}({monom}) = {central_moment}")
         if is_exact:
             print(colored("Solution is exact", "green"))
         else:
             print(colored("Solution is rounded", "yellow"))
         if self.cli_args.at_n >= 0:
-            central_at_n = eval_re(self.cli_args.at_n, central_moments[number]).expand()
+            central_at_n = eval_re(self.cli_args.at_n, central_moments).expand()
             print(f"c{number}({monom} | n={self.cli_args.at_n}) = {central_at_n} ≅ {N(central_at_n)}")
         print()
 
@@ -95,6 +106,8 @@ class GoalsAction(Action):
         monom, a = goal_data[0], goal_data[1]
         moments, is_exact = get_all_moments(
             monom, self.cli_args.tail_bound_moments, self.solvers, self.rec_builder, self.cli_args, self.program)
+        if self.cli_args.after_loop:
+            moments = [limit_seq(unpack_piecewise(m), Symbol("n", integer=True)) for m in moments]
         bounds = [m / (a ** k) for k, m in moments.items()]
         bounds.reverse()
         print(f"Assuming {monom} is non-negative.")
@@ -125,6 +138,8 @@ class GoalsAction(Action):
     def handle_tail_bound_lower_goal(self, goal_data):
         monom, a = goal_data[0], goal_data[1]
         moments, is_exact = get_all_moments(monom, 2, self.solvers, self.rec_builder, self.cli_args, self.program)
+        if self.cli_args.after_loop:
+            moments = [limit_seq(unpack_piecewise(m), Symbol("n", integer=True)) for m in moments]
         bound = ((moments[1] - a) ** 2) / (moments[2] - 2 * a * moments[1] + a ** 2)
         bound = bound.simplify()
         print(f"Assuming {monom - a} is non-negative.")
