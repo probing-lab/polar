@@ -43,7 +43,7 @@ python -m unittest
 
 To run `flake8`, a tool for style guide enforcement, first install it with:
 ```
-pip install flake 8
+pip install flake8
 ```
 
 After installation `flake8` can be executed by running:
