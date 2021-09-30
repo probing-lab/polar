@@ -5,8 +5,8 @@ from program.transformer import LoopGuardTransformer, DistTransformer, IfTransfo
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import sympify
-from sympy import limit, Symbol, oo
-from utils import raw_moments_to_cumulants, is_moment_computable, eval_re
+from sympy import limit_seq, Symbol
+from utils import raw_moments_to_cumulants, is_moment_computable, eval_re, unpack_piecewise
 from termcolor import colored
 
 
@@ -22,7 +22,8 @@ def get_moment(monom, solvers, rec_builder, cli_args, program):
     moment = solver.get(monom)
 
     if cli_args.after_loop:
-        moment = limit(moment, Symbol("n", integer=True), oo)
+        moment = unpack_piecewise(moment)
+        moment = limit_seq(moment, Symbol("n", integer=True))
 
     return moment, solver.is_exact
 

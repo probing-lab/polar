@@ -6,7 +6,8 @@ from cli import ArgumentParser
 from cli.common import prepare_program
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from tests.common import get_test_specs, unpack_general_form
+from utils import unpack_piecewise
+from tests.common import get_test_specs
 
 from sympy import Symbol, sympify
 
@@ -21,7 +22,7 @@ def create_raw_moment_test(benchmark, monom, initial_value, general_form):
         solution, is_exact = get_raw_moment(benchmark, monom)
         self.assertTrue(is_exact)
         self.assertEqual(initial_value.expand(), solution.subs({n: 0}))
-        self.assertEqual(general_form.expand(), unpack_general_form(solution).expand())
+        self.assertEqual(general_form.expand(), unpack_piecewise(solution).expand())
     return test
 
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """This file is part of Polar
 
 This runnable script allows the user to run Polar on probabilistic programs stored in files

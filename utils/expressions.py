@@ -1,7 +1,7 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, linsolve, Poly, sympify, re, ComplexRootOf, N, symbols
+from sympy import Rational, linsolve, Poly, re, ComplexRootOf, N, symbols, Piecewise
 
 
 def float_to_rational(expr: Expr):
@@ -195,6 +195,25 @@ def numerify_croots(expression):
         exact = exact and e
 
     return expression.func(*new_args), exact
+
+
+def unpack_piecewise(expression):
+    """
+    Replaces every piecewise in the given expression by its default case.
+    """
+    if isinstance(expression, Piecewise):
+        for expr, cond in expression.args:
+            if cond.is_Boolean and bool(cond):
+                expression = expr
+                break
+        else:
+            raise RuntimeError("Encountered Piecewise without default case.")
+
+    if not expression.args:
+        return expression
+
+    new_args = [unpack_piecewise(a) for a in expression.args]
+    return expression.func(*new_args)
 
 
 def is_moment_computable(poly: Expr, program):
