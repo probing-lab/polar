@@ -1,4 +1,4 @@
--e git+https://github.com/sympy/sympy.git@fe125868e480747aedc14f65b8fcbeb5e3eb8089#egg=sympy
+sympy==1.8
 symengine==0.7.2
 lark-parser==0.11
 singledispatchmethod==1.0
