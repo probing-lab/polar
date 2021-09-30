@@ -6,14 +6,14 @@ from .action import Action
 from inputparser import GoalParser, MOMENT, CUMULANT, CENTRAL, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from sympy import N, limit_seq, Symbol
-from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re, unpack_piecewise
+from sympy import N
+from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re
 from termcolor import colored
-from cli.common import prepare_program, get_moment, get_all_moments
+from cli.common import prepare_program, get_moment, get_all_moments, transform_to_after_loop, print_is_exact, \
+    prettify_piecewise
 
 
 class GoalsAction(Action):
-
     cli_args: Namespace
     solvers: Dict[Expr, RecurrenceSolver]
     rec_builder: RecBuilder
@@ -52,13 +52,9 @@ class GoalsAction(Action):
         monom = goal_data[0]
         moment, is_exact = get_moment(monom, self.solvers, self.rec_builder, self.cli_args, self.program)
         if self.cli_args.after_loop:
-            moment = unpack_piecewise(moment)
-            moment = limit_seq(moment, Symbol("n", integer=True))
-        print(f"E({monom}) = {moment}")
-        if is_exact:
-            print(colored("Solution is exact", "green"))
-        else:
-            print(colored("Solution is rounded", "yellow"))
+            moment = transform_to_after_loop(moment)
+        print(f"E({monom}) = {prettify_piecewise(moment)}")
+        print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
             moment_at_n = eval_re(self.cli_args.at_n, moment).expand()
             print(f"E({monom} | n={self.cli_args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
@@ -71,16 +67,12 @@ class GoalsAction(Action):
         cumulants = raw_moments_to_cumulants(moments)
         cumulant = cumulants[number]
         if self.cli_args.after_loop:
-            cumulant = unpack_piecewise(cumulant)
-            cumulant = limit_seq(cumulant, Symbol("n", integer=True))
-        if is_exact:
-            print(colored("Solution is exact", "green"))
-        else:
-            print(colored("Solution is rounded", "yellow"))
+            cumulant = transform_to_after_loop(cumulant)
+        print(f"k{number}({monom}) = {prettify_piecewise(cumulant)}")
+        print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
             cumulant_at_n = eval_re(self.cli_args.at_n, cumulant).expand()
             print(f"k{number}({monom} | n={self.cli_args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
-        print(f"k{number}({monom}) = {cumulant}")
         print()
 
     def handle_central_moment_goal(self, goal_data):
@@ -90,13 +82,9 @@ class GoalsAction(Action):
         central_moments = raw_moments_to_centrals(moments)
         central_moment = central_moments[number]
         if self.cli_args.after_loop:
-            central_moment = unpack_piecewise(central_moment)
-            central_moment = limit_seq(central_moment, Symbol("n", integer=True))
-        print(f"c{number}({monom}) = {central_moment}")
-        if is_exact:
-            print(colored("Solution is exact", "green"))
-        else:
-            print(colored("Solution is rounded", "yellow"))
+            central_moment = transform_to_after_loop(central_moment)
+        print(f"c{number}({monom}) = {prettify_piecewise(central_moment)}")
+        print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
             central_at_n = eval_re(self.cli_args.at_n, central_moments).expand()
             print(f"c{number}({monom} | n={self.cli_args.at_n}) = {central_at_n} ≅ {N(central_at_n)}")
@@ -107,19 +95,16 @@ class GoalsAction(Action):
         moments, is_exact = get_all_moments(
             monom, self.cli_args.tail_bound_moments, self.solvers, self.rec_builder, self.cli_args, self.program)
         if self.cli_args.after_loop:
-            moments = [limit_seq(unpack_piecewise(m), Symbol("n", integer=True)) for m in moments]
+            moments = transform_to_after_loop(moments)
         bounds = [m / (a ** k) for k, m in moments.items()]
         bounds.reverse()
         print(f"Assuming {monom} is non-negative.")
         print(f"P({monom} >= {a}) <= minimum of")
         count = 1
         for bound in bounds:
-            print(indent_string(f"({count}) {bound}", 4))
+            print(indent_string(f"({count}) {prettify_piecewise(bound)}", 4))
             count += 1
-        if is_exact:
-            print(colored("Solution is exact", "green"))
-        else:
-            print(colored("Solution is rounded", "yellow"))
+        print_is_exact(is_exact)
 
         if self.cli_args.at_n >= 0:
             bounds_at_n = [eval_re(self.cli_args.at_n, b).expand() for b in bounds]
@@ -139,15 +124,12 @@ class GoalsAction(Action):
         monom, a = goal_data[0], goal_data[1]
         moments, is_exact = get_all_moments(monom, 2, self.solvers, self.rec_builder, self.cli_args, self.program)
         if self.cli_args.after_loop:
-            moments = [limit_seq(unpack_piecewise(m), Symbol("n", integer=True)) for m in moments]
+            moments = transform_to_after_loop(moments)
         bound = ((moments[1] - a) ** 2) / (moments[2] - 2 * a * moments[1] + a ** 2)
         bound = bound.simplify()
         print(f"Assuming {monom - a} is non-negative.")
-        print(f"P({monom} > {a}) >= {bound}")
-        if is_exact:
-            print(colored("Solution is exact", "green"))
-        else:
-            print(colored("Solution is rounded", "yellow"))
+        print(f"P({monom} > {a}) >= {prettify_piecewise(bound)}")
+        print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
             bound_at_n = eval_re(self.cli_args.at_n, bound)
             print(f"P({monom} > {a} | n={self.cli_args.at_n}) >= {bound_at_n} ≅ {N(bound_at_n)}")

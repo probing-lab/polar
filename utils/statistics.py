@@ -25,4 +25,4 @@ def raw_moments_to_centrals(moments: Dict[int, Expr]):
 
 
 def comb(n, k):
-    return 0 if k > n else factorial(n) / (factorial(k) * factorial(n - k))
+    return 0 if k > n else int(factorial(n) / (factorial(k) * factorial(n - k)))

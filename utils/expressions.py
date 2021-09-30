@@ -1,7 +1,7 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, linsolve, Poly, re, ComplexRootOf, N, symbols, Piecewise
+from sympy import Rational, linsolve, Poly, re, ComplexRootOf, N, symbols, Piecewise, LessThan
 
 
 def float_to_rational(expr: Expr):
@@ -214,6 +214,24 @@ def unpack_piecewise(expression):
 
     new_args = [unpack_piecewise(a) for a in expression.args]
     return expression.func(*new_args)
+
+
+def get_max_case_in_piecewise(expression):
+    """
+    for a piecewise expressions with cases of form "n <= <k:int>", returns the max k
+    """
+    k = -1
+    if isinstance(expression, Piecewise):
+        for _, cond in expression.args:
+            if isinstance(cond, LessThan):
+                k = max(k, int(cond.args[1]))
+
+    if not expression.args:
+        return k
+
+    ks = [get_max_case_in_piecewise(a) for a in expression.args]
+    ks.append(k)
+    return max(ks)
 
 
 def is_moment_computable(poly: Expr, program):

@@ -5,7 +5,9 @@ from program.transformer import LoopGuardTransformer, DistTransformer, IfTransfo
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import sympify
-from utils import raw_moments_to_cumulants, is_moment_computable, eval_re
+from sympy import limit_seq, Symbol
+from utils import raw_moments_to_cumulants, is_moment_computable, eval_re, unpack_piecewise, get_max_case_in_piecewise
+from termcolor import colored
 
 
 def get_moment(monom, solvers, rec_builder, cli_args, program):
@@ -40,6 +42,33 @@ def get_all_moments(monom, max_moment, solvers, rec_builder, cli_args, program):
         all_exact = all_exact and is_exact
         moments[i] = moment
     return moments, all_exact
+
+
+def transform_to_after_loop(element):
+    def trans_single(e):
+        return limit_seq(unpack_piecewise(e), Symbol("n", integer=True))
+
+    if isinstance(element, dict):
+        return {k: trans_single(v) for k, v in element.items()}
+    else:
+        return trans_single(element)
+
+
+def print_is_exact(is_exact):
+    if is_exact:
+        print(colored("Solution is exact", "green"))
+    else:
+        print(colored("Solution is rounded", "yellow"))
+
+
+def prettify_piecewise(expression):
+    max_case = get_max_case_in_piecewise(expression)
+    if max_case < 0:
+        return str(expression)
+    special_cases = []
+    for n in range(max_case + 1):
+        special_cases.append(str(expression.subs({Symbol("n", integer=True): n})))
+    return "; ".join(special_cases) + "; " + str(unpack_piecewise(expression))
 
 
 def prepare_program(benchmark, cli_args):
