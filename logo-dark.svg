@@ -27,9 +27,9 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:zoom="0.64052329"
-     inkscape:cx="-248.23453"
-     inkscape:cy="481.63744"
+     inkscape:zoom="1.2810466"
+     inkscape:cx="190.07896"
+     inkscape:cy="325.12479"
      inkscape:window-width="1920"
      inkscape:window-height="1136"
      inkscape:window-x="1920"
@@ -183,8 +183,8 @@
     <rect
        x="259.67795"
        y="310.55286"
-       width="324.8316"
-       height="358.91031"
+       width="316.01663"
+       height="317.68592"
        id="rect216519" />
   </defs>
   <g
@@ -270,9 +270,9 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:202.701px;line-height:1.25;font-family:Amiri;-inkscape-font-specification:Amiri;white-space:pre;shape-inside:url(#rect54364-5);fill:#18192f;fill-opacity:1;stroke:none;filter:url(#filter215422)"><tspan
            x="259.67773"
            y="487.91611"
-           id="tspan216610"><tspan
+           id="tspan12757"><tspan
              style="font-family:'Berenis ADF Pro Math';-inkscape-font-specification:'Berenis ADF Pro Math';fill:#ffffff"
-             id="tspan216608">P</tspan></tspan></text>
+             id="tspan12755">P</tspan></tspan></text>
       <circle
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.973217;filter:url(#filter215578)"
          id="path114538-4"
@@ -364,9 +364,9 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:202.701px;line-height:1.25;font-family:Amiri;-inkscape-font-specification:Amiri;white-space:pre;shape-inside:url(#rect216489);fill:#18192f;fill-opacity:1;stroke:none;filter:url(#filter215422)"><tspan
            x="259.67773"
            y="487.91611"
-           id="tspan216614"><tspan
+           id="tspan12761"><tspan
              style="font-family:'Berenis ADF Pro Math';-inkscape-font-specification:'Berenis ADF Pro Math';fill:#ffffff"
-             id="tspan216612">P</tspan></tspan></text>
+             id="tspan12759">P</tspan></tspan></text>
       <circle
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.973217;filter:url(#filter215578)"
          id="circle216483"
@@ -453,14 +453,16 @@
       </g>
       <text
          xml:space="preserve"
-         transform="matrix(0.43509556,0,0,0.43509556,-36.402282,-115.35413)"
+         transform="matrix(0.43509556,0,0,0.43509556,-82.439787,-115.35413)"
          id="text216511"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:202.701px;line-height:1.25;font-family:Amiri;-inkscape-font-specification:Amiri;white-space:pre;shape-inside:url(#rect216519);fill:#18192f;fill-opacity:1;stroke:none;filter:url(#filter215422)"><tspan
-           x="259.67773"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:202.701px;line-height:1.25;font-family:Amiri;-inkscape-font-specification:Amiri;white-space:pre;shape-inside:url(#rect216519);fill:#18192f;fill-opacity:1;stroke:none;filter:url(#filter215422);text-align:center"
+         x="53.817116"
+         y="0"><tspan
+           x="360.62622"
            y="487.91611"
-           id="tspan216618"><tspan
+           id="tspan12765"><tspan
              style="font-family:'Berenis ADF Pro Math';-inkscape-font-specification:'Berenis ADF Pro Math';fill:#ffffff"
-             id="tspan216616">P</tspan></tspan></text>
+             id="tspan12763">P</tspan></tspan></text>
       <circle
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.973217;filter:url(#filter215578)"
          id="circle216513"

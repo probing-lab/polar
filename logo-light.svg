@@ -27,9 +27,9 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:zoom="0.64052329"
-     inkscape:cx="-113.96931"
-     inkscape:cy="241.20903"
+     inkscape:zoom="0.45291836"
+     inkscape:cx="-36.430406"
+     inkscape:cy="239.55752"
      inkscape:window-width="1920"
      inkscape:window-height="1136"
      inkscape:window-x="1920"
@@ -63,8 +63,8 @@
     <rect
        x="259.67795"
        y="310.55286"
-       width="324.8316"
-       height="358.91031"
+       width="282.5055"
+       height="314.67343"
        id="rect54364" />
     <filter
        style="color-interpolation-filters:sRGB"
@@ -247,14 +247,16 @@
       </g>
       <text
          xml:space="preserve"
-         transform="matrix(0.43509556,0,0,0.43509556,-36.402282,-115.35413)"
+         transform="matrix(0.43509556,0,0,0.43509556,-75.560619,-115.35413)"
          id="text54362"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:202.701px;line-height:1.25;font-family:Amiri;-inkscape-font-specification:Amiri;white-space:pre;shape-inside:url(#rect54364);fill:#18192f;fill-opacity:1;stroke:none;filter:url(#filter215890)"><tspan
-           x="259.67773"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:202.701px;line-height:1.25;font-family:Amiri;-inkscape-font-specification:Amiri;white-space:pre;shape-inside:url(#rect54364);fill:#18192f;fill-opacity:1;stroke:none;filter:url(#filter215890);text-align:center"
+         x="53.817116"
+         y="0"><tspan
+           x="343.87036"
            y="487.91611"
-           id="tspan216990"><tspan
+           id="tspan23013"><tspan
              style="font-family:'Berenis ADF Pro Math';-inkscape-font-specification:'Berenis ADF Pro Math'"
-             id="tspan216988">P</tspan></tspan></text>
+             id="tspan23011">P</tspan></tspan></text>
       <circle
          style="fill:#18192f;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.973217;filter:url(#filter216016)"
          id="path114538"
