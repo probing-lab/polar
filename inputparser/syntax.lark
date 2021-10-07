@@ -51,7 +51,7 @@ DIST_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
 arithm: ARITHM_ATOM
       | BOPEN arithm BCLOSE
       | arithm (PLUS | MINUS | MULT | POW | DIV) arithm
-ARITHM_ATOM: ["+" | "-"] (NUMBER | LCASE_LETTER | "_")+
+ARITHM_ATOM: ["+" | "-"] (NUMBER | "I" | LCASE_LETTER | "_")+
 PLUS: "+"
 MINUS: "-"
 MULT: "*"
