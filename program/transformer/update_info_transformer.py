@@ -43,6 +43,7 @@ class UpdateInfoTransformer(Transformer):
         symbols = self.__get_all_symbols__(self.program.initial)
         symbols = symbols.union(self.__get_all_symbols__(self.program.loop_body))
         self.program.symbols = symbols.difference(self.program.variables)
+        self.program.original_variables = self.program.original_variables & self.program.variables
 
     def __set_dependencies__(self):
         self.program.dependency_info = {v: DependencyInfo() for v in self.program.variables}

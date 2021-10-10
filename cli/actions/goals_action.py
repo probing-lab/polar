@@ -6,11 +6,12 @@ from .action import Action
 from inputparser import GoalParser, MOMENT, CUMULANT, CENTRAL, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from sympy import N
-from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re
+from sympy import N, Symbol
+from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re, unpack_piecewise
 from termcolor import colored
 from cli.common import prepare_program, get_moment, get_all_moments, transform_to_after_loop, print_is_exact, \
     prettify_piecewise
+from invariants import InvariantIdeal
 
 
 class GoalsAction(Action):
@@ -33,20 +34,30 @@ class GoalsAction(Action):
         print(colored("-------------------", "cyan"))
         print()
 
+        if self.cli_args.invariants and not self.cli_args.goals:
+            self.cli_args.goals = [f"E({v})" for v in self.program.original_variables]
+
+        invariant_data = []
         for goal in self.cli_args.goals:
             goal_type, goal_data = GoalParser.parse(goal)
             if goal_type == MOMENT:
-                self.handle_moment_goal(goal_data)
+                r = self.handle_moment_goal(goal_data)
+                invariant_data.append((f"E({goal_data[0]})", r))
             elif goal_type == CUMULANT:
-                self.handle_cumulant_goal(goal_data)
+                r = self.handle_cumulant_goal(goal_data)
+                invariant_data.append((f"k{goal_data[0]}({goal_data[1]})", r))
             elif goal_type == CENTRAL:
-                self.handle_central_moment_goal(goal_data)
+                r = self.handle_central_moment_goal(goal_data)
+                invariant_data.append((f"c{goal_data[0]}({goal_data[1]})", r))
             elif goal_type == TAIL_BOUND_UPPER:
                 self.handle_tail_bound_upper_goal(goal_data)
             elif goal_type == TAIL_BOUND_LOWER:
                 self.handle_tail_bound_lower_goal(goal_data)
             else:
                 raise RuntimeError(f"Goal type {goal_type} does not exist.")
+
+        if self.cli_args.invariants:
+            self.handle_invariants(invariant_data)
 
     def handle_moment_goal(self, goal_data):
         monom = goal_data[0]
@@ -59,6 +70,7 @@ class GoalsAction(Action):
             moment_at_n = eval_re(self.cli_args.at_n, moment).expand()
             print(f"E({monom} | n={self.cli_args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
         print()
+        return moment
 
     def handle_cumulant_goal(self, goal_data):
         number = goal_data[0]
@@ -74,6 +86,7 @@ class GoalsAction(Action):
             cumulant_at_n = eval_re(self.cli_args.at_n, cumulant).expand()
             print(f"k{number}({monom} | n={self.cli_args.at_n}) = {cumulant_at_n} ≅ {N(cumulant_at_n)}")
         print()
+        return cumulant
 
     def handle_central_moment_goal(self, goal_data):
         number = goal_data[0]
@@ -89,6 +102,7 @@ class GoalsAction(Action):
             central_at_n = eval_re(self.cli_args.at_n, central_moments).expand()
             print(f"c{number}({monom} | n={self.cli_args.at_n}) = {central_at_n} ≅ {N(central_at_n)}")
         print()
+        return central_moment
 
     def handle_tail_bound_upper_goal(self, goal_data):
         monom, a = goal_data[0], goal_data[1]
@@ -134,3 +148,24 @@ class GoalsAction(Action):
             bound_at_n = eval_re(self.cli_args.at_n, bound)
             print(f"P({monom} > {a} | n={self.cli_args.at_n}) >= {bound_at_n} ≅ {N(bound_at_n)}")
         print()
+
+    def handle_invariants(self, invariant_data):
+        print()
+        print(colored("-------------------", "cyan"))
+        print(colored("-   Invariants    -", "cyan"))
+        print(colored("-------------------", "cyan"))
+        print()
+
+        invariant_data = [(Symbol(i), unpack_piecewise(f)) for i, f in invariant_data]
+        ideal = InvariantIdeal(invariant_data)
+        basis = ideal.compute_basis()
+
+        if not basis:
+            print("There are not polynomial invariants among the goals.")
+            return
+
+        print("Following is a gröbner basis for the invariant ideal:")
+        print()
+        for b in basis:
+            print(f"{b} = 0")
+            print()

@@ -27,6 +27,12 @@ class ArgumentParser:
             help="If set Polar simulates the program"
         )
         self.argument_parser.add_argument(
+            "--invariants",
+            action="store_true",
+            default=False,
+            help="If set Polar computes all polynomial invariants among the goals."
+        )
+        self.argument_parser.add_argument(
             "--simulation_iter",
             dest="simulation_iter",
             default=100,
@@ -46,7 +52,7 @@ class ArgumentParser:
             type=str,
             default=[],
             nargs="+",
-            help="A list of moments Polar should compute or simulate"
+            help="A list of goals Polar should compute or simulate"
         )
         self.argument_parser.add_argument(
             "--gram_charlier",

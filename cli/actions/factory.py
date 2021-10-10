@@ -14,7 +14,7 @@ class ActionFactory:
     def create_action(cls, cli_args: Namespace) -> Action:
         if cli_args.simulate:
             return SimulationAction(cli_args)
-        if cli_args.goals:
+        if cli_args.goals or cli_args.invariants:
             return GoalsAction(cli_args)
         if cli_args.plot:
             return PlotAction(cli_args)
