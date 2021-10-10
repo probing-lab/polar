@@ -38,6 +38,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## Usage
+
+```
+python polar.py benchmarks/illustrating.prob --goals "E(z)"
+```
+
+
 ## Run Tests
 
 You can run the automatic test suite with:
