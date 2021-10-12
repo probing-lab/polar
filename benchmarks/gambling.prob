@@ -1,15 +1,16 @@
 is_red = 0
 bet = 1
-money = 0
+money = 1
 number_bets = 0
 while is_red == 0:
+    money = money - bet
     is_red = Bernoulli(1/2)
     if is_red == 0:
-        money = money - bet
         bet = 2*bet
     else:
         money = money + 2*bet
         bet = 1
     end
     number_bets = number_bets + 1
+    cond_money = money * is_red
 end

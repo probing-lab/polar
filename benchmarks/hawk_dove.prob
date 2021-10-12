@@ -1,8 +1,8 @@
 p1bal, p2bal = 0, 0
 outcome = 0
 player1, player2 = 0, 0
-v = 1 # common resource , objective
-c = 1 # penalty for losing a fight
+v = 4 # common resource , objective
+c = 8 # penalty for losing a fight
 while true:
     player1 = Bernoulli(v/c)
     player2 = Bernoulli(v/c)
