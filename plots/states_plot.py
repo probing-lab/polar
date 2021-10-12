@@ -34,10 +34,10 @@ class StatesPlot(Plot):
         labels = []
         frames_factor = 1
         expectations = None
-        if self.first_moment:
+        if self.first_moment is not None:
             expectations = [float(eval_re(n, self.first_moment)) for n in range(number_iter)]
         stds = None
-        if self.second_moment:
+        if self.second_moment is not None:
             second_moments = [float(eval_re(n, self.second_moment)) for n in range(number_iter)]
             stds = [(second_moments[n] - (expectations[n] ** 2)) ** (1 / 2) for n in range(number_iter)]
             stds = [(expectations[n] - 2 * stds[n], expectations[n] + 2 * stds[n]) for n in range(number_iter)]

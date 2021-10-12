@@ -1,0 +1,14 @@
+x = 1
+y = 1
+while !(x == 0 && y == 0):
+    direction = Categorical(1/4, 1/4, 1/4, 1/4)
+    if direction == 0:
+        x = x + 1
+    elif direction == 1:
+        x = x - 1
+    elif direction == 2:
+        y = y + 1
+    else:
+        y = y - 1
+    end
+end

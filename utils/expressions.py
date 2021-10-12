@@ -11,7 +11,8 @@ def float_to_rational(expr: Expr):
 def get_all_roots(poly: Poly, numeric=False, numeric_croots=False, eps=1e-10):
     exact = True
     if numeric:
-        roots = poly.intervals(all=True, eps=eps)
+        #roots = poly.intervals(all=True, eps=eps)
+        roots = poly.intervals(eps=eps)
         if isinstance(roots, tuple):
             tmp = []
             for r in roots:

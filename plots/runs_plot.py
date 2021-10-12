@@ -49,11 +49,11 @@ class RunsPlot(Plot):
         labels.append(Line2D([0], [0], label="Samples", color="grey"))
 
         xs = np.linspace(0, len(samples[0]), iterations * exact_resolution)
-        if first_moment:
+        if first_moment is not None:
             expectation_data = [float(eval_re(x, first_moment)) for x in xs]
             labels.append(Line2D([0], [0], label="$\mathbb{E}(" + str(goal) + "_n)$", color="red"))
 
-        if first_moment and second_moment:
+        if first_moment is not None and second_moment is not None:
             variance = second_moment - (first_moment ** 2)
             std = variance ** (1 / 2)
             std_data_1 = [float(eval_re(x, first_moment + 2 * std)) for x in xs]
@@ -67,10 +67,10 @@ class RunsPlot(Plot):
             for o in objects:
                 o.remove()
             objects.clear()
-            if first_moment:
+            if first_moment is not None:
                 ed = expectation_data[:frame_number * exact_resolution]
                 objects.extend(ax.plot(xs[:frame_number * exact_resolution], ed, color="red", linewidth=2))
-            if first_moment and second_moment:
+            if first_moment is not None and second_moment is not None:
                 sd1 = std_data_1[:frame_number * exact_resolution]
                 sd2 = std_data_2[:frame_number * exact_resolution]
                 objects.extend(ax.plot(xs[:frame_number * exact_resolution], sd1, ":", color="red", linewidth=1.5))
@@ -100,9 +100,9 @@ class RunsPlot(Plot):
             self.ani = animation.FuncAnimation(fig, iter_animation, number_rendered_frames,
                                                interval=int(1000 / self.fps))
         elif self.anim_runs:
-            if first_moment:
+            if first_moment is not None:
                 ax.plot(xs, expectation_data, color="red", linewidth=2)
-            if first_moment and second_moment:
+            if first_moment is not None and second_moment is not None:
                 ax.plot(xs, std_data_1, ":", color="red", linewidth=1.5)
                 ax.plot(xs, std_data_2, ":", color="red", linewidth=1.5)
             number_real_frames = len(samples) * iterations
