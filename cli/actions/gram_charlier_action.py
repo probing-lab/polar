@@ -4,7 +4,7 @@ from expansions import GramCharlierExpansion
 from symengine.lib.symengine_wrapper import sympify
 from sympy import Symbol
 from sympy.plotting import plot as symplot
-from cli.common import prepare_program, get_all_cumulants
+from cli.common import prepare_program, get_all_cumulants, transform_to_after_loop
 
 
 class GramCharlierAction(Action):
@@ -18,10 +18,12 @@ class GramCharlierAction(Action):
         monom = sympify(self.cli_args.gram_charlier)
         program = prepare_program(benchmark, self.cli_args)
         cumulants = get_all_cumulants(program, monom, self.cli_args.gram_charlier_order, self.cli_args)
+        if self.cli_args.after_loop:
+            cumulants = transform_to_after_loop(cumulants)
         expansion = GramCharlierExpansion(cumulants)
         density = expansion()
         print(density)
-        if self.cli_args.at_n >= 0:
+        if self.cli_args.at_n >= 0 or self.cli_args.after_loop:
             mu = float(cumulants[1])
             sigma = float(cumulants[2]) ** (1 / 2)
             symplot(density, (Symbol("x"), mu - 5 * sigma, mu + 5 * sigma))
