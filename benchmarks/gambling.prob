@@ -1,6 +1,6 @@
 is_red = 0
 bet = 1
-money = 1
+money = 0
 number_bets = 0
 while is_red == 0:
     money = money - bet
@@ -12,5 +12,4 @@ while is_red == 0:
         bet = 1
     end
     number_bets = number_bets + 1
-    cond_money = money * is_red
 end
