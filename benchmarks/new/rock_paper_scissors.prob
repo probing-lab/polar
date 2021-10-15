@@ -1,0 +1,28 @@
+player1, player2 = 0, 0
+p1bal, p2bal = 0, 0
+rock = 0
+paper = 1
+scissors = 2
+while true:
+    player1 = Categorical(p1, p2, p3)
+    player2 = Categorical(q1, q2, q3)
+    if player1 == rock:
+        if player2 == paper:
+            p2bal = p2bal + 1
+        elif player2 == scissors:
+            p1bal = p1bal + 1
+        end
+    elif player1 == paper:
+        if player2 == rock:
+            p1bal = p1bal + 1
+        elif player2 == scissors:
+            p2bal = p2bal + 1
+        end
+    elif player1 == scissors:
+        if player2 == rock:
+            p2bal = p2bal + 1
+        elif player2 == paper:
+            p1bal = p1bal + 1
+        end
+    end
+end
