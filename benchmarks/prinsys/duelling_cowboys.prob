@@ -2,7 +2,7 @@ turn = 0
 continue = 1
 ahit = 0
 bhit = 0
-while continue == 1:
+while true:
     if turn == 0:
         ahit = Bernoulli(a)
         if ahit == 1:
