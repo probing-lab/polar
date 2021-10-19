@@ -73,6 +73,7 @@ class Atom(Condition):
         result = Atom(self.poly1.copy(), "==", valid_values.pop())
         for v in valid_values:
             result = Or(result, Atom(self.poly1.copy(), "==", v))
+        result.is_loop_guard = self.is_loop_guard
 
         return result, []
 
@@ -97,6 +98,11 @@ class Atom(Condition):
 
     def is_implied_by_loop_guard(self):
         return self.is_loop_guard
+
+    def get_loop_guard(self):
+        if self.is_loop_guard:
+            return self.copy()
+        return None
 
     def get_conjuncts(self):
         return [self]

@@ -7,6 +7,11 @@ class TrueCond(Condition):
     def is_implied_by_loop_guard(self):
         return True
 
+    def get_loop_guard(self):
+        if self.is_loop_guard:
+            return self.copy()
+        return None
+
     def simplify(self):
         return self
 

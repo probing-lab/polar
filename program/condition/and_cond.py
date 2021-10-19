@@ -48,6 +48,12 @@ class And(Condition):
             return True
         return self.cond1.is_implied_by_loop_guard() and self.cond1.is_implied_by_loop_guard()
 
+    def get_loop_guard(self):
+        if self.is_loop_guard:
+            return self.copy()
+        cond1_guard = self.cond1.get_loop_guard()
+        return cond1_guard if cond1_guard is not None else self.cond2.get_loop_guard()
+
     def __str__(self):
         return f"({self.cond1} ∧ {self.cond2})"
 

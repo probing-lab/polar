@@ -28,6 +28,8 @@ class ConditionsNormalizer(Transformer):
         self.program = program
         self.program.initial = self.__normalize_conditions__(self.program.initial)
         self.program.loop_body = self.__normalize_conditions__(self.program.loop_body)
+        if self.program.original_loop_guard is None:
+            self.program.original_loop_guard = TrueCond()
         if self.needs_info_update:
             program = UpdateInfoTransformer().execute(program)
         return program
@@ -48,6 +50,8 @@ class ConditionsNormalizer(Transformer):
                 self.needs_info_update = True
             new_assignments.append(assign)
             already_assigned_vars.add(assign.variable)
+            if self.program.original_loop_guard is None:
+                self.program.original_loop_guard = assign.condition.get_loop_guard()
         return new_assignments
 
     def __try_abstract_failed_condition__(
@@ -64,7 +68,7 @@ class ConditionsNormalizer(Transformer):
         with one bad condition C = Bad1 and Bad2 and Bad3 ... and Badk
         Now the following has to hold
 
-        1. C only depends is iteration independent
+        1. C is iteration independent
         2. C is independent of variables in assignment which were already assigned in this iteration
         3. C is independent of variables in good condition part which have already been assigned.
 

@@ -36,6 +36,11 @@ class Not(Condition):
     def is_implied_by_loop_guard(self):
         return self.is_loop_guard
 
+    def get_loop_guard(self):
+        if self.is_loop_guard:
+            return self.copy()
+        return self.cond.get_loop_guard()
+
     def __str__(self):
         return f"¬({self.cond})"
 

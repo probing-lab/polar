@@ -12,6 +12,10 @@ class Condition(ABC):
         pass
 
     @abstractmethod
+    def get_loop_guard(self):
+        pass
+
+    @abstractmethod
     def simplify(self) -> "Condition":
         pass
 

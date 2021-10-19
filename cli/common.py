@@ -83,7 +83,7 @@ def get_moment_after_loop(monom, solvers, rec_builder, cli_args, program):
     """
     Calculates the moment of a monomial after loop termination.
     """
-    negated_loop_guard = Not(program.untransformed_loop_guard).to_arithm(program)
+    negated_loop_guard = Not(program.original_loop_guard).to_arithm(program)
     moment_guard, is_exact_guard = get_moment_poly(
         negated_loop_guard, solvers, rec_builder, cli_args, program)
     moment_monom_guard, is_exact_monom_guard = get_moment_poly(
