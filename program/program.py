@@ -17,14 +17,14 @@ class Program:
         self.symbols = set()
         self.initial = initial
         self.loop_guard = loop_guard
-        self.untransformed_loop_guard = loop_guard
         self.loop_body = loop_body
         self.abstracted_const_store = {}
-        self.var_to_index = {}          # initialized by info transformer
-        self.index_to_var = {}          # initialized by info transformer
-        self.dependency_info = {}       # initialized by info transformer
-        self.mc_variables = set()       # initialize by info transformer
-        self.non_mc_variables = set()   # initialize by info transformer
+        self.original_loop_guard = None  # initialized by the conditions-normalizer
+        self.var_to_index = {}           # initialized by info transformer
+        self.index_to_var = {}           # initialized by info transformer
+        self.dependency_info = {}        # initialized by info transformer
+        self.mc_variables = set()        # initialize by info transformer
+        self.non_mc_variables = set()    # initialize by info transformer
 
     def add_type(self, t: Type):
         if t is not None:
