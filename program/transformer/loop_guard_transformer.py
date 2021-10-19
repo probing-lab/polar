@@ -22,6 +22,7 @@ class LoopGuardTransformer(Transformer):
     def execute(self, program: Program) -> Program:
         if self.trivial_guard:
             program.loop_guard = TrueCond()
+            program.untransformed_loop_guard = TrueCond()
             return program
 
         statements, condition = self.__collapse_first_level_ifs__(program.loop_body)

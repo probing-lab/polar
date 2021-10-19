@@ -6,8 +6,11 @@ from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import sympify
 from sympy import limit_seq, Symbol
+from sympy import sympify as sympy_sympify
 from utils import raw_moments_to_cumulants, is_moment_computable, eval_re, unpack_piecewise, get_max_case_in_piecewise
 from termcolor import colored
+from program.condition.not_cond import Not
+from utils.expressions import get_monoms
 
 
 def get_moment(monom, solvers, rec_builder, cli_args, program):
@@ -24,10 +27,32 @@ def get_moment(monom, solvers, rec_builder, cli_args, program):
     return moment, solver.is_exact
 
 
+def get_moment_poly(poly, solvers, rec_builder, cli_args, program):
+    expanded_poly = poly.expand()
+    monoms = get_monoms(expanded_poly)
+    is_exact_acc = True
+    moments = {}
+    for _, monom in monoms:
+        moment, is_exact = get_moment(monom, solvers, rec_builder, cli_args, program)
+        moments[monom] = moment
+        is_exact_acc = is_exact_acc and is_exact
+    return expanded_poly.subs_dict(moments), is_exact_acc
+
+
 def get_all_cumulants(program, monom, max_cumulant, cli_args):
     rec_builder = RecBuilder(program)
     solvers = {}
     moments, is_exact = get_all_moments(monom, max_cumulant, solvers, rec_builder, cli_args, program)
+    cumulants = raw_moments_to_cumulants(moments)
+    if cli_args.at_n >= 0:
+        cumulants = {i: eval_re(cli_args.at_n, c) for i, c in cumulants.items()}
+    return cumulants
+
+
+def get_all_cumulants_after_loop(program, monom, max_cumulant, cli_args):
+    rec_builder = RecBuilder(program)
+    solvers = {}
+    moments, is_exact = get_all_moments_after_loop(monom, max_cumulant, solvers, rec_builder, cli_args, program)
     cumulants = raw_moments_to_cumulants(moments)
     if cli_args.at_n >= 0:
         cumulants = {i: eval_re(cli_args.at_n, c) for i, c in cumulants.items()}
@@ -42,6 +67,31 @@ def get_all_moments(monom, max_moment, solvers, rec_builder, cli_args, program):
         all_exact = all_exact and is_exact
         moments[i] = moment
     return moments, all_exact
+
+
+def get_all_moments_after_loop(monom, max_moment, solvers, rec_builder, cli_args, program):
+    moments_after_loop = {}
+    all_exact = True
+    for i in reversed(range(1, max_moment + 1)):
+        moment_after_loop, is_exact = get_moment_after_loop(monom ** i, solvers, rec_builder, cli_args, program)
+        all_exact = all_exact and is_exact
+        moments_after_loop[i] = moment_after_loop
+    return moments_after_loop, all_exact
+
+
+def get_moment_after_loop(monom, solvers, rec_builder, cli_args, program):
+    """
+    Calculates the moment of a monomial after loop termination.
+    """
+    negated_loop_guard = Not(program.untransformed_loop_guard).to_arithm(program)
+    moment_guard, is_exact_guard = get_moment_poly(
+        negated_loop_guard, solvers, rec_builder, cli_args, program)
+    moment_monom_guard, is_exact_monom_guard = get_moment_poly(
+        monom*negated_loop_guard, solvers, rec_builder, cli_args, program)
+
+    conditional_expected_value = sympy_sympify(moment_monom_guard/moment_guard)
+    moment_after_loop = transform_to_after_loop(conditional_expected_value)
+    return moment_after_loop, (is_exact_guard and is_exact_monom_guard)
 
 
 def transform_to_after_loop(element):

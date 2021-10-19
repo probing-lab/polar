@@ -17,6 +17,7 @@ class Program:
         self.symbols = set()
         self.initial = initial
         self.loop_guard = loop_guard
+        self.untransformed_loop_guard = loop_guard
         self.loop_body = loop_body
         self.abstracted_const_store = {}
         self.var_to_index = {}          # initialized by info transformer
