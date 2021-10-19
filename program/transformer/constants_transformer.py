@@ -43,6 +43,7 @@ class ConstantsTransformer(Transformer):
         program.initial = new_initial_assignments
 
         program.loop_guard.subs(fixed_constants)
+        program.untransformed_loop_guard.subs(fixed_constants)
         self.__subs_in_assigns__(program.initial, fixed_constants)
         self.__subs_in_assigns__(program.loop_body, fixed_constants)
         for c, v in fixed_constants.items():
