@@ -10,7 +10,7 @@ from program.condition import Atom
 
 class ConditionsReducer(Transformer):
     """
-    Transforms all condition atoms in the program to the form: <variable> <comparison> <integer>
+    Transforms all condition atoms in the program to the form: <variable> <comparison> 0
     The transformer requires that the passed program is flattened, meaning it does not contain any if-statements.
     """
     program: Program
