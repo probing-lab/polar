@@ -36,7 +36,7 @@ def get_moment_poly(poly, solvers, rec_builder, cli_args, program):
         moment, is_exact = get_moment(monom, solvers, rec_builder, cli_args, program)
         moments[monom] = moment
         is_exact_acc = is_exact_acc and is_exact
-    return expanded_poly.subs_dict(moments), is_exact_acc
+    return expanded_poly.subs(moments), is_exact_acc
 
 
 def get_all_cumulants(program, monom, max_cumulant, cli_args):
