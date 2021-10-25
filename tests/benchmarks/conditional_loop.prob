@@ -1,0 +1,8 @@
+x = 1
+p = Bernoulli(1/2)
+while p == 1:
+    x = 0
+end
+
+#test: raw_after_loop; x; 1
+#test: raw_after_loop; x**2; 1
