@@ -66,13 +66,13 @@ class Atom(Condition):
         valid_values = get_valid_values(var_type.values, self.cop, value)
 
         if len(valid_values) == 0:
-            return FalseCond(), []
-        if len(valid_values) == 1:
-            return Atom(self.poly1.copy(), "==", valid_values.pop()), []
-
-        result = Atom(self.poly1.copy(), "==", valid_values.pop())
-        for v in valid_values:
-            result = Or(result, Atom(self.poly1.copy(), "==", v))
+            result = FalseCond()
+        elif len(valid_values) == 1:
+            result = Atom(self.poly1.copy(), "==", valid_values.pop())
+        else:
+            result = Atom(self.poly1.copy(), "==", valid_values.pop())
+            for v in valid_values:
+                result = Or(result, Atom(self.poly1.copy(), "==", v))
         result.is_loop_guard = self.is_loop_guard
 
         return result, []
