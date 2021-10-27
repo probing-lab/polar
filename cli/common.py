@@ -52,8 +52,10 @@ def get_all_cumulants(program, monom, max_cumulant, cli_args):
 def get_all_cumulants_after_loop(program, monom, max_cumulant, cli_args):
     rec_builder = RecBuilder(program)
     solvers = {}
-    moments, is_exact = get_all_moments_after_loop(monom, max_cumulant, solvers, rec_builder, cli_args, program)
-    cumulants = raw_moments_to_cumulants(moments)
+    moments_given_termination, is_exact = get_all_moments_given_termination(
+        monom, max_cumulant, solvers, rec_builder, cli_args, program)
+    cumulants_given_termination = raw_moments_to_cumulants(moments_given_termination)
+    cumulants = transform_to_after_loop(cumulants_given_termination)
     if cli_args.at_n >= 0:
         cumulants = {i: eval_re(cli_args.at_n, c) for i, c in cumulants.items()}
     return cumulants
@@ -69,19 +71,20 @@ def get_all_moments(monom, max_moment, solvers, rec_builder, cli_args, program):
     return moments, all_exact
 
 
-def get_all_moments_after_loop(monom, max_moment, solvers, rec_builder, cli_args, program):
-    moments_after_loop = {}
+def get_all_moments_given_termination(monom, max_moment, solvers, rec_builder, cli_args, program):
+    moments_given_termination = {}
     all_exact = True
     for i in reversed(range(1, max_moment + 1)):
-        moment_after_loop, is_exact = get_moment_after_loop(monom ** i, solvers, rec_builder, cli_args, program)
+        moment_given_termination, is_exact = get_moment_given_termination(
+            monom ** i, solvers, rec_builder, cli_args, program)
         all_exact = all_exact and is_exact
-        moments_after_loop[i] = moment_after_loop
-    return moments_after_loop, all_exact
+        moments_given_termination[i] = moment_given_termination
+    return moments_given_termination, all_exact
 
 
-def get_moment_after_loop(monom, solvers, rec_builder, cli_args, program):
+def get_moment_given_termination(monom, solvers, rec_builder, cli_args, program):
     """
-    Calculates the moment of a monomial after loop termination.
+    Calculates the moment of a monomial given loop termination.
     """
     negated_loop_guard = Not(program.original_loop_guard).to_arithm(program)
     moment_guard, is_exact_guard = get_moment_poly(
@@ -89,9 +92,8 @@ def get_moment_after_loop(monom, solvers, rec_builder, cli_args, program):
     moment_monom_guard, is_exact_monom_guard = get_moment_poly(
         monom*negated_loop_guard, solvers, rec_builder, cli_args, program)
 
-    conditional_expected_value = sympy_sympify(moment_monom_guard/moment_guard)
-    moment_after_loop = transform_to_after_loop(conditional_expected_value)
-    return moment_after_loop, (is_exact_guard and is_exact_monom_guard)
+    conditional_moment = sympy_sympify(moment_monom_guard/moment_guard)
+    return conditional_moment, (is_exact_guard and is_exact_monom_guard)
 
 
 def transform_to_after_loop(element):
