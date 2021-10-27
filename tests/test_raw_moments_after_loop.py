@@ -3,7 +3,7 @@ import os
 import unittest
 
 from cli.argument_parser import ArgumentParser
-from cli.common import prepare_program, get_moment_after_loop
+from cli.common import prepare_program, get_moment_given_termination, transform_to_after_loop
 from recurrences import RecBuilder
 from utils import unpack_piecewise
 from tests.common import get_test_specs
@@ -27,7 +27,8 @@ def get_raw_moment_after_loop(benchmark, monom):
     args = ArgumentParser().get_defaults()
     program = prepare_program(benchmark, args)
     rec_builder = RecBuilder(program)
-    return get_moment_after_loop(monom, {}, rec_builder, args, program)
+    moment, is_exact = get_moment_given_termination(monom, {}, rec_builder, args, program)
+    return transform_to_after_loop(moment), is_exact
 
 
 class RawMomentsAfterLoopTest(unittest.TestCase):

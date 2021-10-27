@@ -9,8 +9,8 @@ from recurrences.solver import RecurrenceSolver
 from sympy import N, Symbol
 from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re, unpack_piecewise
 from termcolor import colored
-from cli.common import get_all_moments_after_loop, get_moment_after_loop, prepare_program, get_moment,\
-    get_all_moments, print_is_exact, prettify_piecewise
+from cli.common import get_all_moments_given_termination, get_moment_given_termination, prepare_program, get_moment,\
+    get_all_moments, print_is_exact, prettify_piecewise, transform_to_after_loop
 from invariants import InvariantIdeal
 
 
@@ -62,7 +62,9 @@ class GoalsAction(Action):
     def handle_moment_goal(self, goal_data):
         monom = goal_data[0]
         if self.cli_args.after_loop:
-            moment, is_exact = get_moment_after_loop(monom, self.solvers, self.rec_builder, self.cli_args, self.program)
+            moment_given_termination, is_exact = get_moment_given_termination(
+                monom, self.solvers, self.rec_builder, self.cli_args, self.program)
+            moment = transform_to_after_loop(moment_given_termination)
         else:
             moment, is_exact = get_moment(monom, self.solvers, self.rec_builder, self.cli_args, self.program)
         print(f"E({monom}) = {prettify_piecewise(moment)}")
@@ -77,13 +79,15 @@ class GoalsAction(Action):
         number = goal_data[0]
         monom = goal_data[1]
         if self.cli_args.after_loop:
-            moments, is_exact = get_all_moments_after_loop(
+            moments, is_exact = get_all_moments_given_termination(
                 monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
         else:
             moments, is_exact = get_all_moments(
                 monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
         cumulants = raw_moments_to_cumulants(moments)
         cumulant = cumulants[number]
+        if self.cli_args.after_loop:
+            cumulant = transform_to_after_loop(cumulant)
         print(f"k{number}({monom}) = {prettify_piecewise(cumulant)}")
         print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
@@ -96,13 +100,15 @@ class GoalsAction(Action):
         number = goal_data[0]
         monom = goal_data[1]
         if self.cli_args.after_loop:
-            moments, is_exact = get_all_moments_after_loop(
+            moments, is_exact = get_all_moments_given_termination(
                 monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
         else:
             moments, is_exact = get_all_moments(
                 monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
         central_moments = raw_moments_to_centrals(moments)
         central_moment = central_moments[number]
+        if self.cli_args.after_loop:
+            central_moment = transform_to_after_loop(central_moment)
         print(f"c{number}({monom}) = {prettify_piecewise(central_moment)}")
         print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
@@ -114,13 +120,15 @@ class GoalsAction(Action):
     def handle_tail_bound_upper_goal(self, goal_data):
         monom, a = goal_data[0], goal_data[1]
         if self.cli_args.after_loop:
-            moments, is_exact = get_all_moments_after_loop(
+            moments, is_exact = get_all_moments_given_termination(
                 monom, self.cli_args.tail_bound_moments, self.solvers, self.rec_builder, self.cli_args, self.program)
         else:
             moments, is_exact = get_all_moments(
                 monom, self.cli_args.tail_bound_moments, self.solvers, self.rec_builder, self.cli_args, self.program)
         bounds = [m / (a ** k) for k, m in moments.items()]
         bounds.reverse()
+        if self.cli_args.after_loop:
+            bounds = transform_to_after_loop(bounds)
         print(f"Assuming {monom} is non-negative.")
         print(f"P({monom} >= {a}) <= minimum of")
         count = 1
@@ -146,12 +154,14 @@ class GoalsAction(Action):
     def handle_tail_bound_lower_goal(self, goal_data):
         monom, a = goal_data[0], goal_data[1]
         if self.cli_args.after_loop:
-            moments, is_exact = get_all_moments_after_loop(
+            moments, is_exact = get_all_moments_given_termination(
                 monom, 2, self.solvers, self.rec_builder, self.cli_args, self.program)
         else:
             moments, is_exact = get_all_moments(monom, 2, self.solvers, self.rec_builder, self.cli_args, self.program)
         bound = ((moments[1] - a) ** 2) / (moments[2] - 2 * a * moments[1] + a ** 2)
         bound = bound.simplify()
+        if self.cli_args.after_loop:
+            bound = transform_to_after_loop(bound)
         print(f"Assuming {monom - a} is non-negative.")
         print(f"P({monom} > {a}) >= {prettify_piecewise(bound)}")
         print_is_exact(is_exact)
