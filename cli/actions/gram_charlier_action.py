@@ -17,9 +17,10 @@ class GramCharlierAction(Action):
         benchmark = args[0]
         monom = sympify(self.cli_args.gram_charlier)
         program = prepare_program(benchmark, self.cli_args)
-        cumulants = get_all_cumulants(program, monom, self.cli_args.gram_charlier_order, self.cli_args)
         if self.cli_args.after_loop:
             cumulants = get_all_cumulants_after_loop(program, monom, self.cli_args.gram_charlier_order, self.cli_args)
+        else:
+            cumulants = get_all_cumulants(program, monom, self.cli_args.gram_charlier_order, self.cli_args)
         expansion = GramCharlierExpansion(cumulants)
         density = expansion()
         print(density)

@@ -13,8 +13,8 @@ from symengine import sympify as symengine_sympify
 
 
 def create_raw_moment_after_loop_test(benchmark, monom, general_form):
-    monom = symengine_sympify(monom) # moment calculation function expect symengine format
-    general_form = sympy_sympify(general_form) # final comparison is done in sympy format
+    monom = symengine_sympify(monom)  # moment calculation function expect symengine format
+    general_form = sympy_sympify(general_form)  # final comparison is done in sympy format
 
     def test(self: RawMomentsAfterLoopTest):
         solution, is_exact = get_raw_moment_after_loop(benchmark, monom)
