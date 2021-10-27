@@ -61,9 +61,10 @@ class GoalsAction(Action):
 
     def handle_moment_goal(self, goal_data):
         monom = goal_data[0]
-        moment, is_exact = get_moment(monom, self.solvers, self.rec_builder, self.cli_args, self.program)
         if self.cli_args.after_loop:
             moment, is_exact = get_moment_after_loop(monom, self.solvers, self.rec_builder, self.cli_args, self.program)
+        else:
+            moment, is_exact = get_moment(monom, self.solvers, self.rec_builder, self.cli_args, self.program)
         print(f"E({monom}) = {prettify_piecewise(moment)}")
         print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
@@ -75,14 +76,14 @@ class GoalsAction(Action):
     def handle_cumulant_goal(self, goal_data):
         number = goal_data[0]
         monom = goal_data[1]
-        moments, is_exact = get_all_moments(monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
+        if self.cli_args.after_loop:
+            moments, is_exact = get_all_moments_after_loop(
+                monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
+        else:
+            moments, is_exact = get_all_moments(
+                monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
         cumulants = raw_moments_to_cumulants(moments)
         cumulant = cumulants[number]
-        if self.cli_args.after_loop:
-            moments_after_loop, is_exact = get_all_moments_after_loop(
-                monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
-            cumulants_after_loop = raw_moments_to_cumulants(moments_after_loop)
-            cumulant = cumulants_after_loop[number]
         print(f"k{number}({monom}) = {prettify_piecewise(cumulant)}")
         print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
@@ -94,14 +95,14 @@ class GoalsAction(Action):
     def handle_central_moment_goal(self, goal_data):
         number = goal_data[0]
         monom = goal_data[1]
-        moments, is_exact = get_all_moments(monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
+        if self.cli_args.after_loop:
+            moments, is_exact = get_all_moments_after_loop(
+                monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
+        else:
+            moments, is_exact = get_all_moments(
+                monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
         central_moments = raw_moments_to_centrals(moments)
         central_moment = central_moments[number]
-        if self.cli_args.after_loop:
-            moments_after_loop, is_exact = get_all_moments_after_loop(
-                monom, number, self.solvers, self.rec_builder, self.cli_args, self.program)
-            central_moments_after_loop = raw_moments_to_centrals(moments_after_loop)
-            central_moment = central_moments_after_loop[number]
         print(f"c{number}({monom}) = {prettify_piecewise(central_moment)}")
         print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
@@ -112,10 +113,11 @@ class GoalsAction(Action):
 
     def handle_tail_bound_upper_goal(self, goal_data):
         monom, a = goal_data[0], goal_data[1]
-        moments, is_exact = get_all_moments(
-            monom, self.cli_args.tail_bound_moments, self.solvers, self.rec_builder, self.cli_args, self.program)
         if self.cli_args.after_loop:
             moments, is_exact = get_all_moments_after_loop(
+                monom, self.cli_args.tail_bound_moments, self.solvers, self.rec_builder, self.cli_args, self.program)
+        else:
+            moments, is_exact = get_all_moments(
                 monom, self.cli_args.tail_bound_moments, self.solvers, self.rec_builder, self.cli_args, self.program)
         bounds = [m / (a ** k) for k, m in moments.items()]
         bounds.reverse()
@@ -143,10 +145,11 @@ class GoalsAction(Action):
 
     def handle_tail_bound_lower_goal(self, goal_data):
         monom, a = goal_data[0], goal_data[1]
-        moments, is_exact = get_all_moments(monom, 2, self.solvers, self.rec_builder, self.cli_args, self.program)
         if self.cli_args.after_loop:
             moments, is_exact = get_all_moments_after_loop(
                 monom, 2, self.solvers, self.rec_builder, self.cli_args, self.program)
+        else:
+            moments, is_exact = get_all_moments(monom, 2, self.solvers, self.rec_builder, self.cli_args, self.program)
         bound = ((moments[1] - a) ** 2) / (moments[2] - 2 * a * moments[1] + a ** 2)
         bound = bound.simplify()
         print(f"Assuming {monom - a} is non-negative.")
