@@ -1,16 +1,14 @@
-x = 2
+x = 0
 xlow = 0
 xup = 0
 while true:
-    c = Categorical(1/3, 1/3, 1/3)
-    if c == 0:
-        x = Normal(2, 1)
-    elif c == 1:
-        step = Normal(1, 1)
+    d = Bernoulli(1/3)
+    if d == 0:
+        step = Normal(3/4, 1)
         xlow = xlow - step
         x = xlow
     else:
-        step = Normal(1, 1)
+        step = Normal(3/4, 1)
         xup = xup + step
         x = xup
     end
