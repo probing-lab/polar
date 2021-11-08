@@ -1,0 +1,3 @@
+
+class BifFormatException(Exception):
+    pass

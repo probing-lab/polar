@@ -1,0 +1,43 @@
+
+// Grammar of input files
+
+start: network_block def_block*
+
+network_block: "network" IDENT "{" (property ";")* "}"
+
+?def_block: variable_block | probability_block
+
+variable_block: "variable" IDENT "{" ((property | type) ";")* "}"
+
+probability_block: "probability" cpt_header "{" ((property | table | default | cpt_entry) ";")* "}"
+
+?cpt_header: "(" ident_list ")"
+
+table: "table" float_tuple
+
+default: "default" float_tuple
+
+cpt_entry: "(" ident_list ")" float_tuple
+
+type: "type" "discrete" "[" INT "]" "{" ident_list "}" // IDENTs are the allowed values, must be INT many
+
+property: "property" /[^;]+/
+
+float_tuple: FLOAT (_SEP? FLOAT)*
+
+ident_list: IDENT (_SEP? IDENT)*
+
+IDENT: LETTER (LETTER | NUMBER | "_" | "-")*
+
+_SEP: "|" | "," // token seperators
+
+%import common.WS
+%import common.INT
+%import common.FLOAT
+%import common.LETTER
+%import common.NUMBER
+
+%import common.C_COMMENT
+%import common.CPP_COMMENT
+
+%ignore WS | C_COMMENT | CPP_COMMENT
