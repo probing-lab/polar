@@ -7,6 +7,7 @@ import queue
 
 # TODO: rename variables in polar, rename domain-elements to numbers
 
+
 class CodeGenerator:
     network: BayesNetwork
 
