@@ -1,0 +1,28 @@
+/* This is a modified version of the ASIA BN that exercises many "features" of the BIF format*/
+
+network rain {
+  property author ProbingLab;
+}
+
+variable rain {
+  type discrete [ 2 ] {0, 1};
+}
+variable sprinkler {
+  type discrete [ 2 ] {0, 1};
+}
+variable grass {
+  type discrete [ 2 ] {0, 1};
+}
+probability ( rain ) {
+  table 0.2, 0.8;
+}
+probability ( sprinkler | rain ) {
+  (1) 0.4, 0.6;
+  (0) 0.01, 0.99;
+}
+probability ( grass | sprinkler, rain ) {
+  (0,0) 0.01 0.99;
+  (0,1) 0.25 0.75;
+  (1,0) 0.9 0.1;
+  (1,1) 0.2 0.8;
+}

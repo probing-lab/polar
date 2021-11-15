@@ -17,11 +17,15 @@ table: "table" float_tuple
 
 default: "default" float_tuple
 
-cpt_entry: "(" ident_list ")" float_tuple
+cpt_entry: "(" value_list ")" float_tuple
 
-type: "type" "discrete" "[" INT "]" "{" ident_list "}" // IDENTs are the allowed values, must be INT many
+type: "type" "discrete" "[" INT "]" "{" value_list "}" // IDENTs are the allowed values, must be INT many
 
-property: "property" /[^;]+/
+value_list: VALUE (_SEP? VALUE)*
+
+VALUE: (LETTER | NUMBER | "_" | "-" | "/" | ">" | "<" | "+" | "-" | "*" | "=" | ".")+
+
+property: "property" /[^;\n]+/
 
 float_tuple: FLOAT (_SEP? FLOAT)*
 

@@ -22,17 +22,23 @@ class NetworkTransformer(Transformer):
     Lark transformer which checks the lark parse tree and transforms it
     into our network representation
     """
+    cpt_tolerance: float
+    network: BayesNetwork
 
-    def __init__(self):
+    def __init__(self, cpt_tolerance: int):
         super().__init__()
+        self.cpt_tolerance = cpt_tolerance
+        self.network = None
 
     def start(self, args):
         network: BayesNetwork = args[0]
+        self.network = network
         variables: List[BayesVariable] = [v for v in args[1:] if isinstance(v, BayesVariable)]
         for v in variables:
             if network.has_variable(v.name):
                 raise BifFormatException(f"Variable {v.name} is defined multiple times!")
             network.add_variable(v)
+            v.network = network
         cpts = [v for v in args[1:] if not isinstance(v, BayesVariable)]
         for cpt in cpts:
             self.__add_cpt__(network, cpt)
@@ -44,7 +50,7 @@ class NetworkTransformer(Transformer):
     def network_block(self, args):
         network_name = str(args[0])
         properties = [p for (_, p) in args[1:]]
-        return BayesNetwork(network_name, properties)
+        return BayesNetwork(network_name, properties, self.cpt_tolerance)
 
     def variable_block(self, args):
         variable_name = str(args[0])
@@ -68,6 +74,9 @@ class NetworkTransformer(Transformer):
     def probability_block(self, args):
         variable, *parents = args[0]
         return variable, parents, args[1:]
+
+    def value_list(self, args):
+        return list(map(str, args))
 
     def ident_list(self, args):
         return list(map(str, args))
@@ -147,7 +156,7 @@ class NetworkTransformer(Transformer):
             default = tuple([NaN for _ in range(variable.domain_size)])
         elif len(default) != variable.domain_size:
             raise BifFormatException(f"Default entry of variable {variable.name} does not cover all variable values.")
-        elif sum(default) != 1.0:
+        elif not self.network.cpt_entry_sum_valid(default):
             raise BifFormatException(f"Default entry of variable {variable.name} does not sum up to 1.")
         variable.cpt_init(default)
 
@@ -165,7 +174,7 @@ class NetworkTransformer(Transformer):
             probs = []
             for i in range(variable.domain_size):
                 probs.append(table[row + i*cpt_num_rows])
-            if sum(probs) != 1.0:
+            if not self.network.cpt_entry_sum_valid(probs):
                 raise BifFormatException(f"Entry {condition} of variable {variable.name} does not sum up to 1.")
             variable.cpt_set_entry(condition, tuple(probs))
 
@@ -175,7 +184,7 @@ class NetworkTransformer(Transformer):
             raise BifFormatException(f"Entry {condition} of variable {name} has invalid condition length.")
         elif len(probs) != variable.domain_size:
             raise BifFormatException(f"Entry {condition} of variable {name} has invalid number of values.")
-        elif sum(probs) != 1.0:
+        elif not self.network.cpt_entry_sum_valid(probs):
             raise BifFormatException(f"Entry {condition} of variable {name} does not sum up to 1.")
         else:
             for idx, clause in enumerate(condition):

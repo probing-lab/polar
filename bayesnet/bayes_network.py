@@ -1,18 +1,21 @@
-from bayes_variable import BayesVariable
-from typing import List, Dict
+from __future__ import annotations
+import bayes_variable
+from typing import List, Dict, Tuple
 
 
 class BayesNetwork:
     name: str
     properties: List[str]
-    variables: Dict[str, BayesVariable]
+    variables: Dict[str, bayes_variable.BayesVariable]
+    cpt_tolerance: float
 
-    def __init__(self, name: str, properties: List[str] = []):
+    def __init__(self, name: str, properties: List[str], cpt_tolerance: float):
         self.name = name
         self.properties = properties
         self.variables = {}
+        self.cpt_tolerance = cpt_tolerance
 
-    def add_variable(self, bayes_var: BayesVariable) -> None:
+    def add_variable(self, bayes_var: bayes_variable.BayesVariable) -> None:
         assert not self.has_variable(bayes_var.name)
         self.variables[bayes_var.name] = bayes_var
         return
@@ -28,3 +31,17 @@ class BayesNetwork:
 
     def __str__(self) -> str:
         return f"Network '{self.name}', Properties: {str(self.properties)}"
+
+    def cpt_entry_sum_valid(self, probabilities: Tuple[float]) -> bool:
+        return abs(1 - sum(probabilities)) < self.cpt_tolerance
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            result = True
+            result = result and (self.name == other.name)
+            result = result and (self.properties == other.properties)
+            result = result and (self.cpt_tolerance == other.cpt_tolerance)
+            result = result and (self.variables == other.variables)
+            return result
+        else:
+            return False
