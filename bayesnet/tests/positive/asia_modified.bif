@@ -1,0 +1,77 @@
+/* This is a modified version of the ASIA BN that exercises many "features" of the BIF format*/
+
+network unknown {
+  property version 2.0;
+  property author ProbingLab;
+}
+
+
+variable asia_visit {
+  type discrete [ 2 ] { has-visited, no-visit };
+  property this-is-a-property;
+}
+
+// line comment outside block
+
+variable tub-er {
+  type discrete [ 2 ] { yes | no }; //using the bar-seperator
+}
+variable smoke {
+  type discrete [ 2 ] { yes no }; //using no seperator at all
+  /*
+    we could also write type discrete[2] {0,1};
+  */
+}
+
+/*
+	multiline comment outside block 
+*/
+
+variable lung {
+
+
+  type discrete [ 2 ] { yes, no };
+}
+variable bronc {
+  type discrete [ 2 ] { yes, no };
+}
+variable either {
+  type discrete [ 2 ] { yes, no };
+}
+variable dysp {
+  type discrete [ 2 ] { yes, no };
+}
+probability ( asia_visit ) {
+  table 0.01, 0.99;
+}
+probability ( tub-er | asia_visit ) {
+  (has-visited) 0.05, 0.95;
+  (no-visit) 0.01, 0.99;
+}
+probability ( smoke ) {
+  default 1.0 0.0; // overwritten by table
+  table 0.5, 0.5;
+}
+probability ( lung | smoke ) {
+  default 1.0 0.0; // overwritten by table
+  table 0.3 0.4 0.7 0.6; // overwritten by entries
+  (yes) 0.1, 0.9;
+  (no) 0.01, 0.99;
+}
+probability ( bronc | smoke ) {
+  default 0.55 0.45; //should be overwritten
+  (yes) 0.6, 0.4;
+  (no) 0.3, 0.7;
+}
+probability ( either | lung, tub-er ) {
+  default 1.0 0.0;
+  (no, no) 0.0, 1.0;
+}
+probability ( dysp | bronc, either ) {
+  table 0.9 | 0.8, 0.7 0.1 0.1 0.2 | 0.3, 0.9;
+  /*
+  (yes, yes) 0.9, 0.1;
+  (no, yes) 0.7, 0.3;
+  (yes, no) 0.8, 0.2;
+  (no, no) 0.1, 0.9; */
+}
