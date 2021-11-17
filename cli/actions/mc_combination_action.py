@@ -22,7 +22,7 @@ class MCCombinationAction(Action):
             return
 
         combination_vars = []
-        if len(combination_vars) == 0:
+        if len(self.cli_args.mc_comb) == 0:
             for var in program.non_mc_variables:
                 if var in program.original_variables:
                     combination_vars.append(var)
