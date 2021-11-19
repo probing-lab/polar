@@ -1,0 +1,5 @@
+v, w, x, y = 0, 0, 0, 0
+while true:
+    v, w = 1 - v - w + 2*v*w, v
+    x, y = x + v*y, 2*v*x*y + (v**2)*(y**2) + 1 + y
+end
