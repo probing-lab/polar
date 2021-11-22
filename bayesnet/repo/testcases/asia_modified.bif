@@ -6,9 +6,14 @@ network unknown {
 }
 
 
-variable asia_visit {
+variable ASIA-ViS1t {
   type discrete [ 2 ] { has-visited, no-visit };
   property this-is-a-property;
+}
+
+variable asiavis1t {
+  type discrete [3] { a b c };
+  property this-is-not-used;
 }
 
 // line comment outside block
@@ -38,13 +43,16 @@ variable bronc {
 variable either {
   type discrete [ 2 ] { yes, no };
 }
-variable dysp {
+variable DYSP {
   type discrete [ 2 ] { yes, no };
 }
-probability ( asia_visit ) {
+probability ( ASIA-ViS1t ) {
   table 0.01, 0.99;
 }
-probability ( tub-er | asia_visit ) {
+probability (asiavis1t) {
+  table 0.2 0.3 0.5;
+}
+probability ( tub-er | ASIA-ViS1t ) {
   (has-visited) 0.05, 0.95;
   (no-visit) 0.01, 0.99;
 }
@@ -67,7 +75,7 @@ probability ( either | lung, tub-er ) {
   default 1.0 0.0;
   (no, no) 0.0, 1.0;
 }
-probability ( dysp | bronc, either ) {
+probability ( DYSP | bronc, either ) {
   table 0.9 | 0.8, 0.7 0.1 0.1 0.2 | 0.3, 0.9;
   /*
   (yes, yes) 0.9, 0.1;
