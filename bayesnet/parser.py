@@ -1,10 +1,8 @@
 import os
 from lark import Lark
-from code_generator import CodeGenerator
-from transformer import NetworkTransformer
+from .transformer import NetworkTransformer
 
 GRAMMAR_FILE_PATH = os.path.dirname(os.path.abspath(__file__)) + "/bif-syntax.lark"
-BIF_REPO = os.path.dirname(os.path.abspath(__file__)) + "/repo"
 
 
 class BifParser:
@@ -27,10 +25,3 @@ class BifParser:
                 parser = Lark(grammar_file, transformer=NetworkTransformer(self.cpt_tolerance), parser="lalr")
                 network = parser.parse(file.read())
         return network
-
-
-if "__main__" == __name__:
-    network = BifParser().parse_file(BIF_REPO + "/medium/insurance.bif")
-    print(network.print_pretty())
-    gen = CodeGenerator(network)
-    print(gen.generate_code())

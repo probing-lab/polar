@@ -1,12 +1,12 @@
 from math import nan as NaN
 from enum import Enum
 from lark import Transformer
-from exceptions import BifFormatException
-from bayes_variable import BayesVariable
-from bayes_network import BayesNetwork
-from typing import List, Set, Tuple
+from .exceptions import BifFormatException
+from typing import List, Tuple
 from itertools import product
 from functools import reduce
+from .bayes_variable import BayesVariable
+from .bayes_network import BayesNetwork
 
 
 class AttributeType(Enum):

@@ -2,9 +2,9 @@ from __future__ import annotations
 import os
 import unittest
 
-from parser import BifParser
-from bayes_network import BayesNetwork
-from bayes_variable import BayesVariable
+from bayesnet.parser import BifParser
+from bayesnet.bayes_network import BayesNetwork
+from bayesnet.bayes_variable import BayesVariable
 
 ASIA_PATH = os.path.dirname(os.path.abspath(__file__)) + "/positive/asia_modified.bif"
 

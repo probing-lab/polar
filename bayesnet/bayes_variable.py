@@ -2,8 +2,7 @@ from __future__ import annotations
 from math import nan as NaN
 from typing import List, Tuple, Dict
 from itertools import product
-
-import bayes_network
+from . import bayes_network
 
 
 class BayesVariable:
