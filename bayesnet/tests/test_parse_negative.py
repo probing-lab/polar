@@ -2,8 +2,8 @@ import glob
 import os
 import unittest
 
-from parser import BifParser
-from exceptions import BifFormatException
+from bayesnet.parser import BifParser
+from bayesnet.exceptions import BifFormatException
 
 NEGATIVES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/negative"
 

@@ -1,5 +1,5 @@
 from __future__ import annotations
-import bayes_variable
+from . import bayes_variable
 from typing import List, Dict, Tuple
 
 

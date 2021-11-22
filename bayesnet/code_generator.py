@@ -1,26 +1,46 @@
 from functools import reduce
 from typing import Dict, List, Tuple
-from bayes_network import BayesNetwork
-from bayes_variable import BayesVariable
 from itertools import product
 import queue
-
-# TODO: rename variables in polar, rename domain-elements to numbers
+import re
+from .bayes_network import BayesNetwork
+from .bayes_variable import BayesVariable
+from .common import get_unique_name
+from .query.query import Query
 
 
 class CodeGenerator:
     network: BayesNetwork
+    query: Query
+    polar_variable_names: Dict[str, str]  # keys: bayes-net variables, values: polar-names
 
-    def __init__(self, network: BayesNetwork):
+    # For variables, all chars except letters, numbers and underscores are removed,
+    #  and if necessary random numbers are appened (so the variable is unique)
+    # For domain elements, they get replaced by their index in the variable.domain tuple
+
+    def __init__(self, network: BayesNetwork, query: Query = None):
         self.network = network
+        self.query = query
 
     def generate_code(self) -> str:
+        self.__generate_mapping__()
         return '\n'.join(self.__generate_init__() + self.__generate_loop__())
+
+    def __generate_mapping__(self):
+        self.polar_variable_names = {}
+        for varname in self.network.variables.keys():
+            mapped_name = re.sub("[^A-Za-z0-9_]+", "", varname.lower())
+            if mapped_name == "":
+                mapped_name = "_"
+            mapped_name = get_unique_name(self.polar_variable_names.values(), mapped_name)
+            self.polar_variable_names[varname] = mapped_name
 
     def __generate_init__(self) -> List[str]:
         init_code: List[str] = []
         for v in self.network.variables.values():
-            init_code.append(v.name + " = " + v.domain[0])
+            init_code.append(self.polar_variable_names[v.name] + " = 0")
+        if self.query is not None:
+            init_code += self.query.generate_init_code(self.network, self.polar_variable_names)
         return init_code
 
     def __generate_loop__(self) -> List[str]:
@@ -28,12 +48,14 @@ class CodeGenerator:
         for v in self.__topological_sort__(list(self.network.variables.values())):
             loop_code += self.__generate_variable__(v)
             loop_code.append("")
+        if self.query is not None:
+            loop_code += self.query.generate_loop_code(self.network, self.polar_variable_names)
         loop_code.append("end")
         return loop_code
 
     def __generate_variable__(self, var: BayesVariable) -> List[str]:
         indent = "\t"
-        statements = [indent + "# variable: " + var.name]
+        statements = [indent + "# variable: " + var.name + " <=> " + self.polar_variable_names[var.name]]
         if len(var.parents) == 0:
             statements.append(indent + self.__generate_assignment__(var, ()))
         else:
@@ -58,15 +80,17 @@ class CodeGenerator:
             condition = "elif "
 
         for i in range(len(comb) - 1):
-            condition += var.parents[i].name + " == " + comb[i] + " && "
+            domain_index = var.parents[i].domain.index(comb[i])
+            condition += self.polar_variable_names[var.parents[i].name] + " == " + str(domain_index) + " && "
 
-        return condition + var.parents[-1].name + " == " + comb[-1] + ":"
+        domain_index = var.parents[-1].domain.index(comb[-1])
+        return condition + self.polar_variable_names[var.parents[-1].name] + " == " + str(domain_index) + ":"
 
     def __generate_assignment__(self, var: BayesVariable, comb: Tuple[str]) -> str:
-        assignment = var.name + " = "
+        assignment = self.polar_variable_names[var.name] + " = "
         for i in range(len(var.domain) - 1):
-            assignment += var.domain[i] + " {" + str(var.cpt[comb][i]) + "} "
-        return assignment + var.domain[-1]
+            assignment += str(i) + " {" + str(var.cpt[comb][i]) + "} "  # var.domain[i] -> i
+        return assignment + str(len(var.domain) - 1)
 
     def __topological_sort__(self, variables: List[BayesVariable]) -> List[BayesVariable]:
         num_parents: List[int] = [v.num_parents for v in variables]

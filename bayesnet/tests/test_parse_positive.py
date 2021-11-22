@@ -2,7 +2,7 @@ import glob
 import os
 import unittest
 
-from parser import BifParser
+from bayesnet.parser import BifParser
 
 POSITIVES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/positive"
 
