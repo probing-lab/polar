@@ -9,7 +9,7 @@ from recurrences.solver import RecurrenceSolver
 from sympy import N, Symbol
 from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re, unpack_piecewise
 from termcolor import colored
-from cli.common import get_all_moments_given_termination, get_moment_given_termination, prepare_program, get_moment,\
+from cli.common import get_all_moments_given_termination, get_moment_given_termination, parse_program, prepare_program, get_moment,\
     get_all_moments, print_is_exact, prettify_piecewise, transform_to_after_loop
 from invariants import InvariantIdeal
 
@@ -25,7 +25,8 @@ class GoalsAction(Action):
 
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
-        self.program = prepare_program(benchmark, self.cli_args)
+        program = parse_program(benchmark, self.cli_args.transform_categoricals)
+        self.program = prepare_program(program, self.cli_args)
         self.rec_builder = RecBuilder(self.program)
         self.solvers = {}
 

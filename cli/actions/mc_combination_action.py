@@ -4,7 +4,7 @@ from symengine.lib.symengine_wrapper import sympify
 import sympy
 from termcolor import colored
 from program.mc_comb_finder import MCCombFinder
-from cli.common import prepare_program
+from cli.common import prepare_program, parse_program
 
 
 class MCCombinationAction(Action):
@@ -16,7 +16,8 @@ class MCCombinationAction(Action):
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
         combination_deg = self.cli_args.mc_comb_deg
-        program = prepare_program(benchmark, self.cli_args)
+        program = parse_program(benchmark, self.cli_args.transform_categoricals)
+        program = prepare_program(program, self.cli_args)
 
         if len(program.non_mc_variables) == 0:
             print(f"--mc_comb not applicable to {benchmark} since all variables are already moment computable.")

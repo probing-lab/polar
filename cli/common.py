@@ -122,11 +122,10 @@ def prettify_piecewise(expression):
         special_cases.append(str(expression.subs({Symbol("n", integer=True): n})))
     return "; ".join(special_cases) + "; " + str(unpack_piecewise(expression))
 
+def parse_program(benchmark, transform_categorial=False):
+    return Parser().parse_file(benchmark, transform_categorial)
 
-def prepare_program(benchmark, cli_args):
-    parser = Parser()
-    program = parser.parse_file(benchmark, cli_args.transform_categoricals)
-
+def prepare_program(program, cli_args):
     # Transform the loop-guard into an if-statement
     program = LoopGuardTransformer(cli_args.trivial_guard).execute(program)
     # Transform non-constant distributions parameters

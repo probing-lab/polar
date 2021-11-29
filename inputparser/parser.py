@@ -15,8 +15,12 @@ class Parser:
 
     def parse_file(self, filepath: str, transform_categoricals=False) -> Program:
         with open(filepath) as file:
-            with open(GRAMMAR_FILE_PATH) as grammar_file:
-                parser = Lark(grammar_file, transformer=ArithmeticToStringTransformer, parser="lalr")
-                tree = parser.parse(file.read())
-                program = StructureTransformer(transform_categoricals).transform(tree)
+            program = self.parse_string(file.read(), transform_categoricals)
+        return program
+
+    def parse_string(self, code: str, transform_categoricals=False) -> Program:
+        with open(GRAMMAR_FILE_PATH) as grammar_file:
+            parser = Lark(grammar_file, transformer=ArithmeticToStringTransformer, parser="lalr")
+            tree = parser.parse(code)
+            program = StructureTransformer(transform_categoricals).transform(tree)
         return program
