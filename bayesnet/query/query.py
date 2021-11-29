@@ -13,3 +13,7 @@ class Query(ABC):
     @abstractmethod
     def generate_query(self, network, polar_variable_mapping):
         pass
+
+    @abstractmethod
+    def generate_result(self, results):
+        pass

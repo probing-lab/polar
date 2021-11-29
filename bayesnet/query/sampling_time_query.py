@@ -2,6 +2,7 @@ from typing import List
 from bayesnet.bayes_network import BayesNetwork
 from bayesnet.bayes_variable import BayesVariable
 from bayesnet.exceptions import QueryException
+from cli.common import transform_to_after_loop
 from .query import Query
 from bayesnet.common import get_unique_name
 
@@ -36,4 +37,9 @@ class SamplingTimeQuery(Query):
         return code
 
     def generate_query(self, network, polar_variable_mapping):
-        return f"E({self.count_name})"
+        return [f"E({self.count_name})"]
+
+    def generate_result(self, results):
+        exp_val_count = results[0]
+        sampling_time = transform_to_after_loop(exp_val_count)
+        print(f"The expected number of samples until {self.target_variable} = {self.target_value} is {sampling_time}")

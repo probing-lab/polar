@@ -228,6 +228,12 @@ class ArgumentParser:
             type=int,
             help="The maximum degree of a monomial in the moment computable candidate"
         )
+        self.argument_parser.add_argument(
+            "--sample_time_until",
+            dest="sample_time_until",
+            type=str,
+            help="Mean number of samples necessary to see the given assignment in a Baysian Network (given as BIF)"
+        )
 
     def parse_args(self):
         args = self.argument_parser.parse_args()

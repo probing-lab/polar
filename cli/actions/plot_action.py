@@ -6,7 +6,7 @@ from recurrences import RecBuilder
 from symengine.lib.symengine_wrapper import sympify
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from cli.common import prepare_program, get_moment
+from cli.common import prepare_program, get_moment, parse_program
 
 
 class PlotAction(Action):
@@ -20,7 +20,8 @@ class PlotAction(Action):
         monom = sympify(self.cli_args.plot)
         first_moment = second_moment = None
         if self.cli_args.plot_expectation or self.cli_args.plot_std:
-            program = prepare_program(benchmark, self.cli_args)
+            program = parse_program(benchmark, self.cli_args.transform_categoricals)
+            program = prepare_program(program, self.cli_args)
             rec_builder = RecBuilder(program)
             solvers = {}
             solver_args = deepcopy(self.cli_args)
