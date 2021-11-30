@@ -26,6 +26,8 @@ class BayesNetworkAction(Action):
 
         if self.cli_args.sample_time_until is not None:
             query = SamplingTimeQuery(self.cli_args.sample_time_until, network)
+        elif self.cli_args.exact_inference is not None:
+            query = ExactInferenceQuery(self.cli_args.exact_inference, network)
 
         codegen = CodeGenerator(network, query)
         code = codegen.generate_code()
