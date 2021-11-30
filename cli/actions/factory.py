@@ -13,7 +13,7 @@ class ActionFactory:
 
     @classmethod
     def create_action(cls, cli_args: Namespace) -> Action:
-        if cli_args.sample_time_until:
+        if cli_args.sample_time_until or cli_args.exact_inference:
             return BayesNetworkAction(cli_args)
         if cli_args.simulate:
             return SimulationAction(cli_args)

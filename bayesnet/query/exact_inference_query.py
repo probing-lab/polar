@@ -2,6 +2,7 @@ from typing import List, Tuple
 from bayesnet.bayes_network import BayesNetwork
 from bayesnet.bayes_variable import BayesVariable
 from bayesnet.exceptions import QueryException
+from cli.common import transform_to_after_loop
 from .query import Query
 from bayesnet.common import get_unique_name
 
@@ -11,8 +12,10 @@ class ExactInferenceQuery(Query):
     evidence: List[Tuple[str, str]]
     indicator_name: str
     inference_name: str
+    query: str
 
     def __init__(self, query: str, network: BayesNetwork):
+        self.query = query
         self.evidence = []
         parts = query.split("|")
         if len(parts) != 2:
@@ -64,3 +67,9 @@ class ExactInferenceQuery(Query):
 
     def generate_query(self, network, polar_variable_mapping):
         return [f"E({self.inference_name})", f"E({self.indicator_name})"]
+
+    def generate_result(self, results):
+        exp_val_inference = results[0]
+        exp_val_indicator = results[1]
+        result = transform_to_after_loop(exp_val_inference / exp_val_indicator)
+        print(f"E({self.query}) = {result}")
