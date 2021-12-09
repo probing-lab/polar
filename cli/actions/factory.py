@@ -9,6 +9,7 @@ from .mc_combination_action import MCCombinationAction
 from .print_benchmark_action import PrintBenchmarkAction
 from .goals_action import GoalsAction
 
+
 class ActionFactory:
 
     @classmethod
