@@ -232,13 +232,15 @@ class ArgumentParser:
             "--sample_time_until",
             dest="sample_time_until",
             type=str,
-            help="Mean number of samples necessary to see the given (conjunctive) conditions in a Baysian Network (given as BIF) (format: VAR = VALUE, VAR = VALUE, ..)"
+            help="""Mean number of samples necessary to see the given (conjunctive) conditions in a
+            Baysian Network (given as BIF) (format: VAR = VALUE, VAR = VALUE, ..)"""
         )
         self.argument_parser.add_argument(
             "--exact_inference",
             dest="exact_inference",
             type=str,
-            help="Expected value of variable given some other variables in a Baysian Network (given as BIF) (format VAR | VAR = VAL, VAR = VAL, ..)"
+            help="""Expected value of variable given some other variables in a Baysian Network (given as BIF)
+            (format VAR | VAR = VAL, VAR = VAL, ..)"""
         )
 
     def parse_args(self):

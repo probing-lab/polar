@@ -12,6 +12,7 @@ from .action import Action
 from program import Program
 from cli.common import prepare_program, get_moment, parse_program
 
+
 class BayesNetworkAction(Action):
     cli_args: Namespace
     program: Program
@@ -46,5 +47,5 @@ class BayesNetworkAction(Action):
             monom = goal_data[0]
             result, is_exact = get_moment(monom, {}, rec_builder, cli_args, program)
             results.append(result)
-        
+
         query.generate_result(results)

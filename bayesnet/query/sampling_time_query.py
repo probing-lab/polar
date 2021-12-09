@@ -12,6 +12,7 @@ from bayesnet.common import get_unique_name
 # so far only conjunctions are supported
 # format: VARIABLE = VALUE, VARIABLE = VALUE, ...
 
+
 class SamplingTimeQuery(Query):
     target_variables: List[str]
     target_values: List[str]
@@ -20,7 +21,7 @@ class SamplingTimeQuery(Query):
     def __init__(self, query: str, network: BayesNetwork):
         self.query = query
         self.target_values = []
-        self.target_variables = [] 
+        self.target_variables = []
 
         conditions = [q.strip() for q in query.split(",")]
         for condition in conditions:

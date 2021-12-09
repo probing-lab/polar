@@ -9,8 +9,8 @@ from recurrences.solver import RecurrenceSolver
 from sympy import N, Symbol
 from utils import indent_string, raw_moments_to_cumulants, raw_moments_to_centrals, eval_re, unpack_piecewise
 from termcolor import colored
-from cli.common import get_all_moments_given_termination, get_moment_given_termination, parse_program, prepare_program, get_moment,\
-    get_all_moments, print_is_exact, prettify_piecewise, transform_to_after_loop
+from cli.common import get_all_moments_given_termination, get_moment_given_termination, parse_program, prepare_program,\
+    get_moment, get_all_moments, print_is_exact, prettify_piecewise, transform_to_after_loop
 from invariants import InvariantIdeal
 
 
