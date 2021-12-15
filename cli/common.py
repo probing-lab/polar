@@ -98,7 +98,7 @@ def get_moment_given_termination(monom, solvers, rec_builder, cli_args, program)
 
 def transform_to_after_loop(element):
     def trans_single(e):
-        return limit_seq(unpack_piecewise(e), Symbol("n", integer=True))
+        return limit_seq(unpack_piecewise(e), Symbol("n"))
 
     if isinstance(element, dict):
         return {k: trans_single(v) for k, v in element.items()}
