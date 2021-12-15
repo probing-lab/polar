@@ -143,8 +143,6 @@ class MCCombFinder:
                 continue
             if not sympify(k) in solution:
                 continue
-            if solution[sympify(k)] == 0:
-                continue
             nice_solutions.append(solution)
         return nice_solutions
 
