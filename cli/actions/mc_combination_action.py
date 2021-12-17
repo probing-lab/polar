@@ -1,6 +1,7 @@
 from argparse import Namespace
 from .action import Action
 from symengine.lib.symengine_wrapper import sympify
+import sympy
 from termcolor import colored
 from program.mc_comb_finder import MCCombFinder
 from cli.common import prepare_program
@@ -43,4 +44,5 @@ class MCCombinationAction(Action):
         else:
             for combination in combinations:
                 candidate, solution = combination[0], combination[1]
+                candidate = sympy.sympify(candidate).factor()
                 print(f"E({candidate})[n] = {solution}")
