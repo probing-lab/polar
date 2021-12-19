@@ -1,0 +1,5 @@
+g = 1
+while true:
+    g = Uniform(g, 2*g)
+    a, b, c = a**2 + 2*b*c - d*f + b, d*f - a**2 + 2*b*d + 2*c, g - b*c - b*d + (1/2)*a
+end

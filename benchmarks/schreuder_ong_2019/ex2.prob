@@ -1,6 +1,5 @@
-while x <= 10:
+while true:
     a = Normal(u1, v1)
     b = Normal(u1, v2)
     x, y = x + a*x*y, y + b*x*y
-    z = b*x - a*y
 end
