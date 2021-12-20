@@ -23,7 +23,7 @@ class BayesNetworkAction(Action):
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
         network = BifParser().parse_file(benchmark)
-        print(network.print_pretty())
+        # print(network.print_pretty())
 
         if self.cli_args.sample_time_until is not None:
             query = SamplingTimeQuery(self.cli_args.sample_time_until, network)

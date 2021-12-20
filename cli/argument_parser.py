@@ -239,8 +239,8 @@ class ArgumentParser:
             "--exact_inference",
             dest="exact_inference",
             type=str,
-            help="""Expected value of variable given some other variables in a Baysian Network (given as BIF)
-            (format VAR | VAR = VAL, VAR = VAL, ..)"""
+            help="""Raw Moment of variable given some other variables in a Baysian Network (given as BIF)
+            (format VAR^k | VAR = VAL, VAR = VAL, ..)"""
         )
 
     def parse_args(self):
