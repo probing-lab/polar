@@ -14,14 +14,16 @@ class ExactInferenceQuery(Query):
     indicator_name: str
     inference_name: str
     query: str
+    network: BayesNetwork
 
     def __init__(self, query: str, network: BayesNetwork):
         self.query = query
+        self.network = network
         self.evidence = []
         parts = query.split("|")
         if len(parts) != 2:
-            raise QueryException("Illegal Format for Exact Inference Query, use VAR | VAR = VAL, VAR = VAL, ..")
-        target_expr = parts[0].strip().split("^")
+            raise QueryException("Illegal Format for Exact Inference Query, use VAR**k | VAR = VAL, VAR = VAL, ..")
+        target_expr = parts[0].strip().split("**")
         self.target_variable = target_expr[0]
         if len(target_expr) == 1:
             self.target_power = 1
@@ -38,7 +40,7 @@ class ExactInferenceQuery(Query):
         for evidence_assignment in evidence_list:
             evidence_parts = evidence_assignment.split("=")
             if len(evidence_parts) != 2:
-                raise QueryException("Illegal Format for Exact Inference Query, use VAR^k | VAR = VAL, VAR = VAL, ..")
+                raise QueryException("Illegal Format for Exact Inference Query, use VAR**k | VAR = VAL, VAR = VAL, ..")
             evidence_var, evidence_value = [p.strip() for p in evidence_parts]
             if evidence_var not in network.variables:
                 raise QueryException(f"Unknown variable {evidence_var} in Exact Inference Query")
@@ -83,3 +85,6 @@ class ExactInferenceQuery(Query):
         exp_val_indicator = results[1]
         result = transform_to_after_loop(exp_val_inference / exp_val_indicator)
         print(f"E({self.query}) = {result} ≈ {result.evalf(10)}")
+        print(f"\tThe domain of '{self.target_variable}' has been mapped as follows:")
+        for index, domain_element in enumerate(self.network.variables[self.target_variable].domain):
+            print(f"\t{index} <-> {domain_element}")

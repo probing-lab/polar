@@ -6,7 +6,7 @@ variable A {
 variable S {
   type discrete [ 2 ] { M, F };
 }
-variable E {
+variable E_x {
   type discrete [ 2 ] { high, uni };
 }
 variable O {
@@ -24,7 +24,7 @@ probability ( A ) {
 probability ( S ) {
   table 0.6, 0.4;
 }
-probability ( E | A, S ) {
+probability ( E_x | A, S ) {
   (young, M) 0.75, 0.25;
   (adult, M) 0.72, 0.28;
   (old, M) 0.88, 0.12;
@@ -32,11 +32,11 @@ probability ( E | A, S ) {
   (adult, F) 0.7, 0.3;
   (old, F) 0.9, 0.1;
 }
-probability ( O | E ) {
+probability ( O | E_x ) {
   (high) 0.96, 0.04;
   (uni) 0.92, 0.08;
 }
-probability ( R | E ) {
+probability ( R | E_x ) {
   (high) 0.25, 0.75;
   (uni) 0.2, 0.8;
 }
