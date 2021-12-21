@@ -31,8 +31,9 @@ class BayesNetworkAction(Action):
             query = ExactInferenceQuery(self.cli_args.exact_inference, network)
 
         codegen = CodeGenerator(network, query)
+        print("The following code has been generated from the input:")
         code = codegen.generate_code()
-        print(code)
+        print(code + "\n")
         program = Parser().parse_string(code, self.cli_args.transform_categoricals)
         goal_queries = query.generate_query(network, codegen.polar_variable_names)
 

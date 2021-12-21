@@ -240,7 +240,7 @@ class ArgumentParser:
             dest="exact_inference",
             type=str,
             help="""Raw Moment of variable given some other variables in a Baysian Network (given as BIF)
-            (format VAR^k | VAR = VAL, VAR = VAL, ..)"""
+            (format VAR**k | VAR = VAL, VAR = VAL, ..)"""
         )
 
     def parse_args(self):
