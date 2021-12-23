@@ -1,0 +1,5 @@
+while true:
+    a = Normal(0, 1)
+    b = Normal(0, 1)
+    x, y = x + a*x*y, y + b*x*y
+end
