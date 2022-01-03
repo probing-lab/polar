@@ -1,0 +1,4 @@
+x, y, z = 1, 1, 2
+while true:
+    x, y, z = x**6 + z, z - x**6, z - 1 {1/2} z + 1
+end
