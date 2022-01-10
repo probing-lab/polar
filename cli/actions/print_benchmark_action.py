@@ -1,6 +1,9 @@
 from argparse import Namespace
 from termcolor import colored
 
+from bayesnet.parser import BifParser
+from bayesnet.code_generator import CodeGenerator
+
 from inputparser import Parser
 from .action import Action
 from cli.common import prepare_program, parse_program
@@ -13,15 +16,22 @@ class PrintBenchmarkAction(Action):
         self.cli_args = cli_args
 
     def __call__(self, *args, **kwargs):
-        benchmark = args[0]
-        program = parse_program(benchmark, self.cli_args.transform_categoricals)
+        benchmark: str = args[0]
+
+        if benchmark.endswith(".bif"):
+            network = BifParser().parse_file(benchmark)
+            codegen = CodeGenerator(network)
+            code = codegen.generate_code()
+            program = Parser().parse_string(code, self.cli_args.transform_categoricals)
+        else:
+            program = parse_program(benchmark, self.cli_args.transform_categoricals)
+
         print(colored("------------------", "magenta"))
         print(colored("- Parsed program -", "magenta"))
         print(colored("------------------", "magenta"))
         print(program)
         print()
 
-        program = parse_program(benchmark, self.cli_args.transform_categoricals)
         program = prepare_program(program, self.cli_args)
         print(colored("-----------------------", "magenta"))
         print(colored("- Transformed program -", "magenta"))

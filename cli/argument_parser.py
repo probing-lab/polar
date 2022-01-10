@@ -229,6 +229,12 @@ class ArgumentParser:
             help="The maximum degree of a monomial in the moment computable candidate"
         )
         self.argument_parser.add_argument(
+            "--bif_to_prob",
+            dest="bif_to_prob",
+            type=str,
+            help="Transform BIF-file to PROB-file and store in file named as argument"
+        )
+        self.argument_parser.add_argument(
             "--sample_time_until",
             dest="sample_time_until",
             type=str,

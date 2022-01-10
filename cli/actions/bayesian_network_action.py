@@ -29,14 +29,24 @@ class BayesNetworkAction(Action):
             query = SamplingTimeQuery(self.cli_args.sample_time_until, network)
         elif self.cli_args.exact_inference is not None:
             query = ExactInferenceQuery(self.cli_args.exact_inference, network)
+        else:
+            query = None
 
         codegen = CodeGenerator(network, query)
         print("The following code has been generated from the input:")
         code = codegen.generate_code()
         print(code + "\n")
         program = Parser().parse_string(code, self.cli_args.transform_categoricals)
-        goal_queries = query.generate_query(network, codegen.polar_variable_names)
 
+        if self.cli_args.bif_to_prob:
+            with open(self.cli_args.bif_to_prob, "w") as output_file:
+                output_file.write(code)
+
+        # if only bif_to_prob was requested
+        if query is None:
+            return
+
+        goal_queries = query.generate_query(network, codegen.polar_variable_names)
         cli_args = ArgumentParser().get_defaults()
         program = prepare_program(program, cli_args)
         rec_builder = RecBuilder(program)
