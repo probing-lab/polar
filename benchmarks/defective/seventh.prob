@@ -1,4 +1,0 @@
-x, y = 1, 1
-while true:
-    x, y = x**7 + 4*x + y, 3*y - x**7 + 1
-end
