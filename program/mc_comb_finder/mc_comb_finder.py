@@ -66,7 +66,7 @@ class MCCombFinder:
         for term in good_set:
             coeff = Symbol(get_unique_var())
             symbols.add(coeff)
-            rhs_good_part = coeff * term
+            rhs_good_part += coeff * term
 
         coeff = Symbol(get_unique_var())
         symbols.add(coeff)
