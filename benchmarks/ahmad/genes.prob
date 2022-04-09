@@ -1,0 +1,14 @@
+
+k1 = 4
+k2 = 40
+a = 0.2
+b = 4
+p = 0.5
+rho = 0.5
+y = 0
+x = 0
+while true:
+    k = k1 {p} k2
+    y = (1 - rho)*y + k
+    x = (1 - a)*x + b*y
+end

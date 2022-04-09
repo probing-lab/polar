@@ -1,0 +1,9 @@
+x = 0
+x1 = 0
+x2 = 0
+w = 0
+while true:
+    w = Normal(0, 1)
+    x2, x1, x = x1, x, x1 + x2 + w
+end
+
