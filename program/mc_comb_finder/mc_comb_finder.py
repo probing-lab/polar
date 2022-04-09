@@ -8,8 +8,7 @@ from recurrences.solver import RecurrenceSolver
 
 class MCCombFinder:
     """
-    Checks if a combination of [non-mc] variables called candidate exists s.t it can be written in the form:
-    candidate_n = candidate_rec_n-1 = k*candidate_n-1 + good where good is a sum of moment computable terms
+    Generates all possible polynomial invariants with defective variables upto a fixed degree
     """
     @classmethod
     def __get_candidate_terms__(cls, pos, vars, deg, pw, s):
@@ -42,6 +41,9 @@ class MCCombFinder:
 
     @classmethod
     def __get_good_set__(cls, candidate_rec, bad_variables, variables):
+        """
+        Get set of all effective monomials appearing in candidate_rec
+        """
         result = set()
         monoms = get_terms_with_vars(candidate_rec, variables)[0]
         index_to_vars = {i: var for i, var in enumerate(variables)}
@@ -61,12 +63,15 @@ class MCCombFinder:
 
     @classmethod
     def __get_good_poly__(cls, good_set):
+        """
+        Construct the polynomial representing the sigma on rhs of Eq. (3) in paper
+        """
         rhs_good_part = 0
         symbols = set()
         for term in good_set:
             coeff = Symbol(get_unique_var())
             symbols.add(coeff)
-            rhs_good_part = coeff * term
+            rhs_good_part += coeff * term
 
         coeff = Symbol(get_unique_var())
         symbols.add(coeff)
@@ -90,6 +95,9 @@ class MCCombFinder:
 
     @classmethod
     def __get_init_value_candidate__(cls, candidate, rec_builder):
+        """
+        Computes the initial value of the candidate (0'th iteration, i.e., before loop).
+        """
         ans = 0
         monoms = get_monoms(candidate, rec_builder.program.variables)
         for monom, coeff in monoms:
@@ -98,6 +106,9 @@ class MCCombFinder:
 
     @classmethod
     def __construct_equations__(cls, candidate_rec, candidate_coefficients, kcandidate, rhs_good_part, good_coeffs, k):
+        """
+        Constructs system of equations derived from main equation (Eq. (3) in paper) for feeding into SymPy.
+        """
         candidate_rec_monoms = get_monoms(candidate_rec, candidate_coefficients, with_constant=True)
         kcandidate_monoms = get_monoms(kcandidate, candidate_coefficients | {k}, with_constant=True)
         good_part_monoms = get_monoms(rhs_good_part, good_coeffs, with_constant=True)
@@ -116,7 +127,8 @@ class MCCombFinder:
     @classmethod
     def __get_nice_solutions__(cls, solutions, equations, candidate, k):
         """
-        Keeps plugging in solutions of SymPy and solving new-made equations until all evaluate to zero
+        Keeps plugging in solutions of SymPy and solving new-made equations until all evaluate to zero. Also,
+        eliminates trivial solutions.
         """
         nice_solutions = []
         for solution in solutions:
@@ -148,6 +160,9 @@ class MCCombFinder:
 
     @classmethod
     def __solve_good_part__(cls, rhs_good_part, good_coeffs, numeric_roots, numeric_croots, numeric_eps, program):
+        """
+        Fina a closed form for the summation in Eq. (3) with respect to n and initial values.
+        """
         good_part_monoms = get_monoms(rhs_good_part, good_coeffs, with_constant=True)
         good_part_solution = 0
         for coeff, monom in good_part_monoms:
