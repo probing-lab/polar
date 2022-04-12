@@ -248,6 +248,18 @@ class ArgumentParser:
             help="""Raw Moment of variable given some other variables in a Baysian Network (given as BIF)
             (format VAR**k | VAR = VAL, VAR = VAL, ..)"""
         )
+        self.argument_parser.add_argument(
+            "--sensitivity_analysis",
+            dest="sensitivity_analysis",
+            type=str,
+            help="Get sensitivity of goal with respect to the symbolic constants"
+        )
+        self.argument_parser.add_argument(
+            "--sensitivity_analysis_diff",
+            dest="sensitivity_analysis_diff",
+            type=str,
+            help="Get sensitivity of goal with respect to the symbolic constants by differentiating the closed form solution"
+        )
 
     def parse_args(self):
         args = self.argument_parser.parse_args()
