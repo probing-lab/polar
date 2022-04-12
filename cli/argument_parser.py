@@ -258,7 +258,8 @@ class ArgumentParser:
             "--sensitivity_analysis_diff",
             dest="sensitivity_analysis_diff",
             type=str,
-            help="Get sensitivity of goal with respect to the symbolic constants by differentiating the closed form solution"
+            help="""Get sensitivity of goal with respect to the
+            symbolic constants by differentiating the closed form solution"""
         )
 
     def parse_args(self):
