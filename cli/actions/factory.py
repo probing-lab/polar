@@ -1,6 +1,7 @@
 from argparse import Namespace
 
 from cli.actions.bayesian_network_action import BayesNetworkAction
+from cli.actions.sensitivity_action import SensitivityAction
 from .simulation_action import Action, SimulationAction
 from .plot_action import PlotAction
 from .gram_charlier_action import GramCharlierAction
@@ -28,5 +29,7 @@ class ActionFactory:
             return CornishFisherAction(cli_args)
         if cli_args.mc_comb is not None:
             return MCCombinationAction(cli_args)
+        if cli_args.sensitivity_analysis or cli_args.sensitivity_analysis_diff:
+            return SensitivityAction(cli_args)
 
         return PrintBenchmarkAction(cli_args)
