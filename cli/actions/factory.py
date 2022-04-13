@@ -19,6 +19,8 @@ class ActionFactory:
             return BayesNetworkAction(cli_args)
         if cli_args.simulate:
             return SimulationAction(cli_args)
+        if cli_args.sensitivity_analysis or cli_args.sensitivity_analysis_diff:
+            return SensitivityAction(cli_args)
         if cli_args.goals or cli_args.invariants:
             return GoalsAction(cli_args)
         if cli_args.plot:
@@ -29,7 +31,4 @@ class ActionFactory:
             return CornishFisherAction(cli_args)
         if cli_args.mc_comb is not None:
             return MCCombinationAction(cli_args)
-        if cli_args.sensitivity_analysis or cli_args.sensitivity_analysis_diff:
-            return SensitivityAction(cli_args)
-
         return PrintBenchmarkAction(cli_args)
