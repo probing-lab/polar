@@ -27,12 +27,13 @@ class GoalsAction(Action):
         benchmark = args[0]
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
         program = prepare_program(program, self.cli_args)
-        self.initialize_program(program)
+        rec_builder = RecBuilder(program)
+        self.initialize_program(program, rec_builder)
         self.handle_all_goals()
 
-    def initialize_program(self, program: Program):
+    def initialize_program(self, program: Program, rec_builder: RecBuilder):
         self.program = program
-        self.rec_builder = RecBuilder(self.program)
+        self.rec_builder = rec_builder
         self.solvers = {}
 
     def parse_goals(self):
