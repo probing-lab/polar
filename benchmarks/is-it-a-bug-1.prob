@@ -1,5 +1,0 @@
-x, y = 1, 1
-while true:
-    z = Normal(0, 1)
-    x, y = 2*x**5 + z + z**2 + 1 , z + z**2 + z**3 + 3*x**5
-end

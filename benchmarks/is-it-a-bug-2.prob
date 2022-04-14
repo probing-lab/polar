@@ -1,6 +1,0 @@
-z = 0
-x, y = 1, 1
-while true:
-    z = z + 1
-    x, y = 2*x**5 + z + z**2 + 2*z , z + z**2 + z**3 + 3*x**5
-end

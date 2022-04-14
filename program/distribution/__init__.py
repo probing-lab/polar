@@ -4,6 +4,7 @@ from .distribution import Distribution
 from .normal import Normal
 from .laplace import Laplace
 from .exponential import Exponential
+from .truncated_normal import TruncNormal
 from .uniform import Uniform
 from .discrete_uniform import DiscreteUniform
 
@@ -14,7 +15,8 @@ __distributions__ = {
     "Uniform": Uniform,
     "DiscreteUniform": DiscreteUniform,
     "Laplace": Laplace,
-    "Exponential": Exponential
+    "Exponential": Exponential,
+    "TruncNormal": TruncNormal,
 }
 
 
