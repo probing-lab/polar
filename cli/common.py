@@ -14,17 +14,16 @@ from utils.expressions import get_monoms
 
 
 def get_moment(monom, solvers, rec_builder, cli_args, program):
-    if not is_moment_computable(monom, program):
+    if not rec_builder.is_solvable(monom, program):
         raise Exception(f"{monom} is not moment computable.")
 
     if monom not in solvers:
         recurrences = rec_builder.get_recurrences(monom)
         s = RecurrenceSolver(recurrences, cli_args.numeric_roots, cli_args.numeric_croots, cli_args.numeric_eps)
         solvers.update({sympify(m): s for m in recurrences.monomials})
-    solver = solvers[monom]
-    moment = solver.get(monom)
 
-    return moment, solver.is_exact
+    moment, is_exact = rec_builder.get_solution(monom, solvers)
+    return moment, is_exact
 
 
 def get_moment_poly(poly, solvers, rec_builder, cli_args, program):

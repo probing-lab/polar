@@ -1,9 +1,10 @@
 from functools import lru_cache
-from typing import Set, List
+from typing import Dict, Set, List
 from symengine.lib.symengine_wrapper import Expr, Symbol, sympify, One, Zero
 from program import Program
 from program.assignment import Assignment
 from program.type import Finite
+from utils.expressions import is_moment_computable
 from .recurrences import Recurrences
 from utils import get_terms_with_var, get_terms_with_vars, get_monoms
 
@@ -107,3 +108,11 @@ class RecBuilder:
             result = result.xreplace({sym: Symbol(f"{sym}0")})
 
         return result.expand()
+
+    def is_solvable(self, monom: Expr, program: Program):
+        return is_moment_computable(monom, program)
+
+    def get_solution(self, monom: Expr, solvers):
+        # just lookup the solution
+        solver = solvers[monom]
+        return solver.get(monom), solver.is_exact
