@@ -6,11 +6,15 @@ from cli.actions.goals_action import GoalsAction
 from cli.common import parse_program, prepare_program
 from inputparser.exceptions import ParseException
 from inputparser.goal_parser import CENTRAL, CUMULANT, MOMENT
+from program.sensitivity.sensitivity_analyzer import SymbolSet
+from recurrences.diff_rec_builder import DiffRecBuilder
+from recurrences.rec_builder import RecBuilder
 from .action import Action
 from termcolor import colored
 from program.sensitivity import SensivitiyAnalyzer
 from symengine.lib.symengine_wrapper import sympify
 from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
+from symengine.lib.symengine_wrapper import Expr as SymengineExpr
 
 
 class SensitivityAction(Action):
@@ -55,7 +59,7 @@ class SensitivityAction(Action):
         print(colored("----------------------", "cyan"))
 
         goals_action = GoalsAction(self.cli_args)
-        goals_action.initialize_program(self.program)
+        goals_action.initialize_program(self.program, RecBuilder(self.program))
         for goal_type, goal_data in goals_action.parse_goals():
             if goal_type == MOMENT:
                 result, is_exact = goals_action.handle_moment_goal(goal_data)
@@ -80,23 +84,29 @@ class SensitivityAction(Action):
         Compute the sensitivity of the goals by removing diff-defective and param-independent variables.
         """
 
+        print(colored("----------------------", "cyan"))
+        print(colored("- Sensitivity Result -", "cyan"))
+        print(colored("----------------------", "cyan"))
+
         # try parse parameter and make sure this is a symbolic param
         valid, param = self.__is_str_symbolic_param(self.cli_args.sensitivity_analysis)
         if valid is False:
             raise ParseException(f"Unknown symbolic constant {self.cli_args.sensitivity_analysis}")
 
-        dep, indep = SensivitiyAnalyzer.get_dependent_variables(self.program, param)
-        diffdef, diffeff = SensivitiyAnalyzer.get_diff_defective_variables(self.program, dep, param)
-
-        # parse goals for sanity check, does not depend on program
         goals_action = GoalsAction(self.cli_args)
-        goals = goals_action.parse_goals()
+        diff_rec_builder = DiffRecBuilder(self.program, param)
+        goals_action.initialize_program(self.program, diff_rec_builder)
 
-        # TODO: check if goals are diff-effective (?)
-
-        # TODO: prepare program, add fresh variables delta_x
-
-        print("Dependent Vars:" + str(dep))
-        print("Diff-Eff Vars:" + str(diffeff))
-        print("Diff-Def Vars:" + str(diffdef))
-        return
+        # using DiffRecBuilder will return the differentiated solutions directly
+        for goal_type, goal_data in goals_action.parse_goals():
+            if goal_type == MOMENT:
+                result, is_exact = goals_action.handle_moment_goal(goal_data)
+                goals_action.print_moment_goal(goal_data[0], result, is_exact, prefix="∂")
+            # elif goal_type == CUMULANT:
+            #     result, is_exact = goals_action.handle_cumulant_goal(goal_data)
+            #     goals_action.print_cumulant_goal(goal_data[0], goal_data[1], result, is_exact, prefix="∂")
+            # elif goal_type == CENTRAL:
+            #     result, is_exact = goals_action.handle_central_moment_goal(goal_data)
+            #     goals_action.print_central_moment_goal(goal_data[0], goal_data[1], result, is_exact, prefix="∂")
+            else:
+                raise RuntimeError(f"Goal type {goal_type} does not exist or cannot be used for sensitivity analysis.")
