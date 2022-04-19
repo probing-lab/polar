@@ -4,36 +4,36 @@ from typing import Set, Tuple
 from numpy import isin
 from sympy import Poly
 from program import Program
+from program.assignment.dist_assignment import DistAssignment
+from program.assignment.poly_assignment import PolyAssignment
 from program.mc_checker.mc_checker import MCChecker
 from utils import expressions
 from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
 
-from program.assignment.poly_assignment import PolyAssignment
+from program.assignment.assignment import Assignment
 
 SymbolSet = Set[SymengineSymbol]
 
 
 class SensivitiyAnalyzer:
     @classmethod
-    def __assignment_uses_dependent_variable__(cls, assignment: PolyAssignment, vars: Set[SymengineSymbol]) -> bool:
+    def __assignment_uses_dependent_variable__(cls, assignment: Assignment, vars: Set[SymengineSymbol]) -> bool:
         """
         Returns true if the assignment makes use of at least one variable in set vars
         """
-        assert isinstance(assignment, PolyAssignment)
-        for poly in assignment.polynomials:
-            if(len(poly.free_symbols.intersection(vars)) != 0):
-                return True
+        assert isinstance(assignment, Assignment)
+        if(len(assignment.get_free_symbols().intersection(vars)) != 0):
+            return True
         return False
 
     @classmethod
-    def __assignment_uses_parameter__(cls, assignment: PolyAssignment, param: SymengineSymbol) -> bool:
+    def __assignment_uses_parameter__(cls, assignment: Assignment, param: SymengineSymbol) -> bool:
         """
         Returns true if the assignment uses the symbolic parameter param
         """
-        assert isinstance(assignment, PolyAssignment)
-        for poly in assignment.polynomials:
-            if param in poly.free_symbols:
-                return True
+        assert isinstance(assignment, Assignment)
+        if param in assignment.get_free_symbols():
+            return True
         return False
 
     @classmethod
@@ -52,13 +52,13 @@ class SensivitiyAnalyzer:
 
         # check first condition (initial values)
         for initial_action in program.initial:
-            if isinstance(initial_action, PolyAssignment):
+            if isinstance(initial_action, Assignment):
                 if cls.__assignment_uses_parameter__(initial_action, param):
                     dependent_vars.add(initial_action.variable)
 
         # check second conditions (assignment uses parameter)
         for body_action in program.loop_body:
-            if isinstance(body_action, PolyAssignment):
+            if isinstance(body_action, Assignment):
                 if cls.__assignment_uses_parameter__(body_action, param):
                     dependent_vars.add(body_action.variable)
 
@@ -68,13 +68,13 @@ class SensivitiyAnalyzer:
             old_dep_size = len(dependent_vars)
 
             for initial_action in program.initial:
-                if isinstance(initial_action, PolyAssignment):
+                if isinstance(initial_action, Assignment):
                     if (initial_action.variable not in dependent_vars
                             and cls.__assignment_uses_dependent_variable__(initial_action, dependent_vars)):
                         dependent_vars.add(initial_action.variable)
 
             for body_action in program.loop_body:
-                if isinstance(body_action, PolyAssignment):
+                if isinstance(body_action, Assignment):
                     if (body_action.variable not in dependent_vars
                             and cls.__assignment_uses_dependent_variable__(body_action, dependent_vars)):
                         dependent_vars.add(body_action.variable)
@@ -88,7 +88,7 @@ class SensivitiyAnalyzer:
     def get_diff_defective_variables(cls, program: Program, dependent_vars: SymbolSet,
                                      param: SymengineSymbol) -> Tuple[SymbolSet, SymbolSet]:
         """
-        Find all diff-effective and diff-defective variables of the program, with respect to some parameter.
+        Find all diff-defective and diff-effective variables of the program, with respect to some parameter.
         """
         # dependent_vars = cls.get_dependent_variables(program, param)
         dependency_graph = MCChecker.__get_dependency_graph__(program)
@@ -102,14 +102,19 @@ class SensivitiyAnalyzer:
                 reachable_variables = dependency_graph.get_reachable_variables(dependent_var)
                 diff_defective_vars.update(reachable_variables)
 
+        # TODO: what about DistAssignments?
+        defective_distr_assignments = filter((lambda action: isinstance(action, DistAssignment)
+                                              and action.variable in defective_vars and action.variable in dependent_vars),
+                                            program.loop_body)
+
         # get all assignments to defective, dependent variables (independet variables are not considered)
-        defective_assignments = filter((lambda action: isinstance(action, PolyAssignment)
-                                        and action.variable in defective_vars and action.variable in dependent_vars),
-                                       program.loop_body)
+        defective_poly_assignments = filter((lambda action: isinstance(action, PolyAssignment)
+                                             and action.variable in defective_vars and action.variable in dependent_vars),
+                                            program.loop_body)
 
         # find all defective variables that have an assignment with a monomial of the form
         #   f(p)*d, where d is some defective variable and f(param) is some param-dependent term
-        for assignment in defective_assignments:
+        for assignment in defective_poly_assignments:
             for poly in assignment.polynomials:
                 monoms = expressions.get_monoms(poly.expand())
                 for _, monom in monoms:
@@ -142,18 +147,3 @@ class SensivitiyAnalyzer:
         assert len(defective_vars.intersection(diff_defective_vars)) == len(diff_defective_vars)
 
         return diff_defective_vars, dependent_vars - diff_defective_vars
-
-    @classmethod
-    def get_diff_solvable_program(cls, program: Program, dependent_vars: SymbolSet,
-                                  diff_defective_vars: SymbolSet, diff_effective_vars: SymbolSet) -> Program:
-        """
-        Return the diff-solvable program for some symbolic parameter.
-        """
-        # TODO: find best way to place this function in the processing pipeline
-
-        # set all p-independent variables to zero (in initial part, remove all other assignments)
-
-        # throw away all defective variables
-        # add differentiated variables and recurrences for all remaining, p-dependent variables
-        # return new program and run analysis there
-        return
