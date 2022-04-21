@@ -1,20 +1,16 @@
 from argparse import Namespace
 from typing import Tuple
 
-import sympy
 from cli.actions.goals_action import GoalsAction
 from cli.common import parse_program, prepare_program
 from inputparser.exceptions import ParseException
 from inputparser.goal_parser import CENTRAL, CUMULANT, MOMENT
-from program.sensitivity.sensitivity_analyzer import SymbolSet
 from recurrences.diff_rec_builder import DiffRecBuilder
 from recurrences.rec_builder import RecBuilder
 from .action import Action
 from termcolor import colored
-from program.sensitivity import SensivitiyAnalyzer
 from symengine.lib.symengine_wrapper import sympify
 from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
-from symengine.lib.symengine_wrapper import Expr as SymengineExpr
 
 
 class SensitivityAction(Action):
