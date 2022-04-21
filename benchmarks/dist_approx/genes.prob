@@ -9,6 +9,5 @@ y = 0
 x = 0
 while true:
     k = k1 {p} k2
-    y = (1 - rho)*y + k
-    x = (1 - a)*x + b*y
+    y, x = (1 - rho)*y + k, (1 - a)*x + b*y
 end

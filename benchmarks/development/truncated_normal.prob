@@ -1,0 +1,6 @@
+
+x = 0
+while true:
+    tn = TruncNormal(0, 1, -2, 2)
+    x = x + tn
+end
