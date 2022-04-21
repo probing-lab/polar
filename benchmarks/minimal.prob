@@ -1,6 +1,0 @@
-
-x = 1
-p = Bernoulli(1/2)
-while p == 1:
-    x = 0
-end

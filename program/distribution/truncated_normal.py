@@ -38,9 +38,8 @@ class TruncNormal(Distribution):
         a = self.a
         b = self.b
         sigma = sqrt(self.sigma2)
-        if all([mu.is_Number, a.is_Number, b.is_Number, sigma.is_Number]):
-            moment = truncnorm.moment(int(k), float(a), float(b), loc=float(mu), scale=float(sigma))
-            return sympy2symengine(Rational(str(moment)))
+        if not all([mu.is_Number, a.is_Number, b.is_Number, sigma.is_Number]):
+            raise EvaluationException("For the truncated normal distributions no symbolic constants are allowed")
 
         alpha = (a - mu) / sigma
         beta = (b - mu) / sigma
@@ -53,7 +52,7 @@ class TruncNormal(Distribution):
             m_i += mu * m[i-1]
             m_i -= sigma * ((beta**(i-1)) * z_pdf(beta) - (alpha**(i-1)) * z_pdf(alpha)) / (z_cdf(beta) - z_cdf(alpha))
             m[i] = m_i
-        return m[k].simplify()
+        return sympy2symengine(Rational(str(float(m[k].simplify()))))
 
     def is_discrete(self):
         return False

@@ -1,7 +1,0 @@
-b = 0
-d = 0
-while true:
-    f = Uniform(0, 1)
-    b = b + f
-    d = d + 0.60653065983206*b
-end

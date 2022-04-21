@@ -1,0 +1,15 @@
+p = 3.141592653589
+cos_t_2 = 0.75
+t = p * 0.1666666667
+gamma_0 = p * 0.0222222222
+st_dev = p * 0.0083333333
+variance = st_dev * st_dev
+x = Uniform(-0.1, 0.1)
+while true:
+    w = TruncNormal(gamma_0, variance, gamma_0 - 0.05*p, gamma_0 + 0.05*p)
+    beta1 = t/2 + w
+    beta2 = t/2 - w
+    update1 = 0.325456604604515*beta1 - 0.0531201042551656
+    update2 = 0.190743621976638*beta2 - 0.0179109891879403
+    x = cos_t_2 * (x + 20*update1) - 20 * update2
+end
