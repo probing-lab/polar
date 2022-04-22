@@ -1,0 +1,15 @@
+x = 0
+xlow = 0
+xup = 0
+while true:
+    d = Bernoulli(p)
+    if d == 0:
+        step = Normal(mu, var)
+        xlow = xlow - step
+        x = xlow
+    else:
+        step = Normal(mu, var)
+        xup = xup + step
+        x = xup
+    end
+end

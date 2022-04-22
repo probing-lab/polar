@@ -1,0 +1,14 @@
+x = 1
+y = 1
+while true:
+    direction = Categorical(p_right, p_left, p_up, 1 - p_right - p_left - p_up)
+    if direction == 0:
+        x = x + 1
+    elif direction == 1:
+        x = x - 1
+    elif direction == 2:
+        y = y + 1
+    else:
+        y = y - 1
+    end
+end

@@ -4,9 +4,6 @@ vax_efficiency = Uniform(0, 1)
 # initially healthy
 infected = 0
 
-#contact_param = 0.05
-#vax_decline = 0.9
-
 while true:
     # new regulation: flip a coin every day, if heads -> get a shot
     vax = Bernoulli(vax_param)
@@ -23,7 +20,7 @@ while true:
     
     # if so, I might be infected
     if contact == 1:
-        infected = Bernoulli(vax_efficiency)
+        infected = Bernoulli(1 - vax_efficiency)
     else:
         infected = 0
     end

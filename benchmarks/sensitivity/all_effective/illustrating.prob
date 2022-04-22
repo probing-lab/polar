@@ -1,0 +1,14 @@
+
+toggle, sum, x, y, z = 0, 0, 1, 1, 1
+while true:
+    toggle = 1 - toggle
+    if toggle == 0:
+        x = x + 1 {p_x} x + 2
+        y = y + z + x**2 {p_y} y - z - x
+        z = z + y {p_z} z - y
+    end
+    l, g = Laplace(x + y, 1), Normal(0, 1)
+    if g < 1/2:
+        sum = sum + x
+    end
+end

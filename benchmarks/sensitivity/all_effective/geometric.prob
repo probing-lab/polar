@@ -1,0 +1,9 @@
+
+stop = 0
+x = 1
+runtime = 0
+while stop == 0:
+    stop = Bernoulli(p)
+    x = 2*x
+    runtime = runtime + 1
+end
