@@ -1,0 +1,6 @@
+attempts = 0
+found = 0
+while found == 0:
+    attempts = attempts + 1
+    found = Bernoulli(1/p)
+end
