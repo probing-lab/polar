@@ -249,12 +249,14 @@ class ArgumentParser:
             (format VAR**k | VAR = VAL, VAR = VAL, ..)"""
         )
         self.argument_parser.add_argument(
+            "-sens",
             "--sensitivity_analysis",
             dest="sensitivity_analysis",
             type=str,
             help="Get sensitivity of goal with respect to the symbolic constants"
         )
         self.argument_parser.add_argument(
+            "-sens_diff",
             "--sensitivity_analysis_diff",
             dest="sensitivity_analysis_diff",
             type=str,
