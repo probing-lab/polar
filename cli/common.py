@@ -21,8 +21,8 @@ def get_moment(monom, solvers, rec_builder, cli_args, program):
         recurrences = rec_builder.get_recurrences(monom)
         s = RecurrenceSolver(recurrences, cli_args.numeric_roots, cli_args.numeric_croots, cli_args.numeric_eps)
         solvers.update({sympify(m): s for m in recurrences.monomials})
+        print(f"Number of recurrences is {len(recurrences.recurrence_dict)}")
 
-    print(f"Number of recurrences is {len(recurrences.recurrence_dict)}")
     moment, is_exact = rec_builder.get_solution(monom, solvers)
     return moment, is_exact
 
