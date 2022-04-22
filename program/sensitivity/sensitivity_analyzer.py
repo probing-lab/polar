@@ -102,11 +102,6 @@ class SensivitiyAnalyzer:
                 reachable_variables = dependency_graph.get_reachable_variables(dependent_var)
                 diff_defective_vars.update(reachable_variables)
 
-        # TODO: what about DistAssignments?
-        defective_distr_assignments = filter((lambda action: isinstance(action, DistAssignment)
-                                              and action.variable in defective_vars and action.variable in dependent_vars),
-                                            program.loop_body)
-
         # get all assignments to defective, dependent variables (independet variables are not considered)
         defective_poly_assignments = filter((lambda action: isinstance(action, PolyAssignment)
                                              and action.variable in defective_vars and action.variable in dependent_vars),
