@@ -1,7 +1,7 @@
 health = 1
 obs = 0
 while true:
-    usage = Categorical(p, 1/4, 1/4, 1/4)
+    usage = Categorical(p1, p2, p3, 1 - p1 - p2 - p3)
     if health == 1:
         if usage == 0:
             health = Bernoulli(0.01)
