@@ -21,13 +21,14 @@ class Benchmark:
     param: str
     results: List[str] = None
     duration_sec: float = 0.0
+    system_size: int = 0
     
 benchmarks = [
     Benchmark("50coinflips.prob", ["E(total)"], "p"), 
     Benchmark("bimodal_x.prob", ["E(x)"], "p"), 
     Benchmark("bimodal_x.prob", ["E(x)"], "var"), 
-    Benchmark("dbn_component_health.prob", ["E(obs)"], "p"),
-    Benchmark("dbn_umbrella.prob", ["E(rain)"], "u1"),
+    Benchmark("dbn_component_health.prob", ["E(obs)"], "p1"),
+    Benchmark("dbn_umbrella.prob", ["E(umbrella)"], "u1"),
     # NOT_WORKING Benchmark("geometric.prob", ["E(x)"], "p"), 
     Benchmark("gambling.prob", ["E(money)"], "p"), 
     Benchmark("hawk_dove.prob", ["E(p1bal)"], "v"),
@@ -60,6 +61,15 @@ def run_benchmark(benchmark: Benchmark, output):
     time_end_index = result.find(" s", time_start_index)
     benchmark.duration_sec = float(result[time_start_index + len(time_pattern) : time_end_index].strip())
     
+    # parse system size
+    size_pattern = "Number of recurrences is"
+    size_start_index = result.find(size_pattern)
+    if size_start_index < 0:
+        print(f"Running benchmark {benchmark.filename} did not yield a system size. Offending command is {cmd}")
+    
+    size_end_index = result.find("\n", size_start_index)
+    benchmark.system_size = int(result[size_start_index + len(size_pattern) : size_end_index].strip())
+
     # search for goal result
     benchmark.results = []
     for goal in benchmark.goals:
@@ -74,7 +84,7 @@ def run_benchmark(benchmark: Benchmark, output):
         
     
 def print_benchmark(benchmark: Benchmark):
-    print(f"Benchmark {benchmark.filename} computed in {benchmark.duration_sec} seconds.")
+    print(f"Benchmark {benchmark.filename} using {benchmark.system_size} recurrences solved in {benchmark.duration_sec} seconds.")
     for i in range(len(benchmark.goals)):
         print(f"\t∂{benchmark.goals[i]} wrt {benchmark.param}: {benchmark.results[i]}")
     return
