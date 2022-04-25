@@ -29,8 +29,7 @@ benchmarks = [
     Benchmark("diff_effective.prob", ["E(y)"], "par"), 
     Benchmark("diff_effective_2.prob", ["E(u)"], "p"), 
     Benchmark("diff_effective_3.prob", ["E(total)"], "p"), 
-    Benchmark("diff_effective_4.prob", ["E(z)"], "p1"), 
-    Benchmark("vaccination.prob", ["E(infected)"], "vax_param"), 
+    Benchmark("diff_effective_4.prob", ["E(z)"], "p1"),
     ]
     
 def run_benchmark(benchmark: Benchmark, output):

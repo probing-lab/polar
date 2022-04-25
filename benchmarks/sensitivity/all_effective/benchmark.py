@@ -24,32 +24,61 @@ class Benchmark:
     system_size: int = 0
     
 benchmarks = [
-    Benchmark("50coinflips.prob", ["E(total)"], "p"), 
-    Benchmark("bimodal_x.prob", ["E(x)"], "p"), 
-    Benchmark("bimodal_x.prob", ["E(x)"], "var"), 
+    Benchmark("50coinflips.prob", ["E(total)"], "p"),
+    Benchmark("50coinflips.prob", ["E(total**2)"], "p"),
+    Benchmark("50coinflips.prob", ["E(total**3)"], "p"),
+    Benchmark("bimodal_x.prob", ["E(x)"], "p"),
+    Benchmark("bimodal_x.prob", ["E(x**2)"], "p"),
+    Benchmark("bimodal_x.prob", ["E(x**3)"], "p"),
+    Benchmark("bimodal_x.prob", ["E(x)"], "var"),
+    Benchmark("bimodal_x.prob", ["E(x**2)"], "var"),
+    Benchmark("bimodal_x.prob", ["E(x**3)"], "var"),
     Benchmark("dbn_component_health.prob", ["E(obs)"], "p1"),
+    Benchmark("dbn_component_health.prob", ["E(obs**2)"], "p1"),
+    Benchmark("dbn_component_health.prob", ["E(obs**3)"], "p1"),
     Benchmark("dbn_umbrella.prob", ["E(umbrella)"], "u1"),
-    # NOT_WORKING Benchmark("geometric.prob", ["E(x)"], "p"), 
-    Benchmark("gambling.prob", ["E(money)"], "p"), 
+    Benchmark("dbn_umbrella.prob", ["E(umbrella**2)"], "u1"),
+    Benchmark("dbn_umbrella.prob", ["E(umbrella**3)"], "u1"),
+    Benchmark("gambling.prob", ["E(money)"], "p"),
+    Benchmark("gambling.prob", ["E(money**2)"], "p"),
+    Benchmark("gambling.prob", ["E(money**3)"], "p"),
     Benchmark("hawk_dove.prob", ["E(p1bal)"], "v"),
-    # NOT_WORKING Benchmark("hermann3.prob", ["E(numtokens)"], "p"),
-    # NOT_WORKING Benchmark("hermann5.prob", ["E(numtokens)"], "p"),
-    # NOT_WORKING Benchmark("hermann7.prob", ["E(numtokens)"], "p"),
-    # NOT_WORKING Benchmark("illustrating.prob", ["E(sum)"], "p_z"),
+    Benchmark("hawk_dove.prob", ["E(p1bal**2)"], "v"),
+    Benchmark("hawk_dove.prob", ["E(p1bal**3)"], "v"),
     Benchmark("las_vegas_search.prob", ["E(attempts)"], "p"),
+    Benchmark("las_vegas_search.prob", ["E(attempts**2)"], "p"),
+    Benchmark("las_vegas_search.prob", ["E(attempts**3)"], "p"),
     Benchmark("random_walk_1d.prob", ["E(x)"], "p"),
-    Benchmark("random_walk_2d.prob", ["E(x)", "E(y)"], "p_right"),
+    Benchmark("random_walk_1d.prob", ["E(x**2)"], "p"),
+    Benchmark("random_walk_1d.prob", ["E(x**3)"], "p"),
+    Benchmark("random_walk_2d.prob", ["E(x)"], "p_right"),
+    Benchmark("random_walk_2d.prob", ["E(x**2)"], "p_right"),
+    Benchmark("random_walk_2d.prob", ["E(x**3)"], "p_right"),
     Benchmark("randomized_response.prob", ["E(p1)"], "p"),
+    Benchmark("randomized_response.prob", ["E(p1**2)"], "p"),
+    Benchmark("randomized_response.prob", ["E(p1**3)"], "p"),
     Benchmark("rock_paper_scissors.prob", ["E(p1bal)"], "p1"),
+    Benchmark("rock_paper_scissors.prob", ["E(p1bal**2)"], "p1"),
+    Benchmark("rock_paper_scissors.prob", ["E(p1bal**3)"], "p1"),
+    Benchmark("vaccination.prob", ["E(infected)"], "vax_param"),
+    Benchmark("vaccination.prob", ["E(infected**2)"], "vax_param"),
+    Benchmark("vaccination.prob", ["E(infected**3)"], "vax_param"),
     ]
-    
+
+
 def run_benchmark(benchmark: Benchmark, output):
     print(f"Running benchmark {benchmark.filename}...")
     str_goals = "\"" + "\" \"".join(benchmark.goals) + "\""
     cmd = f"python3 polar.py {os.path.join(BENCHMARK_FOLDER, benchmark.filename)} --goals {str_goals} --{SENSITIVITY_TYPE} {benchmark.param}"
-    result = subprocess.check_output(cmd, shell=True).decode() # need to use shell=True so the goals quotation marks dont get escaped
-    output.write(cmd)
-    output.write(result)
+    try:
+        result = subprocess.check_output(cmd, shell=True, timeout=120).decode() # need to use shell=True so the goals quotation marks dont get escaped
+        output.write(cmd)
+        output.write(result)
+    except subprocess.TimeoutExpired:
+        output.write(cmd)
+        output.write("TIMEOUT")
+        benchmark.duration_sec = -1
+        return
     
     # parse runtime from polar output
     time_pattern = "Elapsed time:"
