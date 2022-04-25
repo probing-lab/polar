@@ -1,0 +1,25 @@
+python3 polar.py /home/marcel/Repos/polar/benchmarks/sensitivity/all_effective/50coinflips.prob --goals "E(total)" --sensitivity_analysis_diff p[32m
+8888888b.   .d88888b.  888             d8888 8888888b.
+888   Y88b d88P" "Y88b 888            d88888 888   Y88b
+888    888 888     888 888           d88P888 888    888
+888   d88P 888     888 888          d88P 888 888   d88P
+8888888P"  888     888 888         d88P  888 8888888P"
+888        888     888 888        d88P   888 888 T88b
+888        Y88b. .d88P 888       d8888888888 888  T88b
+888         "Y88888P"  88888888 d88P     888 888   T88b
+
+By the ProbInG group
+[0m
+
+
+[36m----------------------[0m
+[36m- Sensitivity Result -[0m
+[36m----------------------[0m
+Number of recurrences is 51
+E(total) = 0; 50*(p - 1)**(-n)*((-1)**n*(1 - p)**(n - 1) + p*(p - 1)**(n - 1) + (p - 1)**(n - 1)*((-1)**n*p*(p - 1)**(n - 1) + (1 - p)**(n - 1)))
+[32mSolution is exact[0m
+
+∂E(total) = 0; 50*(p - 1)**(-n)*(-(-1)**n*n*(p - 1)**(2*n) - (-1)**n*(1 - p)**n + n*p*(-(p - 1)**2)**n - p*(-(p - 1)**2)**n + (-(p - 1)**2)**n + (p - 1)**n)/(p**3 - 3*p**2 + 3*p - 1)
+[32mSolution is exact[0m
+
+Elapsed time: 1.5668330192565918 s
