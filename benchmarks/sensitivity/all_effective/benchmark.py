@@ -78,6 +78,8 @@ def run_benchmark(benchmark: Benchmark, output):
         output.write(cmd)
         output.write("TIMEOUT")
         benchmark.duration_sec = -1
+        benchmark.results = []
+        benchmark.system_size = -1
         return
     
     # parse runtime from polar output
