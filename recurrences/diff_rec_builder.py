@@ -183,7 +183,7 @@ class DiffRecBuilder:
                     if self.fun2var_dict[fun] in diffdef:
                         return False
                 elif isinstance(part, Function):
-                    if self.fun2var_dict[fun] in defective_vars:
+                    if self.fun2var_dict[part] in defective_vars:
                         return False
                 elif part in defective_vars:
                     return False
