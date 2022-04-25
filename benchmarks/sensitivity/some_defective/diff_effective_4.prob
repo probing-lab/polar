@@ -1,0 +1,20 @@
+y = 0
+x = 0
+z = 0
+cnt = 0
+
+while true:
+    x = DiscreteUniform(1, 5)
+    if x < 3:
+        inc = Bernoulli(p1)
+        cnt = cnt + inc
+    else:
+        inc = Bernoulli(p2)
+        cnt = cnt - inc
+    end
+    
+    factor = DiscreteUniform(0, 10)
+    y = y**2 + x * factor
+    
+    z = cnt**2 - 3*y**2 + x**3
+end
