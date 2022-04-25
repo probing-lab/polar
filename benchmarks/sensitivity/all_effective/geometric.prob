@@ -2,7 +2,7 @@
 stop = 0
 x = 1
 runtime = 0
-while stop == 0:
+while true:
     stop = Bernoulli(p)
     x = 2*x
     runtime = runtime + 1
