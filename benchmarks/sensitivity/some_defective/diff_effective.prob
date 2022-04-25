@@ -11,14 +11,5 @@ while true:
     def1, def2 = def1*def2+3, def1 + z
     
     x = 3*x + def2 + par*par*z + run*z
-    # y = 3*x*x*y+par*par*y
-    # var = var + x*z
     y = 3*(x-y) + par*par*run
-    
-    #indep_def_var = indep_def_var * indep_def_var + 2*z
-    #dep_eff_var = indep_def_var + par*par*x + z
-    #dep_def_var = indep_def_var * x + 3
-    
-    #dep_eff_var2 = dep_eff_var + var
-    #dep_def_var2 = dep_def_var + var
 end
