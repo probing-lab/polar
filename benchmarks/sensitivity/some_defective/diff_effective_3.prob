@@ -1,0 +1,22 @@
+# PARAMS: q, p, r 
+
+cnt = 0
+x1, x2 = 1, 2
+y1, y2 = 0, 3
+z1, z2 = 1, 5
+total = 0
+
+while true:
+    cnt = cnt + 1
+    
+    x1 = x1**2 + q*x2
+    x2 = y1 + cnt + q
+    
+    y1 = r*(y1-cnt) + y2*cnt
+    y2 = r*y1 + 5
+    
+    z1 = cnt**2 - cnt + p*z1
+    z2 = z1*3 - 5*(z2-p)
+    
+    total = x2 + y2 + z2
+end
