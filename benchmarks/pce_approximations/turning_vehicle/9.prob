@@ -2,7 +2,7 @@ v0 = 10
 t = 0.1
 q = -0.5
 psi = Normal(0, 0.01)
-v = Uniform(6.5, 8.5)
+v = Uniform(6.5, 8.0)
 x = Uniform(-.1, .1)
 y = Uniform(-.5, -.3)
 while true:
