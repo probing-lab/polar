@@ -14,6 +14,8 @@ POLAR_DIR = "../../../"
 # benchmarks are assumed to be in the same dir as the script
 BENCHMARK_FOLDER = os.getcwd()
 
+TIMEOUT_SECS = 120
+
 @dataclass
 class Benchmark:
     filename: str
@@ -22,6 +24,8 @@ class Benchmark:
     results: List[str] = None
     duration_sec: float = 0.0
     system_size: int = 0
+    successful: bool = False
+    
     
 benchmarks = [
     Benchmark("50coinflips.prob", ["E(total)"], "p"),
@@ -71,15 +75,13 @@ def run_benchmark(benchmark: Benchmark, output):
     str_goals = "\"" + "\" \"".join(benchmark.goals) + "\""
     cmd = f"python3 polar.py {os.path.join(BENCHMARK_FOLDER, benchmark.filename)} --goals {str_goals} --{SENSITIVITY_TYPE} {benchmark.param}"
     try:
-        result = subprocess.check_output(cmd, shell=True, timeout=120).decode() # need to use shell=True so the goals quotation marks dont get escaped
+        result = subprocess.check_output(cmd, shell=True, timeout=TIMEOUT_SECS).decode() # need to use shell=True so the goals quotation marks dont get escaped
         output.write(cmd)
         output.write(result)
+        benchmark.successful = True
     except subprocess.TimeoutExpired:
         output.write(cmd)
         output.write("TIMEOUT")
-        benchmark.duration_sec = -1
-        benchmark.results = []
-        benchmark.system_size = -1
         return
     
     # parse runtime from polar output
@@ -115,6 +117,10 @@ def run_benchmark(benchmark: Benchmark, output):
         
     
 def print_benchmark(benchmark: Benchmark):
+    if benchmark.successful is False:
+        print(f"Benchmark {benchmark.filename} could not be solved.")
+        return 
+    
     print(f"Benchmark {benchmark.filename} using {benchmark.system_size} recurrences solved in {benchmark.duration_sec} seconds.")
     for i in range(len(benchmark.goals)):
         print(f"\t∂{benchmark.goals[i]} wrt {benchmark.param}: {benchmark.results[i]}")
