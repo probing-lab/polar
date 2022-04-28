@@ -1,5 +1,5 @@
 # just got my shot
-vax_efficiency = Uniform(0, 1)
+vax_efficiency = Uniform(0.9, 1)
 
 # initially healthy
 infected = 0
@@ -10,7 +10,7 @@ while true:
     
     # initial vaccines efficiency is random
     if vax == 1:
-        vax_efficiency = Uniform(0, 1)
+        vax_efficiency = Uniform(0.9, 1)
     else:
         vax_efficiency = vax_efficiency
     end
