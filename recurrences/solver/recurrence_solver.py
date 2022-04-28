@@ -8,8 +8,8 @@ class RecurrenceSolver(Solver):
 
     solver: Solver
 
-    def __init__(self, recurrences: Recurrences, numeric_roots: bool, numeric_croots: bool, numeric_eps: float):
-        if recurrences.is_acyclic:
+    def __init__(self, recurrences: Recurrences, numeric_roots: bool, numeric_croots: bool, numeric_eps: float, force_cyclic_solver: bool = False):
+        if recurrences.is_acyclic and not force_cyclic_solver:
             self.solver = AcyclicSolver(recurrences)
         else:
             self.solver = CyclicSolver(recurrences, numeric_roots, numeric_croots, numeric_eps)
