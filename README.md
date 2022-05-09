@@ -41,7 +41,7 @@ pip install -r requirements.txt
 ## Usage
 
 ```
-python polar.py benchmarks/illustrating.prob --goals "E(z)"
+python polar.py benchmarks/polar_paper/illustrating.prob --goals "E(z)"
 ```
 
 
