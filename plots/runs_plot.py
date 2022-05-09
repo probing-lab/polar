@@ -85,8 +85,8 @@ class RunsPlot(Plot):
             objects.clear()
             run_index, run_iter = divmod(frame_number, iterations)
             for i in range(run_index):
-                objects.extend(ax.plot(range(iterations), run_data[i], linewidth=1, color="grey", alpha=0.1))
-            objects.extend(ax.plot(range(run_iter), run_data[run_index - 1][:run_iter], linewidth=1, color="blue"))
+                objects.extend(ax.plot(range(iterations), run_data[i], linewidth=1.1, color="grey", alpha=0.5))
+            objects.extend(ax.plot(range(run_iter), run_data[run_index - 1][:run_iter], linewidth=1.5, color="blue"))
 
         ax.legend(handles=labels)
         if self.anim_iter:
