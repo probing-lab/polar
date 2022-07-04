@@ -1,0 +1,78 @@
+coupon
+E(c) Elapsed time: 0.2920112609863281 s
+E(c**2) Elapsed time: 0.2960038185119629 s
+E(c**3) Elapsed time: 0.2932443618774414 s
+Parsing & transforming Elapsed time: 0.07547163963317871 s
+
+coupon4
+E(c) Elapsed time: 0.33621692657470703 s
+E(c**2) Elapsed time: 0.35678529739379883 s
+E(c**3) Elapsed time: 0.3572807312011719 s
+Parsing & transforming Elapsed time: 0.07506227493286133 s
+
+random-walk-1d
+E(x) Elapsed time: 0.10639262199401855 s
+E(x**2) Elapsed time: 0.22903895378112793 s
+E(x**3) Elapsed time: 0.24033308029174805 s
+Parsing & transforming Elapsed time: 0.07215666770935059 s
+
+sum-rnd-series
+E(x) Elapsed time: 0.26172542572021484 s
+E(x**2) Elapsed time: 0.444873571395874 s
+E(x**3) Elapsed time: 0.7837011814117432 s
+Parsing & transforming Elapsed time: 0.07419705390930176 s
+
+product-dep-var
+E(p) Elapsed time: 0.2844359874725342 s
+E(p**2) Elapsed time: 0.46416807174682617 s
+E(p**3) Elapsed time: 0.9696269035339355 s
+Parsing & transforming Elapsed time: 0.07811188697814941 s
+
+random-walk-2d
+E(x) Elapsed time: 0.11041378974914551 s
+E(x**2) Elapsed time: 0.23804974555969238 s
+E(x**3) Elapsed time: 0.24557995796203613 s
+Parsing & transforming Elapsed time: 0.0747823715209961 s
+
+binomial
+E(x) Elapsed time: 0.23804330825805664 s
+E(x**2) Elapsed time: 0.28635740280151367 s
+E(x**3) Elapsed time: 0.44224095344543457 s
+Parsing & transforming Elapsed time: 0.07366466522216797 s
+
+stuttering-a
+E(s) Elapsed time: 0.26143932342529297 s
+E(s**2) Elapsed time: 0.4408226013183594 s
+E(s**3) Elapsed time: 0.9615755081176758 s
+Parsing & transforming Elapsed time: 0.07622575759887695 s
+
+stuttering-b
+E(s) Elapsed time: 0.2570455074310303 s
+E(s**2) Elapsed time: 0.3952488899230957 s
+E(s**3) Elapsed time: 0.7882339954376221 s
+Parsing & transforming Elapsed time: 0.07526850700378418 s
+
+stuttering-c
+E(s) Elapsed time: 0.38502931594848633 s
+E(s**2) Elapsed time: 1.9172298908233643 s
+E(s**3) Elapsed time: 8.221733093261719 s
+Parsing & transforming Elapsed time: 0.07642006874084473 s
+
+stuttering-d
+E(s) Elapsed time: 0.4147000312805176 s
+E(s**2) Elapsed time: 1.3268957138061523 s
+E(s**3) Elapsed time: 4.324556589126587 s
+Parsing & transforming Elapsed time: 0.07333135604858398 s
+
+stuttering-p
+E(s) Elapsed time: 0.2738034725189209 s
+E(s**2) Elapsed time: 0.49753451347351074 s
+E(s**3) Elapsed time: 1.199172019958496 s
+Parsing & transforming Elapsed time: 0.07462453842163086 s
+
+square
+E(y) Elapsed time: 0.26657748222351074 s
+E(y**2) Elapsed time: 0.45510077476501465 s
+E(y**3) Elapsed time: 0.6486077308654785 s
+Parsing & transforming Elapsed time: 0.0749063491821289 s
+

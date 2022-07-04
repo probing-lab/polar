@@ -46,4 +46,7 @@ class SimulationAction(Action):
                 print(f"P({goal.args[1]}) = {mean}")
             else:
                 print(f"E({goal}) = {mean}")
+
+        for goal, interval in result.get_95_CI_interval().items():
+            print(f"95-CI for E({goal}) is {interval}.")
         print()

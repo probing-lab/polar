@@ -1,0 +1,21 @@
+# Variables are circular dependent (C): no
+# Contains if-statements (If): yes
+# Contains symbolic constants (S): yes
+# State-space is infinite (INF): no
+# State-space is continuous (CONT): no
+
+rain = Bernoulli(r0)
+umbrella = Bernoulli(u0)
+while true:
+    if rain == 1:
+        rain = Bernoulli(r1)
+    else:
+        rain = Bernoulli(r2)
+    end
+
+    if rain == 1:
+        umbrella = Bernoulli(u1)
+    else:
+        umbrella = Bernoulli(u2)
+    end
+end

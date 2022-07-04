@@ -1,0 +1,15 @@
+# Variables are circular dependent (C): yes
+# Contains if-statements (If): yes
+# Contains symbolic constants (S): yes
+# State-space is infinite (INF): yes
+# State-space is continuous (CONT): yes
+
+count = 0
+while true:
+    x = Uniform(0,1)
+    y = Uniform(0,1)
+
+    if x**2 + y**2 < 1:
+        count = count + 1
+    end
+end

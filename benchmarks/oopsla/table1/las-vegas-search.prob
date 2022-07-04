@@ -1,0 +1,17 @@
+# Variables are circular dependent (C): no
+# Contains if-statements (If): yes
+# Contains symbolic constants (S): no
+# State-space is infinite (INF): yes
+# State-space is continuous (CONT): no
+
+element = 0
+found = 0
+attemtps = 0
+while found == 0:
+    random = DiscreteUniform(0, 20)
+    if random == element:
+        found = 1
+    else:
+        attemtps = attempts + 1
+    end
+end

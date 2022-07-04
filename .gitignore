@@ -7,6 +7,4 @@ build
 dist
 *.egg-info
 .idea
-*.pdf
 *.gif
-

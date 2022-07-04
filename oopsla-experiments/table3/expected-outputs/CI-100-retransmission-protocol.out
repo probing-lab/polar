@@ -1,0 +1,38 @@
+[32m
+8888888b.   .d88888b.  888             d8888 8888888b.
+888   Y88b d88P" "Y88b 888            d88888 888   Y88b
+888    888 888     888 888           d88P888 888    888
+888   d88P 888     888 888          d88P 888 888   d88P
+8888888P"  888     888 888         d88P  888 8888888P"
+888        888     888 888        d88P   888 888 T88b
+888        Y88b. .d88P 888       d8888888888 888  T88b
+888         "Y88888P"  88888888 d88P     888 888   T88b
+
+By the ProbInG group
+[0m
+
+
+[35m------------------[0m
+[35m- Parsed program -[0m
+[35m------------------[0m
+fail = 0
+sent = 0
+totalfail = 0
+while true:
+    success = Bernoulli(9/10)
+    if success == 1:
+        fail = 0
+        sent = 1 + sent
+    else:
+        fail = 1 + fail
+        totalfail = 1 + totalfail
+end
+
+[36m---------------------[0m
+[36m- Simulation Result -[0m
+[36m---------------------[0m
+
+E(fail) = 0.14
+95-CI for E(fail) is (0.061502061173556874, 0.21849793882644314).
+
+Elapsed time: 0.2194535732269287 s

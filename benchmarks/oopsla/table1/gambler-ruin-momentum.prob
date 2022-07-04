@@ -1,0 +1,14 @@
+# Variables are circular dependent (C): yes
+# Contains if-statements (If): no
+# Contains symbolic constants (S): yes
+# State-space is infinite (INF): yes
+# State-space is continuous (CONT): no
+
+xprev = a
+x = a
+while true:
+    z = -1 {p} 1
+    tmp = x
+    x = 2*x - xprev + z
+    xprev = tmp
+end

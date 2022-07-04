@@ -1,0 +1,13 @@
+# Variables are circular dependent (C): yes
+# Contains if-statements (If): no
+# Contains symbolic constants (S): no
+# State-space is infinite (INF): yes
+# State-space is continuous (CONT): yes
+
+x = 0 {1/2} 5
+y = 4 {1/2} 7
+while true:
+    unif1 = Uniform(-1,1)
+    unif2 = Uniform(-2,2)
+    x, y = y + unif1, x + unif2
+end

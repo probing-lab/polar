@@ -1,0 +1,7 @@
+
+x = 0
+y = 0
+while true:
+    x = x + 2 {1/2} x
+    y = x**2
+end

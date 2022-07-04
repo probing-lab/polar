@@ -38,6 +38,17 @@ class SimulationResult:
             result[goal] = mean([run[iteration][goal] for run in self.samples])
         return result
 
+    def get_95_CI_interval(self, iteration=-1):
+        result = {}
+        for goal in self.goals:
+            data = [run[iteration][goal] for run in self.samples]
+            count = len(data)
+            mu = sum(data) / count
+            std = (sum([(d - mu)**2 for d in data]) / count) ** (1/2)
+            z = 1.96 * std / (count ** (1/2))
+            result[goal] = (mu - z, mu + z)
+        return result
+
     def get_prepared_data(self, goal):
         goal = sympify(goal)
         data = []

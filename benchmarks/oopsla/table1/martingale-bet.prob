@@ -1,0 +1,18 @@
+# Variables are circular dependent (C): no
+# Contains if-statements (If): yes
+# Contains symbolic constants (S): yes
+# State-space is infinite (INF): yes
+# State-space is continuous (CONT): no
+
+bet = 1
+rounds = 0
+while true:
+    win = Bernoulli(p)
+    if win == 1:
+        capital = capital + bet
+        bet = 0
+    else:
+        capital = capital - bet
+        bet = 2*bet
+    end
+end

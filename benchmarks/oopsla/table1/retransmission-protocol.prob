@@ -1,0 +1,19 @@
+# Variables are circular dependent (C): no
+# Contains if-statements (If): yes
+# Contains symbolic constants (S): yes
+# State-space is infinite (INF): yes
+# State-space is continuous (CONT): no
+
+fail = 0
+sent = 0
+totalfail = 0
+while true:
+    success = Bernoulli(p)
+    if success == 1:
+        fail = 0
+        sent = sent + 1
+    else:
+        fail = fail + 1
+        totalfail = totalfail + 1
+    end
+end

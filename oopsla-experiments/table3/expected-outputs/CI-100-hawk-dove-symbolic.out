@@ -1,0 +1,60 @@
+[32m
+8888888b.   .d88888b.  888             d8888 8888888b.
+888   Y88b d88P" "Y88b 888            d88888 888   Y88b
+888    888 888     888 888           d88P888 888    888
+888   d88P 888     888 888          d88P 888 888   d88P
+8888888P"  888     888 888         d88P  888 8888888P"
+888        888     888 888        d88P   888 888 T88b
+888        Y88b. .d88P 888       d8888888888 888  T88b
+888         "Y88888P"  88888888 d88P     888 888   T88b
+
+By the ProbInG group
+[0m
+
+
+[35m------------------[0m
+[35m- Parsed program -[0m
+[35m------------------[0m
+_t0 = 0
+_t1 = 0
+p1bal = _t0
+p2bal = _t1
+outcome = 0
+_t2 = 0
+_t3 = 0
+player1 = _t2
+player2 = _t3
+v = 4
+c = 8
+while true:
+    player1 = Bernoulli(v/c)
+    player2 = Bernoulli(v/c)
+    if player1 == 0:
+        if player2 == 0:
+            p1bal = p1bal + (1/2)*v
+            p2bal = p2bal + (1/2)*v
+        else:
+            p2bal = p2bal + v
+            p1bal = p1bal
+    else:
+        if player2 == 0:
+            p1bal = p1bal + v
+            p2bal = p2bal
+        else:
+            outcome = Bernoulli(1/2)
+            if outcome == 0:
+                p1bal = p1bal + v
+                p2bal = -c + p2bal
+            else:
+                p1bal = -c + p1bal
+                p2bal = p2bal + v
+end
+
+[36m---------------------[0m
+[36m- Simulation Result -[0m
+[36m---------------------[0m
+
+E(p1bal) = 9.66
+95-CI for E(p1bal) is (7.1092544638086705, 12.210745536191329).
+
+Elapsed time: 0.4311635494232178 s

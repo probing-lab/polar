@@ -1,0 +1,45 @@
+running-example
+Elapsed time: 0.6640195846557617 s
+
+herman-3
+Elapsed time: 0.5622313022613525 s
+
+las-vegas-search
+Elapsed time: 0.3568596839904785 s
+
+pi-approximation
+Elapsed time: 0.4465663433074951 s
+
+50-coin-flips
+Elapsed time: 0.8789012432098389 s
+
+gambler-ruin-momentum
+Elapsed time: 2.916361093521118 s
+
+hawk-dove-symbolic
+Elapsed time: 1.987494945526123 s
+
+variable-swap
+Elapsed time: 2.420189142227173 s
+
+retransmission-protocol
+Elapsed time: 1.6672289371490479 s
+
+randomized-response
+Elapsed time: 0.5855615139007568 s
+
+duelling-cowboys
+Elapsed time: 1.1056692600250244 s
+
+martingale-bet
+Elapsed time: 8.39180302619934 s
+
+bimodal
+Elapsed time: 4.57494854927063 s
+
+dbn-umbrella
+Elapsed time: 0.7455399036407471 s
+
+dbn-component-health
+Elapsed time: 0.2538633346557617 s
+

@@ -1,0 +1,59 @@
+[32m
+8888888b.   .d88888b.  888             d8888 8888888b.
+888   Y88b d88P" "Y88b 888            d88888 888   Y88b
+888    888 888     888 888           d88P888 888    888
+888   d88P 888     888 888          d88P 888 888   d88P
+8888888P"  888     888 888         d88P  888 8888888P"
+888        888     888 888        d88P   888 888 T88b
+888        Y88b. .d88P 888       d8888888888 888  T88b
+888         "Y88888P"  88888888 d88P     888 888   T88b
+
+By the ProbInG group
+[0m
+
+
+[35m------------------[0m
+[35m- Parsed program -[0m
+[35m------------------[0m
+f = 0
+g = 0
+a = 0
+b = 0
+c = 0
+d = 0
+while true:
+    f = Bernoulli(1/2)
+    g = Bernoulli(1/2)
+    a = a + f*g - a*f*g
+    b = b + f - b*f - f*g + b*f*g
+    c = c + g - c*g - f*g + c*f*g
+    d = 1 - f - g + d*f + d*g + f*g - d*f*g
+end
+
+[35m-----------------------[0m
+[35m- Transformed program -[0m
+[35m-----------------------[0m
+types
+    f : Finite(0, 1)
+    g : Finite(0, 1)
+    a : Finite(0, 1)
+    b : Finite(0, 1)
+    c : Finite(0, 1)
+    d : Finite(0, 1)
+end
+f = 0
+g = 0
+a = 0
+b = 0
+c = 0
+d = 0
+while true:
+    f = Bernoulli(1/2)
+    g = Bernoulli(1/2)
+    a = a + f*g - a*f*g
+    b = b + f - b*f - f*g + b*f*g
+    c = c + g - c*g - f*g + c*f*g
+    d = 1 - f - g + d*f + d*g + f*g - d*f*g
+end
+
+Elapsed time: 0.07506227493286133 s
