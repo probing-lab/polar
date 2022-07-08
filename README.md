@@ -44,6 +44,16 @@ pip install -r requirements.txt
 python polar.py benchmarks/polar_paper/illustrating.prob --goals "E(z)"
 ```
 
+The parameter `goals` takes any expected value of monomials of program variables, for instance `"E(x**2)"`, `"E(t*x**2)"`, etc.
+To compute the variance you can pass `"c2(x)"`.
+In general, to compute the kth central moment (where k is a natural number), pass `"ck(x)"` to the goals parameter.
+
+For a list of all parameters supported by Polar run:
+
+```
+python polar.py --help
+```
+
 
 ## Run Tests
 
