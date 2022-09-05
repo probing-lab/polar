@@ -67,6 +67,8 @@ class RunsPlot(Plot):
             for o in objects:
                 o.remove()
             objects.clear()
+            for r in run_data:
+                objects.extend(ax.plot(range(frame_number), r[:frame_number], linewidth=1, color="grey", alpha=0.1))
             if first_moment is not None:
                 ed = expectation_data[:frame_number * exact_resolution]
                 objects.extend(ax.plot(xs[:frame_number * exact_resolution], ed, color="red", linewidth=2))
@@ -75,8 +77,6 @@ class RunsPlot(Plot):
                 sd2 = std_data_2[:frame_number * exact_resolution]
                 objects.extend(ax.plot(xs[:frame_number * exact_resolution], sd1, ":", color="red", linewidth=1.5))
                 objects.extend(ax.plot(xs[:frame_number * exact_resolution], sd2, ":", color="red", linewidth=1.5))
-            for r in run_data:
-                objects.extend(ax.plot(range(frame_number), r[:frame_number], linewidth=1, color="grey", alpha=0.1))
 
         def runs_animation(frame_number):
             frame_number = int(frames_factor * frame_number)
