@@ -1,7 +1,7 @@
 # Variables are circular dependent (C): no
 # Contains if-statements (If): yes
 # Contains symbolic constants (S): no
-# State-space is infinite (INF): yes
+# State-space is infinite (INF): no
 # State-space is continuous (CONT): no
 
 
