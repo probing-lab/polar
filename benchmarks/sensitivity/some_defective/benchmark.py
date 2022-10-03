@@ -30,9 +30,13 @@ class Benchmark:
 # Add, alter or remove benchmarks here in the format "filename", [goals], "parameter"
 benchmarks = [
     Benchmark("diff_effective.prob", ["E(y)"], "par"), 
-    Benchmark("diff_effective_2.prob", ["E(u)"], "p"), 
-    Benchmark("diff_effective_3.prob", ["E(total)"], "p"), 
+    Benchmark("diff_effective.prob", ["E(x*z)"], "par"),
+    Benchmark("diff_effective_2.prob", ["E(u)"], "p"),
+    Benchmark("diff_effective_2.prob", ["E(y**2)"], "p"),
+    Benchmark("diff_effective_3.prob", ["E(total)"], "p"),
+    Benchmark("diff_effective_3.prob", ["E(z1**2)"], "p"),
     Benchmark("diff_effective_4.prob", ["E(z)"], "p1"),
+    Benchmark("diff_effective_4.prob", ["E(cnt**2)"], "p1"),
     Benchmark("../all_effective/bimodal_x.prob", ["E(x)"], "var"),
     Benchmark("../all_effective/bimodal_x.prob", ["E(x**2)"], "var"),
     Benchmark("../all_effective/dbn_component_health.prob", ["E(obs)"], "p1"),
@@ -43,8 +47,8 @@ benchmarks = [
     Benchmark("../all_effective/las_vegas_search.prob", ["E(attempts**2)"], "p"),
     Benchmark("../all_effective/randomized_response.prob", ["E(p1)"], "p"),
     Benchmark("../all_effective/randomized_response.prob", ["E(p1**2)"], "p"),
-    Benchmark("../all_effective/vaccination_succinct.prob", ["E(infected)"], "vax_param"),
-    Benchmark("../all_effective/vaccination_succinct.prob", ["E(infected**2)"], "vax_param"),
+    Benchmark("../all_effective/vaccination.prob", ["E(infected)"], "vax_param"),
+    Benchmark("../all_effective/vaccination.prob", ["E(infected**2)"], "vax_param"),
     ]
     
 def run_benchmark(benchmark: Benchmark, output):

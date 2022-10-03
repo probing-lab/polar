@@ -19,7 +19,6 @@ def get_moment(monom, solvers, rec_builder, cli_args, program):
 
     if monom not in solvers:
         recurrences = rec_builder.get_recurrences(monom)
-        print(f"Number of recurrences is {len(recurrences.recurrence_dict)}")
         s = RecurrenceSolver(recurrences, cli_args.numeric_roots, cli_args.numeric_croots, cli_args.numeric_eps)
         solvers.update({sympify(m): s for m in recurrences.monomials})
         
