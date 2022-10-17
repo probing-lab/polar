@@ -35,7 +35,10 @@ class DistAssignment(Assignment):
         return self.distribution.sample(state)
 
     def get_support(self):
-        return self.distribution.get_support()
+        result = self.distribution.get_support()
+        if not self.condition.is_implied_by_loop_guard():
+            result.add(self.default)
+        return result
 
     def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
         if_cond = arithm_cond * self.distribution.get_moment(k) * rest

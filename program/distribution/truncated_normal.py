@@ -81,7 +81,7 @@ class TruncNormal(Distribution):
         return symbols
 
     def get_support(self):
-        return self.a, self.b
+        return {(self.a, self.b)}
 
     def __str__(self):
         return f"TruncNormal({self.mu}, {self.sigma2}, {self.a}, {self.b})"

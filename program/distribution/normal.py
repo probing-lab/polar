@@ -45,7 +45,7 @@ class Normal(Distribution):
         return self.mu.free_symbols.union(self.sigma2.free_symbols)
 
     def get_support(self):
-        return -oo, oo
+        return {(-oo, oo)}
 
     def __str__(self):
         return f"Normal({self.mu}, {self.sigma2})"
