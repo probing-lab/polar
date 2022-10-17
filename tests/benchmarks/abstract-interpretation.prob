@@ -1,0 +1,14 @@
+flip, x, target = 1, 0, 0
+while true:
+    flip = Bernoulli(0.5)
+    
+    if flip == 1:
+        x = DiscreteUniform(0,5)
+    else:
+        x = DiscreteUniform(6,10)
+    end
+    
+    if x == 2:
+        target = 1
+    end
+end
