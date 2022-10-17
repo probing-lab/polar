@@ -33,7 +33,7 @@ class Exponential(Distribution):
         return self.lamb.free_symbols
 
     def get_support(self):
-        return Zero(), oo
+        return {(Zero(), oo)}
 
     def __str__(self):
         return f"Exponential({self.lamb})"

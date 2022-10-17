@@ -52,10 +52,11 @@ class Assignment(ABC):
         pass
 
     @abstractmethod
-    def get_support(self) -> Union[Set[Expr], Tuple[Expr, Expr]]:
+    def get_support(self) -> Set[Union[Expr, Tuple[Expr, Expr]]]:
         """
-        Returns either a set of expressions if the support is finite.
-        Otherwise it returns a tuple with a lower and upper bound for the support
+        Returns a set of tuples and expressions. 
+        Expressions denote a single value from the support.
+        A tuple represents a lower and upper bound for an interval from the support.
         """
         pass
 

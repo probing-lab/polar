@@ -41,7 +41,7 @@ class Laplace(Distribution):
         return self.mu.free_symbols.union(self.b.free_symbols)
 
     def get_support(self):
-        return -oo, oo
+        return {(-oo, oo)}
 
     def __str__(self):
         return f"Laplace({self.mu}, {self.b})"

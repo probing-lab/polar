@@ -140,11 +140,11 @@ class FiniteFixedPointTyper(Typer):
         Returns all possible values an assignment can assign with respect to the current state.
         """
         support = assign.get_support()
-        if type(support) is tuple:
-            return False
 
         values = set()
         for expr in support:
+            if type(expr) is tuple:
+                return False
             values_expr = self.__get_values_for_expr__(expr)
             if not values_expr:
                 return False

@@ -31,7 +31,7 @@ class Uniform(Distribution):
         return False
 
     def get_support(self):
-        return self.a, self.b
+        return {(self.a, self.b)}
 
     def sample(self, state):
         a = self.a.subs(state)
