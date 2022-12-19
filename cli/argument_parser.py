@@ -272,6 +272,14 @@ class ArgumentParser:
             help="""Get sensitivity of goal with respect to the
             symbolic constants by differentiating the closed form solution""",
         )
+        self.argument_parser.add_argument(
+            "-dist"
+            "--distribution",
+            dest="distribution",
+            type=str,
+            nargs="+",
+            help="Analyze the given program and extract the distribution over the list of variables given in argument. Example: --distribution x y"
+        )
 
     def parse_args(self):
         args = self.argument_parser.parse_args()

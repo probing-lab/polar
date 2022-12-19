@@ -1,4 +1,4 @@
-from typing import FrozenSet, Tuple
+from typing import FrozenSet, Iterable, Tuple
 from symengine.lib.symengine_wrapper import sympify, Expr, Integer
 from .type import Type
 from utils import get_reduced_powers
@@ -34,3 +34,9 @@ class Finite(Type):
 
         reduced_powers, tmp_var = get_reduced_powers(self._ordered_values, power)
         return reduced_powers.xreplace({tmp_var: self.variable})
+
+    def is_finite(self) -> bool:
+        return True
+
+    def enumerate_values(self) -> Iterable[Expr]:
+        return self.values

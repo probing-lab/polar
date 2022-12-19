@@ -117,6 +117,8 @@ class GoalsAction(Action):
                 monom, self.solvers, self.rec_builder, self.cli_args, self.program
             )
             moment = transform_to_after_loop(moment_given_termination)
+            if moment is None:
+                raise Exception("Could not compute after_loop since limit of expression could not be computed")
         else:
             moment, is_exact = get_moment(
                 monom, self.solvers, self.rec_builder, self.cli_args, self.program
