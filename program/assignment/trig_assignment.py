@@ -3,11 +3,13 @@ from symengine.lib.symengine_wrapper import Expr, One, Symbol
 from .assignment import Assignment
 from program.condition import TrueCond
 import math
+from program.distribution import Distribution
 
 
 class TrigAssignment(Assignment):
     trig_fun: str
     argument: Symbol
+    argument_dist: Distribution
 
     def __init__(self, var, trig_fun, argument):
         super().__init__(var)

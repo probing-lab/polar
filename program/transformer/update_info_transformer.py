@@ -2,10 +2,12 @@ from typing import Set
 from symengine.lib.symengine_wrapper import Symbol
 from itertools import combinations
 
+from .exceptions import TransformException
 from .transformer import Transformer
 from program import Program
 from program.mc_checker import MCChecker
-from program.assignment import DistAssignment
+from program.assignment import DistAssignment, TrigAssignment
+from program.condition import TrueCond
 from dataclasses import dataclass, field
 
 
@@ -23,6 +25,7 @@ class UpdateInfoTransformer(Transformer):
     def execute(self, program: Program) -> Program:
         self.program = program
         self.__set_variables_and_symbols__()
+        self.__set_dists_for_trig_assignments__()
         self.__set_dependencies__()
         if not self.ignore_mc_variables:
             self.__set_mc_variables__()
@@ -44,6 +47,16 @@ class UpdateInfoTransformer(Transformer):
         symbols = symbols.union(self.__get_all_symbols__(self.program.loop_body))
         self.program.symbols = symbols.difference(self.program.variables)
         self.program.original_variables = self.program.original_variables & self.program.variables
+
+    def __set_dists_for_trig_assignments__(self):
+        uncond_vars_dist = {}
+        for assign in self.program.loop_body:
+            if isinstance(assign, DistAssignment) and assign.condition == TrueCond():
+                uncond_vars_dist[assign.variable] = assign.distribution
+            if isinstance(assign, TrigAssignment):
+                if assign.argument not in uncond_vars_dist:
+                    raise TransformException(f"{assign.argument} in trig assignment for {assign.variable} does not have an unconditional distribution")
+                assign.argument_dist = uncond_vars_dist[assign.argument]
 
     def __set_dependencies__(self):
         self.program.dependency_info = {v: DependencyInfo() for v in self.program.variables}
