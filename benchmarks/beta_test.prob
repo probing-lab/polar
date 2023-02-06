@@ -1,4 +1,5 @@
 x = 0
 while true:
-    x = Beta(1, 1)
+    g = Normal(2, 1)
+    x = x + g
 end
