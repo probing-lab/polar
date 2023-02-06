@@ -1,0 +1,4 @@
+x = 0
+while true:
+    x = Beta(1, 1)
+end

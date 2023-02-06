@@ -4,9 +4,11 @@
 ?start: (_NL)* program (_NL)*
 
 assign: VARIABLE ("," VARIABLE)* ASSIGN assign_right ("," assign_right)*
-?assign_right: arithm | dist | categorical
+?assign_right: arithm | dist | categorical | trig
 
 dist: DIST_NAME "(" [arithm ("," arithm)*] ")"
+
+trig: TRIG_NAME "(" VARIABLE ")"
 
 categorical: arithm ("{" arithm "}" arithm)+ ["{" arithm "}"]
 
@@ -45,6 +47,7 @@ GEQ: ">="
 COP: LEQ | GEQ | NEQ | EQ | LE | GE
 
 VARIABLE: NAME
+TRIG_NAME.2: "Sin" | "Cos"
 TYPE_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
 DIST_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
 
