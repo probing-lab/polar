@@ -24,6 +24,7 @@ def main():
         for benchmark in args.benchmarks:
             action(benchmark)
     except Exception as e:
+        raise e
         print(e)
         exit()
 

@@ -1,0 +1,7 @@
+g,u,s,c = 0,0,0,0
+while true:
+    g = Normal(0, 1)
+    u = Uniform(2, 3)
+    s = Sin(g)
+    c = Cos(u)
+end

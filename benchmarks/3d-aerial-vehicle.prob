@@ -1,0 +1,25 @@
+psi = Uniform(-1, 1)
+x = Uniform(-0.1, 0.1)
+y = Uniform(-0.1, 0.1)
+z = Uniform(0.1, 0.3)
+theta = Uniform(-1, 1)
+cos_theta = 1
+sin_theta = 0
+cos_psi = 1
+cos_sin = 0
+while true:
+    omega_v = Uniform(-1, 1)
+    omega_psi = Uniform(-0.1, 0.1)
+    omega_theta = Normal(0, 0.09)
+
+    theta = theta + 0.1*(1 + omega_theta)
+    cos_theta, sin_theta = cos_theta*0.0339 - sin_theta*0.0674, sin_theta*0.0339 + cos_theta*0.0674
+
+    psi = psi + 0.1*(1 + omega_psi)
+    cos_psi = cos_psi*0.0282- sin_psi*0.0536
+    sin_psi = sin_psi*0.0282 + cos_psi*0.0536
+
+    x = x + 0.1 * (1 + omega_v) * cos_psi * cos_theta
+    y = y + 0.1 * (1 + omega_v) * sin_psi * cos_theta
+    z = z + 0.1 * (1 + omega_v) * sin_theta
+end
