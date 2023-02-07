@@ -1,6 +1,11 @@
 x = 0
+sin_x = 0
+cos_x = 1
 while true:
-    g = Exponential(2)
+    g = Normal(1, 0.5)
+    c = Cos(g)
     s = Sin(g)
-    x = x + s
+    t1 = Cos(1)
+    t2 = Sin(32)
+    x = x + c + s + t1**3 + t2**2
 end

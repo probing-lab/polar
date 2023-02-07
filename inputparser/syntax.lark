@@ -8,7 +8,7 @@ assign: VARIABLE ("," VARIABLE)* ASSIGN assign_right ("," assign_right)*
 
 dist: DIST_NAME "(" [arithm ("," arithm)*] ")"
 
-trig: TRIG_NAME "(" VARIABLE ")"
+trig: TRIG_NAME "(" (VARIABLE | NUMBER) ")"
 
 categorical: arithm ("{" arithm "}" arithm)+ ["{" arithm "}"]
 

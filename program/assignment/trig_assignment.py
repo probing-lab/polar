@@ -1,21 +1,25 @@
-from symengine.lib.symengine_wrapper import Expr, One, Symbol, sympy2symengine
+from typing import Union
+from symengine.lib.symengine_wrapper import Expr, One, Symbol, sympy2symengine, sympify, Number, sin, cos
 
-from sympy import I, simplify, re, im
+from sympy import I, N, re, im
 from .assignment import Assignment
 from program.condition import TrueCond
 import math
 from program.distribution import Distribution
+from .exceptions import TrigAssignmentException
 
 
 class TrigAssignment(Assignment):
     trig_fun: str
-    argument: Symbol
+    argument: Union[Symbol, Number]
     argument_dist: Distribution
 
     def __init__(self, var, trig_fun, argument):
         super().__init__(var)
         self.trig_fun = trig_fun
-        self.argument = Symbol(argument)
+        self.argument = sympify(argument)
+        if not self.argument.is_Symbol and not self.argument.is_Number:
+            raise TrigAssignmentException(f"Argument to trig assignment must be number or symbol but is {self.argument}")
 
     def __str__(self):
         result = f"{self.variable} = {self.trig_fun}({self.argument})"
@@ -55,24 +59,29 @@ class TrigAssignment(Assignment):
     def get_sin_moment(self, k: int):
         """
         Trigonometric moments from https://arxiv.org/pdf/2101.12490.pdf
+        Warning: The result is a float (numerical)
         """
+        if self.argument.is_Number:
+            return sympy2symengine(N(sin(self.argument)**k))
         k = int(k)
         result = 0
         for i in range(k+1):
             result += math.comb(k, i) * ((-1)**(k-i)) * self.argument_dist.cf(2*i - k)
         result = (((-I)**k)/(2**k)) * result
         assert im(result) == 0
-        return sympy2symengine(re(result))
+        return sympy2symengine(N(re(result)))
 
     def get_cos_moment(self, k: int):
         """
         Trigonometric moments from https://arxiv.org/pdf/2101.12490.pdf
+        Warning: The result is a float (numerical)
         """
+        if self.argument.is_Number:
+            return sympy2symengine(N(sin(self.argument)**k))
         k = int(k)
         result = 0
         for i in range(k+1):
             result += math.comb(k, i) * self.argument_dist.cf(2*i - k)
         result = result / (2**k)
         assert im(result) == 0
-        return sympy2symengine(re(result))
-
+        return sympy2symengine(N(re(result)))
