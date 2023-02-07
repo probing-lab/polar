@@ -1,6 +1,5 @@
 x = 0
+y = Cos(x)
 while true:
-    g = Normal(1, 0.5)
-    x = g*x + y
-    y = g*y + x
+    x = x + 1
 end

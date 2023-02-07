@@ -77,7 +77,7 @@ class TrigAssignment(Assignment):
         Warning: The result is a float (numerical)
         """
         if self.argument.is_Number:
-            return sympy2symengine(N(sin(self.argument)**k))
+            return sympy2symengine(N(cos(self.argument)**k))
         k = int(k)
         result = 0
         for i in range(k+1):
