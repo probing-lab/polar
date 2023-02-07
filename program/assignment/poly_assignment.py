@@ -42,6 +42,9 @@ class PolyAssignment(Assignment):
     def is_constant(self):
         return len(self.polynomials) == 1 and self.polynomials[0].is_Number
 
+    def is_reference(self):
+        return len(self.polynomials) == 1 and self.polynomials[0].is_Symbol
+
     def __str__(self):
         result = str(self.variable) + " = " + str(self.polynomials[0])
         for i in range(1, len(self.polynomials)):

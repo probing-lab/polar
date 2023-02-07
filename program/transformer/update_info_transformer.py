@@ -52,13 +52,29 @@ class UpdateInfoTransformer(Transformer):
         self.program.original_variables = self.program.original_variables & self.program.variables
 
     def __set_dists_for_trig_assignments__(self, assignments_list: [Assignment]):
-        uncond_vars_dist = {}
-        uncond_vars_const = {}
+        """
+        Assigns to trigonometric assignments the distributions (or constants) of their arguments
+        The arguments of trigonometric assignments must be unconditioned distributions (with constant parameters)
+        or constants.
+        """
+        uncond_vars_dist = {} # store variables that are assigned unconditioned distributions
+        uncond_vars_const = {} # store variables that are assigned unconditioned constants
         for assign in assignments_list:
+            # Store unconditioned distributions
             if isinstance(assign, DistAssignment) and assign.condition == TrueCond():
                 uncond_vars_dist[assign.variable] = assign.distribution
-            if isinstance(assign, PolyAssignment) and assign.is_constant() and assign.condition == TrueCond():
-                uncond_vars_const[assign.variable] = assign.polynomials[0]
+                break
+            # store unconditioned constants. If variable is just a reference to another variable we also save it.
+            if isinstance(assign, PolyAssignment) and assign.condition == TrueCond():
+                if assign.is_constant():
+                    uncond_vars_const[assign.variable] = assign.polynomials[0]
+                if assign.is_reference() and assign.polynomials[0] in uncond_vars_dist:
+                    uncond_vars_dist[assign.variable] = uncond_vars_dist[assign.polynomials[0]]
+                if assign.is_reference() and assign.polynomials[0] in uncond_vars_const:
+                    uncond_vars_const[assign.variable] = uncond_vars_const[assign.polynomials[0]]
+                break
+
+            # Assign to trigonometric assignment the distribution or the constant of the argument
             if isinstance(assign, TrigAssignment):
                 if assign.argument.is_Number:
                     break
@@ -68,6 +84,7 @@ class UpdateInfoTransformer(Transformer):
                 if assign.argument in uncond_vars_const:
                     assign.argument = uncond_vars_const[assign.argument]
                     break
+                # Every trigonometric assignment has to be assigned a distribution or constant of its argument
                 raise TransformException(f"{assign.argument} in trig assignment for {assign.variable} does not have an unconditional distribution")
 
     def __set_dependencies__(self):
