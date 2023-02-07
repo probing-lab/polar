@@ -39,6 +39,8 @@ class UpdateInfoTransformer(Transformer):
             variables_body.append(assign.variable)
             if isinstance(assign, DistAssignment):
                 self.program.dist_variables.append(assign.variable)
+            if isinstance(assign, TrigAssignment):
+                self.program.trig_variables.append(assign.variable)
         self.program.variables = set(variables_initial) | set(variables_body)
         self.program.var_to_index = {v: i for i, v in enumerate(variables_body)}
         self.program.index_to_var = {i: v for i, v in enumerate(variables_body)}
