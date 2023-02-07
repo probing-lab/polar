@@ -1,5 +1,5 @@
 x = 0
-y = Cos(x)
 while true:
-    x = x + 1
+    g, t = Normal(1, 1), 2
+    x, y = Cos(g), Sin(t)
 end
