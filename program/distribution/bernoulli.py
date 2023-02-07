@@ -2,6 +2,7 @@ from symengine.lib.symengine_wrapper import Expr, Zero, One
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import bernoulli
+from sympy import I, E, sympify
 
 
 class Bernoulli(Distribution):
@@ -26,6 +27,11 @@ class Bernoulli(Distribution):
         if not p.is_Number:
             raise EvaluationException(f"Parameter {self.p} doesn't evaluate to number with state {state}")
         return bernoulli.rvs(float(p))
+
+    def cf(self, t: Expr):
+        p = sympify(self.p)
+        t = sympify(t)
+        return (1 - p) + p*E**(I*t)
 
     def get_free_symbols(self):
         return self.p.free_symbols

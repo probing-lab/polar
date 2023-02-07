@@ -32,6 +32,9 @@ class Distribution(ABC):
     def sample(self, state: Dict[Symbol, float]):
         pass
 
+    def cf(self, t: Expr):
+        raise NotImplementedError()
+
     @abstractmethod
     def subs(self, substitutions):
         pass

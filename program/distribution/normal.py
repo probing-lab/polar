@@ -4,8 +4,8 @@ from symengine.lib.symengine_wrapper import Expr, oo, sympy2symengine
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import norm
-from sympy import sympify, Rational
-from sympy.stats import Normal as NormalDist, E
+from sympy import sympify, Rational, E, I
+from sympy.stats import Normal as NormalDist, E as EV
 import math
 
 
@@ -24,7 +24,7 @@ class Normal(Distribution):
         mu = sympify(self.mu)
         sigma = sympify(f"({self.sigma2}) ** (1/2)")
         x = NormalDist("x", mu, sigma)
-        return sympy2symengine(Rational(E(x ** k)))
+        return sympy2symengine(Rational(EV(x ** k)))
 
     def is_discrete(self):
         return False
@@ -40,6 +40,12 @@ class Normal(Distribution):
             raise EvaluationException(
                 f"Parameters {self.mu}, {self.sigma2} don't evaluate to numbers with state {state}")
         return norm.rvs(loc=float(mu), scale=math.sqrt(float(sigma2)))
+
+    def cf(self, t: Expr):
+        mu = sympify(self.mu)
+        sigma2 = sympify(self.sigma2)
+        t = sympify(t)
+        return E**((I*mu*t - sigma2*(t**2))/2)
 
     def get_free_symbols(self):
         return self.mu.free_symbols.union(self.sigma2.free_symbols)

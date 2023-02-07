@@ -3,6 +3,7 @@ from typing import List
 import random
 
 from symengine.lib.symengine_wrapper import sympify, Expr, Rational
+from sympy import I, E, sympify as ssympify
 
 from .distribution import Distribution
 
@@ -40,6 +41,12 @@ class DiscreteUniform(Distribution):
 
     def sample(self, state):
         return random.choice(self.values)
+
+    def cf(self, t: Expr):
+        a = ssympify(self.values[0])
+        b = ssympify(self.values[-1])
+        t = ssympify(t)
+        return (E**(I*a*t) - E**(I*(b+1)*t))/((b - a + 1)*(1 - E**(I*t)))
 
     def __str__(self):
         return f"DiscreteUniform({self.values[0]}, {self.values[-1]})"

@@ -4,8 +4,8 @@ from symengine.lib.symengine_wrapper import Expr, oo, sympy2symengine
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import laplace
-from sympy import Rational
-from sympy.stats import E, Laplace as LaplaceRV
+from sympy import Rational, sympify, I, E
+from sympy.stats import E as EV, Laplace as LaplaceRV
 
 
 class Laplace(Distribution):
@@ -21,7 +21,7 @@ class Laplace(Distribution):
     @lru_cache()
     def get_moment(self, k: int):
         x = LaplaceRV("x", self.mu, self.b)
-        return sympy2symengine(Rational(E(x ** k)))
+        return sympy2symengine(Rational(EV(x ** k)))
 
     def is_discrete(self):
         return False
@@ -36,6 +36,12 @@ class Laplace(Distribution):
         if not mu.is_Number or not b.is_Number:
             raise EvaluationException(f"Parameters {self.mu}, {self.b} don't evaluate to numbers with state {state}")
         return laplace.rvs(scale=float(b), loc=float(mu))
+
+    def cf(self, t: Expr):
+        mu = sympify(self.mu)
+        b = sympify(self.b)
+        t = sympify(t)
+        return (E**(mu*I*t))/(1 + b**2 * t**2)
 
     def get_free_symbols(self):
         return self.mu.free_symbols.union(self.b.free_symbols)

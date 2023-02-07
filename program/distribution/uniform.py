@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from sympy import sympify, E, I
 from symengine.lib.symengine_wrapper import Expr
 from .distribution import Distribution
 from .exceptions import EvaluationException
@@ -39,6 +40,14 @@ class Uniform(Distribution):
         if not a.is_Number or not b.is_Number:
             raise EvaluationException(f"Parameters {self.a}, {self.b} don't evaluate to numbers with state {state}")
         return uniform.rvs(loc=float(a), scale=float(b) - float(a))
+
+    def cf(self, t: Expr):
+        if t == 0:
+            return sympify(1)
+        a = sympify(self.a)
+        b = sympify(self.b)
+        t = sympify(t)
+        return (E**(I*t*b) - E**(I*t*a))/(I*t*(b-a))
 
     def __str__(self):
         return f"Uniform({self.a}, {self.b})"
