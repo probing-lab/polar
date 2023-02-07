@@ -54,6 +54,8 @@ class UpdateInfoTransformer(Transformer):
             if isinstance(assign, DistAssignment) and assign.condition == TrueCond():
                 uncond_vars_dist[assign.variable] = assign.distribution
             if isinstance(assign, TrigAssignment):
+                if assign.argument.is_Number:
+                    break
                 if assign.argument not in uncond_vars_dist:
                     raise TransformException(f"{assign.argument} in trig assignment for {assign.variable} does not have an unconditional distribution")
                 assign.argument_dist = uncond_vars_dist[assign.argument]
