@@ -39,6 +39,9 @@ class PolyAssignment(Assignment):
     def deterministic(cls, variable, polynomial):
         return cls(variable, [polynomial], [1])
 
+    def is_constant(self):
+        return len(self.polynomials) == 1 and self.polynomials[0].is_Number
+
     def __str__(self):
         result = str(self.variable) + " = " + str(self.polynomials[0])
         for i in range(1, len(self.polynomials)):

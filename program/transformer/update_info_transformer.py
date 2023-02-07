@@ -6,7 +6,7 @@ from .exceptions import TransformException
 from .transformer import Transformer
 from program import Program
 from program.mc_checker import MCChecker
-from program.assignment import DistAssignment, TrigAssignment
+from program.assignment import DistAssignment, TrigAssignment, PolyAssignment, Assignment
 from program.condition import TrueCond
 from dataclasses import dataclass, field
 
@@ -25,7 +25,8 @@ class UpdateInfoTransformer(Transformer):
     def execute(self, program: Program) -> Program:
         self.program = program
         self.__set_variables_and_symbols__()
-        self.__set_dists_for_trig_assignments__()
+        self.__set_dists_for_trig_assignments__(self.program.initial)
+        self.__set_dists_for_trig_assignments__(self.program.loop_body)
         self.__set_dependencies__()
         if not self.ignore_mc_variables:
             self.__set_mc_variables__()
@@ -50,17 +51,24 @@ class UpdateInfoTransformer(Transformer):
         self.program.symbols = symbols.difference(self.program.variables)
         self.program.original_variables = self.program.original_variables & self.program.variables
 
-    def __set_dists_for_trig_assignments__(self):
+    def __set_dists_for_trig_assignments__(self, assignments_list: [Assignment]):
         uncond_vars_dist = {}
-        for assign in self.program.loop_body:
+        uncond_vars_const = {}
+        for assign in assignments_list:
             if isinstance(assign, DistAssignment) and assign.condition == TrueCond():
                 uncond_vars_dist[assign.variable] = assign.distribution
+            if isinstance(assign, PolyAssignment) and assign.is_constant() and assign.condition == TrueCond():
+                uncond_vars_const[assign.variable] = assign.polynomials[0]
             if isinstance(assign, TrigAssignment):
                 if assign.argument.is_Number:
                     break
-                if assign.argument not in uncond_vars_dist:
-                    raise TransformException(f"{assign.argument} in trig assignment for {assign.variable} does not have an unconditional distribution")
-                assign.argument_dist = uncond_vars_dist[assign.argument]
+                if assign.argument in uncond_vars_dist:
+                    assign.argument_dist = uncond_vars_dist[assign.argument]
+                    break
+                if assign.argument in uncond_vars_const:
+                    assign.argument = uncond_vars_const[assign.argument]
+                    break
+                raise TransformException(f"{assign.argument} in trig assignment for {assign.variable} does not have an unconditional distribution")
 
     def __set_dependencies__(self):
         self.program.dependency_info = {v: DependencyInfo() for v in self.program.variables}
