@@ -4,8 +4,8 @@ from symengine.lib.symengine_wrapper import Expr, sympy2symengine
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import beta
-from sympy import sympify, Rational
-from sympy.stats import Beta as BetaDist, E
+from sympy import sympify, Rational, E, I
+from sympy.stats import Beta as BetaDist, E as EV
 
 
 class Beta(Distribution):
@@ -23,7 +23,7 @@ class Beta(Distribution):
         a = sympify(self.a)
         b = sympify(self.b)
         x = BetaDist("x", a, b)
-        return sympy2symengine(Rational(E(x ** k)))
+        return sympy2symengine(Rational(EV(x ** k)))
 
     def is_discrete(self):
         return False
@@ -39,6 +39,13 @@ class Beta(Distribution):
             raise EvaluationException(
                 f"Parameters {self.a}, {self.b} don't evaluate to numbers with state {state}")
         return beta.rvs(float(a), float(b))
+
+    def cf(self, t: Expr):
+        a = sympify(self.a)
+        b = sympify(self.b)
+        t = sympify(t)
+        x = BetaDist("x", a, b)
+        return EV(E**(I*t*x))
 
     def get_free_symbols(self):
         return self.a.free_symbols.union(self.b.free_symbols)

@@ -1,5 +1,6 @@
-from symengine.lib.symengine_wrapper import Expr, One, Symbol
+from symengine.lib.symengine_wrapper import Expr, One, Symbol, sympy2symengine
 
+from sympy import I, simplify, re, im
 from .assignment import Assignment
 from program.condition import TrueCond
 import math
@@ -46,5 +47,32 @@ class TrigAssignment(Assignment):
         return {(-One(), One())}
 
     def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
-        pass
-        # TODO
+        trig_moment = self.get_sin_moment(k) if self.trig_fun == "Sin" else self.get_cos_moment(k)
+        if_cond = arithm_cond * trig_moment * rest
+        if_not_cond = (1 - arithm_cond) * (self.default ** k) * rest
+        return if_cond + if_not_cond
+
+    def get_sin_moment(self, k: int):
+        """
+        Trigonometric moments from https://arxiv.org/pdf/2101.12490.pdf
+        """
+        k = int(k)
+        result = 0
+        for i in range(k+1):
+            result += math.comb(k, i) * ((-1)**(k-i)) * self.argument_dist.cf(2*i - k)
+        result = (((-I)**k)/(2**k)) * result
+        assert im(result) == 0
+        return sympy2symengine(re(result))
+
+    def get_cos_moment(self, k: int):
+        """
+        Trigonometric moments from https://arxiv.org/pdf/2101.12490.pdf
+        """
+        k = int(k)
+        result = 0
+        for i in range(k+1):
+            result += math.comb(k, i) * self.argument_dist.cf(2*i - k)
+        result = result / (2**k)
+        assert im(result) == 0
+        return sympy2symengine(re(result))
+

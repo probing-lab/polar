@@ -1,5 +1,6 @@
 x = 0
 while true:
-    g = Normal(2, 1)
-    x = x + g
+    g = Exponential(2)
+    s = Sin(g)
+    x = x + s
 end

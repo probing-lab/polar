@@ -1,5 +1,6 @@
 from functools import lru_cache
 from symengine.lib.symengine_wrapper import Expr, oo, Zero, factorial
+from sympy import sympify, I
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import expon
@@ -31,6 +32,11 @@ class Exponential(Distribution):
 
     def get_free_symbols(self):
         return self.lamb.free_symbols
+
+    def cf(self, t: Expr):
+        lamb = sympify(self.lamb)
+        t = sympify(t)
+        return lamb/(lamb - I*t)
 
     def get_support(self):
         return {(Zero(), oo)}
