@@ -1,5 +1,10 @@
 x = 0
+sin_x = Sin(x)
+cos_x = Cos(x)
 while true:
-    g, t = Normal(1, 1), 2
-    x, y = Cos(g), Sin(t)
+    x = x + 1
+    sin_1 = Sin(1)
+    cos_1 = Cos(1)
+    sin_x = sin_x*cos_1 + cos_x*sin_1
+    cos_x = cos_x*cos_1 - sin_x*sin_1
 end
