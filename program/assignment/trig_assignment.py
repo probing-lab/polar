@@ -1,7 +1,7 @@
 from typing import Union
 from symengine.lib.symengine_wrapper import Expr, One, Symbol, sympy2symengine, sympify, Number, sin, cos
 
-from sympy import I, N, re, im
+from sympy import I, N, re, im, nsimplify, Rational
 from .assignment import Assignment
 from program.condition import TrueCond
 import math
@@ -41,7 +41,7 @@ class TrigAssignment(Assignment):
         self.argument.subs(substitutions)
 
     def evaluate_right_side(self, state):
-        arg_value = state[self.argument]
+        arg_value = float(self.argument) if self.argument.is_Number else state[self.argument]
         if self.trig_fun == "Sin":
             return math.sin(arg_value)
         else:
@@ -62,14 +62,14 @@ class TrigAssignment(Assignment):
         Warning: The result is a float (numerical)
         """
         if self.argument.is_Number:
-            return sympy2symengine(N(sin(self.argument)**k))
+            return self.__transcendental_to_rational__(sin(self.argument)**k)
         k = int(k)
         result = 0
         for i in range(k+1):
             result += math.comb(k, i) * ((-1)**(k-i)) * self.argument_dist.cf(2*i - k)
         result = (((-I)**k)/(2**k)) * result
         assert im(result) == 0
-        return sympy2symengine(N(re(result)))
+        return self.__transcendental_to_rational__(re(result))
 
     def get_cos_moment(self, k: int):
         """
@@ -77,11 +77,14 @@ class TrigAssignment(Assignment):
         Warning: The result is a float (numerical)
         """
         if self.argument.is_Number:
-            return sympy2symengine(N(cos(self.argument)**k))
+            return self.__transcendental_to_rational__(cos(self.argument)**k)
         k = int(k)
         result = 0
         for i in range(k+1):
             result += math.comb(k, i) * self.argument_dist.cf(2*i - k)
         result = result / (2**k)
         assert im(result) == 0
-        return sympy2symengine(N(re(result)))
+        return self.__transcendental_to_rational__(re(result))
+
+    def __transcendental_to_rational__(self, trans):
+        return sympy2symengine(Rational(N(trans, 100)))
