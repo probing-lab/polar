@@ -63,7 +63,7 @@ class UpdateInfoTransformer(Transformer):
             # Store unconditioned distributions
             if isinstance(assign, DistAssignment) and assign.condition == TrueCond():
                 uncond_vars_dist[assign.variable] = assign.distribution
-                break
+                continue
             # store unconditioned constants. If variable is just a reference to another variable we also save it.
             if isinstance(assign, PolyAssignment) and assign.condition == TrueCond():
                 if assign.is_constant():
@@ -72,18 +72,18 @@ class UpdateInfoTransformer(Transformer):
                     uncond_vars_dist[assign.variable] = uncond_vars_dist[assign.polynomials[0]]
                 if assign.is_reference() and assign.polynomials[0] in uncond_vars_const:
                     uncond_vars_const[assign.variable] = uncond_vars_const[assign.polynomials[0]]
-                break
+                continue
 
             # Assign to trigonometric assignment the distribution or the constant of the argument
             if isinstance(assign, TrigAssignment):
                 if assign.argument.is_Number:
-                    break
+                    continue
                 if assign.argument in uncond_vars_dist:
                     assign.argument_dist = uncond_vars_dist[assign.argument]
-                    break
+                    continue
                 if assign.argument in uncond_vars_const:
                     assign.argument = uncond_vars_const[assign.argument]
-                    break
+                    continue
                 # Every trigonometric assignment has to be assigned a distribution or constant of its argument
                 raise TransformException(f"{assign.argument} in trig assignment for {assign.variable} does not have an unconditional distribution")
 
