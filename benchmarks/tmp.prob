@@ -1,10 +1,11 @@
 x = 0
 sin_x = Sin(x)
 cos_x = Cos(x)
+sin_1 = Sin(1)
+cos_1 = Cos(1)
 while true:
     x = x + 1
     sin_1 = Sin(1)
     cos_1 = Cos(1)
-    sin_x = sin_x*cos_1 + cos_x*sin_1
-    cos_x = cos_x*cos_1 - sin_x*sin_1
+    sin_x, cos_x = sin_x*cos_1 + cos_x*sin_1, cos_x*cos_1 - sin_x*sin_1
 end
