@@ -34,9 +34,9 @@ class Normal(Distribution):
         self.sigma2 = self.sigma2.subs(substitutions)
 
     def sample(self, state):
-        mu = self.mu.subs(state)
-        sigma2 = self.sigma2.subs(state)
-        if not mu.is_Number or not sigma2.is_Number:
+        mu = sympify(self.mu.subs(state))
+        sigma2 = sympify(self.sigma2.subs(state))
+        if not mu.is_real or not sigma2.is_real:
             raise EvaluationException(
                 f"Parameters {self.mu}, {self.sigma2} don't evaluate to numbers with state {state}")
         return norm.rvs(loc=float(mu), scale=math.sqrt(float(sigma2)))

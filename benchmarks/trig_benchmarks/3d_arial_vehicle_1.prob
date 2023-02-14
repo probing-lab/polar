@@ -1,0 +1,22 @@
+psi = Beta(3,3)
+x = Uniform(-0.1, 0.1)
+y = Uniform(-0.1, 0.1)
+z = Uniform(0.1, 0.3)
+theta = Beta(1,3)
+while true:
+    omega_v = Beta(1,3)
+    omega_psi = Uniform(-0.1, 0.1)
+    omega_theta = Normal(0,0.3)
+
+    theta = theta + 0.1*(1 + omega_theta)
+    sin_theta = Sin(theta)
+    cos_theta = Cos(theta)
+
+    psi = psi + 0.1*(1+ omega_psi)
+    sin_psi = Sin(psi)
+    cos_psi = Cos(psi)
+
+    x = x + 0.1 * (1 + omega_v) * cos_psi*cos_theta
+    y = y + 0.1 * (1 + omega_v) * sin_psi*cos_theta
+    z = z + 0.1 * (1 + omega_v) * sin_theta
+end

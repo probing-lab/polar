@@ -7,7 +7,8 @@ from .exponential import Exponential
 from .truncated_normal import TruncNormal
 from .uniform import Uniform
 from .discrete_uniform import DiscreteUniform
-from. beta import Beta
+from .beta import Beta
+from .gamma import Gamma
 
 __distributions__ = {
     "Bernoulli": Bernoulli,
@@ -19,6 +20,7 @@ __distributions__ = {
     "Exponential": Exponential,
     "TruncNormal": TruncNormal,
     "Beta": Beta,
+    "Gamma": Gamma,
 }
 
 
