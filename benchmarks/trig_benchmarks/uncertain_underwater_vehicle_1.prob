@@ -1,0 +1,12 @@
+x = Uniform(-0.1, 0.1)
+y = Uniform(-0.1, 0.1)
+theta = Uniform(pi/4 - 0.1, pi/4 + 0.1)
+while true:
+    omega = Beta(1, 3)
+    g = Normal(0, 1)
+    theta = theta + 0.1*g
+    cos_theta = Cos(theta)
+    sin_theta = Sin(theta)
+    x = x + 0.1*(2 + omega)*cos_theta
+    y = y + 0.1*(2 + omega)*sin_theta
+end

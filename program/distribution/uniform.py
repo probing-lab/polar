@@ -35,9 +35,9 @@ class Uniform(Distribution):
         return {(self.a, self.b)}
 
     def sample(self, state):
-        a = self.a.subs(state)
-        b = self.b.subs(state)
-        if not a.is_Number or not b.is_Number:
+        a = sympify(self.a.subs(state))
+        b = sympify(self.b.subs(state))
+        if not a.is_real or not b.is_real:
             raise EvaluationException(f"Parameters {self.a}, {self.b} don't evaluate to numbers with state {state}")
         return uniform.rvs(loc=float(a), scale=float(b) - float(a))
 
