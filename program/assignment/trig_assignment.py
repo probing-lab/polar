@@ -1,7 +1,7 @@
 from typing import Union
 from symengine.lib.symengine_wrapper import Expr, One, Symbol, sympy2symengine, sympify, Number, sin, cos
 
-from sympy import I, N, re, im, nsimplify, Rational
+from sympy import I, N, re, im, Rational
 from .assignment import Assignment
 from program.condition import TrueCond
 import math
@@ -87,4 +87,4 @@ class TrigAssignment(Assignment):
         return self.__transcendental_to_rational__(re(result))
 
     def __transcendental_to_rational__(self, trans):
-        return sympy2symengine(Rational(N(trans, 100)))
+        return sympy2symengine(Rational(N(trans, 20)))
