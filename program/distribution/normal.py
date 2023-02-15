@@ -45,7 +45,7 @@ class Normal(Distribution):
         mu = sympify(self.mu)
         sigma2 = sympify(self.sigma2)
         t = sympify(t)
-        return E**((I*mu*t - sigma2*(t**2))/2)
+        return E**((I*mu*t - sigma2*(t**2)/2))
 
     def get_free_symbols(self):
         return self.mu.free_symbols.union(self.sigma2.free_symbols)

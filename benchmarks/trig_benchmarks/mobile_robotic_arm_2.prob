@@ -1,0 +1,26 @@
+x = 0
+y = 0
+z = 0
+while true:
+    theta_1 = Uniform(-0.1, 0.1)
+    theta_2 = Normal(pi/4, 1)
+    theta_3 = Gamma(1, 2)
+
+    cos_theta_1 = Cos(theta_1)
+    sin_theta_1 = Sin(theta_1)
+    cos_theta_2 = Cos(theta_2)
+    sin_theta_2 = Sin(theta_2)
+    cos_theta_3 = Cos(theta_3)
+    sin_theta_3 = Sin(theta_3)
+
+    sin_theta_23 = sin_theta_2*cos_theta_3 + cos_theta_2*sin_theta_3
+    cos_theta_23 = cos_theta_2*cos_theta_3 - sin_theta_2*sin_theta_3
+
+    u = Uniform(-0.1, 0.1)
+    g = Normal(0, 1)
+    b = Beta(3, 1)
+
+    x = u + cos_theta_1 * (0.5 * cos_theta_23 + cos_theta_2)
+    y = g + sin_theta_1 * (0.5 * cos_theta_23 + cos_theta_2)
+    z = b + 0.5 * sin_theta_23 + sin_theta_2
+end
