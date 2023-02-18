@@ -1,6 +1,6 @@
 x = Uniform(-0.1, 0.1)
 y = Uniform(-0.1, 0.1)
-theta = Uniform(0, 0.1)
+theta = Normal(0, 0.1)
 while true:
     omega_r = Beta(1, 3)
     omega_l = Uniform(-0.1, 0.1)

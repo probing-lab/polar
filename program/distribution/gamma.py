@@ -41,7 +41,10 @@ class Gamma(Distribution):
         return gamma.rvs(float(k), scale=float(theta))
 
     def cf(self, t: Expr):
-        return (1 - self.theta * I * t) ** (-self.k)
+        theta = sympify(self.theta)
+        k = sympify(self.k)
+        t = sympify(t)
+        return (1 - theta * I * t) ** (-k)
 
     def get_free_symbols(self):
         return self.k.free_symbols.union(self.theta.free_symbols)

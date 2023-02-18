@@ -215,6 +215,12 @@ class ArgumentParser:
             help="If set fixedpoints/limits are used to compute the moments after the loop"
         )
         self.argument_parser.add_argument(
+            "--mc_check",
+            action="store_true",
+            default=False,
+            help="If set Polar checks if the goal is moment-computable and throws and error if not"
+        )
+        self.argument_parser.add_argument(
             "--mc_comb",
             dest="mc_comb",
             type=str,
