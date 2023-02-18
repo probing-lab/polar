@@ -59,6 +59,7 @@ class UpdateInfoTransformer(Transformer):
         """
         uncond_vars_dist = {} # store variables that are assigned unconditioned distributions
         uncond_vars_const = {} # store variables that are assigned unconditioned constants
+        uncond_references = {} # stores unconditioned variables that reference to constants or distributions
         for assign in assignments_list:
             # Store unconditioned distributions
             if isinstance(assign, DistAssignment) and assign.condition == TrueCond():
@@ -69,20 +70,28 @@ class UpdateInfoTransformer(Transformer):
                 if assign.is_constant():
                     uncond_vars_const[assign.variable] = assign.polynomials[0]
                 if assign.is_reference() and assign.polynomials[0] in uncond_vars_dist:
-                    uncond_vars_dist[assign.variable] = uncond_vars_dist[assign.polynomials[0]]
+                    uncond_references[assign.variable] = assign.polynomials[0]
                 if assign.is_reference() and assign.polynomials[0] in uncond_vars_const:
-                    uncond_vars_const[assign.variable] = uncond_vars_const[assign.polynomials[0]]
+                    uncond_references[assign.variable] = assign.polynomials[0]
+                if assign.is_reference() and assign.polynomials[0] in uncond_references:
+                    uncond_references[assign.variable] = uncond_references[assign.polynomials[0]]
                 continue
 
             # Assign to trigonometric assignment the distribution or the constant of the argument
             if isinstance(assign, TrigAssignment):
+                # if argument is a number => perfect
                 if assign.argument.is_Number:
                     continue
-                if assign.argument in uncond_vars_dist:
-                    assign.argument_dist = uncond_vars_dist[assign.argument]
-                    continue
+                # if argument is a reference replace argument by the actual constant or dist
+                if assign.argument in uncond_references:
+                    assign.argument = uncond_references[assign.argument]
+                # if argument refers to a constant replace argument by the constant
                 if assign.argument in uncond_vars_const:
                     assign.argument = uncond_vars_const[assign.argument]
+                    continue
+                # if argument refers to a distribution, pass the distribution to the assignment
+                if assign.argument in uncond_vars_dist:
+                    assign.argument_dist = uncond_vars_dist[assign.argument]
                     continue
                 # Every trigonometric assignment has to be assigned a distribution or constant of its argument
                 raise TransformException(f"{assign.argument} in trig assignment for {assign.variable} does not have an unconditional distribution")
