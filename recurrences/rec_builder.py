@@ -57,7 +57,7 @@ class RecBuilder:
             assignment = self.program.loop_body[i]
             if assignment.variable in right_side.free_symbols:
                 right_side = right_side.expand()
-                right_side = self.__replace_assign__(right_side, assignment).expand()
+                right_side = self.__replace_assign__(right_side, assignment, self.program.loop_body[0:i]).expand()
                 right_side = self.__reduce_powers__(right_side)
 
         right_side = self.__reduce_powers__(right_side)
@@ -70,13 +70,13 @@ class RecBuilder:
                 max_index = self.program.var_to_index[v]
         return max_index
 
-    def __replace_assign__(self, poly: Expr, assign: Assignment):
+    def __replace_assign__(self, poly: Expr, assign: Assignment, previous_assigns: [Assignment]):
         cond = assign.condition.to_arithm(self.program)
         terms_with_var, rest_without_var = get_terms_with_var(poly, assign.variable)
 
         result = rest_without_var
         for var_power, rest in terms_with_var:
-            result += assign.get_moment(var_power, cond, rest)
+            result += assign.get_moment(var_power, cond, rest, previous_assigns)
         return result
 
     def __reduce_powers__(self, poly: Expr):
@@ -98,9 +98,9 @@ class RecBuilder:
 
     def get_initial_value(self, monom: Expr):
         result = monom
-        for assign in reversed(self.program.initial):
+        for i, assign in reversed(list(enumerate(self.program.initial))):
             if assign.variable in result.free_symbols:
-                result = self.__replace_assign__(result, assign)
+                result = self.__replace_assign__(result, assign, self.program.initial[0:i])
                 result = result.expand()
 
         for sym in monom.free_symbols.difference(self.program.symbols):

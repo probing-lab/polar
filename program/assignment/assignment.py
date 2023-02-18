@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union, Tuple, Set, Dict
+from typing import Union, Tuple, Set, Dict, List
 
 from symengine.lib.symengine_wrapper import Expr, Symbol
 
@@ -61,9 +61,12 @@ class Assignment(ABC):
         pass
 
     @abstractmethod
-    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
+    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1, previous_assigns: ["Assignment"] = None):
         """
         returns E(X) for X := Assignment^k * rest
         relative to some given condition.
+        The last parameter is not used by the conventional assignment subclasses as they are "local".
+        However, assignments such as the trigonometric assignment need the information of the assignments before
+        them to compute their expected value.
         """
         pass

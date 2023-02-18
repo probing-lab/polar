@@ -40,7 +40,7 @@ class DistAssignment(Assignment):
             result.add(self.default)
         return result
 
-    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1):
+    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1, previous_assigns=None):
         if_cond = arithm_cond * self.distribution.get_moment(k) * rest
         if_not_cond = (1 - arithm_cond) * (self.default ** k) * rest
         return if_cond + if_not_cond
