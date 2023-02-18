@@ -14,6 +14,7 @@ class TrigAssignment(Assignment):
     trig_fun: str
     argument: Union[Symbol, Number]
     argument_dist: Distribution
+    exact_transcendentals: bool = False
 
     def __init__(self, var, trig_fun, argument):
         super().__init__(var)
@@ -71,14 +72,14 @@ class TrigAssignment(Assignment):
         Warning: The result is a rational approximation of the (generally) transcendental answer
         """
         if self.argument.is_Number:
-            return self.__transcendental_to_rational__((sin(self.argument)**sin_power) * (cos(self.argument)**cos_power))
+            return self.__convert_transcendental__((sin(self.argument)**sin_power) * (cos(self.argument)**cos_power))
         result = 0
         for k1 in range(cos_power+1):
             for k2 in range(sin_power+1):
                 result += math.comb(cos_power, k1) * math.comb(sin_power, k2) * ((-1)**(sin_power - k2)) * self.argument_dist.cf(2*(k1 + k2) - cos_power - sin_power)
         result *= ((-I)**sin_power) / (2**(cos_power + sin_power))
         assert im(result).expand() == 0
-        return self.__transcendental_to_rational__(re(result))
+        return self.__convert_transcendental__(re(result))
 
     def remove_same_arg_trigs_from_monom(self, monom: Expr, assigns: [Assignment]):
         """
@@ -102,5 +103,8 @@ class TrigAssignment(Assignment):
         monom = monom.xreplace({v: 1 for v in same_arg_cos_vars + same_arg_sin_vars})
         return monom, count_sin, count_cos
 
-    def __transcendental_to_rational__(self, trans):
-        return sympy2symengine(Rational(N(trans, 20)))
+    def __convert_transcendental__(self, trans):
+        if self.exact_transcendentals:
+            return trans
+        else:
+            return sympy2symengine(Rational(N(trans, 20)))
