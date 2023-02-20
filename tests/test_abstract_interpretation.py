@@ -3,7 +3,6 @@ import unittest
 
 from cli import ArgumentParser
 from cli.common import prepare_program, parse_program
-from program.type import FiniteRange
 from symengine.lib.symengine_wrapper import sympify
 
 class AbstractInterpretationTest(unittest.TestCase):

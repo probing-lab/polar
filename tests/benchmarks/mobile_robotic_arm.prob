@@ -1,0 +1,38 @@
+x = 0
+y = 0
+z = 0
+while true:
+    theta_1 = Uniform(-0.1, 0.1)
+    theta_2 = Normal(pi/4, 1)
+    theta_3 = Gamma(1, 2)
+
+    cos_theta_1 = Cos(theta_1)
+    sin_theta_1 = Sin(theta_1)
+    cos_theta_2 = Cos(theta_2)
+    sin_theta_2 = Sin(theta_2)
+    cos_theta_3 = Cos(theta_3)
+    sin_theta_3 = Sin(theta_3)
+
+    sin_theta_23 = sin_theta_2*cos_theta_3 + cos_theta_2*sin_theta_3
+    cos_theta_23 = cos_theta_2*cos_theta_3 - sin_theta_2*sin_theta_3
+
+    u = Uniform(-0.1, 0.1)
+    g = Normal(0, 1)
+    b = Beta(3, 1)
+
+    x = u + cos_theta_1 * (0.5 * cos_theta_23 + cos_theta_2)
+    y = g + sin_theta_1 * (0.5 * cos_theta_23 + cos_theta_2)
+    z = b + 0.5 * sin_theta_23 + sin_theta_2
+end
+
+#test: raw; x; 0; 9*sqrt(2)*exp(-1/2)*sin(1/10)/2
+#test: raw; y; 0; 0
+#test: raw; z; 0; 13*sqrt(2)*exp(-1/2)/20 + 3/4
+
+#test: raw; x**2; 0; (-2340 - 11700*sin(1/5) + 17*(2175*sin(1/5) + 439)*exp(2))*exp(-2)/20400
+#test: raw; y**2; 0; (-156 + 780*sin(1/5) + 17*(109 - 145*sin(1/5))*exp(2))*exp(-2)/1360
+#test: raw; z**2; 0; 39*exp(-2)/170 + 39*sqrt(2)*exp(-1/2)/40 + 53/40
+
+#test: raw; x**3; 0; sqrt(2)*(-4046175*sin(1/10) - 449575*sin(3/10) + 111*(8675*sin(3/10) + 78891*sin(1/10))*exp(4))*exp(-9/2)/2012800
+#test: raw; y**3; 0; 0
+#test: raw; z**3; 0; -13857*sqrt(2)*exp(-9/2)/201280 + 351*exp(-2)/680 + 53739*sqrt(2)*exp(-1/2)/27200 + 341/160

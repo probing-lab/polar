@@ -1,11 +1,10 @@
-t = 0
+x = 0
 while true:
-    a = Normal(0,1)
-    b = Uniform(1, 2)
-    x = Sin(a)
-    y = Cos(a)
-    z = Sin(a)
-    xx = Cos(b)
-    yy = Sin(b)
-    t = t + x*y*z*xx*yy
+    a = Uniform(0.5, 1)
+    b = Uniform(1, 1.5)
+    e1 = Exp(a)
+    e2 = Exp(a)
+    e3 = Exp(b)
+    e4 = Exp(b)
+    x = x + e2*e3*e4 + e1
 end

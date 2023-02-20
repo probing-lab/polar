@@ -28,6 +28,7 @@ def create_raw_moment_test(benchmark, monom, initial_value, general_form):
 
 def get_raw_moment(benchmark, monom):
     args = ArgumentParser().get_defaults()
+    args.exact_func_moments = True
     program = parse_program(benchmark, args.transform_categoricals)
     program = prepare_program(program, args)
     rec_builder = RecBuilder(program)
