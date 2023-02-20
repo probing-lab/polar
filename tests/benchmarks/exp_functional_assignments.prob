@@ -1,0 +1,13 @@
+x = 0
+while true:
+    a = Uniform(0.5, 1)
+    b = Uniform(1, 1.5)
+    e1 = Exp(a)
+    e2 = Exp(a)
+    e3 = Exp(b)
+    e4 = Exp(b)
+    x = x + e2*e3*e4 + e1
+end
+
+#test: raw; x; 0; 2*n*(-exp(7/2) - exp(3) - exp(1/2) + E + exp(5/2) + exp(4))
+#test: raw; x**2; 0; n*(-16*n*exp(15/2) - 8*n*exp(7) - 16*n*exp(11/2) - 8*n*exp(6) - 32*n*exp(9/2) - 16*n*exp(3) - 16*n*exp(3/2) + 8*E*n + 8*n*exp(2) + 32*n*exp(7/2) + 24*n*exp(5) + 32*n*exp(13/2) + 8*n*exp(8) - 32*exp(13/2) - 7*exp(8) - 19*exp(5) - 32*exp(7/2) - 8*exp(4) - 6*exp(2) - 10*E + 16*exp(3/2) + 20*exp(3) + 7*exp(6) + 32*exp(9/2) + 16*exp(11/2) + 7*exp(7) + 16*exp(15/2))/2

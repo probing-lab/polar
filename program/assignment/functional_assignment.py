@@ -1,5 +1,5 @@
-from typing import Union
-from symengine.lib.symengine_wrapper import Expr, One, Symbol, sympy2symengine, sympify, Number, sin, cos
+from typing import Union, Dict
+from symengine.lib.symengine_wrapper import Expr, One, Zero, Symbol, sympy2symengine, sympify, Number, sin, cos, exp, oo
 from sympy import I, N, re, im, Rational
 import math
 
@@ -46,65 +46,103 @@ class FunctionalAssignment(Assignment):
         arg_value = float(self.argument) if self.argument.is_Number else state[self.argument]
         if self.func == "Sin":
             return math.sin(arg_value)
-        else:
+        if self.func == "Cos":
             return math.cos(arg_value)
+        if self.func == "Exp":
+            return math.exp(arg_value)
+        raise FunctionalAssignmentException(f"Function {self.func} not supported.")
 
     def get_support(self):
-        return {(-One(), One())}
+        if self.func == "Sin" or self.func == "Cos":
+            return {(-One(), One())}
+        if self.func == "Exp":
+            return {(Zero(), oo)}
+        raise FunctionalAssignmentException(f"Function {self.func} not supported.")
 
     def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1, previous_assigns: [Assignment] = None):
         if previous_assigns is None:
             raise FunctionalAssignmentException("The moment wrt. func assignments depends on previous assignments, But 'None' was given.")
 
-        rest, count_sin, count_cos = self.remove_same_arg_funcs_from_monom(rest, previous_assigns)
-        if self.func == "Cos":
-            count_cos += int(k)
-        else:
-            count_sin += int(k)
-        func_moment = self.get_trig_moment(count_sin, count_cos)
+        rest, count_removed_func_powers = self.remove_same_arg_funcs_from_monom(rest, previous_assigns)
+        func_moment = None
+        if self.func == "Cos" or self.func == "Sin":
+            func_moment = self.get_trig_moment(int(k), count_removed_func_powers)
+        if self.func == "Exp":
+            func_moment = self.get_exp_moment(int(k), count_removed_func_powers)
+
         if_cond = arithm_cond * func_moment * rest
         if_not_cond = (1 - arithm_cond) * (self.default ** k) * rest
         return if_cond + if_not_cond
 
-    def get_trig_moment(self, sin_power: int, cos_power: int):
+    def get_trig_moment(self, k: int, func_powers: Dict[str, int]):
         """
+        For s = func_powers["Sin"] and c = func_powers["Cos"] the method computes
+        E(self^k * sin^s(self.argument) * cos^c(self.argument))
         Trigonometric moments from https://arxiv.org/pdf/2101.12490.pdf
-        Warning: The result is a rational approximation of the (generally) transcendental answer
         """
+        if "Exp" in func_powers:
+            raise FunctionalAssignmentException("sin/cos and exp functional assignments must not be dependent")
+        sin_power = func_powers["Sin"] if "Sin" in func_powers else 0
+        sin_power += int(k) if self.func == "Sin" else 0
+        cos_power = func_powers["Cos"] if "Cos" in func_powers else 0
+        cos_power += int(k) if self.func == "Cos" else 0
+
         if self.argument.is_Number:
-            return self.__convert_transcendental__((sin(self.argument)**sin_power) * (cos(self.argument)**cos_power))
+            return self.__convert_moment__((sin(self.argument)**sin_power) * (cos(self.argument)**cos_power))
         result = 0
         for k1 in range(cos_power+1):
             for k2 in range(sin_power+1):
                 result += math.comb(cos_power, k1) * math.comb(sin_power, k2) * ((-1)**(sin_power - k2)) * self.argument_dist.cf(2*(k1 + k2) - cos_power - sin_power)
         result *= ((-I)**sin_power) / (2**(cos_power + sin_power))
         assert im(result).expand() == 0
-        return self.__convert_transcendental__(re(result))
+        return self.__convert_moment__(re(result))
+
+    def get_exp_moment(self, k: int, func_powers: Dict[str, int]):
+        """
+        For p = func_powers["Exp"] the method computes
+        E(self^k * exp^p(self.argument))
+        """
+        if "Sin" in func_powers or "Cos" in func_powers:
+            raise FunctionalAssignmentException("sin/cos and exp functional assignments must not be dependent")
+        power = func_powers["Exp"] if "Exp" in func_powers else 0
+        power += k
+        result = self.argument_dist.cf((-I)*power)
+        assert im(result).expand() == 0
+        return self.__convert_moment__(re(result))
 
     def remove_same_arg_funcs_from_monom(self, monom: Expr, assigns: [Assignment]):
         """
         Given a monomial "monom" and assignments of the variables, the method removes from the monomial
         the variables that have a corresponding functional assignment with the same argument as 'self'.
-        Moreover, it returns the number (or total power) of sin and cos appearences of such variables.
+        Moreover, it returns the number (or total power) of the different functions that were removed.
+        Example:
+            monom = x*y**2*z**3*t
+            Assignments: a = Normal(0,1); b = Uniform(0,1); x = Sin(a); y = Cos(a); z = Exp(b) (t is independent of the rest)
+            self.argument = a
+            Then the function return:
+                - z**3*t; because it removes x and y as they have the same argument to their functions ("a")
+                - {"Sin": 1; "Cos": 2} because it removed "Sin(a)" with x (power 1) and "Cos(a)" with y (power 2)
         """
         same_arg_func_assigns = [a for a in assigns if isinstance(a, FunctionalAssignment) and a.variable in monom.free_symbols and a.argument == self.argument]
         if any([a.condition != TrueCond() for a in same_arg_func_assigns]):
             raise FunctionalAssignmentException("Not supported: Func assignment is dependent and conditioned")
-        same_arg_cos_vars = [a.variable for a in same_arg_func_assigns if a.func == "Cos"]
-        same_arg_sin_vars = [a.variable for a in same_arg_func_assigns if a.func == "Sin"]
 
-        count_cos = 0
-        if len(same_arg_cos_vars) > 0:
-            count_cos = int(sum(get_terms_with_vars(monom, same_arg_cos_vars)[0][0][0]))
+        same_arg_func_vars = {}
+        for a in same_arg_func_assigns:
+            if a.func not in same_arg_func_vars:
+                same_arg_func_vars[a.func] = [a.variable]
+            else:
+                same_arg_func_vars[a.func].append(a.variable)
 
-        count_sin = 0
-        if len(same_arg_sin_vars) > 0:
-            count_sin = int(sum(get_terms_with_vars(monom, same_arg_sin_vars)[0][0][0]))
-        monom = monom.xreplace({v: 1 for v in same_arg_cos_vars + same_arg_sin_vars})
-        return monom, count_sin, count_cos
+        count_removed_func_powers = {}
+        for func, vs in same_arg_func_vars.items():
+            count_removed_func_powers[func] = int(sum(get_terms_with_vars(monom, vs)[0][0][0]))
 
-    def __convert_transcendental__(self, trans):
+        monom = monom.xreplace({a.variable: 1 for a in same_arg_func_assigns})
+        return monom, count_removed_func_powers
+
+    def __convert_moment__(self, m):
         if self.exact_moments:
-            return trans
+            return m
         else:
-            return sympy2symengine(Rational(N(trans, 20)))
+            return sympy2symengine(Rational(N(m, 20)))
