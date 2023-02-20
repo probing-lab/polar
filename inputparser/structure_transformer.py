@@ -1,6 +1,6 @@
 from lark import Transformer, Tree, Token
 from program import Program
-from program.assignment import DistAssignment, PolyAssignment, TrigAssignment
+from program.assignment import DistAssignment, PolyAssignment, FunctionalAssignment
 from program.condition import Condition, Atom, Not, And, Or, TrueCond, FalseCond
 from program.distribution import distribution_factory, Distribution, Categorical
 from program.ifstatem import IfStatem
@@ -102,10 +102,10 @@ class StructureTransformer(Transformer):
             return DistAssignment(var, value)
         elif isinstance(value, Tree) and value.data == "categorical":
             return self.__assign__categorical__(args)
-        elif isinstance(value, Tree) and value.data == "trig":
-            trig_fun = value.children[0].value
+        elif isinstance(value, Tree) and value.data == "func":
+            func = value.children[0].value
             argument = value.children[1].value
-            return TrigAssignment(var, trig_fun, argument)
+            return FunctionalAssignment(var, func, argument)
         else:
             return PolyAssignment.deterministic(var, str(value))
 

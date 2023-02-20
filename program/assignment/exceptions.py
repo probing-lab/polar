@@ -1,5 +1,5 @@
 class EvaluationException(Exception):
     pass
 
-class TrigAssignmentException(Exception):
+class FunctionalAssignmentException(Exception):
     pass

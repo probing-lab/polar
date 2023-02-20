@@ -6,7 +6,7 @@ from .exceptions import TransformException
 from .transformer import Transformer
 from program import Program
 from program.mc_checker import MCChecker
-from program.assignment import DistAssignment, TrigAssignment, PolyAssignment, Assignment
+from program.assignment import DistAssignment, FunctionalAssignment, PolyAssignment, Assignment
 from program.condition import TrueCond
 from dataclasses import dataclass, field
 
@@ -25,8 +25,8 @@ class UpdateInfoTransformer(Transformer):
     def execute(self, program: Program) -> Program:
         self.program = program
         self.__set_variables_and_symbols__()
-        self.__set_dists_for_trig_assignments__(self.program.initial)
-        self.__set_dists_for_trig_assignments__(self.program.loop_body)
+        self.__set_dists_for_func_assignments__(self.program.initial)
+        self.__set_dists_for_func_assignments__(self.program.loop_body)
         self.__set_dependencies__()
         if not self.ignore_mc_variables:
             self.__set_mc_variables__()
@@ -40,8 +40,8 @@ class UpdateInfoTransformer(Transformer):
             variables_body.append(assign.variable)
             if isinstance(assign, DistAssignment):
                 self.program.dist_variables.append(assign.variable)
-            if isinstance(assign, TrigAssignment):
-                self.program.trig_variables.append(assign.variable)
+            if isinstance(assign, FunctionalAssignment):
+                self.program.func_variables.append(assign.variable)
         self.program.variables = set(variables_initial) | set(variables_body)
         self.program.var_to_index = {v: i for i, v in enumerate(variables_body)}
         self.program.index_to_var = {i: v for i, v in enumerate(variables_body)}
@@ -51,10 +51,10 @@ class UpdateInfoTransformer(Transformer):
         self.program.symbols = symbols.difference(self.program.variables)
         self.program.original_variables = self.program.original_variables & self.program.variables
 
-    def __set_dists_for_trig_assignments__(self, assignments_list: [Assignment]):
+    def __set_dists_for_func_assignments__(self, assignments_list: [Assignment]):
         """
-        Assigns to trigonometric assignments the distributions (or constants) of their arguments
-        The arguments of trigonometric assignments must be unconditioned distributions (with constant parameters)
+        Assigns to functional assignments the distributions (or constants) of their arguments
+        The arguments of functional assignments must be unconditioned distributions (with constant parameters)
         or constants.
         """
         uncond_vars_dist = {} # store variables that are assigned unconditioned distributions
@@ -77,8 +77,8 @@ class UpdateInfoTransformer(Transformer):
                     uncond_references[assign.variable] = uncond_references[assign.polynomials[0]]
                 continue
 
-            # Assign to trigonometric assignment the distribution or the constant of the argument
-            if isinstance(assign, TrigAssignment):
+            # Assign to functional assignment the distribution or the constant of the argument
+            if isinstance(assign, FunctionalAssignment):
                 # if argument is a number => perfect
                 if assign.argument.is_Number:
                     continue
@@ -93,8 +93,8 @@ class UpdateInfoTransformer(Transformer):
                 if assign.argument in uncond_vars_dist:
                     assign.argument_dist = uncond_vars_dist[assign.argument]
                     continue
-                # Every trigonometric assignment has to be assigned a distribution or constant of its argument
-                raise TransformException(f"{assign.argument} in trig assignment for {assign.variable} does not have an unconditional distribution")
+                # Every functional assignment has to be assigned a distribution or constant of its argument
+                raise TransformException(f"{assign.argument} in func assignment for {assign.variable} does not have an unconditional distribution")
 
     def __set_dependencies__(self):
         self.program.dependency_info = {v: DependencyInfo() for v in self.program.variables}

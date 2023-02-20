@@ -215,10 +215,10 @@ class ArgumentParser:
             help="If set fixedpoints/limits are used to compute the moments after the loop"
         )
         self.argument_parser.add_argument(
-            "--exact_transc_moments",
+            "--exact_func_moments",
             action="store_true",
             default=False,
-            help="If set, moments such as E(sin^p(D)*cos^k(D)) which would be transcendental won't be approximated by rationals"
+            help="If set, moments of functions of distributions which would be transcendental won't be approximated by rationals"
         )
         self.argument_parser.add_argument(
             "--mc_check",

@@ -152,9 +152,9 @@ def prepare_program(program, cli_args):
     if cli_args.cond2arithm:
         program = ConditionsToArithm().execute(program)
     # Pass parameters to the program, required to inform further actions
-    # Currently, the only such parameter is "exact_transc_moments".
+    # Currently, the only such parameter is "exact_func_moments".
     # Remove the if-statement should this change in the future.
-    if cli_args.exact_transc_moments:
-        program = PassParametersTransformer(cli_args.exact_transc_moments).execute(program)
+    if cli_args.exact_func_moments:
+        program = PassParametersTransformer(cli_args.exact_func_moments).execute(program)
 
     return program

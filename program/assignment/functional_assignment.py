@@ -7,24 +7,24 @@ from utils import get_terms_with_vars
 from program.condition import TrueCond
 from program.distribution import Distribution
 from .assignment import Assignment
-from .exceptions import TrigAssignmentException
+from .exceptions import FunctionalAssignmentException
 
 
-class TrigAssignment(Assignment):
-    trig_fun: str
+class FunctionalAssignment(Assignment):
+    func: str
     argument: Union[Symbol, Number]
     argument_dist: Distribution
-    exact_transcendentals: bool = False
+    exact_moments: bool = False
 
-    def __init__(self, var, trig_fun, argument):
+    def __init__(self, var, func, argument):
         super().__init__(var)
-        self.trig_fun = trig_fun
+        self.func = func
         self.argument = sympify(argument)
         if not self.argument.is_Symbol and not self.argument.is_Number:
-            raise TrigAssignmentException(f"Argument to trig assignment must be number or symbol but is {self.argument}")
+            raise FunctionalAssignmentException(f"Argument to functional assignment must be number or symbol but is {self.argument}")
 
     def __str__(self):
-        result = f"{self.variable} = {self.trig_fun}({self.argument})"
+        result = f"{self.variable} = {self.func}({self.argument})"
         if not isinstance(self.condition, TrueCond):
             result += "  |  " + str(self.condition) + "  :  " + str(self.default)
         return result
@@ -44,7 +44,7 @@ class TrigAssignment(Assignment):
 
     def evaluate_right_side(self, state):
         arg_value = float(self.argument) if self.argument.is_Number else state[self.argument]
-        if self.trig_fun == "Sin":
+        if self.func == "Sin":
             return math.sin(arg_value)
         else:
             return math.cos(arg_value)
@@ -54,15 +54,15 @@ class TrigAssignment(Assignment):
 
     def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1, previous_assigns: [Assignment] = None):
         if previous_assigns is None:
-            raise TrigAssignmentException("The moment wrt. trig assignments depends on previous assignments, But 'None' was given.")
+            raise FunctionalAssignmentException("The moment wrt. func assignments depends on previous assignments, But 'None' was given.")
 
-        rest, count_sin, count_cos = self.remove_same_arg_trigs_from_monom(rest, previous_assigns)
-        if self.trig_fun == "Cos":
+        rest, count_sin, count_cos = self.remove_same_arg_funcs_from_monom(rest, previous_assigns)
+        if self.func == "Cos":
             count_cos += int(k)
         else:
             count_sin += int(k)
-        trig_moment = self.get_trig_moment(count_sin, count_cos)
-        if_cond = arithm_cond * trig_moment * rest
+        func_moment = self.get_trig_moment(count_sin, count_cos)
+        if_cond = arithm_cond * func_moment * rest
         if_not_cond = (1 - arithm_cond) * (self.default ** k) * rest
         return if_cond + if_not_cond
 
@@ -81,17 +81,17 @@ class TrigAssignment(Assignment):
         assert im(result).expand() == 0
         return self.__convert_transcendental__(re(result))
 
-    def remove_same_arg_trigs_from_monom(self, monom: Expr, assigns: [Assignment]):
+    def remove_same_arg_funcs_from_monom(self, monom: Expr, assigns: [Assignment]):
         """
         Given a monomial "monom" and assignments of the variables, the method removes from the monomial
-        the variables that have a corresponding trigonometric assignment with the same trig argument as 'self'.
+        the variables that have a corresponding functional assignment with the same argument as 'self'.
         Moreover, it returns the number (or total power) of sin and cos appearences of such variables.
         """
-        same_arg_trig_assigns = [a for a in assigns if isinstance(a, TrigAssignment) and a.variable in monom.free_symbols and a.argument == self.argument]
-        if any([a.condition != TrueCond() for a in same_arg_trig_assigns]):
-            raise TrigAssignmentException("Not supported: Trig assignment are dependent and conditioned")
-        same_arg_cos_vars = [a.variable for a in same_arg_trig_assigns if a.trig_fun == "Cos"]
-        same_arg_sin_vars = [a.variable for a in same_arg_trig_assigns if a.trig_fun == "Sin"]
+        same_arg_func_assigns = [a for a in assigns if isinstance(a, FunctionalAssignment) and a.variable in monom.free_symbols and a.argument == self.argument]
+        if any([a.condition != TrueCond() for a in same_arg_func_assigns]):
+            raise FunctionalAssignmentException("Not supported: Func assignment is dependent and conditioned")
+        same_arg_cos_vars = [a.variable for a in same_arg_func_assigns if a.func == "Cos"]
+        same_arg_sin_vars = [a.variable for a in same_arg_func_assigns if a.func == "Sin"]
 
         count_cos = 0
         if len(same_arg_cos_vars) > 0:
@@ -104,7 +104,7 @@ class TrigAssignment(Assignment):
         return monom, count_sin, count_cos
 
     def __convert_transcendental__(self, trans):
-        if self.exact_transcendentals:
+        if self.exact_moments:
             return trans
         else:
             return sympy2symengine(Rational(N(trans, 20)))
