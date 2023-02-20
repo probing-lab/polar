@@ -19,7 +19,7 @@ class MCChecker:
 
     @classmethod
     def __is_simple__(cls, v, program: Program):
-        return v in program.finite_variables or v in program.dist_variables or v in program.trig_variables
+        return v in program.finite_variables or v in program.dist_variables or v in program.func_variables
 
     @classmethod
     def __get_infinite_var_power__(cls, powers, program):

@@ -66,7 +66,7 @@ class Assignment(ABC):
         returns E(X) for X := Assignment^k * rest
         relative to some given condition.
         The last parameter is not used by the conventional assignment subclasses as they are "local".
-        However, assignments such as the trigonometric assignment need the information of the assignments before
+        However, assignments such as the functional assignment need the information of the assignments before
         them to compute their expected value.
         """
         pass
