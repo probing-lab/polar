@@ -1,0 +1,11 @@
+m0 = 10000
+m = m0
+minus_lambda = -1
+exp_minus_lambda = Exp(minus_lambda)
+while true:
+    minus_shock = Normal(-1, 1/4)
+    exp_minus_shock = Exp(minus_shock)
+    minus_lambda = minus_lambda + minus_shock
+    exp_minus_lambda = exp_minus_lambda*exp_minus_shock
+    m = m0*exp_minus_lambda
+end

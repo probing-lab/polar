@@ -1,9 +1,8 @@
 m0 = 10000
-c = 1
 m = m0
-lambda = c
+lambda = 1
 while true:
-    shock = Normal(c, 1)
+    shock = Normal(1, 1/4)
     lambda = lambda + shock
     minus_lambda = -lambda
     rate = Exp(minus_lambda)

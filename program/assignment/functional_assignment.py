@@ -106,6 +106,9 @@ class FunctionalAssignment(Assignment):
             raise FunctionalAssignmentException("sin/cos and exp functional assignments must not be dependent")
         power = func_powers["Exp"] if "Exp" in func_powers else 0
         power += k
+        if self.argument.is_Number:
+            return self.__convert_moment__(exp(self.argument)**power)
+
         result = self.argument_dist.cf((-I)*power)
         assert im(result).expand() == 0
         return self.__convert_moment__(re(result))
