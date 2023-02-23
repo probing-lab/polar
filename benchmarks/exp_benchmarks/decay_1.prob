@@ -1,6 +1,6 @@
 m0 = 10000
 m = m0
-lambda = 1
+lambda = 0
 while true:
     shock = Normal(1, 1/4)
     lambda = lambda + shock
