@@ -1,6 +1,6 @@
 x = 0
 while true:
-    a = DistExp(1/2)
+    a = DistExp(2)
     b = Exp(a)
     x = x + b
 end

@@ -1,0 +1,20 @@
+v0 = 10
+t = 0.1
+q = -0.5
+psi = TruncNormal(0, 0.01, -1, 1)
+v = Uniform(6.5, 8.0)
+x = Uniform(-.1, .1)
+y = Uniform(-.5, -.3)
+while true:
+
+    w1 = Uniform(-0.1, 0.1)
+    w2 = TruncNormal(0, 0.01, -1, 1)
+
+    cos_psi = Cos(psi)
+    sin_psi = Sin(psi)
+    x = x + t * v * cos_psi
+    y = y + t * v * sin_psi
+
+    v = v + t*(q*(v - v0) + w1)
+    psi = psi + w2
+end
