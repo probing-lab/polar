@@ -148,4 +148,4 @@ class FunctionalAssignment(Assignment):
         if self.exact_moments or m.is_Rational:
             return m
         else:
-            return sympy2symengine(Rational(N(m, 20)))
+            return sympy2symengine(Rational(re(N(m, 20))))

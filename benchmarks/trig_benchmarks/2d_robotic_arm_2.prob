@@ -1,0 +1,45 @@
+deg_pi = 3.14159265358*0.005555555555555556
+sigma_2 = 0.0001
+x = TruncNormal(0, 0.0025, -0.5, 0.5)
+while true:
+    d1 = Uniform(0.98, 1.02)
+    d2 = Uniform(0.98, 1.02)
+    d3 = Uniform(0.98, 1.02)
+    d4 = Uniform(0.98, 1.02)
+    d5 = Uniform(0.98, 1.02)
+    d6 = Uniform(0.98, 1.02)
+    d7 = Uniform(0.98, 1.02)
+    d8 = Uniform(0.98, 1.02)
+    d9 = Uniform(0.98, 1.02)
+    d10 = Uniform(0.98, 1.02)
+    tn1 = TruncNormal(10 * deg_pi, sigma_2*(10 * deg_pi)**2, 0.95*(10 * deg_pi), 1.05*(10 * deg_pi))
+    tn2 = TruncNormal(60 * deg_pi, sigma_2*(60 * deg_pi)**2, 0.95*(60 * deg_pi), 1.05*(60 * deg_pi))
+    tn3 = TruncNormal(110 * deg_pi, sigma_2*(110 * deg_pi)**2, 0.95*(110 * deg_pi), 1.05*(110 * deg_pi))
+    tn4 = TruncNormal(160 * deg_pi, sigma_2*(160 * deg_pi)**2, 0.95*(160 * deg_pi), 1.05*(160 * deg_pi))
+    tn5 = TruncNormal(140 * deg_pi, sigma_2*(140 * deg_pi)**2, 0.95*(140 * deg_pi), 1.05*(140 * deg_pi))
+    tn6 = TruncNormal(100 * deg_pi, sigma_2*(100 * deg_pi)**2, 0.95*(100 * deg_pi), 1.05*(100 * deg_pi))
+    tn7 = TruncNormal(60 * deg_pi, sigma_2*(60 * deg_pi)**2, 0.95*(60 * deg_pi), 1.05*(60 * deg_pi))
+    tn8 = TruncNormal(20 * deg_pi, sigma_2*(20 * deg_pi)**2, 0.95*(20 * deg_pi), 1.05*(20 * deg_pi))
+    tn9 = TruncNormal(10 * deg_pi, sigma_2*(10 * deg_pi)**2, 0.95*(10 * deg_pi), 1.05*(10 * deg_pi))
+    t1 = tn1
+    t2 = tn2
+    t3 = tn3
+    t4 = tn4
+    t5 = tn5
+    t6 = tn6
+    t7 = tn7
+    t8 = tn8
+    t9 = tn9
+
+    est_cos1 = Cos(t1)
+    est_cos2 = Cos(t2)
+    est_cos3 = Cos(t3)
+    est_cos4 = Cos(t4)
+    est_cos5 = Cos(t5)
+    est_cos6 = Cos(t6)
+    est_cos7 = Cos(t7)
+    est_cos8 = Cos(t8)
+    est_cos9 = Cos(t9)
+
+    x = x + d1 * est_cos1 + d2 * est_cos2 + d3 * est_cos3 + d4 * est_cos4 + d5 * est_cos5 + d6 * est_cos6 + d7 * est_cos7 + d8 * est_cos8 + d9 * est_cos9 + d10
+end

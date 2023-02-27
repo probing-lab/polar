@@ -4,7 +4,7 @@ from symengine.lib.symengine_wrapper import Expr, sqrt, sympy2symengine, one, ze
 from program.distribution import Distribution
 from program.distribution.exceptions import EvaluationException
 from scipy.stats import truncnorm
-from sympy import sympify, Rational
+from sympy import sympify, Rational, E, I
 from sympy.stats import Normal, density, cdf
 import math
 
@@ -54,6 +54,24 @@ class TruncNormal(Distribution):
             m[i] = m_i
         return sympy2symengine(Rational(str(float(m[k].simplify()))))
 
+    def mgf(self, t: Expr):
+        t = sympify(t)
+        mu = sympify(self.mu)
+        sigma2 = sympify(self.sigma2)
+        a = sympify(self.a)
+        b = sympify(self.b)
+        sigma = sympify(sqrt(self.sigma2))
+        alpha = (a - mu) / sigma
+        beta = (b - mu) / sigma
+        z = Normal("z", 0, 1)
+        Phi = lambda x: cdf(z)(x)
+        result = (Phi(beta - sigma*t) - Phi(alpha - sigma*t)) / (Phi(beta) - Phi(alpha))
+        result *= E ** (mu*t + sigma2*(t**2)/2)
+        return result
+
+    def cf(self, t: Expr):
+        return self.mgf(I*t)
+
     def is_discrete(self):
         return False
 
@@ -64,10 +82,10 @@ class TruncNormal(Distribution):
         self.b = self.b.subs(substitutions)
 
     def sample(self, state):
-        mu = self.mu.subs(state)
-        sigma2 = self.sigma2.subs(state)
-        a = self.a.subs(state)
-        b = self.b.subs(state)
+        mu = self.mu.subs(state).simplify()
+        sigma2 = self.sigma2.subs(state).simplify()
+        a = self.a.subs(state).simplify()
+        b = self.b.subs(state).simplify()
         if not mu.is_Number or not sigma2.is_Number or not a.is_Number or not b.is_Number:
             raise EvaluationException(
                 f"Parameters {self.mu}, {self.sigma2}, {self.a}, {self.b} don't evaluate to numbers with state {state}")
