@@ -3,7 +3,7 @@ m = m0
 minus_lambda = 0
 exp_minus_lambda = Exp(minus_lambda)
 while true:
-    minus_shock = Normal(-1, 1/4)
+    minus_shock = Normal(-0.1, 0.0625)
     exp_minus_shock = Exp(minus_shock)
     minus_lambda = minus_lambda + minus_shock
     exp_minus_lambda = exp_minus_lambda*exp_minus_shock

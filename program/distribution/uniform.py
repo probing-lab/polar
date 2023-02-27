@@ -49,5 +49,13 @@ class Uniform(Distribution):
         t = sympify(t)
         return (E**(I*t*b) - E**(I*t*a))/(I*t*(b-a))
 
+    def mgf(self, t: Expr):
+        if t == 0:
+            return sympify(1)
+        a = sympify(self.a)
+        b = sympify(self.b)
+        t = sympify(t)
+        return (E**(t*b) - E**(t*a))/(t*(b-a))
+
     def __str__(self):
         return f"Uniform({self.a}, {self.b})"

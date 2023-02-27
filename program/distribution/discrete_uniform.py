@@ -48,5 +48,11 @@ class DiscreteUniform(Distribution):
         t = ssympify(t)
         return (E**(I*a*t) - E**(I*(b+1)*t))/((b - a + 1)*(1 - E**(I*t)))
 
+    def mgf(self, t: Expr):
+        a = ssympify(self.values[0])
+        b = ssympify(self.values[-1])
+        t = ssympify(t)
+        return (E**(a*t) - E**((b+1)*t))/((b - a + 1)*(1 - (E**t)))
+
     def __str__(self):
         return f"DiscreteUniform({self.values[0]}, {self.values[-1]})"

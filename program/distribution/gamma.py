@@ -46,6 +46,15 @@ class Gamma(Distribution):
         t = sympify(t)
         return (1 - theta * I * t) ** (-k)
 
+    def mgf(self, t: Expr):
+        theta = sympify(self.theta)
+        k = sympify(self.k)
+        t = sympify(t)
+        is_valid_call = t < 1/theta
+        if not is_valid_call.is_Boolean or not bool(is_valid_call):
+            raise EvaluationException(f"The mgf of {self} cannot be evaluated at t={t}")
+        return (1 - theta * t) ** (-k)
+
     def get_free_symbols(self):
         return self.k.free_symbols.union(self.theta.free_symbols)
 

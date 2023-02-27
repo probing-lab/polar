@@ -109,7 +109,7 @@ class FunctionalAssignment(Assignment):
         if self.argument.is_Number:
             return self.__convert_moment__(exp(self.argument)**power)
 
-        result = self.argument_dist.cf((-I)*power)
+        result = self.argument_dist.mgf(power)
         assert im(result).expand() == 0
         return self.__convert_moment__(re(result))
 
@@ -145,7 +145,7 @@ class FunctionalAssignment(Assignment):
         return monom, count_removed_func_powers
 
     def __convert_moment__(self, m):
-        if self.exact_moments:
+        if self.exact_moments or m.is_Rational:
             return m
         else:
             return sympy2symengine(Rational(N(m, 20)))

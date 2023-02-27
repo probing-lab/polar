@@ -4,7 +4,7 @@ from symengine.lib.symengine_wrapper import Expr, oo, sympy2symengine
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import laplace
-from sympy import Rational, sympify, I, E
+from sympy import Rational, sympify, I, E, Abs
 from sympy.stats import E as EV, Laplace as LaplaceRV
 
 
@@ -42,6 +42,15 @@ class Laplace(Distribution):
         b = sympify(self.b)
         t = sympify(t)
         return (E**(mu*I*t))/(1 + b**2 * t**2)
+
+    def mgf(self, t: Expr):
+        mu = sympify(self.mu)
+        b = sympify(self.b)
+        t = sympify(t)
+        is_valid_call = Abs(t) < 1/b
+        if not is_valid_call.is_Boolean or not bool(is_valid_call):
+            raise EvaluationException(f"The mgf of {self} cannot be evaluated at t={t}")
+        return (E**(mu*t))/(1 - b**2 * t**2)
 
     def get_free_symbols(self):
         return self.mu.free_symbols.union(self.b.free_symbols)

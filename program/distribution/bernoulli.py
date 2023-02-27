@@ -33,6 +33,11 @@ class Bernoulli(Distribution):
         t = sympify(t)
         return (1 - p) + p*E**(I*t)
 
+    def mgf(self, t: Expr):
+        p = sympify(self.p)
+        t = sympify(t)
+        return (1 - p) + p * (E ** t)
+
     def get_free_symbols(self):
         return self.p.free_symbols
 
