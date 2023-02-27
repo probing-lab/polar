@@ -17,7 +17,7 @@ __distributions__ = {
     "Uniform": Uniform,
     "DiscreteUniform": DiscreteUniform,
     "Laplace": Laplace,
-    "Exponential": Exponential,
+    "DistExp": Exponential,
     "TruncNormal": TruncNormal,
     "Beta": Beta,
     "Gamma": Gamma,

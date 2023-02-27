@@ -8,7 +8,7 @@ i = 0.02
 r = 0.015
 while true:
     dp = Normal(0, 0.01)
-    dy = Exponential(100)
+    dy = DistExp(100)
     p = p1
     p1 = p + dp
     y1 = 0.01 + 1.02*y

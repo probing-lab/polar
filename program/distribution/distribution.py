@@ -35,6 +35,9 @@ class Distribution(ABC):
     def cf(self, t: Expr):
         raise NotImplementedError()
 
+    def mgf(self, t: Expr):
+        raise NotImplementedError()
+
     @abstractmethod
     def subs(self, substitutions):
         pass

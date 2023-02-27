@@ -1,10 +1,6 @@
 x = 0
 while true:
-    a = Uniform(0.5, 1)
-    b = Uniform(1, 1.5)
-    e1 = Exp(a)
-    e2 = Exp(a)
-    e3 = Exp(b)
-    e4 = Exp(b)
-    x = x + e2*e3*e4 + e1
+    a = DistExp(1/2)
+    b = Exp(a)
+    x = x + b
 end
