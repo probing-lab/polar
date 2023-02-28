@@ -1,0 +1,18 @@
+vx = Uniform(-0.1, 0.1)
+vy = Uniform(-0.1, 0.1)
+vtheta = Uniform(-0.1, 0.1)
+x = Uniform(-0.1, 0.1)
+y = Uniform(0.4, 0.5)
+theta = Uniform(-0.1, 0.1)
+c = 0.06527415
+while true:
+    omega = Uniform(-0.1, 0.1)
+    vtheta = vtheta + c
+    theta = theta + 0.1*(vtheta + omega)
+    sin_theta = Sin(theta)
+    cos_theta = Cos(theta)
+    vx = vx - 1.202 * sin_theta
+    vy = vy - 0.98 + 1.202 * cos_theta
+    x = x + 0.1 * vx
+    y = y + 0.1 * vy
+end
