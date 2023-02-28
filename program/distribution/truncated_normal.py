@@ -50,7 +50,7 @@ class TruncNormal(Distribution):
         for i in range(1, int(k)+1):
             m_i = (i-1) * self.sigma2 * m[i-2]
             m_i += mu * m[i-1]
-            m_i -= sigma * ((beta**(i-1)) * z_pdf(beta) - (alpha**(i-1)) * z_pdf(alpha)) / (z_cdf(beta) - z_cdf(alpha))
+            m_i -= sigma * ((b**(i-1)) * z_pdf(beta) - (a**(i-1)) * z_pdf(alpha)) / (z_cdf(beta) - z_cdf(alpha))
             m[i] = m_i
         return sympy2symengine(Rational(str(float(m[k].simplify()))))
 
