@@ -126,6 +126,9 @@ class FunctionalAssignment(Assignment):
                 - z**3*t; because it removes x and y as they have the same argument to their functions ("a")
                 - {"Sin": 1; "Cos": 2} because it removed "Sin(a)" with x (power 1) and "Cos(a)" with y (power 2)
         """
+        if self.argument in monom.free_symbols:
+            raise FunctionalAssignmentException("Moments of monomial containing a distribution and a function of a distribution are not supported.")
+
         same_arg_func_assigns = [a for a in assigns if isinstance(a, FunctionalAssignment) and a.variable in monom.free_symbols and a.argument == self.argument]
         if any([a.condition != TrueCond() for a in same_arg_func_assigns]):
             raise FunctionalAssignmentException("Not supported: Func assignment is dependent and conditioned")
