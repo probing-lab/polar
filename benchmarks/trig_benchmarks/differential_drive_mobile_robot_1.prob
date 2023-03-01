@@ -8,5 +8,5 @@ while true:
     cos_theta = Cos(theta)
     x = x + 0.05*(4 + omega_l + omega_r)*cos_theta
     y = y + 0.05*(4 + omega_l + omega_r)*sin_theta
-    theta = theta + 0.1*(2 + omega_r + omega_l)
+    theta = theta + 0.1*(2 + omega_r - omega_l)
 end
