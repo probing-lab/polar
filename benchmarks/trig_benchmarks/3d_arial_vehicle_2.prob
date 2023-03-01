@@ -18,13 +18,13 @@ while true:
     cos_omega_theta = Cos(omega_theta)
     sin_omega_theta = Sin(omega_theta)
 
+    x = x + 0.1 * (1 + omega_v) * cos_psi*cos_theta
+    y = y + 0.1 * (1 + omega_v) * sin_psi*cos_theta
+    z = z + 0.1 * (1 + omega_v) * sin_theta
+
     theta = theta + omega_theta
     sin_theta, cos_theta = sin_theta*cos_omega_theta + cos_theta*sin_omega_theta, cos_theta*cos_omega_theta - sin_theta*sin_omega_theta
 
     psi = psi + omega_psi
     sin_psi, cos_psi = sin_psi*cos_omega_psi + cos_psi*sin_omega_psi, cos_psi*cos_omega_psi - sin_psi*sin_omega_psi
-
-    x = x + 0.1 * (1 + omega_v) * cos_psi*cos_theta
-    y = y + 0.1 * (1 + omega_v) * sin_psi*cos_theta
-    z = z + 0.1 * (1 + omega_v) * sin_theta
 end

@@ -8,15 +8,15 @@ while true:
     omega_psi = Uniform(-0.1, 0.1)
     omega_theta = Normal(0,0.3)
 
-    theta = theta + 0.1*(1 + omega_theta)
     sin_theta = Sin(theta)
     cos_theta = Cos(theta)
-
-    psi = psi + 0.1*(1+ omega_psi)
     sin_psi = Sin(psi)
     cos_psi = Cos(psi)
 
     x = x + 0.1 * (1 + omega_v) * cos_psi*cos_theta
     y = y + 0.1 * (1 + omega_v) * sin_psi*cos_theta
     z = z + 0.1 * (1 + omega_v) * sin_theta
+
+    theta = theta + 0.1*(1 + omega_theta)
+    psi = psi + 0.1*(1+ omega_psi)
 end

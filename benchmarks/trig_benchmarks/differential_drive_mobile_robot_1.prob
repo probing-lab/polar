@@ -4,9 +4,9 @@ theta = Normal(0, 0.1)
 while true:
     omega_r = Beta(1, 3)
     omega_l = Uniform(-0.1, 0.1)
-    theta = theta + 0.1*(2 + omega_r + omega_l)
     sin_theta = Sin(theta)
     cos_theta = Cos(theta)
     x = x + 0.05*(4 + omega_l + omega_r)*cos_theta
     y = y + 0.05*(4 + omega_l + omega_r)*sin_theta
+    theta = theta + 0.1*(2 + omega_r + omega_l)
 end

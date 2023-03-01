@@ -4,15 +4,12 @@ theta = Uniform(pi/4 - 0.1, pi/4 + 0.1)
 cos_theta = Cos(theta)
 sin_theta = Sin(theta)
 while true:
-    omega = Beta(1, 3)
-
-    g = Normal(0, 0.01)
-    sin_g = Sin(g)
-    cos_g = Cos(g)
-
-    theta = theta + g
-    cos_theta, sin_theta = cos_theta*cos_g - sin_theta*sin_g, sin_theta*cos_g + cos_theta*sin_g
-
-    x = x + 0.1*(2 + omega)*cos_theta
-    y = y + 0.1*(2 + omega)*sin_theta
+    omega_v = Uniform(-0.1, 0.1)
+    omega_theta = Uniform(-0.01, 0.01)
+    x = x + 0.1*(2 + omega_v)*cos_theta
+    y = y + 0.1*(2 + omega_v)*sin_theta
+    theta = theta + omega_theta
+    cos_ot = Cos(omega_theta)
+    sin_ot = Sin(omega_theta)
+    cos_theta, sin_theta = cos_theta*cos_ot - sin_theta*sin_ot, sin_theta*cos_ot + cos_theta*sin_ot
 end
