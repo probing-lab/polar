@@ -13,12 +13,12 @@ while true:
     omega_r = 10*beta
     omega_l = uniform*10 - 2
 
+    x = x + 0.05*(4 + omega_l + omega_r)*cos_theta
+    y = y + 0.05*(4 + omega_l + omega_r)*sin_theta
+
     shock = beta + uniform
     sin_shock, cos_shock = sin_beta*cos_uniform + cos_beta*sin_uniform, cos_beta*cos_uniform - sin_beta*sin_uniform
 
     theta = theta + shock
     sin_theta, cos_theta = sin_theta*cos_shock + cos_theta*sin_shock, cos_theta*cos_shock - sin_theta*sin_shock
-
-    x = x + 0.05*(4 + omega_l + omega_r)*cos_theta
-    y = y + 0.05*(4 + omega_l + omega_r)*sin_theta
 end
