@@ -3,12 +3,11 @@ y = Uniform(-0.1, 0.1)
 t = Uniform(pi/4 - 0.1, pi/4 + 0.1)
 
 while true:
-    o_v = Beta(1, 3)
-    shock = Normal(0, 1)
-    t = t + 0.1 * shock
+    o_v = Uniform(-0.1, 0.1)
+    o_t = Uniform(-0.1, 0.1)
     c_t = -0.303265329856317*t**2 + 0.90979598956895
     s_t = -0.101088443285439*t**3 + 0.90979598956895*t
     x = x + 0.1 * (2 + o_v)*c_t
     y = y + 0.1 * (2 + o_v)*s_t
-
+    t = t + 0.1 * o_t
 end
