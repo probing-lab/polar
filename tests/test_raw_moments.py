@@ -22,7 +22,7 @@ def create_raw_moment_test(benchmark, monom, initial_value, general_form):
         solution, is_exact = get_raw_moment(benchmark, monom)
         self.assertTrue(is_exact)
         self.assertEqual(initial_value.expand(), solution.subs({n: 0}))
-        self.assertEqual(general_form.expand(), unpack_piecewise(solution).expand())
+        self.assertEqual(general_form.nsimplify().expand(), unpack_piecewise(solution).nsimplify().expand())
     return test
 
 
