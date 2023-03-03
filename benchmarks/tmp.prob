@@ -1,7 +1,7 @@
 x = 0
 while true:
-    g = Normal(10, 1)
+    g = TruncNormal(1, 1, -10, 10)
     y = Sin(g)
     z = Cos(g)
-    x = x + y*z
+    x = x + g*y*z
 end
