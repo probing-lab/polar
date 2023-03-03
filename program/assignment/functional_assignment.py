@@ -1,11 +1,10 @@
 from typing import Union, Dict, TYPE_CHECKING
 from symengine.lib.symengine_wrapper import Expr, One, Zero, Symbol, sympy2symengine, sympify, Number, sin, cos, exp, oo
-from sympy import I, N, re, im, Rational
+from sympy import I, N, re, im, Rational, diff, Symbol as SSymbol
 import math
 if TYPE_CHECKING:
     from recurrences import Context
 
-from utils import get_terms_with_vars
 from program.condition import TrueCond
 from program.distribution import Distribution
 from .assignment import Assignment
@@ -107,16 +106,22 @@ class FunctionalAssignment(Assignment):
     def get_trig_moment(cls, dist: Distribution, func_powers: Dict[str, int]):
         """
         Computes E(dist^p1 * sin^p2(dist) * cos^p3(dist)) where the powers are given by the second argument.
-        Trigonometric moments from https://arxiv.org/pdf/2101.12490.pdf
+        Formula for mixed trigonometric moments from https://arxiv.org/pdf/2101.12490.pdf
         """
+        id_power = func_powers["Id"] if "Id" in func_powers else 0
         sin_power = func_powers["Sin"] if "Sin" in func_powers else 0
         cos_power = func_powers["Cos"] if "Cos" in func_powers else 0
+        t = SSymbol("t")
 
         result = 0
         for k1 in range(cos_power+1):
             for k2 in range(sin_power+1):
-                result += math.comb(cos_power, k1) * math.comb(sin_power, k2) * ((-1)**(sin_power - k2)) * dist.cf(2*(k1 + k2) - cos_power - sin_power)
-        result *= ((-I)**sin_power) / (2**(cos_power + sin_power))
+                if id_power == 0:
+                    cf_term = dist.cf(2*(k1 + k2) - cos_power - sin_power)
+                else:
+                    cf_term = diff(dist.cf(t), t, id_power).xreplace({t: 2*(k1 + k2) - cos_power - sin_power})
+                result += math.comb(cos_power, k1) * math.comb(sin_power, k2) * ((-1)**(sin_power - k2)) * cf_term
+        result /= (I**(id_power + sin_power) * 2**(cos_power + sin_power))
         assert im(result).expand() == 0
         return cls.convert_func_moment(re(result))
 
