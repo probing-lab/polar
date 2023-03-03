@@ -92,7 +92,7 @@ class PolyAssignment(Assignment):
 
         return random.choices(polynomials, weights=probabilities, k=1)[0]
 
-    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1, previous_assigns=None):
+    def get_moment(self, k: int, rec_builder_context, arithm_cond: Expr = 1, rest: Expr = 1):
         if_cond = 0
         for i in range(len(self.polynomials)):
             if_cond += arithm_cond * self.probabilities[i] * (self.polynomials[i] ** k) * rest

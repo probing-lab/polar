@@ -1,7 +1,8 @@
 from inputparser import Parser
 from program.transformer import LoopGuardTransformer, DistTransformer, IfTransformer, MultiAssignTransformer, \
     ConditionsReducer, ConstantsTransformer, UpdateInfoTransformer, TypeInferer, ConditionsNormalizer, \
-    ConditionsToArithm, PassParametersTransformer
+    ConditionsToArithm
+from program.assignment import FunctionalAssignment
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import sympify
@@ -151,10 +152,7 @@ def prepare_program(program, cli_args):
     # Convert all conditions to arithmetic
     if cli_args.cond2arithm:
         program = ConditionsToArithm().execute(program)
-    # Pass parameters to the program, required to inform further actions
-    # Currently, the only such parameter is "exact_func_moments".
-    # Remove the if-statement should this change in the future.
-    if cli_args.exact_func_moments:
-        program = PassParametersTransformer(cli_args.exact_func_moments).execute(program)
+    # Pass the "exact functional moments" parameter to the FunctionalAssignment class
+    FunctionalAssignment.exact_func_moments = cli_args.exact_func_moments
 
     return program
