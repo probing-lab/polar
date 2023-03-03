@@ -1,14 +1,7 @@
-x = Uniform(-1, 1)
-theta = Normal(0, 1)
-cos_theta = Cos(theta)
-sin_theta = Sin(theta)
+x = 0
 while true:
-    beta = Beta(1, 3, 10)
-    sin_beta = Sin(beta)
-    cos_beta = Cos(beta)
-
-    x = x + beta*cos_theta
-
-    theta = theta + beta
-    sin_theta, cos_theta = sin_theta*cos_beta + cos_theta*sin_beta, cos_theta*cos_beta - sin_theta*sin_beta
+    g = Normal(10, 1)
+    y = Sin(g)
+    z = Cos(g)
+    x = x + y*z
 end

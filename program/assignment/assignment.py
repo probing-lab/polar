@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Union, Tuple, Set, Dict, List
+from typing import Union, Tuple, Set, Dict, TYPE_CHECKING
+if TYPE_CHECKING:
+    from recurrences import Context
 
 from symengine.lib.symengine_wrapper import Expr, Symbol
 
@@ -61,12 +63,12 @@ class Assignment(ABC):
         pass
 
     @abstractmethod
-    def get_moment(self, k: int, arithm_cond: Expr = 1, rest: Expr = 1, previous_assigns: ["Assignment"] = None):
+    def get_moment(self, k: int, rec_builder_context: "Context", arithm_cond: Expr = 1, rest: Expr = 1):
         """
         returns E(X) for X := Assignment^k * rest
         relative to some given condition.
-        The last parameter is not used by the conventional assignment subclasses as they are "local".
-        However, assignments such as the functional assignment need the information of the assignments before
-        them to compute their expected value.
+        The rec_builder_context is not used by the conventional assignment subclasses as they are "local".
+        However, assignments such as the functional assignment don't evaluate immediately but together
+        with the dist-assignment of their argument.
         """
         pass

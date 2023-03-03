@@ -8,4 +8,3 @@ from .conditions_reducer import ConditionsReducer
 from .conditions_normalizer import ConditionsNormalizer
 from .constants_transformer import ConstantsTransformer
 from .loop_guard_transformer import LoopGuardTransformer
-from .pass_parameters_transformer import PassParametersTransformer
