@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Union, Tuple, Set, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
-    from recurrences import Context
-
+    from recurrences import RecBuilderContext
 from symengine.lib.symengine_wrapper import Expr, Symbol
-
 from .exceptions import EvaluationException
 from program.condition import Condition, TrueCond, And
 
@@ -63,7 +61,7 @@ class Assignment(ABC):
         pass
 
     @abstractmethod
-    def get_moment(self, k: int, rec_builder_context: "Context", arithm_cond: Expr = 1, rest: Expr = 1):
+    def get_moment(self, k: int, rec_builder_context: "RecBuilderContext", arithm_cond: Expr = 1, rest: Expr = 1):
         """
         returns E(X) for X := Assignment^k * rest
         relative to some given condition.
