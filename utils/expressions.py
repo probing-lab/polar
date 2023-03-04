@@ -1,7 +1,7 @@
 from typing import List
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, linsolve, Poly, re, ComplexRootOf, N, symbols, Piecewise, LessThan
+from sympy import Rational, linsolve, Poly, re, ComplexRootOf, N, symbols, Piecewise, LessThan, roots
 
 
 def float_to_rational(expr: Expr):
@@ -11,24 +11,30 @@ def float_to_rational(expr: Expr):
 def get_all_roots(poly: Poly, numeric=False, numeric_croots=False, eps=1e-10):
     exact = True
     if numeric:
-        #roots = poly.intervals(all=True, eps=eps)
-        roots = poly.intervals(eps=eps)
-        if isinstance(roots, tuple):
+        poly_roots = poly.intervals(eps=eps)
+        if isinstance(poly_roots, tuple):
             tmp = []
-            for r in roots:
+            for r in poly_roots:
                 tmp += r
-            roots = tmp
+            poly_roots = tmp
         result = []
-        for (h, l), m in roots:
+        for (h, l), m in poly_roots:
             result.append(((h + l) / 2, m))
             if h != l:
                 exact = False
         return result, exact
 
-    roots = poly.all_roots(multiple=False)
+    try:
+        poly_roots = poly.all_roots(multiple=False)
+    except Exception as e:
+        if poly.degree() >= 5:
+            raise e
+        poly_roots = roots(poly)
+        poly_roots = list(poly_roots.items())
+
     result = []
     exact = True
-    for r, m in roots:
+    for r, m in poly_roots:
         if numeric_croots:
             r, e = numerify_croots(r)
             exact = exact and e
