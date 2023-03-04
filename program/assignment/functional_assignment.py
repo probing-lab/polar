@@ -3,11 +3,11 @@ from symengine.lib.symengine_wrapper import Expr, One, Zero, Symbol, sympy2symen
 from sympy import I, N, re, im, Rational, diff, Symbol as SSymbol
 import math
 if TYPE_CHECKING:
-    from recurrences import Context
+    from recurrences import RecBuilderContext
 
+from .assignment import Assignment
 from program.condition import TrueCond
 from program.distribution import Distribution
-from .assignment import Assignment
 from .exceptions import FunctionalAssignmentException
 
 
@@ -60,7 +60,7 @@ class FunctionalAssignment(Assignment):
             return {(Zero(), oo)}
         raise FunctionalAssignmentException(f"Function {self.func} not supported.")
 
-    def get_moment(self, k: int, rec_builder_context: "Context", arithm_cond: Expr = 1, rest: Expr = 1):
+    def get_moment(self, k: int, rec_builder_context: "RecBuilderContext", arithm_cond: Expr = 1, rest: Expr = 1):
         if self.argument.is_Number:
             # if the argument is a number the moment can be immediately determined by just computing f(argument)
             func_moment = self.get_const_moment(k)
