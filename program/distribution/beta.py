@@ -69,6 +69,9 @@ class Beta(Distribution):
         x = BetaDist("x", a, b)
         return EV(E**(t*scale*x))
 
+    def mgf_exists_at(self, t: Expr):
+        return True
+
     def get_free_symbols(self):
         return self.a.free_symbols.union(self.b.free_symbols).union(self.scale.free_symbols)
 

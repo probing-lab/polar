@@ -89,10 +89,12 @@ class FunctionalAssignment(Assignment):
         """
         Computes E(dist^p1 * f1^p2(dist) * ... * fn^pn(dist)), where the functions and respective powers
         are given by the second argument. Currently the functions "Sin", "Cos", "Exp" and "Id" are supported.
-        "Sin", "Cos" and "Id" can be mixed. "Exp" cannot be mixed with any other function.
+        "Sin", "Cos" and "Id" can be mixed. "Exp" can be mixed with "Id".
         """
-        if "Exp" in func_powers and len(func_powers.keys()) > 1:
-            raise FunctionalAssignmentException("Mixed moments for exp are not supported.")
+        is_trig_moment = "Sin" in func_powers or "Cos" in func_powers
+        is_exp_moment = "Expt" in func_powers
+        if is_trig_moment and is_exp_moment:
+            raise FunctionalAssignmentException("Exponential and trigonometric moments cannot be mixed")
 
         if "Sin" in func_powers or "Cos" in func_powers:
             return cls.get_trig_moment(dist, func_powers)
@@ -130,10 +132,16 @@ class FunctionalAssignment(Assignment):
         """
         Computes E(exp(dist)**p) where p is given by the second argument.
         """
-        power = func_powers["Exp"] if "Exp" in func_powers else 0
-        result = dist.mgf(power)
-        assert im(result).expand() == 0
-        return cls.convert_func_moment(re(result))
+        exp_power = func_powers["Exp"] if "Exp" in func_powers else 0
+        id_power = func_powers["Id"] if "Id" in func_powers else 0
+        if not dist.mgf_exists_at(exp_power):
+            raise FunctionalAssignmentException(f"The exponential moment of {dist} of order {exp_power} does not exist.")
+        if id_power == 0:
+            result = dist.mgf(exp_power)
+        else:
+            t = SSymbol("t")
+            result = diff(dist.mgf(t), t, id_power).xreplace({t: exp_power})
+        return cls.convert_func_moment(result)
 
     @classmethod
     def convert_func_moment(cls, m):

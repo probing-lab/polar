@@ -1,0 +1,22 @@
+a1, b1, c1 = 0, 0, 0
+while true:
+    a = Normal(1, 1)
+    sin_a = Sin(a)
+    cos_a = Cos(a)
+    a1 = a*sin_a**2*cos_a**3
+
+    b = Uniform(2, 4)
+    sin_b = Sin(b)
+    cos_b = Cos(b)
+    b1 = b*sin_b**2*cos_b**3
+
+    c = Gamma(1, 1/2)
+    sin_c = Sin(c)
+    cos_c = Cos(c)
+    c1 = c*sin_c**2*cos_c**3
+end
+
+
+#test: raw; a1; 0; (2*sqrt(2)*exp(12)*cos(pi/4 + 1) + 5*sin(5) - cos(5) + (3*sin(3) - cos(3))*exp(8))*exp(-25/2)/16
+#test: raw; b1; 0; sin(4)/4 - sin(2)/8 + cos(4)/16 - sin(20)/40 + sin(10)/80 + sin(6)/48 - cos(12)/288 + cos(10)/800 - cos(20)/800 + cos(6)/288 - sin(12)/24 - cos(2)/16
+#test: raw; c1; 0; 130828/3553225

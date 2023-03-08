@@ -38,6 +38,9 @@ class Bernoulli(Distribution):
         t = sympify(t)
         return (1 - p) + p * (E ** t)
 
+    def mgf_exists_at(self, t: Expr):
+        return True
+
     def get_free_symbols(self):
         return self.p.free_symbols
 

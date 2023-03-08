@@ -1,0 +1,26 @@
+a1, b1, c1 = 0, 0, 0
+while true:
+    a = Normal(0, 1)
+    exp_a = Exp(a)
+    a1 = a*exp_a**2
+
+    b = Uniform(2, 4)
+    exp_b = Exp(b)
+    b1 = b*exp_b**2
+
+    c = Gamma(1, 1/5)
+    exp_c = Exp(c)
+    c1 = c*exp_c**2
+end
+
+
+#test: raw; a1; 0; 2*exp(2)
+#test: raw; a1**2; 0; 17*exp(8)
+
+#test: raw; b1; 0; (-3 + 7*exp(4))*exp(4)/8
+#test: raw; b1**2; 0; (-25 + 113*exp(8))*exp(8)/64
+
+#test: raw; c1; 0; 5/9
+#test: raw; c1**2; 0; 10
+
+#test: raw; a1*b1*c1; 0; 5*(-3 + 7*exp(4))*exp(6)/36
