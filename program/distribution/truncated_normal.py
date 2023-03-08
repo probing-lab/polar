@@ -72,6 +72,9 @@ class TruncNormal(Distribution):
     def cf(self, t: Expr):
         return self.mgf(I*t)
 
+    def mgf_exists_at(self, t: Expr):
+        return True
+
     def is_discrete(self):
         return False
 

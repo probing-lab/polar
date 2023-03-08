@@ -1,6 +1,6 @@
 x = 0
-y = 0
 while true:
-    x = x + a*y + a
-    y = y + x + b
+    g = Gamma(2, 1/4)
+    exp_g = Exp(g)
+    x = g*exp_g**2
 end

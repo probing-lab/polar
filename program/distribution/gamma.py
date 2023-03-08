@@ -50,10 +50,15 @@ class Gamma(Distribution):
         theta = sympify(self.theta)
         k = sympify(self.k)
         t = sympify(t)
-        is_valid_call = t < 1/theta
-        if not is_valid_call.is_Boolean or not bool(is_valid_call):
-            raise EvaluationException(f"The mgf of {self} cannot be evaluated at t={t}")
         return (1 - theta * t) ** (-k)
+
+    def mgf_exists_at(self, t: Expr):
+        theta = sympify(self.theta)
+        t = sympify(t)
+        does_exist = t < 1/theta
+        if not does_exist.is_Boolean or not bool(does_exist):
+            return False
+        return True
 
     def get_free_symbols(self):
         return self.k.free_symbols.union(self.theta.free_symbols)

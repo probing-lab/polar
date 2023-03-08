@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from sympy import sympify, E, I
+from sympy import sympify, E, I, Piecewise
 from symengine.lib.symengine_wrapper import Expr
 from .distribution import Distribution
 from .exceptions import EvaluationException
@@ -50,12 +50,13 @@ class Uniform(Distribution):
         return (E**(I*t*b) - E**(I*t*a))/(I*t*(b-a))
 
     def mgf(self, t: Expr):
-        if t == 0:
-            return sympify(1)
         a = sympify(self.a)
         b = sympify(self.b)
         t = sympify(t)
-        return (E**(t*b) - E**(t*a))/(t*(b-a))
+        return Piecewise((sympify(1), t == 0), ((E**(t*b) - E**(t*a))/(t*(b-a)), True))
+
+    def mgf_exists_at(self, t: Expr):
+        return True
 
     def __str__(self):
         return f"Uniform({self.a}, {self.b})"

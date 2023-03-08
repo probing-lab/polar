@@ -41,10 +41,15 @@ class Exponential(Distribution):
     def mgf(self, t: Expr):
         lamb = sympify(self.lamb)
         t = sympify(t)
-        is_valid_call = t < lamb
-        if not is_valid_call.is_Boolean or not bool(is_valid_call):
-            raise EvaluationException(f"The mgf of {self} cannot be evaluated at t={t}")
         return lamb/(lamb - t)
+
+    def mgf_exists_at(self, t: Expr):
+        lamb = sympify(self.lamb)
+        t = sympify(t)
+        does_exist = t < lamb
+        if not does_exist.is_Boolean or not bool(does_exist):
+            return False
+        return True
 
     def get_support(self):
         return {(Zero(), oo)}

@@ -53,6 +53,9 @@ class Normal(Distribution):
         t = sympify(t)
         return E**(mu*t + sigma2*(t**2)/2)
 
+    def mgf_exists_at(self, t: Expr):
+        return True
+
     def get_free_symbols(self):
         return self.mu.free_symbols.union(self.sigma2.free_symbols)
 

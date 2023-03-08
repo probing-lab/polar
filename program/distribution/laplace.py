@@ -47,10 +47,15 @@ class Laplace(Distribution):
         mu = sympify(self.mu)
         b = sympify(self.b)
         t = sympify(t)
-        is_valid_call = Abs(t) < 1/b
-        if not is_valid_call.is_Boolean or not bool(is_valid_call):
-            raise EvaluationException(f"The mgf of {self} cannot be evaluated at t={t}")
         return (E**(mu*t))/(1 - b**2 * t**2)
+
+    def mgf_exists_at(self, t: Expr):
+        b = sympify(self.b)
+        t = sympify(t)
+        does_exist = Abs(t) < 1/b
+        if not does_exist.is_Boolean or not bool(does_exist):
+            return False
+        return True
 
     def get_free_symbols(self):
         return self.mu.free_symbols.union(self.b.free_symbols)

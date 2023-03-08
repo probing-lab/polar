@@ -36,6 +36,14 @@ class Distribution(ABC):
         raise NotImplementedError()
 
     def mgf(self, t: Expr):
+        """
+        If there exists a MGF on some intervals, this function returns the expression for those intervals.
+        It is the responsibility of the caller to check whether the MGF exists on the specific argument.
+        The caller can use "mgf_exists_at" to check for specific values.
+        """
+        raise NotImplementedError()
+
+    def mgf_exists_at(self, t: Expr):
         raise NotImplementedError()
 
     @abstractmethod
