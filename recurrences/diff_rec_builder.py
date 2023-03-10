@@ -1,12 +1,12 @@
 from functools import lru_cache
-from typing import Dict, Set, List, Tuple
-from numpy import recarray
-from symengine.lib.symengine_wrapper import Expr, Symbol, Zero, sympify, One, Symbol
+from typing import Set
+from symengine.lib.symengine_wrapper import Expr, Zero, sympify, One, Symbol
 from program import Program
-from program.sensitivity.sensitivity_analyzer import SensivitiyAnalyzer, SymbolSet
+from program.sensitivity.sensitivity_analyzer import SensivitiyAnalyzer
 from recurrences.rec_builder import RecBuilder
 from .recurrences import Recurrences
-from utils import get_monoms
+from utils import get_monoms, get_unique_var
+
 
 class DiffRecBuilder:
     """
@@ -18,7 +18,7 @@ class DiffRecBuilder:
     def __init__(self, program: Program, param: Symbol):
         self.program = program
         #TODO: use Dummy here when updating symengine, current version is buggy
-        self.delta = Symbol('diff_symbol') # internal symbol used to 'mark' differentials
+        self.delta = Symbol(get_unique_var("diff_symbol"))
         self.param = param
         self.rec_builder = RecBuilder(program)
         self.dep_vars, _ = SensivitiyAnalyzer.get_dependent_variables(program, param)
@@ -32,12 +32,12 @@ class DiffRecBuilder:
         return False
 
     @lru_cache(maxsize=None)
-    def get_recurrences(self, monomial: Expr) -> Tuple[Recurrences, List[Expr]]:
+    def get_recurrences(self, monomial: Expr) -> Recurrences:
         goal = sympify(monomial)
         to_process = {goal*self.delta}
 
         # iteratively get recurrences for monoms and then check if more monomials are needed
-        #   to solve the recurrence
+        # to solve the recurrence
         processed = set()
         recurrence_dict = {}
         while to_process:
@@ -121,29 +121,6 @@ class DiffRecBuilder:
         monomial = monomial.subs(self.delta, 1)
         original_init_val = self.rec_builder.get_initial_value(monomial)
         return original_init_val.diff(self.param)
-        
-
-    def is_solvable(self, monom: Expr, program: Program):
-        # defective_vars = program.non_mc_variables
-        # diffdef, _ = SensivitiyAnalyzer.get_diff_defective_variables(self.program, self.dep_vars, self.param)
-
-        # diff_poly = self.__differentiate_goal__(monom)
-
-        # # cannot compute moment goal if term contains defective variables or derivatives of diff-defective ones
-        # terms = diff_poly.args if diff_poly.is_Add else [diff_poly]
-        # for term in terms:
-        #     parts = term.args if term.is_Mul else [term]
-        #     for part in parts:
-        #         if isinstance(part, Derivative):
-        #             fun, _ = part.args
-        #             if self.fun2monom_dict[fun] in diffdef:
-        #                 return False
-        #         elif isinstance(part, Function):
-        #             if self.fun2monom_dict[part] in defective_vars:
-        #                 return False
-        #         elif part in defective_vars:
-        #             return False
-        return True
 
     def get_solution(self, monom: Expr, solvers):
         # just lookup the solution

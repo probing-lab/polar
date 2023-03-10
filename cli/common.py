@@ -14,8 +14,8 @@ from utils.expressions import get_monoms
 
 
 def get_moment(monom, solvers, rec_builder, cli_args, program):
-    if not rec_builder.is_solvable(monom, program):
-        raise Exception(f"{monom} is not moment computable.")
+    #if not is_moment_computable(monom, program):
+    #    raise Exception(f"{monom} is not moment computable.")
 
     if monom not in solvers:
         recurrences = rec_builder.get_recurrences(monom)
