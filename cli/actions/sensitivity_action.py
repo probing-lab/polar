@@ -98,11 +98,5 @@ class SensitivityAction(Action):
             if goal_type == MOMENT:
                 result, is_exact = goals_action.handle_moment_goal(goal_data)
                 goals_action.print_moment_goal(goal_data[0], result, is_exact, prefix="∂")
-            # elif goal_type == CUMULANT:
-            #     result, is_exact = goals_action.handle_cumulant_goal(goal_data)
-            #     goals_action.print_cumulant_goal(goal_data[0], goal_data[1], result, is_exact, prefix="∂")
-            # elif goal_type == CENTRAL:
-            #     result, is_exact = goals_action.handle_central_moment_goal(goal_data)
-            #     goals_action.print_central_moment_goal(goal_data[0], goal_data[1], result, is_exact, prefix="∂")
             else:
-                raise RuntimeError(f"Goal type {goal_type} does not exist or cannot be used for sensitivity analysis.")
+                raise RuntimeError(f"Goal type {goal_type} does not exist or cannot be used with diff recurrences.")

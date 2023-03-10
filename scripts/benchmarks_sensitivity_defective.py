@@ -10,7 +10,7 @@ from typing import List
 SENSITIVITY_TYPE = "sensitivity_analysis"
 
 # path to the folder where polar is located
-POLAR_DIR = "../../../"
+POLAR_DIR = "../"
 
 # benchmarks are assumed to be in the same dir as the script
 BENCHMARK_FOLDER = os.getcwd()
@@ -29,26 +29,26 @@ class Benchmark:
 
 # Add, alter or remove benchmarks here in the format "filename", [goals], "parameter"
 benchmarks = [
-    Benchmark("diff_effective.prob", ["E(y)"], "par"), 
-    Benchmark("diff_effective.prob", ["E(x*z)"], "par"),
-    Benchmark("diff_effective_2.prob", ["E(u)"], "p"),
-    Benchmark("diff_effective_2.prob", ["E(y**2)"], "p"),
-    Benchmark("diff_effective_3.prob", ["E(total)"], "p"),
-    Benchmark("diff_effective_3.prob", ["E(z1**2)"], "p"),
-    Benchmark("diff_effective_4.prob", ["E(z)"], "p1"),
-    Benchmark("diff_effective_4.prob", ["E(cnt**2)"], "p1"),
-    Benchmark("../all_effective/bimodal_x.prob", ["E(x)"], "var"),
-    Benchmark("../all_effective/bimodal_x.prob", ["E(x**2)"], "var"),
-    Benchmark("../all_effective/dbn_component_health.prob", ["E(obs)"], "p1"),
-    Benchmark("../all_effective/dbn_component_health.prob", ["E(obs**2)"], "p1"),
-    Benchmark("../all_effective/gambling.prob", ["E(money)"], "p"),
-    Benchmark("../all_effective/gambling.prob", ["E(money**2)"], "p"),
-    Benchmark("../all_effective/las_vegas_search.prob", ["E(attempts)"], "p"),
-    Benchmark("../all_effective/las_vegas_search.prob", ["E(attempts**2)"], "p"),
-    Benchmark("../all_effective/randomized_response.prob", ["E(p1)"], "p"),
-    Benchmark("../all_effective/randomized_response.prob", ["E(p1**2)"], "p"),
-    Benchmark("../all_effective/vaccination.prob", ["E(infected)"], "vax_param"),
-    Benchmark("../all_effective/vaccination.prob", ["E(infected**2)"], "vax_param"),
+    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective.prob", ["E(y)"], "par"),
+    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective.prob", ["E(x*z)"], "par"),
+    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_2.prob", ["E(u)"], "p"),
+    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_2.prob", ["E(y**2)"], "p"),
+    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_3.prob", ["E(total)"], "p"),
+    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_3.prob", ["E(z1**2)"], "p"),
+    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_4.prob", ["E(z)"], "p1"),
+    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_4.prob", ["E(cnt**2)"], "p1"),
+    Benchmark("../benchmarks/sensitivity/all_effective/bimodal_x.prob", ["E(x)"], "var"),
+    Benchmark("../benchmarks/sensitivity/all_effective/bimodal_x.prob", ["E(x**2)"], "var"),
+    Benchmark("../benchmarks/sensitivity/all_effective/dbn_component_health.prob", ["E(obs)"], "p1"),
+    Benchmark("../benchmarks/sensitivity/all_effective/dbn_component_health.prob", ["E(obs**2)"], "p1"),
+    Benchmark("../benchmarks/sensitivity/all_effective/gambling.prob", ["E(money)"], "p"),
+    Benchmark("../benchmarks/sensitivity/all_effective/gambling.prob", ["E(money**2)"], "p"),
+    Benchmark("../benchmarks/sensitivity/all_effective/las_vegas_search.prob", ["E(attempts)"], "p"),
+    Benchmark("../benchmarks/sensitivity/all_effective/las_vegas_search.prob", ["E(attempts**2)"], "p"),
+    Benchmark("../benchmarks/sensitivity/all_effective/randomized_response.prob", ["E(p1)"], "p"),
+    Benchmark("../benchmarks/sensitivity/all_effective/randomized_response.prob", ["E(p1**2)"], "p"),
+    Benchmark("../benchmarks/sensitivity/all_effective/vaccination.prob", ["E(infected)"], "vax_param"),
+    Benchmark("../benchmarks/sensitivity/all_effective/vaccination.prob", ["E(infected**2)"], "vax_param"),
     ]
     
 def run_benchmark(benchmark: Benchmark, output):
@@ -76,13 +76,13 @@ def run_benchmark(benchmark: Benchmark, output):
     benchmark.duration_sec = float(result[time_start_index + len(time_pattern) : time_end_index].strip())
     
     # parse system size
-    size_pattern = "Number of recurrences is"
-    size_start_index = result.find(size_pattern)
-    if size_start_index < 0:
-        print(f"Running benchmark {benchmark.filename} did not yield a system size. Offending command is {cmd}")
-    
-    size_end_index = result.find("\n", size_start_index)
-    benchmark.system_size = int(result[size_start_index + len(size_pattern) : size_end_index].strip())
+    # size_pattern = "Number of recurrences is"
+    # size_start_index = result.find(size_pattern)
+    # if size_start_index < 0:
+    #     print(f"Running benchmark {benchmark.filename} did not yield a system size. Offending command is {cmd}")
+    #
+    # size_end_index = result.find("\n", size_start_index)
+    # benchmark.system_size = int(result[size_start_index + len(size_pattern) : size_end_index].strip())
 
     # search for goal result
     benchmark.results = []
@@ -102,7 +102,8 @@ def print_benchmark(benchmark: Benchmark):
         print(f"Benchmark {benchmark.filename} could not be solved.")
         return 
     
-    print(f"Benchmark {benchmark.filename} using {benchmark.system_size} recurrences solved in {benchmark.duration_sec} seconds.")
+    #print(f"Benchmark {benchmark.filename} using {benchmark.system_size} recurrences solved in {benchmark.duration_sec} seconds.")
+    print(f"Benchmark {benchmark.filename} solved in {benchmark.duration_sec} seconds.")
     for i in range(len(benchmark.goals)):
         print(f"\t∂{benchmark.goals[i]} wrt {benchmark.param}: {benchmark.results[i]}")
     return
