@@ -17,6 +17,7 @@ class StructureTransformer(Transformer):
         super().__init__()
         self.program_variables = set()
         self.artificial_variables = set()
+        self.is_probabilistic = False
         self.transform_categoricals = transform_categoricals
 
     def program(self, args) -> Program:
@@ -35,7 +36,7 @@ class StructureTransformer(Transformer):
         loop_body = lb.children[0]
 
         original_variables = self.program_variables - self.artificial_variables
-        return Program(typedefs, self.program_variables, original_variables, initial, loop_guard, loop_body)
+        return Program(typedefs, self.program_variables, original_variables, initial, loop_guard, loop_body, self.is_probabilistic)
 
     def dist(self, args):
         dist_name = str(args[0])
@@ -99,8 +100,10 @@ class StructureTransformer(Transformer):
         self.program_variables.add(var)
         value = args[2]
         if isinstance(value, Distribution):
+            self.is_probabilistic = True
             return DistAssignment(var, value)
         elif isinstance(value, Tree) and value.data == "categorical":
+            self.is_probabilistic = True
             return self.__assign__categorical__(args)
         elif isinstance(value, Tree) and value.data == "func":
             func = value.children[0].value

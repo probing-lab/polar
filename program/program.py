@@ -7,7 +7,7 @@ from utils import indent_string
 class Program:
     children = ["initial", "loop_body"]
 
-    def __init__(self, types, variables, original_variables, initial, loop_guard, loop_body):
+    def __init__(self, types, variables, original_variables, initial, loop_guard, loop_body, is_probabilistic):
         self.typedefs = {}
         self.finite_variables = []
         self.dist_variables = []
@@ -20,6 +20,7 @@ class Program:
         self.loop_guard = loop_guard
         self.loop_body = loop_body
         self.abstracted_const_store = {}
+        self.is_probabilistic = is_probabilistic # set by the parsers: true iff the program contains proper probabilistic constructs
         self.original_loop_guard = None  # initialized by the conditions-normalizer
         self.var_to_index = {}           # initialized by info transformer
         self.index_to_var = {}           # initialized by info transformer
