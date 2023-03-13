@@ -1,6 +1,7 @@
 from symengine.lib.symengine_wrapper import Expr, Symbol
-from typing import Set
-from recurrences import RecBuilderContext
+from typing import Set, TYPE_CHECKING
+if TYPE_CHECKING:
+    from recurrences import RecBuilderContext
 from .assignment import Assignment
 from .functional_assignment import FunctionalAssignment
 from program.distribution import Distribution
@@ -43,7 +44,7 @@ class DistAssignment(Assignment):
             result.add(self.default)
         return result
 
-    def get_moment(self, k: int, rec_builder_context: RecBuilderContext, arithm_cond: Expr = 1, rest: Expr = 1):
+    def get_moment(self, k: int, rec_builder_context: "RecBuilderContext", arithm_cond: Expr = 1, rest: Expr = 1):
         # if rest contains variables that are functions of self.variable (like sin(var)/cos(var) etc.)
         # then we need to compute the moment of all those variables and self together.
         # In this case we hand the responsibility to FunctionalAssignment
@@ -59,7 +60,7 @@ class DistAssignment(Assignment):
         if_not_cond = (1 - arithm_cond) * (self.default ** k) * rest
         return if_cond + if_not_cond
 
-    def __get_mixed_func_moment__(self, k: int, rec_builder_context: RecBuilderContext, func_vars: Set[Symbol], rest: Expr):
+    def __get_mixed_func_moment__(self, k: int, rec_builder_context: "RecBuilderContext", func_vars: Set[Symbol], rest: Expr):
         k = int(k)
         func_vars = list(func_vars)
         func_powers = {"Id": k} if k > 0 else {}
@@ -77,7 +78,7 @@ class DistAssignment(Assignment):
         # to FunctionalAssignment
         return FunctionalAssignment.get_func_moment(self.distribution, func_powers)
 
-    def __contains_dependent_funcs__(self, rec_builder_context: RecBuilderContext, monom: Expr):
+    def __contains_dependent_funcs__(self, rec_builder_context: "RecBuilderContext", monom: Expr):
         if self.variable not in rec_builder_context.dist_var_dependent_func_vars:
             return False
         return bool(monom.free_symbols & rec_builder_context.dist_var_dependent_func_vars[self.variable])

@@ -1,0 +1,20 @@
+x = 0
+xlow = 0
+xup = 0
+while true:
+    d = Bernoulli(p)
+    if d == 0:
+        step = Normal(mu, v)
+        xlow = xlow - step
+        x = xlow
+    else:
+        step = Normal(mu, v)
+        xup = xup + step
+        x = xup
+    end
+end
+
+#test: sens; x; p; 0; 2*mu*n
+#test: sens; x**2; p; 0; 6*mu**2*n**2*p - 3*mu**2*n**2 - 6*mu**2*n*p + 3*mu**2*n + 4*n*p*v - 2*n*v - 4*p*v + 2*v
+#test: sens-diff; x; p; 0; 2*mu*n
+#test: sens-diff; x**2; p; 0; 6*mu**2*n**2*p - 3*mu**2*n**2 - 6*mu**2*n*p + 3*mu**2*n + 4*n*p*v - 2*n*v - 4*p*v + 2*v

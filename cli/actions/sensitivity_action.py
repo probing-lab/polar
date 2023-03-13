@@ -5,8 +5,7 @@ from cli.actions.goals_action import GoalsAction
 from cli.common import parse_program, prepare_program
 from inputparser.exceptions import ParseException
 from inputparser.goal_parser import CENTRAL, CUMULANT, MOMENT
-from recurrences.diff_rec_builder import DiffRecBuilder
-from recurrences.rec_builder import RecBuilder
+from recurrences import RecBuilder, DiffRecBuilder
 from .action import Action
 from termcolor import colored
 from symengine.lib.symengine_wrapper import sympify

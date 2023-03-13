@@ -3,7 +3,7 @@ from typing import Set
 from symengine.lib.symengine_wrapper import Expr, Zero, sympify, One, Symbol
 from program import Program
 from program.sensitivity.sensitivity_analyzer import SensivitiyAnalyzer
-from recurrences.rec_builder import RecBuilder
+from .rec_builder import RecBuilder
 from .recurrences import Recurrences
 from utils import get_monoms, get_unique_var
 

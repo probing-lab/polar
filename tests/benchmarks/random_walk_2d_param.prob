@@ -1,0 +1,24 @@
+x = 1
+y = 1
+while true:
+    direction = Categorical(p_right, p_left, p_up, 1 - p_right - p_left - p_up)
+    if direction == 0:
+        x = x + 1
+    elif direction == 1:
+        x = x - 1
+    elif direction == 2:
+        y = y + 1
+    else:
+        y = y - 1
+    end
+end
+
+#test: sens; x; p_right; 0; n
+#test: sens; x; p_left; 0; -n
+#test: sens; x**2; p_right; 0; -2*n**2*p_left + 2*n**2*p_right + 2*n*p_left - 2*n*p_right + 3*n
+#test: sens; x**2; p_left; 0; 2*n**2*p_left - 2*n**2*p_right - 2*n*p_left + 2*n*p_right - n
+
+#test: sens-diff; x; p_right; 0; n
+#test: sens-diff; x; p_left; 0; -n
+#test: sens-diff; x**2; p_right; 0; -2*n**2*p_left + 2*n**2*p_right + 2*n*p_left - 2*n*p_right + 3*n
+#test: sens-diff; x**2; p_left; 0; 2*n**2*p_left - 2*n**2*p_right - 2*n*p_left + 2*n*p_right - n

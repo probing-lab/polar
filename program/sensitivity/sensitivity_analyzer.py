@@ -1,15 +1,9 @@
-from bdb import effective
-from symtable import Symbol
 from typing import Set, Tuple
-from numpy import isin
-from sympy import Poly
 from program import Program
-from program.assignment.dist_assignment import DistAssignment
 from program.assignment.poly_assignment import PolyAssignment
 from program.mc_checker.mc_checker import MCChecker
 from utils import expressions
 from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
-
 from program.assignment.assignment import Assignment
 
 SymbolSet = Set[SymengineSymbol]

@@ -2,7 +2,7 @@ from typing import Set, Tuple
 
 from symengine.lib.symengine_wrapper import Symbol
 from program import Program
-from program.assignment import PolyAssignment, DistAssignment
+from program.assignment import PolyAssignment
 from utils import expressions, Graph
 
 
