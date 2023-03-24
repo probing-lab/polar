@@ -1,6 +1,4 @@
-x = 0
 while true:
-    g = Gamma(2, 1/4)
-    exp_g = Exp(g)
-    x = g*exp_g**2
+    x = 3*x - 3*y
+    y = 4*y - 2*x
 end
