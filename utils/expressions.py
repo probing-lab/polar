@@ -1,4 +1,5 @@
 from typing import List
+import math
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
 from sympy import Rational, linsolve, Poly, re, ComplexRootOf, N, symbols, Piecewise, LessThan, roots
@@ -244,6 +245,15 @@ def get_max_case_in_piecewise(expression):
     ks = [get_max_case_in_piecewise(a) for a in expression.args]
     ks.append(k)
     return max(ks)
+
+
+def are_coprime(integers: List):
+    integers = [int(n) for n in integers]
+    for i in range(len(integers)):
+        for j in range(i+1, len(integers)):
+            if math.gcd(integers[i], integers[j]) != 1:
+                return False
+    return True
 
 
 def is_moment_computable(poly: Expr, program):

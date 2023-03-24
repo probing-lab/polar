@@ -52,20 +52,20 @@ class GoalsAction(Action):
         print(colored("-------------------", "cyan"))
         print()
 
-        invariant_data = []
+        closed_forms = {}
         for goal_type, goal_data in self.parse_goals():
             if goal_type == MOMENT:
                 moment, is_exact = self.handle_moment_goal(goal_data)
                 self.print_moment_goal(goal_data[0], moment, is_exact)
-                invariant_data.append((f"E({goal_data[0]})", moment))
+                closed_forms[f"E({goal_data[0]})"] = moment
             elif goal_type == CUMULANT:
                 cumulant, is_exact = self.handle_cumulant_goal(goal_data)
                 self.print_cumulant_goal(goal_data[0], goal_data[1], cumulant, is_exact)
-                invariant_data.append((f"k{goal_data[0]}({goal_data[1]})", cumulant))
+                closed_forms[f"k{goal_data[0]}({goal_data[1]})"] = cumulant
             elif goal_type == CENTRAL:
                 cmoment, is_exact = self.handle_central_moment_goal(goal_data)
                 self.print_central_moment_goal(goal_data[0], goal_data[1], cmoment, is_exact)
-                invariant_data.append((f"c{goal_data[0]}({goal_data[1]})", cmoment))
+                closed_forms[f"c{goal_data[0]}({goal_data[1]})"] = cmoment
             elif goal_type == TAIL_BOUND_UPPER:
                 self.handle_tail_bound_upper_goal(goal_data)
             elif goal_type == TAIL_BOUND_LOWER:
@@ -74,7 +74,7 @@ class GoalsAction(Action):
                 raise RuntimeError(f"Goal type {goal_type} does not exist.")
 
         if self.cli_args.invariants:
-            self.handle_invariants(invariant_data)
+            self.handle_invariants(closed_forms)
 
     def handle_moment_goal(self, goal_data):
         monom = goal_data[0]
@@ -193,15 +193,14 @@ class GoalsAction(Action):
             print(f"P({monom} > {a} | n={self.cli_args.at_n}) >= {bound_at_n} ≅ {N(bound_at_n)}")
         print()
 
-    def handle_invariants(self, invariant_data):
+    def handle_invariants(self, closed_forms):
         print()
         print(colored("-------------------", "cyan"))
         print(colored("-   Invariants    -", "cyan"))
         print(colored("-------------------", "cyan"))
         print()
 
-        invariant_data = [(Symbol(i), unpack_piecewise(f)) for i, f in invariant_data]
-        ideal = InvariantIdeal(invariant_data)
+        ideal = InvariantIdeal(closed_forms)
         basis = ideal.compute_basis()
 
         if not basis:
