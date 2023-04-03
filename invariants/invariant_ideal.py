@@ -2,6 +2,8 @@ from typing import Set, Dict
 from sympy import Expr, Symbol, Pow, groebner, numer, denom
 
 from invariants.exceptions import InvariantIdealException
+from invariants.exponent_lattice import ExponentLattice
+from invariants.lattice_ideal import LatticeIdeal
 from utils import unpack_piecewise, get_unique_var, are_coprime
 
 ClosedForm = Expr
@@ -11,7 +13,7 @@ ExponentBase = Expr
 class InvariantIdeal:
 
     closed_forms: Dict[Symbol, ClosedForm]
-    base_to_symbol: Dict[Expr, Symbol]
+    base_to_symbol: Dict[ExponentBase, Symbol]
     n: Symbol
 
     def __init__(self, closed_forms: Dict[str, ClosedForm]):
@@ -25,9 +27,17 @@ class InvariantIdeal:
             self.closed_forms[s] = self.abstract_exponentials(cf)
 
     def compute_basis(self) -> Set[Expr]:
+        # Closed-form polynomials
         polys = [s - cf for s, cf in self.closed_forms.items()]
-        polys = polys + self.get_algebraic_relations_exponentials()
-        # n > variables abstracting exponentials > goal variables
+
+        # Add algebraic relations among the geometric sequences given by the exponentials in the closed-forms
+        exponent_bases = list(self.base_to_symbol.keys())
+        exponent_symbols = list(self.base_to_symbol.values())
+        exponent_lattice = ExponentLattice(exponent_bases)
+        lattice_ideal = LatticeIdeal(exponent_lattice.compute_basis(), exponent_symbols)
+        polys = polys + list(lattice_ideal.compute_basis())
+
+        # n > variables abstracting exponentials > goal variables --> we want to compute an elimination ideal
         symbols = [self.n] + list(self.base_to_symbol.values()) + list(self.closed_forms.keys())
         cf_basis = groebner(polys, *symbols)
 
