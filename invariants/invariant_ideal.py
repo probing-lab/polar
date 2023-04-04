@@ -1,10 +1,10 @@
 from typing import Set, Dict
-from sympy import Expr, Symbol, Pow, groebner, numer, denom
+from sympy import Expr, Symbol, Pow, Mul, groebner
 
 from invariants.exceptions import InvariantIdealException
 from invariants.exponent_lattice import ExponentLattice
 from invariants.lattice_ideal import LatticeIdeal
-from utils import unpack_piecewise, get_unique_var, are_coprime
+from utils import unpack_piecewise, get_unique_var
 
 ClosedForm = Expr
 ExponentBase = Expr
@@ -53,7 +53,7 @@ class InvariantIdeal:
         Given an expression e, the method replaces exponentials of n in e by fresh variables.
         The function returns the modified expression.
         Important: The given expression must be expanded such that for all exponentials in the expression with n in its
-        exponent, the exponent must be equal to n.
+        exponent, the exponent must be equal to C*n for some constant C.
         The method modifies the self.base_to_symbol, to store and reuse the symbols used for the bases.
         Example:
             "n**2 + n*2**n - 3**n + 2**n" returns
@@ -63,7 +63,19 @@ class InvariantIdeal:
         if isinstance(expression, Pow) and self.n in expression.args[1].free_symbols:
             base = expression.args[0]
             exponent = expression.args[1]
-            if not base.is_Number:
+
+            # if expression is base ** (C*n) convert it to (base**C) ** n
+            if isinstance(exponent, Mul):
+                factor1 = exponent.args[0]
+                factor2 = exponent.args[1]
+                if factor1 == self.n:
+                    base = base ** factor2
+                    exponent = self.n
+                elif factor2 == self.n:
+                    base = base ** factor1
+                    exponent = self.n
+
+            if not base.is_number:
                 raise InvariantIdealException(f"The base of every exponential in n must be a number, but got {base}.")
             if exponent != self.n:
                 raise InvariantIdealException(f"The exponent of every exponential in n must be equal to n, but got {exponent}")
@@ -76,18 +88,3 @@ class InvariantIdeal:
 
         new_args = [self.abstract_exponentials(a) for a in expression.args]
         return expression.func(*new_args)
-
-    def get_algebraic_relations_exponentials(self):
-        if len(self.base_to_symbol) <= 1:
-            return []
-        bases = self.base_to_symbol.keys()
-        all_rational = all([b.is_Rational for b in bases])
-        if all_rational:
-            integers = [numer(b) for b in bases if numer(b) != 1]
-            integers += [denom(b) for b in bases if denom(b) != 1]
-            if are_coprime(integers):
-                return []
-            # Implement algebraic relations for rationals
-            raise NotImplementedError()
-        # Implement algebraic relations for algebraic numbers
-        raise NotImplementedError()
