@@ -1,6 +1,11 @@
 from typing import List
 from sympy import Expr, numer, denom
+
+from invariants.exceptions import ExponentLatticeException
 from utils import are_coprime
+import subprocess
+import os
+import json
 
 ExponentBase = Expr
 
@@ -22,5 +27,12 @@ class ExponentLattice:
             if are_coprime(integers):
                 return []
 
-        # Implement algebraic relations for algebraic numbers
-        raise NotImplementedError()
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        command = ["sage", dir_path + "/integer-relations.py"] + [str(b) for b in self.bases]
+        try:
+            result = subprocess.run(command, capture_output=True)
+            if result.returncode != 0:
+                raise ExponentLatticeException("Something went wrong while computing the basis of the exponent lattice")
+            return json.loads(result.stdout)
+        except FileNotFoundError:
+            raise ExponentLatticeException("To compute the exponent lattice for invariants please install sagemath and make the 'sage' command visible on your system.")
