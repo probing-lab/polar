@@ -1,5 +1,7 @@
+import olll
+from fractions import Fraction
 from typing import List
-from sympy import Expr, numer, denom, AlgebraicNumber, factorint, Rational, Matrix, ZZ
+from sympy import Expr, numer, denom, AlgebraicNumber, factorint, Rational, Matrix, pi, I, ZZ, ln, re, im, log, ceiling
 from sympy.polys.matrices import DomainMatrix
 from utils import faccin_bound
 import numpy as np
@@ -9,6 +11,7 @@ from utils import are_coprime
 import subprocess
 import os
 import json
+import math
 
 ExponentBase = Expr
 
@@ -52,8 +55,49 @@ class ExponentLattice:
         if all([b.is_rational for b in self.bases]):
             return self.compute_basis_rational()
 
-        alg_bases = [AlgebraicNumber(b) for b in self.bases]
-        print(faccin_bound(alg_bases))
+        return self.compute_basis_kauers()
+
+    def compute_basis_kauers(self) -> List[List[int]]:
+        bases = [AlgebraicNumber(b) for b in self.bases]
+        M = faccin_bound(bases)
+        es = [ln(b) for b in bases] + [2*pi*I]
+        n = len(es)
+        w = 1
+        upper = M * (n + 2)**(1/2)
+        B = np.zeros((n, n + 2), dtype=Fraction)
+        B[0:n, 0:n] = np.identity(n, dtype=Fraction)
+
+        while not self._all_in_lattice(B[:, :n-1]):
+            w = 2*w
+            precision = int(ceiling(log(n*w, 10)))
+            real_approximations = [Fraction(str(re(e).round(precision))) for e in es]
+            im_approximations = [Fraction(str(im(e).round(precision))) for e in es]
+            for row in range(B.shape[0]):
+                real_entry = w * sum([e*r for e, r in zip(B[row, :-2], real_approximations)])
+                im_entry = w * sum([e*i for e, i in zip(B[row, :-2], im_approximations)])
+                B[row, -2] = real_entry
+                B[row, -1] = im_entry
+
+            lll_vectors = olll.reduction(B.tolist(), 0.75)
+            gs_vectors = olll.gramschmidt(list(map(olll.Vector, B.tolist())))
+            r = len(gs_vectors) - 1
+            while r > 0 and gs_vectors[r].dot(gs_vectors[r]) ** (1/2) > upper:
+                r -= 1
+            B = np.asarray(lll_vectors[:r+1], dtype=Fraction)
+
+        return B[:, :len(self.bases)].astype(int).tolist()
+
+    def _all_in_lattice(self, B):
+        for row in range(B.shape[0]):
+            expr = math.prod([e**c for c, e in zip(B[row, :], self.bases)])
+            if re(expr).round(20) != 1 or im(expr).round(20) != 0:
+                return False
+
+        for row in range(B.shape[0]):
+            expr = math.prod([e ** c for c, e in zip(B[row, :], self.bases)])
+            if re(expr).round(100) != 1 or im(expr).round(100) != 0:
+                return False
+        return True
 
     def compute_basis_rational(self) -> List[List[int]]:
         factors_to_multiplicities = {}
@@ -85,5 +129,4 @@ class ExponentLattice:
             kernel_basis.col_del(-1)
 
         kernel_basis = np.asarray(kernel_basis).astype(int).tolist()
-        print(kernel_basis)
         return kernel_basis
