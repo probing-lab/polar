@@ -10,4 +10,4 @@ from .statistics import raw_moments_to_cumulants, raw_moments_to_centrals, comb
 from .special_polys import ce_bell_poly, prob_hermite_poly
 from .solvers import solve_rec_by_summing
 from .graph import Graph
-from .algebraic_numbers import faccin_height, faccin_bound
+from .algebraic_numbers import faccin_height, faccin_bound, algebraic_number_equals_const
