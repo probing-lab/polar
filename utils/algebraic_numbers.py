@@ -1,5 +1,19 @@
-from typing import List
-from sympy import AlgebraicNumber, primitive_element, floor, ln, Abs, Number
+from typing import List, Union
+from sympy import AlgebraicNumber, primitive_element, floor, ln, Abs, Number, Expr
+
+
+def algebraic_number_equals_const(x: Union[AlgebraicNumber, Expr], c: Union[Number, int]) -> bool:
+    """
+    Efficient function to determine whether x == c for an algebraic number x and a constant c
+    The algebraic number can be given as Algebraic number or as an expression that is algebraic.
+    The constant must be a number or an integer.
+    """
+    if x == 1:
+        return True
+    x = AlgebraicNumber(x)
+    if x.minpoly.degree() == 1 and x.minpoly.LC() == 1 and x.minpoly.eval(c) == 0:
+        return True
+    return False
 
 
 def faccin_height(x: AlgebraicNumber) -> Number:

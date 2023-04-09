@@ -7,7 +7,7 @@ from utils import faccin_bound
 import numpy as np
 
 from invariants.exceptions import ExponentLatticeException
-from utils import are_coprime
+from utils import are_coprime, algebraic_number_equals_const
 import subprocess
 import os
 import json
@@ -90,12 +90,12 @@ class ExponentLattice:
     def _all_in_lattice(self, B):
         for row in range(B.shape[0]):
             expr = math.prod([e**c for c, e in zip(B[row, :], self.bases)])
-            if re(expr).round(20) != 1 or im(expr).round(20) != 0:
+            if re(expr).round(10) != 1 or im(expr).round(10) != 0:
                 return False
 
         for row in range(B.shape[0]):
             expr = math.prod([e ** c for c, e in zip(B[row, :], self.bases)])
-            if re(expr).round(100) != 1 or im(expr).round(100) != 0:
+            if not algebraic_number_equals_const(expr, 1):
                 return False
         return True
 
@@ -130,3 +130,20 @@ class ExponentLattice:
 
         kernel_basis = np.asarray(kernel_basis).astype(int).tolist()
         return kernel_basis
+
+    @classmethod
+    def bases_are_equivalent(cls, basis1: List[List[int]], basis2: List[List[int]]) -> bool:
+        """
+        Returns true iff two given bases span the same integer lattice
+        See: https://math.stackexchange.com/a/4467760
+        """
+        basis1 = Matrix(basis1).T
+        basis2 = Matrix(basis2).T
+        u = basis1.pinv() * basis2
+        if basis1*u != basis2:
+            return False
+        u_det = u.det()
+        if u_det != 1 and u_det != -1:
+            return False
+        u_is_integer = all([c.is_integer for row in u.tolist() for c in row])
+        return u_is_integer
