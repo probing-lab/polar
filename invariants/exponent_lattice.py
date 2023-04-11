@@ -6,17 +6,19 @@ from sympy.polys.matrices import DomainMatrix
 from utils import faccin_bound
 import numpy as np
 
-from invariants.exceptions import ExponentLatticeException
 from utils import are_coprime, algebraic_number_equals_const
-import subprocess
-import os
-import json
 import math
 
 ExponentBase = Expr
 
 
 class ExponentLattice:
+    """
+    For some given bases of algebraic numbers b1,...,bn this class represent the lattice given by the solutions
+    b1^x1 * ... * bn^xn = 1 where all xi are integers. The set of these solutions has a lattice structure.
+    Moreover, this lattice has a (non-unique) basis.
+    This class provides the functionality to compute a basis for this lattice.
+    """
 
     bases: List[ExponentBase]
 
@@ -24,6 +26,10 @@ class ExponentLattice:
         self.bases = bases
 
     def is_trivially_empty(self):
+        """
+        Returns true iff all exponent-bases are rational and all numerators and denominators are coprime.
+        If this holds, the lattice is trivial (only consists of the 0 solution)
+        """
         if len(self.bases) == 0:
             return True
         all_rational = all([b.is_Rational for b in self.bases])
@@ -34,21 +40,10 @@ class ExponentLattice:
                 return True
         return False
 
-    def compute_basis_sage(self) -> List[List[int]]:
-        if self.is_trivially_empty():
-            return []
-
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        command = ["sage", dir_path + "/integer-relations.py"] + [str(b) for b in self.bases]
-        try:
-            result = subprocess.run(command, capture_output=True)
-            if result.returncode != 0:
-                raise ExponentLatticeException("Something went wrong while computing the basis of the exponent lattice")
-            return json.loads(result.stdout)
-        except FileNotFoundError:
-            raise ExponentLatticeException("To compute the exponent lattice for invariants please install sagemath and make the 'sage' command visible on your system.")
-
     def compute_basis(self) -> List[List[int]]:
+        """
+        Returns a basis for the exponent lattice
+        """
         if self.is_trivially_empty():
             return []
 
@@ -58,6 +53,12 @@ class ExponentLattice:
         return self.compute_basis_kauers()
 
     def compute_basis_kauers(self) -> List[List[int]]:
+        """
+        This function implements the algorithm for compute a basis for an exponent-lattice as described in
+        https://arxiv.org/abs/2302.04070
+        The algorithm treats the equation b1^x1 * ... * bn^xn = 1 as the equivalent equation
+        ln(b1)*x1 + ... + ln(bn)xn + x*2*pi*I = 0 and uses the LLL algorithm and a known upper bound for |xi|.
+        """
         bases = [AlgebraicNumber(b) for b in self.bases]
         M = faccin_bound(bases)
         es = [ln(b) for b in bases] + [2*pi*I]
@@ -68,6 +69,7 @@ class ExponentLattice:
         B[0:n, 0:n] = np.identity(n, dtype=Fraction)
 
         while not self._all_in_lattice(B[:, :n-1]):
+            # Computer ever more precise approximations of the es.
             w = 2*w
             precision = int(ceiling(log(n*w, 10)))
             real_approximations = [Fraction(str(re(e).round(precision))) for e in es]
@@ -81,18 +83,26 @@ class ExponentLattice:
             lll_vectors = olll.reduction(B.tolist(), 0.75)
             gs_vectors = olll.gramschmidt(list(map(olll.Vector, B.tolist())))
             r = len(gs_vectors) - 1
-            while r > 0 and gs_vectors[r].dot(gs_vectors[r]) ** (1/2) > upper:
+            while r >= 0 and gs_vectors[r].dot(gs_vectors[r]) ** (1/2) > upper:
                 r -= 1
+            if r < 0:
+                return []
             B = np.asarray(lll_vectors[:r+1], dtype=Fraction)
 
         return B[:, :len(self.bases)].astype(int).tolist()
 
     def _all_in_lattice(self, B):
+        """
+        Returns true iff the rows of B are a subset of the lattice.
+        """
+        # First do a fast numeric check. We cannot conclusively say whether B is a subset of the lattice,
+        # but we can very quickly get an answer if B is clearly not a subset of the lattice.
         for row in range(B.shape[0]):
             expr = math.prod([e**c for c, e in zip(B[row, :], self.bases)])
             if re(expr).round(10) != 1 or im(expr).round(10) != 0:
                 return False
 
+        # If the numeric check could not rule out that B is not a subset of the lattice, we perform an exact check.
         for row in range(B.shape[0]):
             expr = math.prod([e ** c for c, e in zip(B[row, :], self.bases)])
             if not algebraic_number_equals_const(expr, 1):
@@ -100,14 +110,26 @@ class ExponentLattice:
         return True
 
     def compute_basis_rational(self) -> List[List[int]]:
+        """
+        Computes a basis of the exponent lattice given that all exponent-bases are rational.
+        The method works by factoring all numerators and denominators into their prime factors.
+        For every prime factor p, all multiplicities of the numerator minus all multiplicities of the denominators
+        need to some up to 0. Moreover, the multiplicities of the factor (-1) needs to sum up to an even integer.
+        This leads to a system of linear diophantine equations.
+        """
+        # maps factors (primes and -1) to multiplicities
+        # The multiplicities are represented by a list with one entry for every base.
+        # If the factor occurs in the denominator the multiplicity is negative
         factors_to_multiplicities = {}
 
         def add_factors_with_mults(fm, i):
+            # Adds the factors of the exponent-base bi to the map
             for f, m in fm.items():
                 if f not in factors_to_multiplicities:
                     factors_to_multiplicities[f] = [0 for _ in self.bases]
                 factors_to_multiplicities[f][i] = m
 
+        # First, for every exponent-base add all factors with multiplicites to the map
         for i, b in enumerate(self.bases):
             b = Rational(b)
             numer_factors = factorint(numer(b))
@@ -115,8 +137,12 @@ class ExponentLattice:
             add_factors_with_mults(numer_factors, i)
             add_factors_with_mults(denom_factors, i)
 
+        # Next, we set up the system of linear diophantine equations, modelling that the multiplicites of all
+        # prime factors must sum up to 0.
         entries = [mults for k, mults in factors_to_multiplicities.items() if k != -1]
         matrix = Matrix(entries)
+        # If one or more bases have -1 as a factor, we need to add the extra constraint, that the number of -1 factors
+        # must add up to an even integer.
         if -1 in factors_to_multiplicities:
             matrix = matrix.row_insert(matrix.shape[0], Matrix([factors_to_multiplicities[-1]]))
             matrix = matrix.col_insert(matrix.shape[1], Matrix([0] * matrix.shape[0]))

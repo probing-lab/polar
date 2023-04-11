@@ -37,3 +37,10 @@ class ExponentLatticeTest(unittest.TestCase):
         basis = lattice.compute_basis()
         expected_basis = [[1, 1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 1, 0, 2], [0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 4]]
         self.assertTrue(ExponentLattice.bases_are_equivalent(basis, expected_basis))
+
+    def test_basis_5(self):
+        n1 = sympify("sqrt(2)")
+        n2 = sympify("sqrt(3)")
+        lattice = ExponentLattice([n1, n2])
+        basis = lattice.compute_basis()
+        self.assertEqual(basis, [])
