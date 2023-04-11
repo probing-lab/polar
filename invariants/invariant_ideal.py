@@ -11,6 +11,12 @@ ExponentBase = Expr
 
 
 class InvariantIdeal:
+    """
+    This class represents the ideal of all polynomial invariants among program variables given their
+    closed-form solutions (exponential polynomials in n).
+    The class provides a method to compute a finite basis for this ideal.
+    It follows the procedure of https://www.sciencedirect.com/science/article/pii/S074771710800045X
+    """
 
     closed_forms: Dict[Symbol, ClosedForm]
     base_to_symbol: Dict[ExponentBase, Symbol]
@@ -27,6 +33,9 @@ class InvariantIdeal:
             self.closed_forms[s] = self.abstract_exponentials(cf)
 
     def compute_basis(self) -> Set[Expr]:
+        """
+        Computes a finite basis for the ideal of all polynomial relations among the given closed-forms.
+        """
         # Closed-form polynomials
         polys = [s - cf for s, cf in self.closed_forms.items()]
 
