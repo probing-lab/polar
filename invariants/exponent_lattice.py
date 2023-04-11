@@ -68,7 +68,7 @@ class ExponentLattice:
         B = np.zeros((n, n + 2), dtype=Fraction)
         B[0:n, 0:n] = np.identity(n, dtype=Fraction)
 
-        while not self._all_in_lattice(B[:, :n-1]):
+        while not self._all_in_lattice(B):
             # Computer ever more precise approximations of the es.
             w = 2*w
             precision = int(ceiling(log(n*w, 10)))
@@ -95,11 +95,12 @@ class ExponentLattice:
         """
         Returns true iff the rows of B are a subset of the lattice.
         """
-        # First do a fast numeric check. We cannot conclusively say whether B is a subset of the lattice,
+        # First do a fast numeric checks. We cannot conclusively say whether B is a subset of the lattice,
         # but we can very quickly get an answer if B is clearly not a subset of the lattice.
+        precision = 100
         for row in range(B.shape[0]):
-            expr = math.prod([e**c for c, e in zip(B[row, :], self.bases)])
-            if re(expr).round(10) != 1 or im(expr).round(10) != 0:
+            expr = sum([ln(e)*c for c, e in zip(B[row, :], self.bases)]) + (B[row, len(self.bases)] * 2*pi*I)
+            if expr.evalf(precision, chop=True) != 0:
                 return False
 
         # If the numeric check could not rule out that B is not a subset of the lattice, we perform an exact check.
