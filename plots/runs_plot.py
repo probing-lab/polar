@@ -12,7 +12,7 @@ from utils import eval_re
 class RunsPlot(Plot):
 
     def __init__(self, simulation_result: SimulationResult, goal, yscale="linear", anim_iter=False, anim_runs=False,
-                 anim_time=10, first_moment=None, second_moment=None):
+                 anim_time=10, first_moment=None, second_moment=None, is_probabilistic=True):
         self.simulation_result = simulation_result
         self.goal = goal
         self.yscale = yscale
@@ -22,6 +22,7 @@ class RunsPlot(Plot):
         self.fps = -1
         self.first_moment = first_moment
         self.second_moment = second_moment
+        self.is_probabilistic = is_probabilistic
         self.plt = None
         self.ani = None
         self.__build__()
@@ -36,7 +37,7 @@ class RunsPlot(Plot):
         iterations = len(self.simulation_result.samples[0])
         samples = self.simulation_result.samples
         first_moment = self.first_moment
-        second_moment = self.second_moment
+        second_moment = self.second_moment if self.is_probabilistic else None
         store = [[] for _ in range(iterations)]
         labels = []
 
@@ -51,7 +52,8 @@ class RunsPlot(Plot):
         xs = np.linspace(0, len(samples[0]), iterations * exact_resolution)
         if first_moment is not None:
             expectation_data = [float(eval_re(x, first_moment)) for x in xs]
-            labels.append(Line2D([0], [0], label="$\mathbb{E}(" + str(goal) + "_n)$", color="red"))
+            text = "$\mathbb{E}(" + str(goal) + "_n)$" if self.is_probabilistic else f"${goal}_n$"
+            labels.append(Line2D([0], [0], label=text, color="red"))
 
         if first_moment is not None and second_moment is not None:
             variance = second_moment - (first_moment ** 2)

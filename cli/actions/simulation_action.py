@@ -45,5 +45,6 @@ class SimulationAction(Action):
             if isinstance(goal, Piecewise):
                 print(f"P({goal.args[1]}) = {mean}")
             else:
-                print(f"E({goal}) = {mean}")
+                id = f"E({goal})" if program.is_probabilistic else str(goal)
+                print(f"{id} = {mean}")
         print()

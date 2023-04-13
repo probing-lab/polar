@@ -13,6 +13,9 @@ class GoalParser:
 
     @staticmethod
     def parse(goal: str):
+        if goal.find("(") < 0 and goal.find(")") < 0:
+            goal = f"E({goal})"
+
         if len(goal) < 4:
             raise ParseException(f"Malformed goal {goal}")
 

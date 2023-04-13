@@ -46,4 +46,5 @@ class MCCombinationAction(Action):
             for combination in combinations:
                 candidate, solution = combination[0], combination[1]
                 candidate = sympy.sympify(candidate).factor()
-                print(f"E({candidate})[n] = {solution}")
+                id = f"E({candidate})" if program.is_probabilistic else str(candidate)
+                print(f"{id} = {solution}")

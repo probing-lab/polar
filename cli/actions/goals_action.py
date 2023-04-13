@@ -56,8 +56,9 @@ class GoalsAction(Action):
         for goal_type, goal_data in self.parse_goals():
             if goal_type == MOMENT:
                 moment, is_exact = self.handle_moment_goal(goal_data)
-                self.print_moment_goal(goal_data[0], moment, is_exact)
-                closed_forms[f"E({goal_data[0]})"] = moment
+                self.print_moment_goal(goal_data[0], moment, is_exact, is_probabilistic=self.program.is_probabilistic)
+                id = f"E({goal_data[0]})" if self.program.is_probabilistic else str(goal_data[0])
+                closed_forms[id] = moment
             elif goal_type == CUMULANT:
                 cumulant, is_exact = self.handle_cumulant_goal(goal_data)
                 self.print_cumulant_goal(goal_data[0], goal_data[1], cumulant, is_exact)
@@ -86,12 +87,14 @@ class GoalsAction(Action):
             moment, is_exact = get_moment(monom, self.solvers, self.rec_builder, self.cli_args, self.program)
         return moment, is_exact
 
-    def print_moment_goal(self, monom, moment, is_exact, prefix=""):
-        print(f"{prefix}E({monom}) = {prettify_piecewise(moment)}")
+    def print_moment_goal(self, monom, moment, is_exact, prefix="", is_probabilistic=True):
+        id = f"E({monom})" if is_probabilistic else str(monom)
+        print(f"{prefix}{id} = {prettify_piecewise(moment)}")
         print_is_exact(is_exact)
         if self.cli_args.at_n >= 0:
             moment_at_n = eval_re(self.cli_args.at_n, moment).expand()
-            print(f"{prefix}E({monom} | n={self.cli_args.at_n}) = {moment_at_n} ≅ {N(moment_at_n)}")
+            id = f"E({monom} | n={self.cli_args.at_n})" if is_probabilistic else f"{monom} | n={self.cli_args.at_n}"
+            print(f"{prefix}{id} = {moment_at_n} ≅ {N(moment_at_n)}")
         print()
 
     def handle_cumulant_goal(self, goal_data):

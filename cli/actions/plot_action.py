@@ -36,11 +36,12 @@ class PlotAction(Action):
         simulator = Simulator(self.cli_args.simulation_iter)
         result = simulator.simulate(program, [monom], self.cli_args.number_samples)
         if self.cli_args.states_plot:
-            p = StatesPlot(result, monom, self.cli_args.anim_time, self.cli_args.max_y, first_moment, second_moment)
+            p = StatesPlot(result, monom, self.cli_args.anim_time, self.cli_args.max_y, first_moment, second_moment,
+                           is_probabilistic=program.is_probabilistic)
         else:
             p = RunsPlot(result, monom, self.cli_args.yscale, self.cli_args.anim_iter, self.cli_args.anim_runs,
-                         self.cli_args.anim_time, first_moment,
-                         second_moment)
+                         self.cli_args.anim_time, first_moment, second_moment,
+                         is_probabilistic=program.is_probabilistic)
         if self.cli_args.save:
             print("Rendering and saving plot")
             p.save("plot")

@@ -13,13 +13,14 @@ from utils import eval_re
 class StatesPlot(Plot):
 
     def __init__(self, simulation_result: SimulationResult, goal, anim_time, max_y=None, first_moment=None,
-                 second_moment=None):
+                 second_moment=None, is_probabilistic=True):
         self.simulation_result = simulation_result
         self.max_y = max_y
         self.goal = goal
         self.anim_time = anim_time
         self.first_moment = first_moment
         self.second_moment = second_moment
+        self.is_probabilistic = is_probabilistic
         self.plt = None
         self.ani = None
         self.fps = -1
@@ -37,7 +38,7 @@ class StatesPlot(Plot):
         if self.first_moment is not None:
             expectations = [float(eval_re(n, self.first_moment)) for n in range(number_iter)]
         stds = None
-        if self.second_moment is not None:
+        if self.is_probabilistic and self.second_moment is not None:
             second_moments = [float(eval_re(n, self.second_moment)) for n in range(number_iter)]
             stds = [(second_moments[n] - (expectations[n] ** 2)) ** (1 / 2) for n in range(number_iter)]
             stds = [(expectations[n] - 2 * stds[n], expectations[n] + 2 * stds[n]) for n in range(number_iter)]
@@ -66,7 +67,8 @@ class StatesPlot(Plot):
         expectation_line = None
         if expectations:
             expectation_line = ax.axvline(x=expectations[0], color="red", linewidth=2)
-            labels.append(Line2D([0], [0], label="$\mathbb{E}(" + str(goal) + "_n)$", color="red"))
+            text = "$\mathbb{E}(" + str(goal) + "_n)$" if self.is_probabilistic else f"${goal}_n$"
+            labels.append(Line2D([0], [0], label=text, color="red"))
         std_line_0 = None
         std_line_1 = None
         if stds:

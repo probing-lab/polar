@@ -58,9 +58,9 @@ class SensitivityAction(Action):
         for goal_type, goal_data in goals_action.parse_goals():
             if goal_type == MOMENT:
                 result, is_exact = goals_action.handle_moment_goal(goal_data)
-                goals_action.print_moment_goal(goal_data[0], result, is_exact)
+                goals_action.print_moment_goal(goal_data[0], result, is_exact, is_probabilistic=self.program.is_probabilistic)
                 result_diff = result.diff(param).simplify()
-                goals_action.print_moment_goal(goal_data[0], result_diff, is_exact, prefix="∂")
+                goals_action.print_moment_goal(goal_data[0], result_diff, is_exact, prefix="∂", is_probabilistic=self.program.is_probabilistic)
             elif goal_type == CUMULANT:
                 result, is_exact = goals_action.handle_cumulant_goal(goal_data)
                 goals_action.print_cumulant_goal(goal_data[0], goal_data[1], result, is_exact)
@@ -96,6 +96,6 @@ class SensitivityAction(Action):
         for goal_type, goal_data in goals_action.parse_goals():
             if goal_type == MOMENT:
                 result, is_exact = goals_action.handle_moment_goal(goal_data)
-                goals_action.print_moment_goal(goal_data[0], result, is_exact, prefix="∂")
+                goals_action.print_moment_goal(goal_data[0], result, is_exact, prefix="∂", is_probabilistic=self.program.is_probabilistic)
             else:
                 raise RuntimeError(f"Goal type {goal_type} does not exist or cannot be used with diff recurrences.")
