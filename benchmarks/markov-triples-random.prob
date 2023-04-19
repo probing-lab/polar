@@ -1,0 +1,10 @@
+a, b, c = 1, 1, 2
+while true:
+    c = Bernoulli(1/2)
+    if c == 1:
+        a, b, c = a, 3*a*b - c, b
+    else:
+        a, b, c = b, 3*b*c - a, c
+    end
+end
+

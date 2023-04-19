@@ -1,0 +1,5 @@
+a, b, c = 1, 1, 2
+while true:
+    a, b, c = a, c, 3*a*c - b
+end
+

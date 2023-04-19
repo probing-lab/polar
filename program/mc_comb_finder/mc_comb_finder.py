@@ -1,6 +1,6 @@
 from utils import get_unique_var, solve_rec_by_summing, get_terms_with_vars, get_monoms
 from symengine.lib.symengine_wrapper import Symbol
-from sympy import solve, sympify
+from sympy import solve, sympify, groebner
 from recurrences import RecBuilder
 from program import Program
 from recurrences.solver import RecurrenceSolver
@@ -196,7 +196,12 @@ class MCCombFinder:
         equations = cls.__construct_equations__(
             candidate_rec, candidate_coefficients, kcandidate, rhs_good_part, good_coeffs, k
         )
-        solutions = solve(equations, list(candidate_coefficients) + [k] + list(good_coeffs), dict=True)
+
+        symbols = list(candidate_coefficients) + list(good_coeffs) + [k]
+        equations = [sympify(e) for e in equations]
+        symbols = [sympify(s) for s in symbols]
+        basis = groebner(equations, *symbols)
+        solutions = solve([b for b in basis], symbols, dict=True)
         nice_solutions = cls.__get_nice_solutions__(solutions, equations, candidate, k)
         if len(nice_solutions) == 0:
             return None
