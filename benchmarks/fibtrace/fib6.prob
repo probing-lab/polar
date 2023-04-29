@@ -1,0 +1,5 @@
+while true:
+    a, b, c, d, e, f, g = e, c*d -a*b +f, f, b*d -a*c +e, e*f -b*c + g, c*d*e -a*c*f + b*c -g, a*b*c**2*f -b*c*e*f -a**2*b**2*c**2 + a*b**2*c*e + a*b*c*d +b**2*c**2 -b*c*g -b**2 -c**2 +2
+end
+
+#https://iopscience.iop.org/article/10.1088/0305-4470/26/10/014/pdf
