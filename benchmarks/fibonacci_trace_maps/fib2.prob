@@ -1,3 +1,0 @@
-while true:
-    x, y, z = y, 2*x*z - y, 4*x*y*z - 2*x**2 - 2*y**2 + 1
-end
