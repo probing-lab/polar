@@ -1,3 +1,0 @@
-while true:
-    x, y, z = y, z, 2*y*z - x
-end
