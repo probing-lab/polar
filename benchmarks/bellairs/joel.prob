@@ -1,0 +1,8 @@
+x = 1
+y = 0
+z = 0
+while true:
+    x = 2*x + y
+    y = y + 3 - z
+    z = -4*z + 6
+end

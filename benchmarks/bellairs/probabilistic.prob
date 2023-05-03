@@ -1,0 +1,8 @@
+x = 0
+y = 0
+while true:
+    g1 = Uniform(0, 2)
+    g2 = Normal(0, 1)
+    x = x + g1 {1/2} x + g2**2
+    y = y + x {1/2} y + x**2
+end

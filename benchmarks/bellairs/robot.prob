@@ -1,0 +1,26 @@
+# orientation
+theta = Normal(0, 0.01)
+cos_theta = Cos(theta)
+sin_theta = Sin(theta)
+
+# linear velocity
+v = Uniform(6, 8)
+
+# position of the vehicle
+x = Uniform(-0.01, 0.01)
+y = Uniform(-0.01, 0.01)
+while true:
+    x = x + v * cos_theta
+    y = y + v * sin_theta
+
+    # disturbance to v
+    omega_v = Normal(0, 0.01)
+    v = v + omega_v
+
+    # disturbance to theta
+    omega_theta = Uniform(-0.01, 0.01)
+    cos_o_theta = Cos(omega_theta)
+    sin_o_theta = Sin(omega_theta)
+    theta = theta + omega_theta
+    cos_theta, sin_theta = cos_theta*cos_o_theta - sin_theta*sin_o_theta, sin_theta*cos_o_theta + cos_theta*sin_o_theta
+end

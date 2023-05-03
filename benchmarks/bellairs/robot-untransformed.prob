@@ -1,0 +1,19 @@
+# orientation
+theta = Normal(0, 0.01)
+
+# linear velocity
+v = Uniform(6, 8)
+
+# position of the vehicle
+x = Uniform(-0.01, 0.01)
+y = Uniform(-0.01, 0.01)
+while true:
+    x = x + v * Cos(theta)
+    y = y + v * Sin(theta)
+
+    # disturbance to v
+    v = v + Normal(0, 0.01)
+
+    # disturbance to theta
+    theta = theta + Uniform(-0.01, 0.01)
+end
