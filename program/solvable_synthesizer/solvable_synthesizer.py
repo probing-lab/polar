@@ -5,6 +5,7 @@ from recurrences import RecBuilder
 from program import Program
 from recurrences.solver import RecurrenceSolver
 
+
 class SolvableSynthesizer:
     """
     Synthesizes all solvable loops from an unsolvable loop
@@ -183,9 +184,7 @@ class SolvableSynthesizer:
 
 
     @classmethod
-    def synthesize(cls, combination_vars, combination_deg, program: Program,
-                        numeric_roots, numeric_croots, numeric_eps):
-        pass
+    def synthesize(cls, combination_vars, combination_deg, program: Program):
         candidate, candidate_coefficients = cls.__get_candidate__(combination_vars, combination_deg)
         rec_builder = RecBuilder(program)
         candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
