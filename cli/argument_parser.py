@@ -272,6 +272,13 @@ class ArgumentParser:
             help="""Get sensitivity of goal with respect to the
             symbolic constants by differentiating the closed form solution""",
         )
+        self.argument_parser.add_argument(
+            "--synth_solv",
+            dest="synth_solv",
+            default=2,
+            type=int,
+            help="The degree of the polynomial invariant in the defective variables used for replacement"
+        )
 
     def parse_args(self):
         args = self.argument_parser.parse_args()
