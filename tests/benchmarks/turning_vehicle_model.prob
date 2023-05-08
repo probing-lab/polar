@@ -22,5 +22,5 @@ while true:
     cos_psi, sin_psi = cos_psi*cos_w2 - sin_psi*sin_w2, sin_psi*cos_w2 + cos_psi*sin_w2
 end
 
-#test: raw; x; 0; 20**(-n)*(-11*19**n + 11*19**n*exp(1/200) - 27*20**n*exp(n/200) + 29*20**n*exp(n/200 + 1/200) - 40*20**n*exp(1/200) + 38*20**n)*exp(-n/200)/(2*(-39*exp(1/200) + 19 + 20*exp(1/100)))
+#test: raw; x; 0; (-11*19**n*exp(n/200 + 3/200) + 11*19**n*exp(n/200 + 1/50) + 38*20**n*exp(n/200 + 3/200) - 40*20**n*exp(n/200 + 1/50) - 27*20**n*exp(n/100 + 3/200) + 29*20**n*exp(n/100 + 1/50))*exp(-n/100)/(2*20**n*(-39*exp(1/50) + 19*exp(3/200) + 20*exp(1/40)))
 #test: raw; y; -2/5; -2/5

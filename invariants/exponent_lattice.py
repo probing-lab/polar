@@ -1,8 +1,7 @@
 import olll
 from fractions import Fraction
 from typing import List
-from sympy import Expr, numer, denom, AlgebraicNumber, factorint, Rational, Matrix, pi, I, ZZ, ln, re, im, log, ceiling
-from sympy.polys.matrices import DomainMatrix
+from sympy import Expr, numer, denom, AlgebraicNumber, factorint, Rational, Matrix, pi, I, ln, re, im, log, ceiling
 from utils import faccin_bound
 import numpy as np
 
@@ -149,13 +148,12 @@ class ExponentLattice:
             matrix = matrix.col_insert(matrix.shape[1], Matrix([0] * matrix.shape[0]))
             matrix[-1, -1] = 2
 
-        matrix = DomainMatrix.from_Matrix(matrix)
-        matrix.convert_to(ZZ)
-        kernel_basis = matrix.nullspace().to_Matrix()
+        kernel_basis = matrix.nullspace()
         if -1 in factors_to_multiplicities:
-            kernel_basis.col_del(-1)
+            for vector in kernel_basis:
+                vector.row_del(-1)
 
-        kernel_basis = np.asarray(kernel_basis).astype(int).tolist()
+        kernel_basis = np.asarray([v.T.tolist()[0] for v in kernel_basis]).astype(int).tolist()
         return kernel_basis
 
     @classmethod

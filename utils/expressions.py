@@ -216,7 +216,7 @@ def unpack_piecewise(expression):
     """
     if isinstance(expression, Piecewise):
         for expr, cond in expression.args:
-            if cond.is_Boolean and bool(cond):
+            if cond.is_Boolean and cond == True:
                 expression = expr
                 break
         else:

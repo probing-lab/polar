@@ -184,5 +184,6 @@ class FiniteFixedPointTyper(Typer):
         types = []
         for variable, status in self.state.items():
             if not status.has_failed:
-                types.append(Finite(status.values, variable))
+                if all([v.is_number for v in status.values]):
+                    types.append(Finite(status.values, variable))
         return types

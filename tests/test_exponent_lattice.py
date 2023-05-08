@@ -17,7 +17,7 @@ class ExponentLatticeTest(unittest.TestCase):
         n2 = sympify("-1")
         lattice = ExponentLattice([n1, n2])
         basis = lattice.compute_basis()
-        self.assertTrue(ExponentLattice.bases_are_equivalent(basis, [[1, 0], [0, 2]]))
+        self.assertTrue(ExponentLattice.bases_are_equivalent(basis, [[1, 0], [0, -2]]))
 
     def test_basis_3(self):
         n1 = sympify("CRootOf('x**2 + 1', 0)")
