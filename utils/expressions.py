@@ -198,7 +198,7 @@ def numerify_croots(expression):
         return N(expression), False
 
     if not expression.args:
-        return expression
+        return expression, True
 
     exact = True
     new_args = []
