@@ -8,6 +8,7 @@ from .gram_charlier_action import GramCharlierAction
 from .cornish_fisher_action import CornishFisherAction
 from .mc_combination_action import MCCombinationAction
 from .print_benchmark_action import PrintBenchmarkAction
+from .synthesize_solvable_action import SynthSolvAction
 from .goals_action import GoalsAction
 
 
@@ -34,4 +35,6 @@ class ActionFactory:
             return CornishFisherAction(cli_args)
         if cli_args.mc_comb is not None:
             return MCCombinationAction(cli_args)
+        if cli_args.synth_solv:
+            return SynthSolvAction(cli_args)
         return PrintBenchmarkAction(cli_args)
