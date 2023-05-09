@@ -1,4 +1,5 @@
 from .argument_parser import ArgumentParser
+from .common import parse_program, prepare_program
 
 logo = """
 8888888b.   .d88888b.  888             d8888 8888888b.
