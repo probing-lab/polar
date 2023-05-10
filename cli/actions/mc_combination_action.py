@@ -36,6 +36,26 @@ class MCCombinationAction(Action):
         print(colored("-------------------", "cyan"))
         print()
 
+        # First look for combinations where k=1
+        print("Searching for combinations for special case k = 1..")
+        combinations = MCCombFinder.find_good_combination_for_k(
+            1, combination_vars, combination_deg, program, self.cli_args.numeric_roots, self.cli_args.numeric_croots,
+            self.cli_args.numeric_eps
+        )
+
+        if combinations is None:
+            print(f"No combination found with degree {combination_deg} and k=1")
+        else:
+            for combination in combinations:
+                candidate, solution = combination[0], combination[1]
+                candidate = sympy.sympify(candidate).factor()
+                id = f"E({candidate})" if program.is_probabilistic else str(candidate)
+                print(f"{id} = {solution}")
+        print()
+
+
+        # Then look for the general case
+        print("Searching for combinations, general case..")
         combinations = MCCombFinder.find_good_combination(
             combination_vars, combination_deg, program, self.cli_args.numeric_roots, self.cli_args.numeric_croots,
             self.cli_args.numeric_eps

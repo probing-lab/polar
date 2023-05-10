@@ -1,6 +1,7 @@
+from typing import Union
 from utils import get_unique_var, solve_rec_by_summing, get_terms_with_vars, get_monoms
 from symengine.lib.symengine_wrapper import Symbol
-from sympy import solve, sympify, groebner
+from sympy import solve, sympify, groebner, Number, linsolve
 from recurrences import RecBuilder
 from program import Program
 from recurrences.solver import RecurrenceSolver
@@ -8,7 +9,13 @@ from recurrences.solver import RecurrenceSolver
 
 class MCCombFinder:
     """
-    Generates all possible polynomial invariants with defective variables upto a fixed degree
+    Generates all possible polynomial invariants with some given variables upto a fixed degree
+    TODO: Some parts this class are not so nice because sympy's solver for polynomial systems of equation is incomplete.
+    TODO: Especially finding a combination for a fixed k is not ideal.
+    TODO: Fix this as soon as sympy improves their procedure for systems of polynomial equations.
+
+    In essence the class follows the procedure described in our paper
+    "Solving Invariant Generation for Unsolvable Loops".
     """
     @classmethod
     def __get_candidate_terms__(cls, pos, vars, deg, pw, s):
@@ -214,6 +221,47 @@ class MCCombFinder:
         for solution in nice_solutions:
             ans = solve_rec_by_summing(
                 rec_coeff=solution[sympify(k)],
+                init_value=initial_candidate,
+                inhom_part=sympify(good_part_solution)
+            )
+            ans = ans.xreplace(solution)
+            combinations.append((candidate.xreplace(solution), ans))
+        return combinations
+
+    @classmethod
+    def find_good_combination_for_k(cls, k: Union[Number, int], combination_vars, combination_deg, program: Program,
+                              numeric_roots, numeric_croots, numeric_eps):
+        candidate, candidate_coefficients = cls.__get_candidate__(combination_vars, combination_deg)
+        rec_builder = RecBuilder(program)
+        candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
+
+        good_set = cls.__get_good_set__(candidate_rec, program.non_mc_variables, program.variables)
+        rhs_good_part, good_coeffs = cls.__get_good_poly__(good_set)
+        kcandidate = (k * candidate).expand()
+
+        equations = cls.__construct_equations__(
+            candidate_rec, candidate_coefficients, kcandidate, rhs_good_part, good_coeffs, k
+        )
+
+        symbols = list(candidate_coefficients) + list(good_coeffs)
+        equations = [sympify(e) for e in equations]
+        symbols = [sympify(s) for s in symbols]
+        tmp_solutions = linsolve(equations, symbols)
+        solutions = []
+        for tmps in tmp_solutions:
+            if not all([v == 0 for v in tmps]):
+                solutions.append({symbol: value for symbol, value in zip(symbols, tmps)})
+        if len(solutions) == 0:
+            return None
+
+        good_part_solution = cls.__solve_good_part__(
+            rhs_good_part, good_coeffs, numeric_roots, numeric_croots, numeric_eps, program
+        )
+        combinations = []
+        initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
+        for solution in solutions:
+            ans = solve_rec_by_summing(
+                rec_coeff=k,
                 init_value=initial_candidate,
                 inhom_part=sympify(good_part_solution)
             )
