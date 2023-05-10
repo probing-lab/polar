@@ -45,9 +45,13 @@ class SensitivityAction(Action):
         and then differentiating, only works if all variables are effective.
         """
 
-        valid, param = self.__is_str_symbolic_param(self.cli_args.sensitivity_analysis_diff)
+        valid, param = self.__is_str_symbolic_param(
+            self.cli_args.sensitivity_analysis_diff
+        )
         if valid is False:
-            raise ParseException(f"Unknown symbolic constant {self.cli_args.sensitivity_analysis_diff}")
+            raise ParseException(
+                f"Unknown symbolic constant {self.cli_args.sensitivity_analysis_diff}"
+            )
 
         print(colored("----------------------", "cyan"))
         print(colored("- Sensitivity Result -", "cyan"))
@@ -58,21 +62,42 @@ class SensitivityAction(Action):
         for goal_type, goal_data in goals_action.parse_goals():
             if goal_type == MOMENT:
                 result, is_exact = goals_action.handle_moment_goal(goal_data)
-                goals_action.print_moment_goal(goal_data[0], result, is_exact, is_probabilistic=self.program.is_probabilistic)
+                goals_action.print_moment_goal(
+                    goal_data[0],
+                    result,
+                    is_exact,
+                    is_probabilistic=self.program.is_probabilistic,
+                )
                 result_diff = result.diff(param).simplify()
-                goals_action.print_moment_goal(goal_data[0], result_diff, is_exact, prefix="∂", is_probabilistic=self.program.is_probabilistic)
+                goals_action.print_moment_goal(
+                    goal_data[0],
+                    result_diff,
+                    is_exact,
+                    prefix="∂",
+                    is_probabilistic=self.program.is_probabilistic,
+                )
             elif goal_type == CUMULANT:
                 result, is_exact = goals_action.handle_cumulant_goal(goal_data)
-                goals_action.print_cumulant_goal(goal_data[0], goal_data[1], result, is_exact)
+                goals_action.print_cumulant_goal(
+                    goal_data[0], goal_data[1], result, is_exact
+                )
                 result_diff = result.diff(param).simplify()
-                goals_action.print_cumulant_goal(goal_data[0], goal_data[1], result_diff, is_exact, prefix="∂")
+                goals_action.print_cumulant_goal(
+                    goal_data[0], goal_data[1], result_diff, is_exact, prefix="∂"
+                )
             elif goal_type == CENTRAL:
                 result, is_exact = goals_action.handle_central_moment_goal(goal_data)
-                goals_action.print_central_moment_goal(goal_data[0], goal_data[1], result, is_exact)
+                goals_action.print_central_moment_goal(
+                    goal_data[0], goal_data[1], result, is_exact
+                )
                 result_diff = result.diff(param).simplify()
-                goals_action.print_central_moment_goal(goal_data[0], goal_data[1], result_diff, is_exact, prefix="∂")
+                goals_action.print_central_moment_goal(
+                    goal_data[0], goal_data[1], result_diff, is_exact, prefix="∂"
+                )
             else:
-                raise RuntimeError(f"Goal type {goal_type} does not exist or cannot be used for sensitivity analysis.")
+                raise RuntimeError(
+                    f"Goal type {goal_type} does not exist or cannot be used for sensitivity analysis."
+                )
 
     def __analyze_sensitivity___(self):
         """
@@ -86,7 +111,9 @@ class SensitivityAction(Action):
         # try parse parameter and make sure this is a symbolic param
         valid, param = self.__is_str_symbolic_param(self.cli_args.sensitivity_analysis)
         if valid is False:
-            raise ParseException(f"Unknown symbolic constant {self.cli_args.sensitivity_analysis}")
+            raise ParseException(
+                f"Unknown symbolic constant {self.cli_args.sensitivity_analysis}"
+            )
 
         goals_action = GoalsAction(self.cli_args)
         diff_rec_builder = DiffRecBuilder(self.program, param)
@@ -96,6 +123,14 @@ class SensitivityAction(Action):
         for goal_type, goal_data in goals_action.parse_goals():
             if goal_type == MOMENT:
                 result, is_exact = goals_action.handle_moment_goal(goal_data)
-                goals_action.print_moment_goal(goal_data[0], result, is_exact, prefix="∂", is_probabilistic=self.program.is_probabilistic)
+                goals_action.print_moment_goal(
+                    goal_data[0],
+                    result,
+                    is_exact,
+                    prefix="∂",
+                    is_probabilistic=self.program.is_probabilistic,
+                )
             else:
-                raise RuntimeError(f"Goal type {goal_type} does not exist or cannot be used with diff recurrences.")
+                raise RuntimeError(
+                    f"Goal type {goal_type} does not exist or cannot be used with diff recurrences."
+                )

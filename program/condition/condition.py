@@ -4,7 +4,6 @@ from symengine.lib.symengine_wrapper import Expr, Symbol
 
 
 class Condition(ABC):
-
     is_loop_guard: bool = False
 
     @abstractmethod

@@ -13,6 +13,7 @@ class ConditionsReducer(Transformer):
     Transforms all condition atoms in the program to the form: <variable> <comparison> 0
     The transformer requires that the passed program is flattened, meaning it does not contain any if-statements.
     """
+
     program: Program
 
     def execute(self, program: Program) -> Program:
@@ -27,8 +28,14 @@ class ConditionsReducer(Transformer):
         for assign in assignments:
             aliases = assign.condition.reduce(store)
             for new_var, expression in aliases:
-                new_assignments.append(PolyAssignment.deterministic(new_var, expression.simplify()))
+                new_assignments.append(
+                    PolyAssignment.deterministic(new_var, expression.simplify())
+                )
             new_assignments.append(assign)
-            store = {k: v for k, v in store.items() if assign.variable not in k.get_free_symbols()}
+            store = {
+                k: v
+                for k, v in store.items()
+                if assign.variable not in k.get_free_symbols()
+            }
 
         return new_assignments

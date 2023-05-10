@@ -10,7 +10,6 @@ TAIL_BOUND_LOWER = "TAIL_BOUND_LOWER"
 
 
 class GoalParser:
-
     @staticmethod
     def parse(goal: str):
         if goal.find("(") < 0 and goal.find(")") < 0:
@@ -36,7 +35,7 @@ class GoalParser:
             raise ParseException(f"Malformed goal {goal}")
         try:
             number = int(goal[1:bracket_pos])
-            between_brackets = goal[bracket_pos+1:-1].strip()
+            between_brackets = goal[bracket_pos + 1 : -1].strip()
             return kind, [number, sympify(between_brackets)]
         except Exception:
             raise ParseException(f"Malformed goal {goal}")
@@ -50,12 +49,22 @@ class GoalParser:
 
     @staticmethod
     def __parse_tail_bound__(goal: str):
-        match = re.search("^P\\(([0-9a-zA-Z*/.+\\-)( ]*?)>=([0-9a-zA-Z*/.+\\-)( ]*?)\\)( )*<=( )*\\?( )*", goal)
+        match = re.search(
+            "^P\\(([0-9a-zA-Z*/.+\\-)( ]*?)>=([0-9a-zA-Z*/.+\\-)( ]*?)\\)( )*<=( )*\\?( )*",
+            goal,
+        )
         if match:
-            return TAIL_BOUND_UPPER, [sympify(t) for t in [match.group(1), match.group(2)]]
+            return TAIL_BOUND_UPPER, [
+                sympify(t) for t in [match.group(1), match.group(2)]
+            ]
 
-        match = re.search("^P\\(([0-9a-zA-Z*/.+\\-)( ]*?)>([0-9a-zA-Z*/.+\\-)( ]*?)\\)( )*>=( )*\\?( )*", goal)
+        match = re.search(
+            "^P\\(([0-9a-zA-Z*/.+\\-)( ]*?)>([0-9a-zA-Z*/.+\\-)( ]*?)\\)( )*>=( )*\\?( )*",
+            goal,
+        )
         if match:
-            return TAIL_BOUND_LOWER, [sympify(t) for t in [match.group(1), match.group(2)]]
+            return TAIL_BOUND_LOWER, [
+                sympify(t) for t in [match.group(1), match.group(2)]
+            ]
 
         raise ParseException(f"Unknown goal {goal}")

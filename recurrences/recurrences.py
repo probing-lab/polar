@@ -11,6 +11,7 @@ class Recurrences:
     """
     Class for storing a system of recurrences. The class uses (and converts everything to) sympy
     """
+
     program: Program
     recurrence_dict: Dict[Expr, Expr]
     init_values_dict: Dict[Expr, Expr]
@@ -22,10 +23,20 @@ class Recurrences:
     is_inhomogeneous = False
     constant_symbols: List[Symbol]
 
-    def __init__(self, recurrence_dict, init_values_dict, program: Program, const_symbols: List[Symbol] = None):
+    def __init__(
+        self,
+        recurrence_dict,
+        init_values_dict,
+        program: Program,
+        const_symbols: List[Symbol] = None,
+    ):
         self.program = program
-        self.recurrence_dict = {sympify(k): sympify(v) for k, v in recurrence_dict.items()}
-        self.init_values_dict = {sympify(k): sympify(v) for k, v in init_values_dict.items()}
+        self.recurrence_dict = {
+            sympify(k): sympify(v) for k, v in recurrence_dict.items()
+        }
+        self.init_values_dict = {
+            sympify(k): sympify(v) for k, v in init_values_dict.items()
+        }
         self.monomials = list(self.recurrence_dict.keys())
         self.dependencies = {}
         if const_symbols is None:
@@ -49,7 +60,8 @@ class Recurrences:
                 self.recurrence_dict[v],
                 constant_symbols={sympify(s) for s in self.constant_symbols},
                 with_constant=True,
-                zero=sympify(0), one=sympify(1)
+                zero=sympify(0),
+                one=sympify(1),
             )
             self.dependencies[v] = set()
             for coeff, monom in monoms:

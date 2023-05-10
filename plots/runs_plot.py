@@ -10,9 +10,18 @@ from utils import eval_re
 
 
 class RunsPlot(Plot):
-
-    def __init__(self, simulation_result: SimulationResult, goal, yscale="linear", anim_iter=False, anim_runs=False,
-                 anim_time=10, first_moment=None, second_moment=None, is_probabilistic=True):
+    def __init__(
+        self,
+        simulation_result: SimulationResult,
+        goal,
+        yscale="linear",
+        anim_iter=False,
+        anim_runs=False,
+        anim_time=10,
+        first_moment=None,
+        second_moment=None,
+        is_probabilistic=True,
+    ):
         self.simulation_result = simulation_result
         self.goal = goal
         self.yscale = yscale
@@ -52,15 +61,27 @@ class RunsPlot(Plot):
         xs = np.linspace(0, len(samples[0]), iterations * exact_resolution)
         if first_moment is not None:
             expectation_data = [float(eval_re(x, first_moment)) for x in xs]
-            text = "$\mathbb{E}(" + str(goal) + "_n)$" if self.is_probabilistic else f"${goal}_n$"
+            text = (
+                "$\mathbb{E}(" + str(goal) + "_n)$"
+                if self.is_probabilistic
+                else f"${goal}_n$"
+            )
             labels.append(Line2D([0], [0], label=text, color="red"))
 
         if first_moment is not None and second_moment is not None:
-            variance = second_moment - (first_moment ** 2)
+            variance = second_moment - (first_moment**2)
             std = variance ** (1 / 2)
             std_data_1 = [float(eval_re(x, first_moment + 2 * std)) for x in xs]
             std_data_2 = [float(eval_re(x, first_moment - 2 * std)) for x in xs]
-            labels.append(Line2D([0], [0], linestyle=":", label="$\pm 2 Std(" + str(goal) + "_n)$", color='red'))
+            labels.append(
+                Line2D(
+                    [0],
+                    [0],
+                    linestyle=":",
+                    label="$\pm 2 Std(" + str(goal) + "_n)$",
+                    color="red",
+                )
+            )
 
         objects = []
 
@@ -70,15 +91,46 @@ class RunsPlot(Plot):
                 o.remove()
             objects.clear()
             for r in run_data:
-                objects.extend(ax.plot(range(frame_number), r[:frame_number], linewidth=1, color="grey", alpha=0.1))
+                objects.extend(
+                    ax.plot(
+                        range(frame_number),
+                        r[:frame_number],
+                        linewidth=1,
+                        color="grey",
+                        alpha=0.1,
+                    )
+                )
             if first_moment is not None:
-                ed = expectation_data[:frame_number * exact_resolution]
-                objects.extend(ax.plot(xs[:frame_number * exact_resolution], ed, color="red", linewidth=2))
+                ed = expectation_data[: frame_number * exact_resolution]
+                objects.extend(
+                    ax.plot(
+                        xs[: frame_number * exact_resolution],
+                        ed,
+                        color="red",
+                        linewidth=2,
+                    )
+                )
             if first_moment is not None and second_moment is not None:
-                sd1 = std_data_1[:frame_number * exact_resolution]
-                sd2 = std_data_2[:frame_number * exact_resolution]
-                objects.extend(ax.plot(xs[:frame_number * exact_resolution], sd1, ":", color="red", linewidth=1.5))
-                objects.extend(ax.plot(xs[:frame_number * exact_resolution], sd2, ":", color="red", linewidth=1.5))
+                sd1 = std_data_1[: frame_number * exact_resolution]
+                sd2 = std_data_2[: frame_number * exact_resolution]
+                objects.extend(
+                    ax.plot(
+                        xs[: frame_number * exact_resolution],
+                        sd1,
+                        ":",
+                        color="red",
+                        linewidth=1.5,
+                    )
+                )
+                objects.extend(
+                    ax.plot(
+                        xs[: frame_number * exact_resolution],
+                        sd2,
+                        ":",
+                        color="red",
+                        linewidth=1.5,
+                    )
+                )
 
         def runs_animation(frame_number):
             frame_number = int(frames_factor * frame_number)
@@ -87,8 +139,23 @@ class RunsPlot(Plot):
             objects.clear()
             run_index, run_iter = divmod(frame_number, iterations)
             for i in range(run_index):
-                objects.extend(ax.plot(range(iterations), run_data[i], linewidth=1, color="grey", alpha=0.1))
-            objects.extend(ax.plot(range(run_iter), run_data[run_index - 1][:run_iter], linewidth=1, color="blue"))
+                objects.extend(
+                    ax.plot(
+                        range(iterations),
+                        run_data[i],
+                        linewidth=1,
+                        color="grey",
+                        alpha=0.1,
+                    )
+                )
+            objects.extend(
+                ax.plot(
+                    range(run_iter),
+                    run_data[run_index - 1][:run_iter],
+                    linewidth=1,
+                    color="blue",
+                )
+            )
 
         ax.legend(handles=labels)
         if self.anim_iter:
@@ -99,8 +166,12 @@ class RunsPlot(Plot):
             for o in objects:
                 o.remove()
             objects.clear()
-            self.ani = animation.FuncAnimation(fig, iter_animation, number_rendered_frames,
-                                               interval=int(1000 / self.fps))
+            self.ani = animation.FuncAnimation(
+                fig,
+                iter_animation,
+                number_rendered_frames,
+                interval=int(1000 / self.fps),
+            )
         elif self.anim_runs:
             if first_moment is not None:
                 ax.plot(xs, expectation_data, color="red", linewidth=2)
@@ -115,8 +186,12 @@ class RunsPlot(Plot):
             for o in objects:
                 o.remove()
             objects.clear()
-            self.ani = animation.FuncAnimation(fig, runs_animation, number_rendered_frames,
-                                               interval=int(1000 / self.fps))
+            self.ani = animation.FuncAnimation(
+                fig,
+                runs_animation,
+                number_rendered_frames,
+                interval=int(1000 / self.fps),
+            )
         else:
             frames_factor = 1
             iter_animation(iterations)

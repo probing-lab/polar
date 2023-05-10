@@ -4,7 +4,6 @@ from invariants.exponent_lattice import ExponentLattice
 
 
 class ExponentLatticeTest(unittest.TestCase):
-
     def test_basis_1(self):
         n1 = sympify("2")
         n2 = sympify("1/2")
@@ -35,7 +34,13 @@ class ExponentLatticeTest(unittest.TestCase):
         n6 = sympify("CRootOf('x**2 + 1', 1)")
         lattice = ExponentLattice([n1, n2, n3, n4, n5, n6])
         basis = lattice.compute_basis()
-        expected_basis = [[1, 1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 1, 0, 2], [0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 4]]
+        expected_basis = [
+            [1, 1, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 1, 0, 2],
+            [0, 0, 0, 0, 1, 1],
+            [0, 0, 0, 0, 0, 4],
+        ]
         self.assertTrue(ExponentLattice.bases_are_equivalent(basis, expected_basis))
 
     def test_basis_5(self):

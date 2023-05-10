@@ -15,14 +15,16 @@ class Categorical(Distribution):
             raise RuntimeError("Categorical distribution requires >=1 parameters")
         s = sum(parameters)
         if s.is_Number and s != 1:
-            raise RuntimeError("Categorical distribution parameters need to sum up to 1")
+            raise RuntimeError(
+                "Categorical distribution parameters need to sum up to 1"
+            )
         self.probabilities = parameters
 
     @lru_cache()
     def get_moment(self, k: int):
         m = 0
         for i, p in enumerate(self.probabilities):
-            m += (i ** k) * p
+            m += (i**k) * p
         return m
 
     def is_discrete(self):
@@ -42,7 +44,9 @@ class Categorical(Distribution):
         for prob in self.probabilities:
             p = prob.subs(state)
             if not p.is_Number:
-                raise EvaluationException(f"Probability {prob} is not a number in state {state}")
+                raise EvaluationException(
+                    f"Probability {prob} is not a number in state {state}"
+                )
             probabilities.append(float(p))
 
         return random.choices(range(len(probabilities)), weights=probabilities, k=1)[0]

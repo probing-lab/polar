@@ -1,4 +1,3 @@
-
 class InvariantIdealException(Exception):
     pass
 

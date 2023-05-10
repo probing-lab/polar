@@ -31,7 +31,7 @@ class Beta(Distribution):
         b = sympify(self.b)
         scale = sympify(self.scale)
         x = BetaDist("x", a, b)
-        return sympy2symengine(Rational((scale ** k) * EV(x ** k)))
+        return sympy2symengine(Rational((scale**k) * EV(x**k)))
 
     def is_discrete(self):
         return False
@@ -47,10 +47,12 @@ class Beta(Distribution):
         scale = self.scale.subs(state)
         if not a.is_Number or not b.is_Number:
             raise EvaluationException(
-                f"Parameters {self.a}, {self.b} don't evaluate to numbers with state {state}")
+                f"Parameters {self.a}, {self.b} don't evaluate to numbers with state {state}"
+            )
         if not scale.is_Number:
             raise EvaluationException(
-                f"Parameter {self.scale}, does not evaluate to a number with state {state}")
+                f"Parameter {self.scale}, does not evaluate to a number with state {state}"
+            )
         return scale * beta.rvs(float(a), float(b))
 
     def cf(self, t: Expr):
@@ -59,7 +61,7 @@ class Beta(Distribution):
         scale = sympify(self.scale)
         t = sympify(t)
         x = BetaDist("x", a, b)
-        return EV(E**(I*t*scale*x))
+        return EV(E ** (I * t * scale * x))
 
     def mgf(self, t: Expr):
         a = sympify(self.a)
@@ -67,13 +69,15 @@ class Beta(Distribution):
         scale = sympify(self.scale)
         t = sympify(t)
         x = BetaDist("x", a, b)
-        return EV(E**(t*scale*x))
+        return EV(E ** (t * scale * x))
 
     def mgf_exists_at(self, t: Expr):
         return True
 
     def get_free_symbols(self):
-        return self.a.free_symbols.union(self.b.free_symbols).union(self.scale.free_symbols)
+        return self.a.free_symbols.union(self.b.free_symbols).union(
+            self.scale.free_symbols
+        )
 
     def get_support(self):
         return {(Zero(), self.scale)}

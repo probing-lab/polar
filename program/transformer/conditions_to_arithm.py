@@ -16,6 +16,7 @@ class ConditionsToArithm(Transformer):
 
     The transformer requires that the passed program is flattened, meaning it does not contain any if-statements.
     """
+
     program: Program
     needs_info_update: bool = False
 
@@ -37,7 +38,10 @@ class ConditionsToArithm(Transformer):
                 continue
 
             if isinstance(assign, PolyAssignment):
-                assign.polynomials = [arithm_cond * p + (1 - arithm_cond) * assign.default for p in assign.polynomials]
+                assign.polynomials = [
+                    arithm_cond * p + (1 - arithm_cond) * assign.default
+                    for p in assign.polynomials
+                ]
                 assign.condition = TrueCond()
                 new_assignments.append(assign)
 

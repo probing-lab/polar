@@ -3,7 +3,6 @@ from .condition import Condition
 
 
 class TrueCond(Condition):
-
     def is_implied_by_loop_guard(self):
         return True
 

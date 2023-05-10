@@ -21,7 +21,9 @@ class MultiAssignTransformer(Transformer):
             var = assign.variable
             if assigns_count[var] > 1:
                 # Introduce new alias for var and from now on replace var with its alias
-                new_var = symbols(f"_{var}{assigns_per_var[var] - assigns_count[var] + 1}")
+                new_var = symbols(
+                    f"_{var}{assigns_per_var[var] - assigns_count[var] + 1}"
+                )
                 assign.variable = new_var
                 substitutions[var] = new_var
                 assigns_count[var] -= 1

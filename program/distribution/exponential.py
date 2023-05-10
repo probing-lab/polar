@@ -16,7 +16,7 @@ class Exponential(Distribution):
 
     @lru_cache()
     def get_moment(self, k: int):
-        return factorial(k) / (self.lamb ** k)
+        return factorial(k) / (self.lamb**k)
 
     def is_discrete(self):
         return False
@@ -27,8 +27,10 @@ class Exponential(Distribution):
     def sample(self, state):
         lamb = self.lamb.subs(state)
         if not lamb.is_Number:
-            raise EvaluationException(f"Parameter {self.lamb} doesn't evaluate to number with state {state}")
-        return expon.rvs(scale=1/float(lamb))
+            raise EvaluationException(
+                f"Parameter {self.lamb} doesn't evaluate to number with state {state}"
+            )
+        return expon.rvs(scale=1 / float(lamb))
 
     def get_free_symbols(self):
         return self.lamb.free_symbols
@@ -36,12 +38,12 @@ class Exponential(Distribution):
     def cf(self, t: Expr):
         lamb = sympify(self.lamb)
         t = sympify(t)
-        return lamb/(lamb - I*t)
+        return lamb / (lamb - I * t)
 
     def mgf(self, t: Expr):
         lamb = sympify(self.lamb)
         t = sympify(t)
-        return lamb/(lamb - t)
+        return lamb / (lamb - t)
 
     def mgf_exists_at(self, t: Expr):
         lamb = sympify(self.lamb)

@@ -36,7 +36,9 @@ class RecBuilder:
             next_monom = to_process.pop()
             recurrence_dict[next_monom] = self.get_recurrence(next_monom)
             processed.add(next_monom)
-            monoms = get_monoms(recurrence_dict[next_monom], constant_symbols=self.program.symbols)
+            monoms = get_monoms(
+                recurrence_dict[next_monom], constant_symbols=self.program.symbols
+            )
             for _, monom in monoms:
                 if monom not in processed:
                     to_process.add(monom)
@@ -71,7 +73,7 @@ class RecBuilder:
         self.context = RecBuilderContext()
         right_side = monomial
         last_assign_index = self.__get_last_assign_index__(monomial.free_symbols)
-        for i in reversed(range(last_assign_index+1)):
+        for i in reversed(range(last_assign_index + 1)):
             assignment = self.program.loop_body[i]
             if self.__assign_replace_is_necessary__(assignment, right_side):
                 right_side = right_side.expand()
@@ -126,16 +128,22 @@ class RecBuilder:
             result = rest_without_vars
             for var_powers, rest in terms_with_vars:
                 var_power = var_powers[0]
-                trigger_monom = prod([v ** p for v, p in zip(triggers, var_powers[1:])])
-                result += assign.get_moment(var_power, self.context, cond, trigger_monom*rest)
+                trigger_monom = prod([v**p for v, p in zip(triggers, var_powers[1:])])
+                result += assign.get_moment(
+                    var_power, self.context, cond, trigger_monom * rest
+                )
             return result
 
     def __reduce_powers__(self, poly: Expr):
         """
         Reduces the power of finite-valued variables in a given expression.
         """
-        terms_with_vars, rest_without_vars = get_terms_with_vars(poly, self.program.finite_variables)
-        finite_types: List[Finite] = [self.program.get_type(v) for v in self.program.finite_variables]
+        terms_with_vars, rest_without_vars = get_terms_with_vars(
+            poly, self.program.finite_variables
+        )
+        finite_types: List[Finite] = [
+            self.program.get_type(v) for v in self.program.finite_variables
+        ]
         result = rest_without_vars
         for var_powers, rest in terms_with_vars:
             term = rest

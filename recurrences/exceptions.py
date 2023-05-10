@@ -1,3 +1,2 @@
-
 class SolverException(Exception):
     pass

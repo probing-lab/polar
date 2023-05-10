@@ -15,7 +15,9 @@ class DiscreteUniform(Distribution):
         if len(parameters) != 2:
             raise RuntimeError("Uniform distribution requires 2 parameters")
         if not parameters[0].is_Integer or not parameters[1].is_Integer:
-            raise RuntimeError("For discrete uniform only integer parameters are supported")
+            raise RuntimeError(
+                "For discrete uniform only integer parameters are supported"
+            )
         values = list(range(int(parameters[0]), int(parameters[1]) + 1))
         self.values = [sympify(v) for v in values]
 
@@ -24,7 +26,7 @@ class DiscreteUniform(Distribution):
         m = 0
         p = Rational(1, len(self.values))
         for v in self.values:
-            m += (v ** k) * p
+            m += (v**k) * p
         return m
 
     def subs(self, substitutions):
@@ -46,13 +48,15 @@ class DiscreteUniform(Distribution):
         a = ssympify(self.values[0])
         b = ssympify(self.values[-1])
         t = ssympify(t)
-        return (E**(I*a*t) - E**(I*(b+1)*t))/((b - a + 1)*(1 - E**(I*t)))
+        return (E ** (I * a * t) - E ** (I * (b + 1) * t)) / (
+            (b - a + 1) * (1 - E ** (I * t))
+        )
 
     def mgf(self, t: Expr):
         a = ssympify(self.values[0])
         b = ssympify(self.values[-1])
         t = ssympify(t)
-        return (E**(a*t) - E**((b+1)*t))/((b - a + 1)*(1 - (E**t)))
+        return (E ** (a * t) - E ** ((b + 1) * t)) / ((b - a + 1) * (1 - (E**t)))
 
     def mgf_exists_at(self, t: Expr):
         return True

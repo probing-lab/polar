@@ -27,10 +27,14 @@ class SamplingTimeQuery(Query):
         for condition in conditions:
             condition_parts = condition.split("=")
             if len(condition_parts) != 2:
-                raise QueryException("Illegal Format for Sampling Time Query, use VAR = VAL, VAR = VAL, ..")
+                raise QueryException(
+                    "Illegal Format for Sampling Time Query, use VAR = VAL, VAR = VAL, .."
+                )
             cond_var, cond_val = [p.strip() for p in condition_parts]
             if cond_var not in network.variables:
-                raise QueryException(f"Unknown variable {cond_var} in Sampling Time Query")
+                raise QueryException(
+                    f"Unknown variable {cond_var} in Sampling Time Query"
+                )
             if cond_val not in network.variables[cond_var].domain:
                 raise QueryException(f"Unknown value {cond_val} in Sampling Time Query")
             self.target_variables.append(cond_var)
@@ -39,7 +43,9 @@ class SamplingTimeQuery(Query):
 
     def generate_init_code(self, network, polar_variable_mapping) -> List[str]:
         self.count_name = get_unique_name(polar_variable_mapping.values(), "count")
-        self.continue_name = get_unique_name(polar_variable_mapping.values(), "continue")
+        self.continue_name = get_unique_name(
+            polar_variable_mapping.values(), "continue"
+        )
         return [self.count_name + " = 1", self.continue_name + " = 1"]
 
     def generate_loop_code(self, network, polar_variable_mapping) -> List[str]:
@@ -48,12 +54,19 @@ class SamplingTimeQuery(Query):
             variable_name = self.target_variables[i]
             variable = network.variables[variable_name]
             domain_value = variable.domain.index(self.target_values[i])
-            condition += polar_variable_mapping[variable_name] + " == " + str(domain_value) + " && "
+            condition += (
+                polar_variable_mapping[variable_name]
+                + " == "
+                + str(domain_value)
+                + " && "
+            )
 
         variable_name = self.target_variables[-1]
         variable = network.variables[variable_name]
         domain_value = variable.domain.index(self.target_values[-1])
-        condition += polar_variable_mapping[variable_name] + " == " + str(domain_value) + ":"
+        condition += (
+            polar_variable_mapping[variable_name] + " == " + str(domain_value) + ":"
+        )
 
         code = [condition]
         code.append(f"\t\t{self.continue_name} = 0")
@@ -67,4 +80,6 @@ class SamplingTimeQuery(Query):
     def generate_result(self, results):
         exp_val_count = results[0]
         sampling_time = transform_to_after_loop(exp_val_count)
-        print(f"The expected number of samples until {self.query} is {sampling_time} ≈ {sampling_time.evalf(10)}")
+        print(
+            f"The expected number of samples until {self.query} is {sampling_time} ≈ {sampling_time.evalf(10)}"
+        )

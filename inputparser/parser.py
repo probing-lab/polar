@@ -20,7 +20,9 @@ class Parser:
 
     def parse_string(self, code: str, transform_categoricals=False) -> Program:
         with open(GRAMMAR_FILE_PATH) as grammar_file:
-            parser = Lark(grammar_file, transformer=ArithmeticToStringTransformer, parser="lalr")
+            parser = Lark(
+                grammar_file, transformer=ArithmeticToStringTransformer, parser="lalr"
+            )
             tree = parser.parse(code)
             program = StructureTransformer(transform_categoricals).transform(tree)
         return program

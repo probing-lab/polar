@@ -13,7 +13,9 @@ from symengine import sympify as symengify
 from sympy import Symbol, sympify
 
 
-def create_sensitivity_test(benchmark, monom, param, initial_value, general_form, diff=False):
+def create_sensitivity_test(
+    benchmark, monom, param, initial_value, general_form, diff=False
+):
     monom = symengify(monom)
     param = symengify(param)
     n = Symbol("n", integer=True)
@@ -29,7 +31,11 @@ def create_sensitivity_test(benchmark, monom, param, initial_value, general_form
             solution, is_exact = get_sensitivity(benchmark, monom, param)
         self.assertTrue(is_exact)
         self.assertEqual(initial_value.expand(), solution.subs({n: 0}))
-        self.assertEqual(general_form.nsimplify().expand(), unpack_piecewise(solution).nsimplify().expand())
+        self.assertEqual(
+            general_form.nsimplify().expand(),
+            unpack_piecewise(solution).nsimplify().expand(),
+        )
+
     return test
 
 
@@ -61,18 +67,22 @@ for benchmark in benchmarks:
     sens_specs = get_test_specs(benchmark, "sens")
     sens_diff_specs = get_test_specs(benchmark, "sens-diff")
     for spec in sens_specs:
-        test_case = create_sensitivity_test(benchmark, spec[0], spec[1], spec[2], spec[3], diff=False)
+        test_case = create_sensitivity_test(
+            benchmark, spec[0], spec[1], spec[2], spec[3], diff=False
+        )
         monom_id = spec[0].replace("*", "")
         param_id = spec[1]
         test_name = f"test_sensitivity_{benchmark_name}_{monom_id}_{param_id}"
         setattr(SensitivitiesTest, test_name, test_case)
     for spec in sens_diff_specs:
-        test_case = create_sensitivity_test(benchmark, spec[0], spec[1], spec[2], spec[3], diff=True)
+        test_case = create_sensitivity_test(
+            benchmark, spec[0], spec[1], spec[2], spec[3], diff=True
+        )
         monom_id = spec[0].replace("*", "")
         param_id = spec[1]
         test_name = f"test_sensitivity_diff_{benchmark_name}_{monom_id}_{param_id}"
         setattr(SensitivitiesTest, test_name, test_case)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

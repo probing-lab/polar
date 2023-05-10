@@ -6,7 +6,12 @@ from .exceptions import TransformException
 from .transformer import Transformer
 from program import Program
 from program.mc_checker import MCChecker
-from program.assignment import DistAssignment, FunctionalAssignment, PolyAssignment, Assignment
+from program.assignment import (
+    DistAssignment,
+    FunctionalAssignment,
+    PolyAssignment,
+    Assignment,
+)
 from program.condition import TrueCond
 from dataclasses import dataclass, field
 
@@ -16,6 +21,7 @@ class UpdateInfoTransformer(Transformer):
     Prepares some final data about the program. So it can be better processed afterwards.
     The transformer requires that the passed program is already flattened, meaning does not contain any if-statements.
     """
+
     program: Program
     ignore_mc_variables: bool
 
@@ -49,7 +55,9 @@ class UpdateInfoTransformer(Transformer):
         symbols = self.__get_all_symbols__(self.program.initial)
         symbols = symbols.union(self.__get_all_symbols__(self.program.loop_body))
         self.program.symbols = symbols.difference(self.program.variables)
-        self.program.original_variables = self.program.original_variables & self.program.variables
+        self.program.original_variables = (
+            self.program.original_variables & self.program.variables
+        )
 
     def __set_dists_for_func_assignments__(self, assignments_list: [Assignment]):
         """
@@ -57,9 +65,15 @@ class UpdateInfoTransformer(Transformer):
         The arguments of functional assignments must be unconditioned distributions (with constant parameters)
         or constants.
         """
-        uncond_vars_dist = {} # store variables that are assigned unconditioned distributions
-        uncond_vars_const = {} # store variables that are assigned unconditioned constants
-        uncond_references = {} # stores unconditioned variables that reference to constants or distributions
+        uncond_vars_dist = (
+            {}
+        )  # store variables that are assigned unconditioned distributions
+        uncond_vars_const = (
+            {}
+        )  # store variables that are assigned unconditioned constants
+        uncond_references = (
+            {}
+        )  # stores unconditioned variables that reference to constants or distributions
         for assign in assignments_list:
             # Store unconditioned distributions
             if isinstance(assign, DistAssignment) and assign.condition == TrueCond():
@@ -74,7 +88,9 @@ class UpdateInfoTransformer(Transformer):
                 if assign.is_reference() and assign.polynomials[0] in uncond_vars_const:
                     uncond_references[assign.variable] = assign.polynomials[0]
                 if assign.is_reference() and assign.polynomials[0] in uncond_references:
-                    uncond_references[assign.variable] = uncond_references[assign.polynomials[0]]
+                    uncond_references[assign.variable] = uncond_references[
+                        assign.polynomials[0]
+                    ]
                 continue
 
             # Assign to functional assignment the distribution or the constant of the argument
@@ -94,22 +110,28 @@ class UpdateInfoTransformer(Transformer):
                     assign.argument_dist = uncond_vars_dist[assign.argument]
                     continue
                 # Every functional assignment has to be assigned a distribution or constant of its argument
-                raise TransformException(f"{assign.argument} in func assignment for {assign.variable} does not have an unconditional distribution")
+                raise TransformException(
+                    f"{assign.argument} in func assignment for {assign.variable} does not have an unconditional distribution"
+                )
 
     def __set_dependencies__(self):
-        self.program.dependency_info = {v: DependencyInfo() for v in self.program.variables}
+        self.program.dependency_info = {
+            v: DependencyInfo() for v in self.program.variables
+        }
         handled_variables = set()
 
         # First initialize ancestors and previous iteration dependency check
         for assign in self.program.loop_body:
             info = self.program.dependency_info[assign.variable]
-            parents = assign.get_free_symbols(with_default=False).difference(self.program.symbols)
+            parents = assign.get_free_symbols(with_default=False).difference(
+                self.program.symbols
+            )
             info.ancestors = parents.copy()
             for parent in parents:
                 info.ancestors |= self.program.dependency_info[parent].ancestors
-            info.iteration_dependent =\
-                not parents.issubset(handled_variables) or\
-                any([self.program.dependency_info[p].iteration_dependent for p in parents])
+            info.iteration_dependent = not parents.issubset(handled_variables) or any(
+                [self.program.dependency_info[p].iteration_dependent for p in parents]
+            )
             info.dependencies = {assign.variable}
             handled_variables.add(assign.variable)
 

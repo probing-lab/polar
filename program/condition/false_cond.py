@@ -3,7 +3,6 @@ from .condition import Condition
 
 
 class FalseCond(Condition):
-
     def simplify(self):
         return self
 

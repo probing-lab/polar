@@ -14,7 +14,9 @@ class Finite(Type):
             raise RuntimeError("Finite type requires >=1 parameters")
         self.values = frozenset({sympify(p) for p in parameters})
         self.__ordered_values__ = tuple(sorted([v for v in self.values]))
-        self.binary = len(self.values) <= 2 and all([v == 0 or v == 1 for v in self.values])
+        self.binary = len(self.values) <= 2 and all(
+            [v == 0 or v == 1 for v in self.values]
+        )
         if variable:
             self.variable = sympify(variable)
 
@@ -28,7 +30,7 @@ class Finite(Type):
         if self.binary:
             return self.variable
         if power < len(self.values):
-            return self.variable ** power
+            return self.variable**power
 
         reduced_powers, tmp_var = get_reduced_powers(self.__ordered_values__, power)
         return reduced_powers.xreplace({tmp_var: self.variable})

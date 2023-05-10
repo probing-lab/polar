@@ -27,7 +27,9 @@ class InvariantIdeal:
         self.closed_forms = {}
         for goal, expr in closed_forms.items():
             variable = Symbol(goal)
-            self.closed_forms[variable] = unpack_piecewise(expr).expand().powsimp().expand()
+            self.closed_forms[variable] = (
+                unpack_piecewise(expr).expand().powsimp().expand()
+            )
         self.base_to_symbol = {}
         for s, cf in self.closed_forms.items():
             self.closed_forms[s] = self.abstract_exponentials(cf)
@@ -47,7 +49,11 @@ class InvariantIdeal:
         polys = polys + list(lattice_ideal.compute_basis())
 
         # n > variables abstracting exponentials > goal variables --> we want to compute an elimination ideal
-        symbols = [self.n] + list(self.base_to_symbol.values()) + list(self.closed_forms.keys())
+        symbols = (
+            [self.n]
+            + list(self.base_to_symbol.values())
+            + list(self.closed_forms.keys())
+        )
         cf_basis = groebner(polys, *symbols)
 
         basis = set()
@@ -78,16 +84,20 @@ class InvariantIdeal:
                 factor1 = exponent.args[0]
                 factor2 = exponent.args[1]
                 if factor1 == self.n:
-                    base = base ** factor2
+                    base = base**factor2
                     exponent = self.n
                 elif factor2 == self.n:
-                    base = base ** factor1
+                    base = base**factor1
                     exponent = self.n
 
             if not base.is_number:
-                raise InvariantIdealException(f"The base of every exponential in n must be a number, but got {base}.")
+                raise InvariantIdealException(
+                    f"The base of every exponential in n must be a number, but got {base}."
+                )
             if exponent != self.n:
-                raise InvariantIdealException(f"The exponent of every exponential in n must be equal to n, but got {exponent}")
+                raise InvariantIdealException(
+                    f"The exponent of every exponential in n must be equal to n, but got {exponent}"
+                )
             if base not in self.base_to_symbol:
                 self.base_to_symbol[base] = Symbol(get_unique_var("b"))
             return self.base_to_symbol[base]

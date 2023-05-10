@@ -15,6 +15,7 @@ class Status:
     """
     Describes the status of one variable in the fixedpoint computation
     """
+
     # All possible values the variable can assume
     values: Set[Expr]
     # Flag the check whether the values set has changed within the last iteration
@@ -69,7 +70,9 @@ class FiniteFixedPointTyper(Typer):
         """
         for assign in self.program.initial:
             if type(assign.condition) != TrueCond:
-                raise TyperNotApplicableException("For type inference no conditions are allowed in initial part")
+                raise TyperNotApplicableException(
+                    "For type inference no conditions are allowed in initial part"
+                )
 
     def __progress__(self):
         """
@@ -111,7 +114,9 @@ class FiniteFixedPointTyper(Typer):
         # type definitions are assumed to be true and therefore locked.
         for var, var_type in self.program.typedefs.items():
             if isinstance(var_type, Finite):
-                self.state[var] = Status(var_type.values, has_changed=False, is_locked=True, has_failed=False)
+                self.state[var] = Status(
+                    var_type.values, has_changed=False, is_locked=True, has_failed=False
+                )
 
         # For variables with initial assignments, the initial state is given by the possible values it
         # can take after the initialization part
@@ -120,10 +125,12 @@ class FiniteFixedPointTyper(Typer):
                 values = self.__get_values_for_assign__(assign)
                 if values:
                     self.state[assign.variable] = Status(
-                        values, has_changed=True, is_locked=False, has_failed=False)
+                        values, has_changed=True, is_locked=False, has_failed=False
+                    )
                 else:
                     self.state[assign.variable] = Status(
-                        set(), has_changed=True, is_locked=True, has_failed=True)
+                        set(), has_changed=True, is_locked=True, has_failed=True
+                    )
 
         # For a variable v with no type definition and no initial assignment, the initial value is given
         # by the symbol v0 or by the empty set if v0 isn't used anyway. That's the case if v isn't used
@@ -132,8 +139,14 @@ class FiniteFixedPointTyper(Typer):
         for assign in self.program.loop_body:
             running_symbols |= assign.get_free_symbols(with_default=False)
             if assign.variable not in self.state:
-                values = {Symbol(str(assign.variable) + "0")} if assign.variable in running_symbols else set()
-                self.state[assign.variable] = Status(values, has_changed=True, is_locked=False, has_failed=False)
+                values = (
+                    {Symbol(str(assign.variable) + "0")}
+                    if assign.variable in running_symbols
+                    else set()
+                )
+                self.state[assign.variable] = Status(
+                    values, has_changed=True, is_locked=False, has_failed=False
+                )
 
     def __get_values_for_assign__(self, assign: Assignment):
         """

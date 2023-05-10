@@ -17,6 +17,7 @@ BENCHMARK_FOLDER = os.getcwd()
 
 TIMEOUT_SECS = 120
 
+
 @dataclass
 class Benchmark:
     filename: str
@@ -27,36 +28,106 @@ class Benchmark:
     system_size: int = 0
     successful: bool = False
 
+
 # Add, alter or remove benchmarks here in the format "filename", [goals], "parameter"
 benchmarks = [
-    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective.prob", ["E(y)"], "par"),
-    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective.prob", ["E(x*z)"], "par"),
-    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_2.prob", ["E(u)"], "p"),
-    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_2.prob", ["E(y**2)"], "p"),
-    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_3.prob", ["E(total)"], "p"),
-    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_3.prob", ["E(z1**2)"], "p"),
-    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_4.prob", ["E(z)"], "p1"),
-    Benchmark("../benchmarks/sensitivity/some_defective/diff_effective_4.prob", ["E(cnt**2)"], "p1"),
-    Benchmark("../benchmarks/sensitivity/all_effective/bimodal_x.prob", ["E(x)"], "var"),
-    Benchmark("../benchmarks/sensitivity/all_effective/bimodal_x.prob", ["E(x**2)"], "var"),
-    Benchmark("../benchmarks/sensitivity/all_effective/dbn_component_health.prob", ["E(obs)"], "p1"),
-    Benchmark("../benchmarks/sensitivity/all_effective/dbn_component_health.prob", ["E(obs**2)"], "p1"),
-    Benchmark("../benchmarks/sensitivity/all_effective/gambling.prob", ["E(money)"], "p"),
-    Benchmark("../benchmarks/sensitivity/all_effective/gambling.prob", ["E(money**2)"], "p"),
-    Benchmark("../benchmarks/sensitivity/all_effective/las_vegas_search.prob", ["E(attempts)"], "p"),
-    Benchmark("../benchmarks/sensitivity/all_effective/las_vegas_search.prob", ["E(attempts**2)"], "p"),
-    Benchmark("../benchmarks/sensitivity/all_effective/randomized_response.prob", ["E(p1)"], "p"),
-    Benchmark("../benchmarks/sensitivity/all_effective/randomized_response.prob", ["E(p1**2)"], "p"),
-    Benchmark("../benchmarks/sensitivity/all_effective/vaccination.prob", ["E(infected)"], "vax_param"),
-    Benchmark("../benchmarks/sensitivity/all_effective/vaccination.prob", ["E(infected**2)"], "vax_param"),
-    ]
-    
+    Benchmark(
+        "../benchmarks/sensitivity/some_defective/diff_effective.prob", ["E(y)"], "par"
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/some_defective/diff_effective.prob",
+        ["E(x*z)"],
+        "par",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/some_defective/diff_effective_2.prob", ["E(u)"], "p"
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/some_defective/diff_effective_2.prob",
+        ["E(y**2)"],
+        "p",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/some_defective/diff_effective_3.prob",
+        ["E(total)"],
+        "p",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/some_defective/diff_effective_3.prob",
+        ["E(z1**2)"],
+        "p",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/some_defective/diff_effective_4.prob", ["E(z)"], "p1"
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/some_defective/diff_effective_4.prob",
+        ["E(cnt**2)"],
+        "p1",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/bimodal_x.prob", ["E(x)"], "var"
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/bimodal_x.prob", ["E(x**2)"], "var"
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/dbn_component_health.prob",
+        ["E(obs)"],
+        "p1",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/dbn_component_health.prob",
+        ["E(obs**2)"],
+        "p1",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/gambling.prob", ["E(money)"], "p"
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/gambling.prob", ["E(money**2)"], "p"
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/las_vegas_search.prob",
+        ["E(attempts)"],
+        "p",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/las_vegas_search.prob",
+        ["E(attempts**2)"],
+        "p",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/randomized_response.prob",
+        ["E(p1)"],
+        "p",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/randomized_response.prob",
+        ["E(p1**2)"],
+        "p",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/vaccination.prob",
+        ["E(infected)"],
+        "vax_param",
+    ),
+    Benchmark(
+        "../benchmarks/sensitivity/all_effective/vaccination.prob",
+        ["E(infected**2)"],
+        "vax_param",
+    ),
+]
+
+
 def run_benchmark(benchmark: Benchmark, output):
     print(f"Running benchmark {benchmark.filename}...")
-    str_goals = "\"" + "\" \"".join(benchmark.goals) + "\""
+    str_goals = '"' + '" "'.join(benchmark.goals) + '"'
     cmd = f"python3 polar.py {os.path.join(BENCHMARK_FOLDER, benchmark.filename)} --goals {str_goals} --{SENSITIVITY_TYPE} {benchmark.param}"
     try:
-        result = subprocess.check_output(cmd, shell=True, timeout=TIMEOUT_SECS).decode() # need to use shell=True so the goals quotation marks dont get escaped
+        result = subprocess.check_output(
+            cmd, shell=True, timeout=TIMEOUT_SECS
+        ).decode()  # need to use shell=True so the goals quotation marks dont get escaped
         output.write(cmd)
         output.write(result)
         benchmark.successful = True
@@ -64,17 +135,21 @@ def run_benchmark(benchmark: Benchmark, output):
         output.write(cmd)
         output.write("TIMEOUT")
         return
-    
+
     # parse runtime from polar output
     time_pattern = "Elapsed time:"
     time_start_index = result.find(time_pattern)
     if time_start_index < 0:
-        print(f"Running benchmark {benchmark.filename} failed. Offending command is {cmd}")
+        print(
+            f"Running benchmark {benchmark.filename} failed. Offending command is {cmd}"
+        )
         exit()
-    
+
     time_end_index = result.find(" s", time_start_index)
-    benchmark.duration_sec = float(result[time_start_index + len(time_pattern) : time_end_index].strip())
-    
+    benchmark.duration_sec = float(
+        result[time_start_index + len(time_pattern) : time_end_index].strip()
+    )
+
     # parse system size
     # size_pattern = "Number of recurrences is"
     # size_start_index = result.find(size_pattern)
@@ -90,27 +165,32 @@ def run_benchmark(benchmark: Benchmark, output):
         goal_pattern = "∂" + goal + " = "
         result_start_index = result.find(goal_pattern)
         if result_start_index < 0:
-            print(f"Running benchmark {benchmark.filename} goal {goal} failed. Offending command is {cmd}")
+            print(
+                f"Running benchmark {benchmark.filename} goal {goal} failed. Offending command is {cmd}"
+            )
             exit()
-        
+
         result_end_index = result.find("\n", result_start_index)
-        benchmark.results.append(result[result_start_index + len(goal_pattern) : result_end_index].strip())
-        
-    
+        benchmark.results.append(
+            result[result_start_index + len(goal_pattern) : result_end_index].strip()
+        )
+
+
 def print_benchmark(benchmark: Benchmark):
     if benchmark.successful is False:
         print(f"Benchmark {benchmark.filename} could not be solved.")
-        return 
-    
-    #print(f"Benchmark {benchmark.filename} using {benchmark.system_size} recurrences solved in {benchmark.duration_sec} seconds.")
+        return
+
+    # print(f"Benchmark {benchmark.filename} using {benchmark.system_size} recurrences solved in {benchmark.duration_sec} seconds.")
     print(f"Benchmark {benchmark.filename} solved in {benchmark.duration_sec} seconds.")
     for i in range(len(benchmark.goals)):
         print(f"\t∂{benchmark.goals[i]} wrt {benchmark.param}: {benchmark.results[i]}")
     return
 
+
 def main():
     # execute all the benchmarks
-    with open('benchmark_trace.txt', 'w') as output:
+    with open("benchmark_trace.txt", "w") as output:
         # change into polar directory for system call
         os.chdir(POLAR_DIR)
 
@@ -119,6 +199,7 @@ def main():
 
     for benchmark in benchmarks:
         print_benchmark(benchmark)
+
 
 if __name__ == "__main__":
     main()

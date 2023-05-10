@@ -6,7 +6,6 @@ from sympy import sympify, Symbol, Expr
 
 
 class InvariantIdealTest(unittest.TestCase):
-
     def test_basis_1(self):
         closed_forms = {
             "v": "1",
@@ -27,7 +26,9 @@ class InvariantIdealTest(unittest.TestCase):
 
     def __test_basis__(self, closed_forms, expected_basis):
         n = Symbol("n", integer=True)
-        closed_forms = {s: sympify(cf).xreplace({Symbol("n"): n}) for s, cf in closed_forms.items()}
+        closed_forms = {
+            s: sympify(cf).xreplace({Symbol("n"): n}) for s, cf in closed_forms.items()
+        }
         expected_basis = {sympify(poly) for poly in expected_basis}
         ideal = InvariantIdeal(closed_forms)
         basis = ideal.compute_basis()
@@ -43,5 +44,5 @@ class InvariantIdealTest(unittest.TestCase):
         return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

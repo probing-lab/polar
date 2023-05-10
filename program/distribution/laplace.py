@@ -21,7 +21,7 @@ class Laplace(Distribution):
     @lru_cache()
     def get_moment(self, k: int):
         x = LaplaceRV("x", self.mu, self.b)
-        return sympy2symengine(Rational(EV(x ** k)))
+        return sympy2symengine(Rational(EV(x**k)))
 
     def is_discrete(self):
         return False
@@ -34,25 +34,27 @@ class Laplace(Distribution):
         mu = self.mu.subs(state)
         b = self.b.subs(state)
         if not mu.is_Number or not b.is_Number:
-            raise EvaluationException(f"Parameters {self.mu}, {self.b} don't evaluate to numbers with state {state}")
+            raise EvaluationException(
+                f"Parameters {self.mu}, {self.b} don't evaluate to numbers with state {state}"
+            )
         return laplace.rvs(scale=float(b), loc=float(mu))
 
     def cf(self, t: Expr):
         mu = sympify(self.mu)
         b = sympify(self.b)
         t = sympify(t)
-        return (E**(mu*I*t))/(1 + b**2 * t**2)
+        return (E ** (mu * I * t)) / (1 + b**2 * t**2)
 
     def mgf(self, t: Expr):
         mu = sympify(self.mu)
         b = sympify(self.b)
         t = sympify(t)
-        return (E**(mu*t))/(1 - b**2 * t**2)
+        return (E ** (mu * t)) / (1 - b**2 * t**2)
 
     def mgf_exists_at(self, t: Expr):
         b = sympify(self.b)
         t = sympify(t)
-        does_exist = Abs(t) < 1/b
+        does_exist = Abs(t) < 1 / b
         if not does_exist.is_Boolean or not bool(does_exist):
             return False
         return True

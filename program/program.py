@@ -7,7 +7,16 @@ from utils import indent_string
 class Program:
     children = ["initial", "loop_body"]
 
-    def __init__(self, types, variables, original_variables, initial, loop_guard, loop_body, is_probabilistic):
+    def __init__(
+        self,
+        types,
+        variables,
+        original_variables,
+        initial,
+        loop_guard,
+        loop_body,
+        is_probabilistic,
+    ):
         self.typedefs = {}
         self.finite_variables = []
         self.dist_variables = []
@@ -20,13 +29,13 @@ class Program:
         self.loop_guard = loop_guard
         self.loop_body = loop_body
         self.abstracted_const_store = {}
-        self.is_probabilistic = is_probabilistic # set by the parsers: true iff the program contains proper probabilistic constructs
+        self.is_probabilistic = is_probabilistic  # set by the parsers: true iff the program contains proper probabilistic constructs
         self.original_loop_guard = None  # initialized by the conditions-normalizer
-        self.var_to_index = {}           # initialized by info transformer
-        self.index_to_var = {}           # initialized by info transformer
-        self.dependency_info = {}        # initialized by info transformer
-        self.mc_variables = set()        # initialize by info transformer
-        self.non_mc_variables = set()    # initialize by info transformer
+        self.var_to_index = {}  # initialized by info transformer
+        self.index_to_var = {}  # initialized by info transformer
+        self.dependency_info = {}  # initialized by info transformer
+        self.mc_variables = set()  # initialize by info transformer
+        self.non_mc_variables = set()  # initialize by info transformer
 
     def add_type(self, t: Type):
         if t is not None:
@@ -62,10 +71,17 @@ class Program:
         if self.typedefs:
             string = f"types\n{indent_string(typedefs, 4)}\nend\n"
 
-        string += f"{initial}\nwhile {str(self.loop_guard)}:\n{indent_string(body, 4)}\nend"
+        string += (
+            f"{initial}\nwhile {str(self.loop_guard)}:\n{indent_string(body, 4)}\nend"
+        )
 
         if len(self.abstracted_const_store) > 0:
-            abstractions = "\n".join([f"{prob} = P({cond})" for prob, cond in self.abstracted_const_store.items()])
+            abstractions = "\n".join(
+                [
+                    f"{prob} = P({cond})"
+                    for prob, cond in self.abstracted_const_store.items()
+                ]
+            )
             string += f"\nwhere\n{indent_string(abstractions, 4)}"
 
         return string

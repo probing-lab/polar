@@ -4,7 +4,12 @@ from expansions import CornishFisherExpansion
 from symengine.lib.symengine_wrapper import sympify
 from sympy import Symbol
 from sympy.plotting import plot as symplot
-from cli.common import prepare_program, get_all_cumulants, get_all_cumulants_after_loop, parse_program
+from cli.common import (
+    prepare_program,
+    get_all_cumulants,
+    get_all_cumulants_after_loop,
+    parse_program,
+)
 
 
 class CornishFisherAction(Action):
@@ -19,9 +24,13 @@ class CornishFisherAction(Action):
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
         program = prepare_program(program, self.cli_args)
         if self.cli_args.after_loop:
-            cumulants = get_all_cumulants_after_loop(program, monom, self.cli_args.cornish_fisher_order, self.cli_args)
+            cumulants = get_all_cumulants_after_loop(
+                program, monom, self.cli_args.cornish_fisher_order, self.cli_args
+            )
         else:
-            cumulants = get_all_cumulants(program, monom, self.cli_args.cornish_fisher_order, self.cli_args)
+            cumulants = get_all_cumulants(
+                program, monom, self.cli_args.cornish_fisher_order, self.cli_args
+            )
         expansion = CornishFisherExpansion(cumulants)
         quantile_function = expansion()
         print(quantile_function)

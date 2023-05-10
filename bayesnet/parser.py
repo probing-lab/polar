@@ -22,6 +22,10 @@ class BifParser:
     def parse_file(self, filepath: str):
         with open(filepath) as file:
             with open(GRAMMAR_FILE_PATH) as grammar_file:
-                parser = Lark(grammar_file, transformer=NetworkTransformer(self.cpt_tolerance), parser="lalr")
+                parser = Lark(
+                    grammar_file,
+                    transformer=NetworkTransformer(self.cpt_tolerance),
+                    parser="lalr",
+                )
                 network = parser.parse(file.read())
         return network

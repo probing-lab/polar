@@ -30,10 +30,14 @@ class ConstantsTransformer(Transformer):
                 continue
 
             # Constant is a single fixed value
-            if isinstance(assign, PolyAssignment) \
-                    and isinstance(assign.condition, TrueCond) \
-                    and len(assign.polynomials) == 1:
-                fixed_constants[assign.variable] = assign.polynomials[0].subs(fixed_constants)
+            if (
+                isinstance(assign, PolyAssignment)
+                and isinstance(assign.condition, TrueCond)
+                and len(assign.polynomials) == 1
+            ):
+                fixed_constants[assign.variable] = assign.polynomials[0].subs(
+                    fixed_constants
+                )
                 continue
 
             # Constant is not a single fixed value

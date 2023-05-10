@@ -29,10 +29,17 @@ def multi_plot():
     ax = fig.add_subplot()
     ax.hist(sim_data, density=True, bins=5000, color="darkgrey", label="Samples")
     ax.plot(xs, gc_fun_data_12, color="darkblue", linewidth=2, label="GC Order 12")
-    ax.plot(xs, gc_fun_data_6, color="red", linewidth=2, linestyle="dashdot", label="GC Order 6")
-    ax.yaxis.set_major_formatter(plt.FormatStrFormatter('%.2f'))
+    ax.plot(
+        xs,
+        gc_fun_data_6,
+        color="red",
+        linewidth=2,
+        linestyle="dashdot",
+        label="GC Order 6",
+    )
+    ax.yaxis.set_major_formatter(plt.FormatStrFormatter("%.2f"))
     ax.legend(loc="upper right")
-    #plt.show()
+    # plt.show()
     plt.savefig("gc_plot_100.pdf")
 
 

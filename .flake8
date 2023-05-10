@@ -1,4 +1,0 @@
-[flake8]
-exclude = .git, .venv*, .idea, scripts
-ignore = W605, F401, E226
-max-line-length = 120

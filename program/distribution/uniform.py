@@ -19,7 +19,7 @@ class Uniform(Distribution):
 
     @lru_cache()
     def get_moment(self, k: int):
-        return (self.b ** (k+1) - self.a ** (k+1)) / ((k+1) * (self.b - self.a))
+        return (self.b ** (k + 1) - self.a ** (k + 1)) / ((k + 1) * (self.b - self.a))
 
     def subs(self, substitutions):
         self.a = self.a.subs(substitutions)
@@ -38,7 +38,9 @@ class Uniform(Distribution):
         a = sympify(self.a.subs(state))
         b = sympify(self.b.subs(state))
         if not a.is_real or not b.is_real:
-            raise EvaluationException(f"Parameters {self.a}, {self.b} don't evaluate to numbers with state {state}")
+            raise EvaluationException(
+                f"Parameters {self.a}, {self.b} don't evaluate to numbers with state {state}"
+            )
         return uniform.rvs(loc=float(a), scale=float(b) - float(a))
 
     def cf(self, t: Expr):
@@ -47,13 +49,15 @@ class Uniform(Distribution):
         a = sympify(self.a)
         b = sympify(self.b)
         t = sympify(t)
-        return (E**(I*t*b) - E**(I*t*a))/(I*t*(b-a))
+        return (E ** (I * t * b) - E ** (I * t * a)) / (I * t * (b - a))
 
     def mgf(self, t: Expr):
         a = sympify(self.a)
         b = sympify(self.b)
         t = sympify(t)
-        return Piecewise((sympify(1), t == 0), ((E**(t*b) - E**(t*a))/(t*(b-a)), True))
+        return Piecewise(
+            (sympify(1), t == 0), ((E ** (t * b) - E ** (t * a)) / (t * (b - a)), True)
+        )
 
     def mgf_exists_at(self, t: Expr):
         return True

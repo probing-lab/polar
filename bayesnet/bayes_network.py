@@ -21,7 +21,7 @@ class BayesNetwork:
         return
 
     def has_variable(self, name: str) -> bool:
-        return (self.variables.get(name) is not None)
+        return self.variables.get(name) is not None
 
     def print_pretty(self, indent: int = 0) -> str:
         pretty: str = (" " * indent) + str(self) + "\n"

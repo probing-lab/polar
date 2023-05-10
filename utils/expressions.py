@@ -2,7 +2,18 @@ from typing import List
 import math
 
 from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
-from sympy import Rational, linsolve, Poly, re, ComplexRootOf, N, symbols, Piecewise, LessThan, roots
+from sympy import (
+    Rational,
+    linsolve,
+    Poly,
+    re,
+    ComplexRootOf,
+    N,
+    symbols,
+    Piecewise,
+    LessThan,
+    roots,
+)
 
 
 def float_to_rational(expr: Expr):
@@ -127,7 +138,9 @@ def get_terms_with_vars(poly: Expr, variables: List[Symbol]):
     return result, rest
 
 
-def get_monoms(poly: Expr, constant_symbols=None, with_constant=False, zero=Zero(), one=One()):
+def get_monoms(
+    poly: Expr, constant_symbols=None, with_constant=False, zero=Zero(), one=One()
+):
     """
     For a given polynomial returns a list of its monomials with separated coefficients - (coeff, monom).
     The polynomial is assumed to be in all symbols it contains minus constant_symbols.
@@ -182,10 +195,7 @@ def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
 
 
 def eval_re(n, expression):
-    result = expression.xreplace({
-        symbols("n"): n,
-        symbols("n", integer=True): n
-    })
+    result = expression.xreplace({symbols("n"): n, symbols("n", integer=True): n})
     return re(result.expand())
 
 
@@ -250,7 +260,7 @@ def get_max_case_in_piecewise(expression):
 def are_coprime(integers: List):
     integers = [int(n) for n in integers]
     for i in range(len(integers)):
-        for j in range(i+1, len(integers)):
+        for j in range(i + 1, len(integers)):
             if math.gcd(integers[i], integers[j]) != 1:
                 return False
     return True

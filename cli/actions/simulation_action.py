@@ -7,7 +7,6 @@ from termcolor import colored
 
 
 class SimulationAction(Action):
-
     cli_args: Namespace
 
     def __init__(self, cli_args: Namespace):

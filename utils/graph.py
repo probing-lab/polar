@@ -1,5 +1,6 @@
 from typing import Set, Tuple
 from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
+
 SymbolSet = Set[SymengineSymbol]
 
 
@@ -69,7 +70,6 @@ class Graph:
         for start in range(self.V):
             for end in range(self.V):
                 if self.adj[start][end] == 2:
-
                     # in case of NL self-dependency -> done
                     if start == end and start == v_idx:
                         return True
@@ -80,13 +80,13 @@ class Graph:
                     # check if variable is reachable from endpoint of NL-edge
                     mark = [False] * self.V
                     self.__dfs__(end, mark)
-                    if(mark[v_idx] is False):
+                    if mark[v_idx] is False:
                         continue
 
                     # check if variable can reach other endpoint of NL-edge
                     mark = [False] * self.V
                     self.__dfs__(v_idx, mark)
-                    if(mark[start]):
+                    if mark[start]:
                         return True
         return False
 

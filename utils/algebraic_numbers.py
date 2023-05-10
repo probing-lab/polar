@@ -2,7 +2,9 @@ from typing import List, Union
 from sympy import AlgebraicNumber, primitive_element, floor, ln, Abs, Number, Expr
 
 
-def algebraic_number_equals_const(x: Union[AlgebraicNumber, Expr], c: Union[Number, int]) -> bool:
+def algebraic_number_equals_const(
+    x: Union[AlgebraicNumber, Expr], c: Union[Number, int]
+) -> bool:
     """
     Efficient function to determine whether x == c for an algebraic number x and a constant c
     The algebraic number can be given as Algebraic number or as an expression that is algebraic.
@@ -57,10 +59,10 @@ def faccin_bound(xs: List[AlgebraicNumber]) -> int:
 
     n = field_extension_degree(xs)
     if n >= 3:
-        eta0 = ((ln(ln(n)) / ln(n)) ** 3) / 4*n
+        eta0 = ((ln(ln(n)) / ln(n)) ** 3) / 4 * n
     else:
         eta0 = ln(1.17) / 2
 
     s = len(xs)
-    R = s**(s-1) * (n + 1)**2 * (h0 / eta0)**(s-1)
+    R = s ** (s - 1) * (n + 1) ** 2 * (h0 / eta0) ** (s - 1)
     return int(floor(R))

@@ -25,18 +25,20 @@ class Bernoulli(Distribution):
     def sample(self, state):
         p = self.p.subs(state)
         if not p.is_Number:
-            raise EvaluationException(f"Parameter {self.p} doesn't evaluate to number with state {state}")
+            raise EvaluationException(
+                f"Parameter {self.p} doesn't evaluate to number with state {state}"
+            )
         return bernoulli.rvs(float(p))
 
     def cf(self, t: Expr):
         p = sympify(self.p)
         t = sympify(t)
-        return (1 - p) + p*E**(I*t)
+        return (1 - p) + p * E ** (I * t)
 
     def mgf(self, t: Expr):
         p = sympify(self.p)
         t = sympify(t)
-        return (1 - p) + p * (E ** t)
+        return (1 - p) + p * (E**t)
 
     def mgf_exists_at(self, t: Expr):
         return True

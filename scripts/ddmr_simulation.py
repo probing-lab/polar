@@ -7,8 +7,8 @@ n = 25
 
 
 def f(j):
-    if (j+1) % 1000 == 0:
-        print(j+1)
+    if (j + 1) % 1000 == 0:
+        print(j + 1)
     x = stats.uniform.rvs(loc=-0.1, scale=0.2)
     y = stats.uniform.rvs(loc=-0.1, scale=0.2)
     theta = stats.norm.rvs(loc=0, scale=np.sqrt(0.1))

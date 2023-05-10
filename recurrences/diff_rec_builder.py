@@ -17,7 +17,7 @@ class DiffRecBuilder:
 
     def __init__(self, program: Program, param: Symbol):
         self.program = program
-        #TODO: use Dummy here when updating symengine, current version is buggy
+        # TODO: use Dummy here when updating symengine, current version is buggy
         self.delta = Symbol(get_unique_var("diff_symbol"))
         self.param = param
         self.rec_builder = RecBuilder(program)
@@ -34,7 +34,7 @@ class DiffRecBuilder:
     @lru_cache(maxsize=None)
     def get_recurrences(self, monomial: Expr) -> Recurrences:
         goal = sympify(monomial)
-        to_process = {goal*self.delta}
+        to_process = {goal * self.delta}
 
         # iteratively get recurrences for monoms and then check if more monomials are needed
         # to solve the recurrence
@@ -44,7 +44,9 @@ class DiffRecBuilder:
             next_monom = to_process.pop()
             recurrence_dict[next_monom] = self.get_recurrence(next_monom)
             processed.add(next_monom)
-            monoms = get_monoms(recurrence_dict[next_monom], constant_symbols=self.program.symbols)
+            monoms = get_monoms(
+                recurrence_dict[next_monom], constant_symbols=self.program.symbols
+            )
             for _, monom in monoms:
                 if monom not in processed:
                     to_process.add(monom)
@@ -58,11 +60,11 @@ class DiffRecBuilder:
         """
         Get recurrence for monomials that might be derivatives
         """
-        
+
         # in case of non-diff monomial -> simply return
         if self.delta not in monomial.free_symbols:
             return self.rec_builder.get_recurrence(monomial)
-            
+
         # replace delta for now and get recurrence
         monomial = monomial.subs(self.delta, 1)
         original_rec = self.rec_builder.get_recurrence(monomial)
@@ -71,7 +73,6 @@ class DiffRecBuilder:
         # now go through each summand and differentiate it
         sum = original_rec.args if original_rec.is_Add else [original_rec]
         for summand in sum:
-
             # skip p-independent summands
             if self.__is_monomial_p_dependent__(summand) is False:
                 continue
@@ -113,10 +114,10 @@ class DiffRecBuilder:
         Get initial values for monomial, variable initial values are delegated to the standard rec_builder,
         differential initial values are obtained by differentiating the initial value of the variables.
         """
-         # in case of non-diff monomial -> simply return
+        # in case of non-diff monomial -> simply return
         if self.delta not in monomial.free_symbols:
             return self.rec_builder.get_initial_value(monomial)
-            
+
         # replace delta for now and get recurrence
         monomial = monomial.subs(self.delta, 1)
         original_init_val = self.rec_builder.get_initial_value(monomial)
@@ -124,5 +125,5 @@ class DiffRecBuilder:
 
     def get_solution(self, monom: Expr, solvers):
         # just lookup the solution
-        solver = solvers[monom*self.delta]
-        return solver.get(monom*self.delta), solver.is_exact
+        solver = solvers[monom * self.delta]
+        return solver.get(monom * self.delta), solver.is_exact

@@ -11,7 +11,9 @@ class IfStatem:
 
     children = ["branches", "else_branch"]
 
-    def __init__(self, conditions, branches, else_branch=None, mutually_exclusive=False):
+    def __init__(
+        self, conditions, branches, else_branch=None, mutually_exclusive=False
+    ):
         self.conditions = conditions
         self.branches = branches
         self.else_branch = else_branch

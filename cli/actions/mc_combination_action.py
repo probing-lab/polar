@@ -20,7 +20,9 @@ class MCCombinationAction(Action):
         program = prepare_program(program, self.cli_args)
 
         if len(program.non_mc_variables) == 0:
-            print(f"--mc_comb not applicable to {benchmark} since all variables are already moment computable.")
+            print(
+                f"--mc_comb not applicable to {benchmark} since all variables are already moment computable."
+            )
             return
 
         combination_vars = []
@@ -39,8 +41,13 @@ class MCCombinationAction(Action):
         # First look for combinations where k=1
         print("Searching for combinations for special case k = 1..")
         combinations = MCCombFinder.find_good_combination_for_k(
-            1, combination_vars, combination_deg, program, self.cli_args.numeric_roots, self.cli_args.numeric_croots,
-            self.cli_args.numeric_eps
+            1,
+            combination_vars,
+            combination_deg,
+            program,
+            self.cli_args.numeric_roots,
+            self.cli_args.numeric_croots,
+            self.cli_args.numeric_eps,
         )
 
         if combinations is None:
@@ -53,15 +60,20 @@ class MCCombinationAction(Action):
                 print(f"{id} = {solution}")
         print()
 
-
         # Then look for the general case
         print("Searching for combinations, general case..")
         combinations = MCCombFinder.find_good_combination(
-            combination_vars, combination_deg, program, self.cli_args.numeric_roots, self.cli_args.numeric_croots,
-            self.cli_args.numeric_eps
+            combination_vars,
+            combination_deg,
+            program,
+            self.cli_args.numeric_roots,
+            self.cli_args.numeric_croots,
+            self.cli_args.numeric_eps,
         )
         if combinations is None:
-            print(f"No combination found with degree {combination_deg}. Try using other degrees.")
+            print(
+                f"No combination found with degree {combination_deg}. Try using other degrees."
+            )
         else:
             for combination in combinations:
                 candidate, solution = combination[0], combination[1]

@@ -42,7 +42,9 @@ class DistTransformer(TreeTransformer):
 
         new_var = get_unique_var()
         new_normal_assign = DistAssignment(new_var, Normal([0, 1]))
-        new_assign = PolyAssignment.deterministic(variable, f"{normal.mu} + (({normal.sigma2}) ** (1/2))*{new_var}")
+        new_assign = PolyAssignment.deterministic(
+            variable, f"{normal.mu} + (({normal.sigma2}) ** (1/2))*{new_var}"
+        )
         return new_normal_assign, new_assign
 
     def __transform_laplace__(self, laplace_assign):
@@ -66,11 +68,15 @@ class DistTransformer(TreeTransformer):
 
         numerator, denominator = exp.lamb.as_numer_denom()
         if numerator.free_symbols:
-            raise TransformException("Exponential distribution can only handle 1/expr parameters. ")
+            raise TransformException(
+                "Exponential distribution can only handle 1/expr parameters. "
+            )
 
         new_var = get_unique_var()
         new_exp_assign = DistAssignment(new_var, Exponential([numerator]))
-        new_assign = PolyAssignment.deterministic(variable, f"({denominator}) * {new_var}")
+        new_assign = PolyAssignment.deterministic(
+            variable, f"({denominator}) * {new_var}"
+        )
         return new_exp_assign, new_assign
 
     def __transform_uniform__(self, uniform_assign):
@@ -83,5 +89,7 @@ class DistTransformer(TreeTransformer):
         new_var = get_unique_var()
         a, b = str(uniform.a), str(uniform.b)
         new_uniform_assign = DistAssignment(new_var, Uniform([0, 1]))
-        new_assign = PolyAssignment.deterministic(variable, f"{a} + ({b} - ({a}))*{new_var}")
+        new_assign = PolyAssignment.deterministic(
+            variable, f"{a} + ({b} - ({a}))*{new_var}"
+        )
         return new_uniform_assign, new_assign

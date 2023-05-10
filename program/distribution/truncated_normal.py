@@ -15,6 +15,7 @@ class TruncNormal(Distribution):
     Disclaimer: When using this distribution in programs exact solutions are not guaranteed.
     The reason is that moments of the truncated normal depend on the erf function which is not elementary.
     """
+
     mu: Expr
     sigma2: Expr
     a: Expr
@@ -39,7 +40,9 @@ class TruncNormal(Distribution):
         b = self.b
         sigma = sqrt(self.sigma2)
         if not all([mu.is_Number, a.is_Number, b.is_Number, sigma.is_Number]):
-            raise EvaluationException("For the truncated normal distributions no symbolic constants are allowed")
+            raise EvaluationException(
+                "For the truncated normal distributions no symbolic constants are allowed"
+            )
 
         alpha = (a - mu) / sigma
         beta = (b - mu) / sigma
@@ -47,10 +50,14 @@ class TruncNormal(Distribution):
         z_pdf = lambda x: sympy2symengine(density(z)(sympify(x)))
         z_cdf = lambda x: sympy2symengine(cdf(z)(sympify(x)))
         m = {-1: zero, 0: one}
-        for i in range(1, int(k)+1):
-            m_i = (i-1) * self.sigma2 * m[i-2]
-            m_i += mu * m[i-1]
-            m_i -= sigma * ((b**(i-1)) * z_pdf(beta) - (a**(i-1)) * z_pdf(alpha)) / (z_cdf(beta) - z_cdf(alpha))
+        for i in range(1, int(k) + 1):
+            m_i = (i - 1) * self.sigma2 * m[i - 2]
+            m_i += mu * m[i - 1]
+            m_i -= (
+                sigma
+                * ((b ** (i - 1)) * z_pdf(beta) - (a ** (i - 1)) * z_pdf(alpha))
+                / (z_cdf(beta) - z_cdf(alpha))
+            )
             m[i] = m_i
         return sympy2symengine(Rational(str(float(m[k].simplify()))))
 
@@ -65,12 +72,14 @@ class TruncNormal(Distribution):
         beta = (b - mu) / sigma
         z = Normal("z", 0, 1)
         Phi = lambda x: cdf(z)(x)
-        result = (Phi(beta - sigma*t) - Phi(alpha - sigma*t)) / (Phi(beta) - Phi(alpha))
-        result *= E ** (mu*t + sigma2*(t**2)/2)
+        result = (Phi(beta - sigma * t) - Phi(alpha - sigma * t)) / (
+            Phi(beta) - Phi(alpha)
+        )
+        result *= E ** (mu * t + sigma2 * (t**2) / 2)
         return result
 
     def cf(self, t: Expr):
-        return self.mgf(I*t)
+        return self.mgf(I * t)
 
     def mgf_exists_at(self, t: Expr):
         return True
@@ -89,10 +98,18 @@ class TruncNormal(Distribution):
         sigma2 = self.sigma2.subs(state).simplify()
         a = self.a.subs(state).simplify()
         b = self.b.subs(state).simplify()
-        if not mu.is_Number or not sigma2.is_Number or not a.is_Number or not b.is_Number:
+        if (
+            not mu.is_Number
+            or not sigma2.is_Number
+            or not a.is_Number
+            or not b.is_Number
+        ):
             raise EvaluationException(
-                f"Parameters {self.mu}, {self.sigma2}, {self.a}, {self.b} don't evaluate to numbers with state {state}")
-        return truncnorm.rvs(float(a), float(b), loc=float(mu), scale=math.sqrt(float(sigma2)))
+                f"Parameters {self.mu}, {self.sigma2}, {self.a}, {self.b} don't evaluate to numbers with state {state}"
+            )
+        return truncnorm.rvs(
+            float(a), float(b), loc=float(mu), scale=math.sqrt(float(sigma2))
+        )
 
     def get_free_symbols(self):
         symbols = self.mu.free_symbols

@@ -68,7 +68,9 @@ class LatticeIdeal:
 
     def get_inverse_symbol(self, symbol: Symbol):
         if symbol not in self.symbols:
-            raise LatticeIdealException(f"Symbol {symbol} is not a symbol of the lattice ideal")
+            raise LatticeIdealException(
+                f"Symbol {symbol} is not a symbol of the lattice ideal"
+            )
         if symbol not in self.inverse_symbols:
             self.inverse_symbols[symbol] = Symbol(get_unique_var("inv"))
         return self.inverse_symbols[symbol]

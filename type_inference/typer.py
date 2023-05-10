@@ -5,7 +5,6 @@ from program.type import Type
 
 
 class Typer(ABC):
-
     @abstractmethod
     def infer_types(self, program: Program) -> List[Type]:
         pass

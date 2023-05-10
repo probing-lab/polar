@@ -29,19 +29,38 @@ class PlotAction(Action):
             solver_args.numeric_croots = True
             solver_args.numeric_eps = 0.0000001
             if self.cli_args.plot_std:
-                second_moment, _ = get_moment(monom ** 2, solvers, rec_builder, solver_args, program)
-            first_moment, _ = get_moment(monom, solvers, rec_builder, solver_args, program)
+                second_moment, _ = get_moment(
+                    monom**2, solvers, rec_builder, solver_args, program
+                )
+            first_moment, _ = get_moment(
+                monom, solvers, rec_builder, solver_args, program
+            )
 
         program = Parser().parse_file(benchmark, self.cli_args.transform_categoricals)
         simulator = Simulator(self.cli_args.simulation_iter)
         result = simulator.simulate(program, [monom], self.cli_args.number_samples)
         if self.cli_args.states_plot:
-            p = StatesPlot(result, monom, self.cli_args.anim_time, self.cli_args.max_y, first_moment, second_moment,
-                           is_probabilistic=program.is_probabilistic)
+            p = StatesPlot(
+                result,
+                monom,
+                self.cli_args.anim_time,
+                self.cli_args.max_y,
+                first_moment,
+                second_moment,
+                is_probabilistic=program.is_probabilistic,
+            )
         else:
-            p = RunsPlot(result, monom, self.cli_args.yscale, self.cli_args.anim_iter, self.cli_args.anim_runs,
-                         self.cli_args.anim_time, first_moment, second_moment,
-                         is_probabilistic=program.is_probabilistic)
+            p = RunsPlot(
+                result,
+                monom,
+                self.cli_args.yscale,
+                self.cli_args.anim_iter,
+                self.cli_args.anim_runs,
+                self.cli_args.anim_time,
+                first_moment,
+                second_moment,
+                is_probabilistic=program.is_probabilistic,
+            )
         if self.cli_args.save:
             print("Rendering and saving plot")
             p.save("plot")

@@ -1,3 +1,2 @@
-
 class TyperNotApplicableException(Exception):
     pass

@@ -1,4 +1,3 @@
-
 class ArithmConversionException(Exception):
     pass
 

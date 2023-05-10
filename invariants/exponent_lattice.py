@@ -1,7 +1,22 @@
 import olll
 from fractions import Fraction
 from typing import List
-from sympy import Expr, numer, denom, AlgebraicNumber, factorint, Rational, Matrix, pi, I, ln, re, im, log, ceiling
+from sympy import (
+    Expr,
+    numer,
+    denom,
+    AlgebraicNumber,
+    factorint,
+    Rational,
+    Matrix,
+    pi,
+    I,
+    ln,
+    re,
+    im,
+    log,
+    ceiling,
+)
 from utils import faccin_bound
 import numpy as np
 
@@ -35,7 +50,9 @@ class ExponentLattice:
         if all_rational:
             numerators = [numer(b) for b in self.bases if numer(b) != 1]
             denominators = [denom(b) for b in self.bases if denom(b) != 1]
-            if all([abs(n) > 1 for n in numerators]) and are_coprime(numerators + denominators):
+            if all([abs(n) > 1 for n in numerators]) and are_coprime(
+                numerators + denominators
+            ):
                 return True
         return False
 
@@ -60,35 +77,39 @@ class ExponentLattice:
         """
         bases = [AlgebraicNumber(b) for b in self.bases]
         M = faccin_bound(bases)
-        es = [ln(b) for b in bases] + [2*pi*I]
+        es = [ln(b) for b in bases] + [2 * pi * I]
         n = len(es)
         w = 1
-        upper = M * (n + 2)**(1/2)
+        upper = M * (n + 2) ** (1 / 2)
         B = np.zeros((n, n + 2), dtype=Fraction)
         B[0:n, 0:n] = np.identity(n, dtype=Fraction)
 
         while not self._all_in_lattice(B):
             # Computer ever more precise approximations of the es.
-            w = 2*w
-            precision = int(ceiling(log(n*w, 10)))
+            w = 2 * w
+            precision = int(ceiling(log(n * w, 10)))
             real_approximations = [Fraction(str(re(e).round(precision))) for e in es]
             im_approximations = [Fraction(str(im(e).round(precision))) for e in es]
             for row in range(B.shape[0]):
-                real_entry = w * sum([e*r for e, r in zip(B[row, :-2], real_approximations)])
-                im_entry = w * sum([e*i for e, i in zip(B[row, :-2], im_approximations)])
+                real_entry = w * sum(
+                    [e * r for e, r in zip(B[row, :-2], real_approximations)]
+                )
+                im_entry = w * sum(
+                    [e * i for e, i in zip(B[row, :-2], im_approximations)]
+                )
                 B[row, -2] = real_entry
                 B[row, -1] = im_entry
 
             lll_vectors = olll.reduction(B.tolist(), 0.75)
             gs_vectors = olll.gramschmidt(list(map(olll.Vector, B.tolist())))
             r = len(gs_vectors) - 1
-            while r >= 0 and gs_vectors[r].dot(gs_vectors[r]) ** (1/2) > upper:
+            while r >= 0 and gs_vectors[r].dot(gs_vectors[r]) ** (1 / 2) > upper:
                 r -= 1
             if r < 0:
                 return []
-            B = np.asarray(lll_vectors[:r+1], dtype=Fraction)
+            B = np.asarray(lll_vectors[: r + 1], dtype=Fraction)
 
-        return B[:, :len(self.bases)].astype(int).tolist()
+        return B[:, : len(self.bases)].astype(int).tolist()
 
     def _all_in_lattice(self, B):
         """
@@ -98,13 +119,15 @@ class ExponentLattice:
         # but we can very quickly get an answer if B is clearly not a subset of the lattice.
         precision = 100
         for row in range(B.shape[0]):
-            expr = sum([ln(e)*c for c, e in zip(B[row, :], self.bases)]) + (B[row, len(self.bases)] * 2*pi*I)
+            expr = sum([ln(e) * c for c, e in zip(B[row, :], self.bases)]) + (
+                B[row, len(self.bases)] * 2 * pi * I
+            )
             if expr.evalf(precision, chop=True) != 0:
                 return False
 
         # If the numeric check could not rule out that B is not a subset of the lattice, we perform an exact check.
         for row in range(B.shape[0]):
-            expr = math.prod([e ** c for c, e in zip(B[row, :], self.bases)])
+            expr = math.prod([e**c for c, e in zip(B[row, :], self.bases)])
             if not algebraic_number_equals_const(expr, 1):
                 return False
         return True
@@ -144,7 +167,9 @@ class ExponentLattice:
         # If one or more bases have -1 as a factor, we need to add the extra constraint, that the number of -1 factors
         # must add up to an even integer.
         if -1 in factors_to_multiplicities:
-            matrix = matrix.row_insert(matrix.shape[0], Matrix([factors_to_multiplicities[-1]]))
+            matrix = matrix.row_insert(
+                matrix.shape[0], Matrix([factors_to_multiplicities[-1]])
+            )
             matrix = matrix.col_insert(matrix.shape[1], Matrix([0] * matrix.shape[0]))
             matrix[-1, -1] = 2
 
@@ -153,11 +178,15 @@ class ExponentLattice:
             for vector in kernel_basis:
                 vector.row_del(-1)
 
-        kernel_basis = np.asarray([v.T.tolist()[0] for v in kernel_basis]).astype(int).tolist()
+        kernel_basis = (
+            np.asarray([v.T.tolist()[0] for v in kernel_basis]).astype(int).tolist()
+        )
         return kernel_basis
 
     @classmethod
-    def bases_are_equivalent(cls, basis1: List[List[int]], basis2: List[List[int]]) -> bool:
+    def bases_are_equivalent(
+        cls, basis1: List[List[int]], basis2: List[List[int]]
+    ) -> bool:
         """
         Returns true iff two given bases span the same integer lattice
         See: https://math.stackexchange.com/a/4467760
@@ -165,7 +194,7 @@ class ExponentLattice:
         basis1 = Matrix(basis1).T
         basis2 = Matrix(basis2).T
         u = basis1.pinv() * basis2
-        if basis1*u != basis2:
+        if basis1 * u != basis2:
             return False
         u_det = u.det()
         if u_det != 1 and u_det != -1:

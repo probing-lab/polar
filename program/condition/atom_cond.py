@@ -5,13 +5,16 @@ from symengine.lib.symengine_wrapper import sympify, Zero, Symbol
 from .or_cond import Or
 from .false_cond import FalseCond
 from .condition import Condition
-from .exceptions import ArithmConversionException, NormalizingException, EvaluationException
+from .exceptions import (
+    ArithmConversionException,
+    NormalizingException,
+    EvaluationException,
+)
 from utils import get_unique_var, get_valid_values, evaluate_cop
 from program.type import Finite
 
 
 class Atom(Condition):
-
     def __init__(self, poly1, cop, poly2):
         self.poly1 = sympify(poly1)
         self.cop = cop
@@ -28,7 +31,9 @@ class Atom(Condition):
         poly1 = self.poly1.subs(state)
         poly2 = self.poly2.subs(state)
         if not poly1.is_Number or not poly2.is_Number:
-            raise EvaluationException(f"Atom {self} cannot be fully evaluated with state {state}")
+            raise EvaluationException(
+                f"Atom {self} cannot be fully evaluated with state {state}"
+            )
         result = evaluate_cop(float(poly1), self.cop, float(poly2))
         return result
 
@@ -56,7 +61,9 @@ class Atom(Condition):
 
     def get_normalized(self, program):
         if not self.is_reduced():
-            raise NormalizingException(f"Atom {self} cannot be normalized because it's not reduced")
+            raise NormalizingException(
+                f"Atom {self} cannot be normalized because it's not reduced"
+            )
 
         var = self.poly1
         value = self.poly2
@@ -84,7 +91,9 @@ class Atom(Condition):
         value = self.poly2
         var_type = program.get_type(var)
         if not isinstance(var_type, Finite):
-            raise ArithmConversionException(f"Variable {var} in atom {self} is not of finite type.")
+            raise ArithmConversionException(
+                f"Variable {var} in atom {self} is not of finite type."
+            )
 
         if value not in var_type.values:
             return sympify(0)
@@ -114,7 +123,11 @@ class Atom(Condition):
         return f"{self.poly1} {self.cop} {self.poly2}"
 
     def __eq__(self, obj):
-        return isinstance(obj, Atom) and (self.poly1, self.cop, self.poly2) == (obj.poly1, obj.cop, obj.poly2)
+        return isinstance(obj, Atom) and (self.poly1, self.cop, self.poly2) == (
+            obj.poly1,
+            obj.cop,
+            obj.poly2,
+        )
 
     def __hash__(self):
         return hash((self.poly1, self.cop, self.poly2))

@@ -7,6 +7,7 @@ class Transformer(ABC):
     """
     Abstract class for transformers which transform a program into another possibly equivalent program
     """
+
     @abstractmethod
     def execute(self, program: Program) -> Program:
         pass
@@ -17,6 +18,7 @@ class TreeTransformer(Transformer, ABC):
     Abstract class for transformers acting on the deep tree structure of a program by providing methods
     which transform individual nodes.
     """
+
     program: Program
 
     def __init__(self):

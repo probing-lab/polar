@@ -17,6 +17,7 @@ class MCCombFinder:
     In essence the class follows the procedure described in our paper
     "Solving Invariant Generation for Unsolvable Loops".
     """
+
     @classmethod
     def __get_candidate_terms__(cls, pos, vars, deg, pw, s):
         if pos == len(vars):
@@ -39,7 +40,10 @@ class MCCombFinder:
                 ans += expr
                 for elem in c:
                     coefficients.add(elem)
-        return ans, coefficients,
+        return (
+            ans,
+            coefficients,
+        )
 
     @classmethod
     def __get_candidate__(cls, vars, deg):
@@ -112,12 +116,24 @@ class MCCombFinder:
         return ans
 
     @classmethod
-    def __construct_equations__(cls, candidate_rec, candidate_coefficients, kcandidate, rhs_good_part, good_coeffs, k):
+    def __construct_equations__(
+        cls,
+        candidate_rec,
+        candidate_coefficients,
+        kcandidate,
+        rhs_good_part,
+        good_coeffs,
+        k,
+    ):
         """
         Constructs system of equations derived from main equation (Eq. (3) in paper) for feeding into SymPy.
         """
-        candidate_rec_monoms = get_monoms(candidate_rec, candidate_coefficients, with_constant=True)
-        kcandidate_monoms = get_monoms(kcandidate, candidate_coefficients | {k}, with_constant=True)
+        candidate_rec_monoms = get_monoms(
+            candidate_rec, candidate_coefficients, with_constant=True
+        )
+        kcandidate_monoms = get_monoms(
+            kcandidate, candidate_coefficients | {k}, with_constant=True
+        )
         good_part_monoms = get_monoms(rhs_good_part, good_coeffs, with_constant=True)
         equation_terms = {}
         for coeff, monom in candidate_rec_monoms:
@@ -139,7 +155,9 @@ class MCCombFinder:
         """
         nice_solutions = []
         for solution in solutions:
-            solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
+            solution_exact, nequations, nequations_variables = cls.__solution_exact__(
+                equations, solution
+            )
             wrong_solution = False
             while not solution_exact:
                 nsolutions = solve(nequations, nequations_variables)
@@ -152,7 +170,11 @@ class MCCombFinder:
                         solution[var] = solution[var].subs(nsolutions).simplify()
                     for var in nsolutions:
                         solution[var] = nsolutions[var]
-                solution_exact, nequations, nequations_variables = cls.__solution_exact__(equations, solution)
+                (
+                    solution_exact,
+                    nequations,
+                    nequations_variables,
+                ) = cls.__solution_exact__(equations, solution)
             if not wrong_solution:
                 nice_solutions.append(solution)
         solutions = nice_solutions
@@ -166,7 +188,15 @@ class MCCombFinder:
         return nice_solutions
 
     @classmethod
-    def __solve_good_part__(cls, rhs_good_part, good_coeffs, numeric_roots, numeric_croots, numeric_eps, program):
+    def __solve_good_part__(
+        cls,
+        rhs_good_part,
+        good_coeffs,
+        numeric_roots,
+        numeric_croots,
+        numeric_eps,
+        program,
+    ):
         """
         Fina a closed form for the summation in Eq. (3) with respect to n and initial values.
         """
@@ -182,26 +212,44 @@ class MCCombFinder:
                 recurrences=recs,
                 numeric_roots=numeric_roots,
                 numeric_croots=numeric_croots,
-                numeric_eps=numeric_eps
+                numeric_eps=numeric_eps,
             )
             good_part_solution += coeff * rec_solver.get(monom)
-        good_part_solution = good_part_solution.xreplace({sympify("n"): sympify("n") - 1})
+        good_part_solution = good_part_solution.xreplace(
+            {sympify("n"): sympify("n") - 1}
+        )
         return good_part_solution
 
     @classmethod
-    def find_good_combination(cls, combination_vars, combination_deg, program: Program,
-                              numeric_roots, numeric_croots, numeric_eps):
-        candidate, candidate_coefficients = cls.__get_candidate__(combination_vars, combination_deg)
+    def find_good_combination(
+        cls,
+        combination_vars,
+        combination_deg,
+        program: Program,
+        numeric_roots,
+        numeric_croots,
+        numeric_eps,
+    ):
+        candidate, candidate_coefficients = cls.__get_candidate__(
+            combination_vars, combination_deg
+        )
         rec_builder = RecBuilder(program)
         candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
 
-        good_set = cls.__get_good_set__(candidate_rec, program.non_mc_variables, program.variables)
+        good_set = cls.__get_good_set__(
+            candidate_rec, program.non_mc_variables, program.variables
+        )
         rhs_good_part, good_coeffs = cls.__get_good_poly__(good_set)
         k = Symbol(get_unique_var("k"), nonzero=True)
         kcandidate = (k * candidate).expand()
 
         equations = cls.__construct_equations__(
-            candidate_rec, candidate_coefficients, kcandidate, rhs_good_part, good_coeffs, k
+            candidate_rec,
+            candidate_coefficients,
+            kcandidate,
+            rhs_good_part,
+            good_coeffs,
+            k,
         )
 
         symbols = list(candidate_coefficients) + list(good_coeffs) + [k]
@@ -214,7 +262,12 @@ class MCCombFinder:
             return None
 
         good_part_solution = cls.__solve_good_part__(
-            rhs_good_part, good_coeffs, numeric_roots, numeric_croots, numeric_eps, program
+            rhs_good_part,
+            good_coeffs,
+            numeric_roots,
+            numeric_croots,
+            numeric_eps,
+            program,
         )
         combinations = []
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
@@ -222,25 +275,42 @@ class MCCombFinder:
             ans = solve_rec_by_summing(
                 rec_coeff=solution[sympify(k)],
                 init_value=initial_candidate,
-                inhom_part=sympify(good_part_solution)
+                inhom_part=sympify(good_part_solution),
             )
             ans = ans.xreplace(solution)
             combinations.append((candidate.xreplace(solution), ans))
         return combinations
 
     @classmethod
-    def find_good_combination_for_k(cls, k: Union[Number, int], combination_vars, combination_deg, program: Program,
-                              numeric_roots, numeric_croots, numeric_eps):
-        candidate, candidate_coefficients = cls.__get_candidate__(combination_vars, combination_deg)
+    def find_good_combination_for_k(
+        cls,
+        k: Union[Number, int],
+        combination_vars,
+        combination_deg,
+        program: Program,
+        numeric_roots,
+        numeric_croots,
+        numeric_eps,
+    ):
+        candidate, candidate_coefficients = cls.__get_candidate__(
+            combination_vars, combination_deg
+        )
         rec_builder = RecBuilder(program)
         candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
 
-        good_set = cls.__get_good_set__(candidate_rec, program.non_mc_variables, program.variables)
+        good_set = cls.__get_good_set__(
+            candidate_rec, program.non_mc_variables, program.variables
+        )
         rhs_good_part, good_coeffs = cls.__get_good_poly__(good_set)
         kcandidate = (k * candidate).expand()
 
         equations = cls.__construct_equations__(
-            candidate_rec, candidate_coefficients, kcandidate, rhs_good_part, good_coeffs, k
+            candidate_rec,
+            candidate_coefficients,
+            kcandidate,
+            rhs_good_part,
+            good_coeffs,
+            k,
         )
 
         symbols = list(candidate_coefficients) + list(good_coeffs)
@@ -250,12 +320,19 @@ class MCCombFinder:
         solutions = []
         for tmps in tmp_solutions:
             if not all([v == 0 for v in tmps]):
-                solutions.append({symbol: value for symbol, value in zip(symbols, tmps)})
+                solutions.append(
+                    {symbol: value for symbol, value in zip(symbols, tmps)}
+                )
         if len(solutions) == 0:
             return None
 
         good_part_solution = cls.__solve_good_part__(
-            rhs_good_part, good_coeffs, numeric_roots, numeric_croots, numeric_eps, program
+            rhs_good_part,
+            good_coeffs,
+            numeric_roots,
+            numeric_croots,
+            numeric_eps,
+            program,
         )
         combinations = []
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
@@ -263,7 +340,7 @@ class MCCombFinder:
             ans = solve_rec_by_summing(
                 rec_coeff=k,
                 init_value=initial_candidate,
-                inhom_part=sympify(good_part_solution)
+                inhom_part=sympify(good_part_solution),
             )
             ans = ans.xreplace(solution)
             combinations.append((candidate.xreplace(solution), ans))

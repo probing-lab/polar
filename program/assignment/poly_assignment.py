@@ -48,7 +48,7 @@ class PolyAssignment(Assignment):
     def __str__(self):
         result = str(self.variable) + " = " + str(self.polynomials[0])
         for i in range(1, len(self.polynomials)):
-            result += " {" + str(self.probabilities[i-1]) + "} "
+            result += " {" + str(self.probabilities[i - 1]) + "} "
             result += str(self.polynomials[i])
 
         if not isinstance(self.condition, TrueCond):
@@ -64,7 +64,9 @@ class PolyAssignment(Assignment):
     def get_free_symbols(self, with_condition=True, with_default=True):
         symbols = self.condition.get_free_symbols() if with_condition else set()
         for i in range(len(self.polynomials)):
-            symbols |= self.polynomials[i].free_symbols | self.probabilities[i].free_symbols
+            symbols |= (
+                self.polynomials[i].free_symbols | self.probabilities[i].free_symbols
+            )
         if with_default or not self.condition.is_implied_by_loop_guard():
             symbols.add(self.default)
         return symbols
@@ -80,21 +82,29 @@ class PolyAssignment(Assignment):
         for prob in self.probabilities:
             p = prob.subs(state)
             if not p.is_Number:
-                raise EvaluationException(f"Probability {prob} is not a number in state {state}")
+                raise EvaluationException(
+                    f"Probability {prob} is not a number in state {state}"
+                )
             probabilities.append(float(p))
 
         polynomials = []
         for pol in self.polynomials:
             p = pol.subs(state)
             if not p.is_Number:
-                raise EvaluationException(f"Polynomial {pol} is not a number in state {state}")
+                raise EvaluationException(
+                    f"Polynomial {pol} is not a number in state {state}"
+                )
             polynomials.append(float(p))
 
         return random.choices(polynomials, weights=probabilities, k=1)[0]
 
-    def get_moment(self, k: int, rec_builder_context, arithm_cond: Expr = 1, rest: Expr = 1):
+    def get_moment(
+        self, k: int, rec_builder_context, arithm_cond: Expr = 1, rest: Expr = 1
+    ):
         if_cond = 0
         for i in range(len(self.polynomials)):
-            if_cond += arithm_cond * self.probabilities[i] * (self.polynomials[i] ** k) * rest
-        if_not_cond = (1 - arithm_cond) * (self.default ** k) * rest
+            if_cond += (
+                arithm_cond * self.probabilities[i] * (self.polynomials[i] ** k) * rest
+            )
+        if_not_cond = (1 - arithm_cond) * (self.default**k) * rest
         return if_cond + if_not_cond

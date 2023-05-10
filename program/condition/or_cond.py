@@ -48,7 +48,10 @@ class Or(Condition):
     def is_implied_by_loop_guard(self):
         if self.is_loop_guard:
             return True
-        return self.cond1.is_implied_by_loop_guard() or self.cond1.is_implied_by_loop_guard()
+        return (
+            self.cond1.is_implied_by_loop_guard()
+            or self.cond1.is_implied_by_loop_guard()
+        )
 
     def get_loop_guard(self):
         if self.is_loop_guard:
@@ -60,7 +63,10 @@ class Or(Condition):
         return f"({self.cond1} ∨ {self.cond2})"
 
     def __eq__(self, obj):
-        return isinstance(obj, Or) and (self.cond1, self.cond2) == (obj.cond1, obj.cond2)
+        return isinstance(obj, Or) and (self.cond1, self.cond2) == (
+            obj.cond1,
+            obj.cond2,
+        )
 
     def __hash__(self):
         return hash(("OR", self.cond1, self.cond2))

@@ -40,7 +40,9 @@ class LoopGuardTransformer(Transformer):
         if len(if_statem.branches) != 1 or if_statem.else_branch:
             return statements, TrueCond()
 
-        branch_statms, branch_cond = self.__collapse_first_level_ifs__(if_statem.branches[0])
+        branch_statms, branch_cond = self.__collapse_first_level_ifs__(
+            if_statem.branches[0]
+        )
         condition = And(branch_cond, if_statem.conditions[0]).simplify()
 
         return branch_statms, condition

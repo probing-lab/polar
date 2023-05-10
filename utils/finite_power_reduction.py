@@ -11,8 +11,8 @@ def get_reduced_powers(values: Tuple, power: int) -> Tuple[Expr, Symbol]:
     The values ought be passed as a sorted tuple to enable caching of the result.
     """
     tmp_var = Symbol("t")
-    values_vector = Matrix([v ** power for v in values])
-    var_vector = Matrix([tmp_var ** p for p in range(len(values))])
+    values_vector = Matrix([v**power for v in values])
+    var_vector = Matrix([tmp_var**p for p in range(len(values))])
     mat = __get_powers_transform_matrix__(values)
     return (values_vector.T * mat * var_vector)[0], tmp_var
 

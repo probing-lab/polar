@@ -5,7 +5,6 @@ from utils import float_to_rational
 
 
 class Distribution(ABC):
-
     def __init__(self, parameters):
         params = []
         for p in parameters:
@@ -53,7 +52,7 @@ class Distribution(ABC):
     @abstractmethod
     def get_support(self) -> Set[Union[Expr, Tuple[Expr, Expr]]]:
         """
-        Returns a set of tuples and expressions. 
+        Returns a set of tuples and expressions.
         Expressions denote a single value from the support.
         A tuple represents a lower and upper bound for an interval from the support.
         """

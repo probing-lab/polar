@@ -3,7 +3,12 @@ import os
 import unittest
 
 from cli.argument_parser import ArgumentParser
-from cli.common import prepare_program, get_moment_given_termination, transform_to_after_loop, parse_program
+from cli.common import (
+    prepare_program,
+    get_moment_given_termination,
+    transform_to_after_loop,
+    parse_program,
+)
 from recurrences import RecBuilder
 from utils import unpack_piecewise
 from tests.common import get_test_specs
@@ -13,13 +18,18 @@ from symengine import sympify as symengine_sympify
 
 
 def create_raw_moment_after_loop_test(benchmark, monom, general_form):
-    monom = symengine_sympify(monom)  # moment calculation function expect symengine format
-    general_form = sympy_sympify(general_form)  # final comparison is done in sympy format
+    monom = symengine_sympify(
+        monom
+    )  # moment calculation function expect symengine format
+    general_form = sympy_sympify(
+        general_form
+    )  # final comparison is done in sympy format
 
     def test(self: RawMomentsAfterLoopTest):
         solution, is_exact = get_raw_moment_after_loop(benchmark, monom)
         self.assertTrue(is_exact)
         self.assertEqual(general_form.expand(), unpack_piecewise(solution).expand())
+
     return test
 
 
@@ -28,7 +38,9 @@ def get_raw_moment_after_loop(benchmark, monom):
     program = parse_program(benchmark, args.transform_categoricals)
     program = prepare_program(program, args)
     rec_builder = RecBuilder(program)
-    moment, is_exact = get_moment_given_termination(monom, {}, rec_builder, args, program)
+    moment, is_exact = get_moment_given_termination(
+        monom, {}, rec_builder, args, program
+    )
     return transform_to_after_loop(moment), is_exact
 
 
@@ -47,5 +59,5 @@ for benchmark in benchmarks:
         setattr(RawMomentsAfterLoopTest, test_name, test_case)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,7 @@ class StructureTransformer(Transformer):
     """
     Lark transformer which transform the parse tree returned by lark into our own representations
     """
+
     def __init__(self, transform_categoricals):
         super().__init__()
         self.program_variables = set()
@@ -36,7 +37,15 @@ class StructureTransformer(Transformer):
         loop_body = lb.children[0]
 
         original_variables = self.program_variables - self.artificial_variables
-        return Program(typedefs, self.program_variables, original_variables, initial, loop_guard, loop_body, self.is_probabilistic)
+        return Program(
+            typedefs,
+            self.program_variables,
+            original_variables,
+            initial,
+            loop_guard,
+            loop_body,
+            self.is_probabilistic,
+        )
 
     def dist(self, args):
         dist_name = str(args[0])
@@ -149,11 +158,15 @@ class StructureTransformer(Transformer):
         Helper function to transform simultaneous assignments into a sequence of non-simultaneous assignments
         """
         if len(args) % 2 == 0:
-            raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
+            raise ParseException(
+                f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}"
+            )
 
         num_vars = int((len(args) - 1) / 2)
         if args[num_vars] != "=":
-            raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
+            raise ParseException(
+                f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}"
+            )
 
         assignments1 = []
         assignments2 = []
@@ -162,10 +175,14 @@ class StructureTransformer(Transformer):
             self.program_variables.add(var)
             value = args[num_vars + 1 + i]
             if var.type != "VARIABLE":
-                raise ParseException(f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}")
+                raise ParseException(
+                    f"Error in simultaneous assignment at line {args[0].line} col {args[0].column}"
+                )
 
             new_var = get_unique_var(name="t")
             self.artificial_variables.add(new_var)
-            assignments1.append(self.assign([Token(b"VARIABLE", new_var), Token(b"ASSIGN", "="), value]))
+            assignments1.append(
+                self.assign([Token(b"VARIABLE", new_var), Token(b"ASSIGN", "="), value])
+            )
             assignments2.append(self.assign([var, Token(b"ASSIGN", "="), new_var]))
         return assignments1 + assignments2

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Union, Tuple, Set, Dict, TYPE_CHECKING
+
 if TYPE_CHECKING:
     from recurrences import RecBuilderContext
 from symengine.lib.symengine_wrapper import Expr, Symbol
@@ -28,7 +29,9 @@ class Assignment(ABC):
             result = self.evaluate_right_side(state)
         else:
             if self.default not in state:
-                raise EvaluationException(f"Tried to evaluate {self.default} which is not set in state {state}")
+                raise EvaluationException(
+                    f"Tried to evaluate {self.default} which is not set in state {state}"
+                )
             result = state[self.default]
 
         state[self.variable] = float(result)
@@ -54,14 +57,20 @@ class Assignment(ABC):
     @abstractmethod
     def get_support(self) -> Set[Union[Expr, Tuple[Expr, Expr]]]:
         """
-        Returns a set of tuples and expressions. 
+        Returns a set of tuples and expressions.
         Expressions denote a single value from the support.
         A tuple represents a lower and upper bound for an interval from the support.
         """
         pass
 
     @abstractmethod
-    def get_moment(self, k: int, rec_builder_context: "RecBuilderContext", arithm_cond: Expr = 1, rest: Expr = 1):
+    def get_moment(
+        self,
+        k: int,
+        rec_builder_context: "RecBuilderContext",
+        arithm_cond: Expr = 1,
+        rest: Expr = 1,
+    ):
         """
         returns E(X) for X := Assignment^k * rest
         relative to some given condition.

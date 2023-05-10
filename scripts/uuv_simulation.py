@@ -7,11 +7,11 @@ n = 10
 
 
 def f(j):
-    if (j+1) % 1000 == 0:
-        print(j+1)
+    if (j + 1) % 1000 == 0:
+        print(j + 1)
     x = stats.uniform.rvs(loc=-0.1, scale=0.2)
     y = stats.uniform.rvs(loc=-0.1, scale=0.2)
-    theta = stats.uniform.rvs(loc=np.pi/4 - 0.1, scale=0.2)
+    theta = stats.uniform.rvs(loc=np.pi / 4 - 0.1, scale=0.2)
     ovs = stats.uniform.rvs(loc=-0.1, scale=0.2, size=n)
     ots = stats.uniform.rvs(loc=-0.1, scale=0.2, size=n)
     for i in range(n):
@@ -23,5 +23,5 @@ def f(j):
 
 samples = np.arange(num_samples)
 samples = np.vectorize(f)(samples)
-samples = samples ** 2
+samples = samples**2
 print(np.average(samples))

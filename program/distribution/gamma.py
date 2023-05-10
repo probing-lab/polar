@@ -23,7 +23,7 @@ class Gamma(Distribution):
         k = sympify(self.k)
         theta = sympify(self.theta)
         x = GammaDist("x", k, theta)
-        return sympy2symengine(Rational(EV(x ** p)))
+        return sympy2symengine(Rational(EV(x**p)))
 
     def is_discrete(self):
         return False
@@ -37,7 +37,8 @@ class Gamma(Distribution):
         theta = self.theta.subs(state)
         if not k.is_Number or not theta.is_Number:
             raise EvaluationException(
-                f"Parameters {self.k}, {self.theta} don't evaluate to numbers with state {state}")
+                f"Parameters {self.k}, {self.theta} don't evaluate to numbers with state {state}"
+            )
         return gamma.rvs(float(k), scale=float(theta))
 
     def cf(self, t: Expr):
@@ -55,7 +56,7 @@ class Gamma(Distribution):
     def mgf_exists_at(self, t: Expr):
         theta = sympify(self.theta)
         t = sympify(t)
-        does_exist = t < 1/theta
+        does_exist = t < 1 / theta
         if not does_exist.is_Boolean or not bool(does_exist):
             return False
         return True
