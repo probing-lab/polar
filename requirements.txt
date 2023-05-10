@@ -8,4 +8,4 @@ matplotlib==3.7.*
 progress==1.6
 termcolor==2.3.*
 olll==1.0.2
-black==23.3.*
+pre-commit==3.3.*

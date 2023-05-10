@@ -62,3 +62,14 @@ You can run the automatic test suite with:
 ```
 python -m unittest
 ```
+
+
+## For Development
+
+When contributing to Polar, please run the following command after cloning the repository:
+
+```
+pre-commit install
+```
+
+The command installs a few hooks that execute before every commit and enforces some code style guides.
