@@ -47,24 +47,24 @@ class FiniteFixedPointTyper(Typer):
 
     def infer_types(self, program: Program) -> List[Type]:
         self.program = program
-        self.__check_applicability__()
-        self.__initialize_state__()
+        self._check_applicability()
+        self._initialize_state()
 
         # Evolve the state at most iteration number of times
         for i in range(self.iterations):
-            self.__progress__()
-            if self.__fixedpoint_reached__():
+            self._progress()
+            if self._fixedpoint_reached():
                 break
 
         # Now, fail all variables which change in one iteration until a fixedpoint is reached.
         # In the worst case all variables fail and a fixedpoint is reached.
-        while not self.__fixedpoint_reached__():
-            self.__fail_changed_variables__()
-            self.__progress__()
+        while not self._fixedpoint_reached():
+            self._fail_changed_variables()
+            self._progress()
 
-        return self.__extract_types__()
+        return self._extract_types()
 
-    def __check_applicability__(self):
+    def _check_applicability(self):
         """
         This typer is only applicable if there are no conditions in the initialization part
         """
@@ -74,25 +74,25 @@ class FiniteFixedPointTyper(Typer):
                     "For type inference no conditions are allowed in initial part"
                 )
 
-    def __progress__(self):
+    def _progress(self):
         """
         Evolves the state for one loop iteration, by computing all possible new values for all variables
         """
         for assign in self.program.loop_body:
             if not self.state[assign.variable].is_locked:
-                new_values = self.__get_values_for_assign__(assign)
-                self.__update_variable_status__(assign.variable, new_values)
+                new_values = self._get_values_for_assign(assign)
+                self._update_variable_status(assign.variable, new_values)
             else:
                 self.state[assign.variable].has_changed = False
 
-    def __update_variable_status__(self, variable, new_values):
+    def _update_variable_status(self, variable, new_values):
         """
         Updates the status of the given variable assuming it can take values from new_values
         in the current iteration.
         """
         if not new_values:
             # if new_values is false, variable depends on a failed variable
-            self.__fail_variable__(variable)
+            self._fail_variable(variable)
         else:
             if new_values.issubset(self.state[variable].values):
                 self.state[variable].has_changed = False
@@ -100,12 +100,12 @@ class FiniteFixedPointTyper(Typer):
                 self.state[variable].values |= new_values
                 self.state[variable].has_changed = True
 
-    def __fail_variable__(self, variable):
+    def _fail_variable(self, variable):
         self.state[variable].has_failed = True
         self.state[variable].is_locked = True
         self.state[variable].has_changed = True
 
-    def __initialize_state__(self):
+    def _initialize_state(self):
         """
         Initializes the state according to type definitions and initial assignments
         """
@@ -122,7 +122,7 @@ class FiniteFixedPointTyper(Typer):
         # can take after the initialization part
         for assign in self.program.initial:
             if assign.variable not in self.state:
-                values = self.__get_values_for_assign__(assign)
+                values = self._get_values_for_assign(assign)
                 if values:
                     self.state[assign.variable] = Status(
                         values, has_changed=True, is_locked=False, has_failed=False
@@ -148,7 +148,7 @@ class FiniteFixedPointTyper(Typer):
                     values, has_changed=True, is_locked=False, has_failed=False
                 )
 
-    def __get_values_for_assign__(self, assign: Assignment):
+    def _get_values_for_assign(self, assign: Assignment):
         """
         Returns all possible values an assignment can assign with respect to the current state.
         """
@@ -158,7 +158,7 @@ class FiniteFixedPointTyper(Typer):
         for expr in support:
             if type(expr) is tuple:
                 return False
-            values_expr = self.__get_values_for_expr__(expr)
+            values_expr = self._get_values_for_expr(expr)
             if not values_expr:
                 return False
             values |= values_expr
@@ -166,7 +166,7 @@ class FiniteFixedPointTyper(Typer):
                 return False
         return values
 
-    def __get_values_for_expr__(self, expr: Expr):
+    def _get_values_for_expr(self, expr: Expr):
         """
         Computes all possible values an expression can take with respect to the current state.
         """
@@ -185,15 +185,15 @@ class FiniteFixedPointTyper(Typer):
 
         return result
 
-    def __fail_changed_variables__(self):
+    def _fail_changed_variables(self):
         for variable, status in self.state.items():
             if status.has_changed:
-                self.__fail_variable__(variable)
+                self._fail_variable(variable)
 
-    def __fixedpoint_reached__(self):
+    def _fixedpoint_reached(self):
         return all([not s.has_changed for s in self.state.values()])
 
-    def __extract_types__(self):
+    def _extract_types(self):
         types = []
         for variable, status in self.state.items():
             if not status.has_failed:

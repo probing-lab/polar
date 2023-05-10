@@ -24,12 +24,12 @@ class SensitivityAction(Action):
         self.program = prepare_program(program, self.cli_args)
 
         if self.cli_args.sensitivity_analysis:
-            self.__analyze_sensitivity___()
+            self._analyze_sensitivity()
         elif self.cli_args.sensitivity_analysis_diff:
-            self.__diff_closed_form___()
+            self._diff_closed_form()
         return
 
-    def __is_str_symbolic_param(self, paramstr: str) -> Tuple[bool, SymengineSymbol]:
+    def _is_str_symbolic_param(self, paramstr: str) -> Tuple[bool, SymengineSymbol]:
         """
         Check if the given string is actually a symbolic parameter of the program.
         """
@@ -39,13 +39,13 @@ class SensitivityAction(Action):
         else:
             return False, expr
 
-    def __diff_closed_form___(self):
+    def _diff_closed_form(self):
         """
         Compute the sensitivity of the goals by solving the recurrences
         and then differentiating, only works if all variables are effective.
         """
 
-        valid, param = self.__is_str_symbolic_param(
+        valid, param = self._is_str_symbolic_param(
             self.cli_args.sensitivity_analysis_diff
         )
         if valid is False:
@@ -99,7 +99,7 @@ class SensitivityAction(Action):
                     f"Goal type {goal_type} does not exist or cannot be used for sensitivity analysis."
                 )
 
-    def __analyze_sensitivity___(self):
+    def _analyze_sensitivity(self):
         """
         Compute the sensitivity of the goals by removing diff-defective and param-independent variables.
         """
@@ -109,7 +109,7 @@ class SensitivityAction(Action):
         print(colored("----------------------", "cyan"))
 
         # try parse parameter and make sure this is a symbolic param
-        valid, param = self.__is_str_symbolic_param(self.cli_args.sensitivity_analysis)
+        valid, param = self._is_str_symbolic_param(self.cli_args.sensitivity_analysis)
         if valid is False:
             raise ParseException(
                 f"Unknown symbolic constant {self.cli_args.sensitivity_analysis}"

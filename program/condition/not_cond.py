@@ -50,5 +50,5 @@ class Not(Condition):
     def __hash__(self):
         return hash(("NOT", self.cond))
 
-    def __simple_copy__(self):
+    def _simple_copy(self):
         return Not(self.cond)

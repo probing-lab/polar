@@ -26,7 +26,7 @@ class TreeTransformer(Transformer, ABC):
         def _(self, xs: list):
             result = []
             for x in xs:
-                x = self.__execute__(x)
+                x = self._execute(x)
                 if isinstance(x, tuple):
                     result += list(x)
                 else:
@@ -35,12 +35,12 @@ class TreeTransformer(Transformer, ABC):
 
     def execute(self, program: Program) -> Program:
         self.program = program
-        return self.__execute__(program)
+        return self._execute(program)
 
-    def __execute__(self, element):
+    def _execute(self, element):
         if hasattr(element, "children"):
             for c in getattr(element, "children"):
-                value = self.__execute__(getattr(element, c))
+                value = self._execute(getattr(element, c))
                 setattr(element, c, value)
 
         return self.transform(element)

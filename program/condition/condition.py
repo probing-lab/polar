@@ -47,10 +47,10 @@ class Condition(ABC):
         pass
 
     @abstractmethod
-    def __simple_copy__(self) -> "Condition":
+    def _simple_copy(self) -> "Condition":
         pass
 
     def copy(self) -> "Condition":
-        cond = self.__simple_copy__()
+        cond = self._simple_copy()
         cond.is_loop_guard = self.is_loop_guard
         return cond

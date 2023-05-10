@@ -24,7 +24,7 @@ class LoopGuardTransformer(Transformer):
             program.loop_guard = TrueCond()
             return program
 
-        statements, condition = self.__collapse_first_level_ifs__(program.loop_body)
+        statements, condition = self._collapse_first_level_ifs(program.loop_body)
         condition = And(program.loop_guard, condition).simplify()
         program.loop_guard = TrueCond()
         condition.is_loop_guard = True
@@ -32,7 +32,7 @@ class LoopGuardTransformer(Transformer):
             program.loop_body = [IfStatem([condition], [statements])]
         return program
 
-    def __collapse_first_level_ifs__(self, statements: List) -> Tuple[List, Condition]:
+    def _collapse_first_level_ifs(self, statements: List) -> Tuple[List, Condition]:
         if len(statements) != 1 or not isinstance(statements[0], IfStatem):
             return statements, TrueCond()
 
@@ -40,7 +40,7 @@ class LoopGuardTransformer(Transformer):
         if len(if_statem.branches) != 1 or if_statem.else_branch:
             return statements, TrueCond()
 
-        branch_statms, branch_cond = self.__collapse_first_level_ifs__(
+        branch_statms, branch_cond = self._collapse_first_level_ifs(
             if_statem.branches[0]
         )
         condition = And(branch_cond, if_statem.conditions[0]).simplify()

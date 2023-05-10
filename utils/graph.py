@@ -37,11 +37,11 @@ class Graph:
             res += "\n"
         return res
 
-    def __dfs__(self, v, mark):
+    def _dfs(self, v, mark):
         mark[v] = True
         for i in range(self.V):
             if (self.adj[v][i] > 0) and (not mark[i]):
-                self.__dfs__(i, mark)
+                self._dfs(i, mark)
 
     def get_reachable_variables(self, variable: SymengineSymbol) -> SymbolSet:
         """
@@ -49,7 +49,7 @@ class Graph:
         """
         mark = [False] * self.V
         node = self.nodes[variable]
-        self.__dfs__(node, mark)
+        self._dfs(node, mark)
 
         # reconstruct reachable vars from array
         result = set()
@@ -79,13 +79,13 @@ class Graph:
 
                     # check if variable is reachable from endpoint of NL-edge
                     mark = [False] * self.V
-                    self.__dfs__(end, mark)
+                    self._dfs(end, mark)
                     if mark[v_idx] is False:
                         continue
 
                     # check if variable can reach other endpoint of NL-edge
                     mark = [False] * self.V
-                    self.__dfs__(v_idx, mark)
+                    self._dfs(v_idx, mark)
                     if mark[start]:
                         return True
         return False
@@ -102,17 +102,17 @@ class Graph:
                 if v == u:
                     if self.adj[v][u] == 2:
                         mark = [False] * self.V
-                        self.__dfs__(v, mark)
+                        self._dfs(v, mark)
                         for i in range(self.V):
                             if mark[i]:
                                 bad[i] = True
                     continue
                 if self.adj[v][u] == 2:
                     mark = [False] * self.V
-                    self.__dfs__(u, mark)
+                    self._dfs(u, mark)
                     if mark[v]:
                         mark = [False] * self.V
-                        self.__dfs__(v, mark)
+                        self._dfs(v, mark)
                         for i in range(self.V):
                             if mark[i]:
                                 bad[i] = True

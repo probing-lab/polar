@@ -18,11 +18,11 @@ class ConditionsReducer(Transformer):
 
     def execute(self, program: Program) -> Program:
         self.program = program
-        self.program.initial = self.__reduce_conditions__(self.program.initial)
-        self.program.loop_body = self.__reduce_conditions__(self.program.loop_body)
+        self.program.initial = self._reduce_conditions(self.program.initial)
+        self.program.loop_body = self._reduce_conditions(self.program.loop_body)
         return program
 
-    def __reduce_conditions__(self, assignments: List[Assignment]):
+    def _reduce_conditions(self, assignments: List[Assignment]):
         new_assignments = []
         store: Dict[Atom, Symbol] = {}
         for assign in assignments:

@@ -27,15 +27,15 @@ class ConditionsNormalizer(Transformer):
 
     def execute(self, program: Program) -> Program:
         self.program = program
-        self.program.initial = self.__normalize_conditions__(self.program.initial)
-        self.program.loop_body = self.__normalize_conditions__(self.program.loop_body)
+        self.program.initial = self._normalize_conditions(self.program.initial)
+        self.program.loop_body = self._normalize_conditions(self.program.loop_body)
         if self.program.original_loop_guard is None:
             self.program.original_loop_guard = TrueCond()
         if self.needs_info_update:
             program = UpdateInfoTransformer().execute(program)
         return program
 
-    def __normalize_conditions__(self, assignments: List[Assignment]):
+    def _normalize_conditions(self, assignments: List[Assignment]):
         new_assignments = []
         already_assigned_vars = set()
         abstracted_vars = set()
@@ -51,7 +51,7 @@ class ConditionsNormalizer(Transformer):
             )
             assign.condition = normalized_condition
             if failed_atoms:
-                self.__try_abstract_failed_condition__(
+                self._try_abstract_failed_condition(
                     assign,
                     failed_atoms,
                     already_assigned_vars,
@@ -66,7 +66,7 @@ class ConditionsNormalizer(Transformer):
                 self.program.original_loop_guard = assign.condition.get_loop_guard()
         return new_assignments
 
-    def __try_abstract_failed_condition__(
+    def _try_abstract_failed_condition(
         self,
         assign: Assignment,
         failed_atoms: List[Atom],
@@ -90,7 +90,7 @@ class ConditionsNormalizer(Transformer):
         then we use the old abstraction. If the have been reassigned we need to introduce a new abstraction.
         """
         failed_variables = {v for a in failed_atoms for v in a.get_free_symbols()}
-        good_condition, bad_condition = self.__partition_condition__(
+        good_condition, bad_condition = self._partition_condition(
             assign.condition, failed_variables
         )
         bad_is_iter_dependent = any(
@@ -140,9 +140,7 @@ class ConditionsNormalizer(Transformer):
             good_condition, Atom(abstraction_store[bad_condition], "==", One())
         ).simplify()
 
-    def __partition_condition__(
-        self, condition: Condition, failed_variables: Set[Symbol]
-    ):
+    def _partition_condition(self, condition: Condition, failed_variables: Set[Symbol]):
         good_condition = TrueCond()
         bad_condition = TrueCond()
         for conjunct in condition.get_conjuncts():

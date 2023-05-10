@@ -30,15 +30,15 @@ class UpdateInfoTransformer(Transformer):
 
     def execute(self, program: Program) -> Program:
         self.program = program
-        self.__set_variables_and_symbols__()
-        self.__set_dists_for_func_assignments__(self.program.initial)
-        self.__set_dists_for_func_assignments__(self.program.loop_body)
-        self.__set_dependencies__()
+        self._set_variables_and_symbols()
+        self._set_dists_for_func_assignments(self.program.initial)
+        self._set_dists_for_func_assignments(self.program.loop_body)
+        self._set_dependencies()
         if not self.ignore_mc_variables:
-            self.__set_mc_variables__()
+            self._set_mc_variables()
         return program
 
-    def __set_variables_and_symbols__(self):
+    def _set_variables_and_symbols(self):
         variables_initial = [a.variable for a in self.program.initial]
         variables_body = []
         self.program.dist_variables = []
@@ -52,14 +52,14 @@ class UpdateInfoTransformer(Transformer):
         self.program.var_to_index = {v: i for i, v in enumerate(variables_body)}
         self.program.index_to_var = {i: v for i, v in enumerate(variables_body)}
 
-        symbols = self.__get_all_symbols__(self.program.initial)
-        symbols = symbols.union(self.__get_all_symbols__(self.program.loop_body))
+        symbols = self._get_all_symbols(self.program.initial)
+        symbols = symbols.union(self._get_all_symbols(self.program.loop_body))
         self.program.symbols = symbols.difference(self.program.variables)
         self.program.original_variables = (
             self.program.original_variables & self.program.variables
         )
 
-    def __set_dists_for_func_assignments__(self, assignments_list: [Assignment]):
+    def _set_dists_for_func_assignments(self, assignments_list: [Assignment]):
         """
         Assigns to functional assignments the distributions (or constants) of their arguments
         The arguments of functional assignments must be unconditioned distributions (with constant parameters)
@@ -114,7 +114,7 @@ class UpdateInfoTransformer(Transformer):
                     f"{assign.argument} in func assignment for {assign.variable} does not have an unconditional distribution"
                 )
 
-    def __set_dependencies__(self):
+    def _set_dependencies(self):
         self.program.dependency_info = {
             v: DependencyInfo() for v in self.program.variables
         }
@@ -143,13 +143,13 @@ class UpdateInfoTransformer(Transformer):
                 info1.dependencies.add(v2)
                 info2.dependencies.add(v1)
 
-    def __get_all_symbols__(self, assignments):
+    def _get_all_symbols(self, assignments):
         all_symbols = set()
         for assign in assignments:
             all_symbols |= assign.get_free_symbols()
         return all_symbols
 
-    def __set_mc_variables__(self):
+    def _set_mc_variables(self):
         mc_vars, non_mc_vars = MCChecker.get_mc_variables(self.program)
         self.program.mc_variables = mc_vars
         self.program.non_mc_variables = non_mc_vars

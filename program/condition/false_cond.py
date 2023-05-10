@@ -32,7 +32,7 @@ class FalseCond(Condition):
             return self.copy()
         return None
 
-    def __simple_copy__(self):
+    def _simple_copy(self):
         return FalseCond()
 
     def __str__(self):

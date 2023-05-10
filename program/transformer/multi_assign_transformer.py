@@ -12,7 +12,7 @@ class MultiAssignTransformer(Transformer):
     """
 
     def execute(self, program: Program) -> Program:
-        assigns_per_var = self.__get_count_assign_per_var__(program)
+        assigns_per_var = self._get_count_assign_per_var(program)
         assigns_count = assigns_per_var.copy()
 
         substitutions = {}
@@ -32,7 +32,7 @@ class MultiAssignTransformer(Transformer):
                 substitutions.pop(var, None)
         return program
 
-    def __get_count_assign_per_var__(self, program: Program):
+    def _get_count_assign_per_var(self, program: Program):
         counts = {}
         for assign in program.loop_body:
             if assign.variable in counts:

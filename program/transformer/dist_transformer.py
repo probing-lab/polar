@@ -20,20 +20,20 @@ class DistTransformer(TreeTransformer):
     @transform.register
     def _(self, dist_assign: DistAssignment):
         if isinstance(dist_assign.distribution, Normal):
-            return self.__transform_normal__(dist_assign)
+            return self._transform_normal(dist_assign)
 
         if isinstance(dist_assign.distribution, Uniform):
-            return self.__transform_uniform__(dist_assign)
+            return self._transform_uniform(dist_assign)
 
         if isinstance(dist_assign.distribution, Laplace):
-            return self.__transform_laplace__(dist_assign)
+            return self._transform_laplace(dist_assign)
 
         if isinstance(dist_assign.distribution, Exponential):
-            return self.__transform_exponential__(dist_assign)
+            return self._transform_exponential(dist_assign)
 
         return dist_assign
 
-    def __transform_normal__(self, normal_assign):
+    def _transform_normal(self, normal_assign):
         variable = normal_assign.variable
         normal: Normal = normal_assign.distribution
 
@@ -47,7 +47,7 @@ class DistTransformer(TreeTransformer):
         )
         return new_normal_assign, new_assign
 
-    def __transform_laplace__(self, laplace_assign):
+    def _transform_laplace(self, laplace_assign):
         variable = laplace_assign.variable
         laplace: Laplace = laplace_assign.distribution
 
@@ -59,7 +59,7 @@ class DistTransformer(TreeTransformer):
         new_assign = PolyAssignment.deterministic(variable, f"{laplace.mu} + {new_var}")
         return new_laplace_assign, new_assign
 
-    def __transform_exponential__(self, exp_assign):
+    def _transform_exponential(self, exp_assign):
         variable = exp_assign.variable
         exp: Exponential = exp_assign.distribution
 
@@ -79,7 +79,7 @@ class DistTransformer(TreeTransformer):
         )
         return new_exp_assign, new_assign
 
-    def __transform_uniform__(self, uniform_assign):
+    def _transform_uniform(self, uniform_assign):
         variable = uniform_assign.variable
         uniform: Uniform = uniform_assign.distribution
 

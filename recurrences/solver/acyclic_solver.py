@@ -26,7 +26,7 @@ class AcyclicSolver(Solver):
     def get(self, monomial):
         monomial = sympify(monomial)
         monom_index = self.monom_to_index[monomial]
-        solution = self.__get_without_zero__(monomial)
+        solution = self._get_without_zero(monomial)
         solution = Piecewise(
             (self.recurrences.init_values_vector[monom_index], self.n <= 0),
             (solution, True),
@@ -34,7 +34,7 @@ class AcyclicSolver(Solver):
         return solution
 
     @lru_cache(maxsize=None)
-    def __get_without_zero__(self, monomial):
+    def _get_without_zero(self, monomial):
         monomial = sympify(monomial)
         monom_index = self.monom_to_index[monomial]
         rec_coeff = sympify(0)
@@ -46,7 +46,7 @@ class AcyclicSolver(Solver):
             if i == monom_index:
                 rec_coeff = coeff
                 continue
-            sol = self.__get_without_zero__(self.recurrences.monomials[i])
+            sol = self._get_without_zero(self.recurrences.monomials[i])
             inhom_part += coeff * sol
         if self.recurrences.is_inhomogeneous:
             inhom_part += self.recurrences.recurrence_matrix[monom_index, -1]
@@ -58,10 +58,10 @@ class AcyclicSolver(Solver):
         first_value = (
             self.recurrences.recurrence_matrix * self.recurrences.init_values_vector
         )[monom_index]
-        return self.__solve_rec_by_summing__(rec_coeff, first_value, inhom_part)
+        return self._solve_rec_by_summing(rec_coeff, first_value, inhom_part)
 
     @lru_cache(maxsize=None)
-    def __solve_rec_by_summing__(self, rec_coeff, first_value, inhom_part):
+    def _solve_rec_by_summing(self, rec_coeff, first_value, inhom_part):
         hom_solution = (rec_coeff ** (self.n - 1)) * first_value
         k = symbols("_k", integer=True)
         summand = (

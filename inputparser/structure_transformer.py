@@ -104,7 +104,7 @@ class StructureTransformer(Transformer):
 
     def assign(self, args):
         if len(args) > 3:
-            return self.__assign__simult__(args)
+            return self._assign_simult(args)
         var = str(args[0])
         self.program_variables.add(var)
         value = args[2]
@@ -113,7 +113,7 @@ class StructureTransformer(Transformer):
             return DistAssignment(var, value)
         elif isinstance(value, Tree) and value.data == "categorical":
             self.is_probabilistic = True
-            return self.__assign__categorical__(args)
+            return self._assign_categorical(args)
         elif isinstance(value, Tree) and value.data == "func":
             func = value.children[0].value
             argument = value.children[1].value
@@ -121,7 +121,7 @@ class StructureTransformer(Transformer):
         else:
             return PolyAssignment.deterministic(var, str(value))
 
-    def __assign__categorical__(self, args):
+    def _assign_categorical(self, args):
         """
         Helper function to for categorical assignment. Either keeps the structure or turns
         it into an if-statement, depending on the configuration.
@@ -134,11 +134,11 @@ class StructureTransformer(Transformer):
             probabilities.append(last_param)
 
         if self.transform_categoricals:
-            return self.__transform_categorical__(var, polynomials, probabilities)
+            return self._transform_categorical(var, polynomials, probabilities)
         else:
             return PolyAssignment(var, polynomials, probabilities)
 
-    def __transform_categorical__(self, var, polynomials, probabilities):
+    def _transform_categorical(self, var, polynomials, probabilities):
         """
         Helper function to transform a categorical assignment
         x = v1 {p1} v2 {p2} ...
@@ -153,7 +153,7 @@ class StructureTransformer(Transformer):
             assignments.append([PolyAssignment.deterministic(var, polynomials[i])])
         return [cat_assign, IfStatem(conditions, assignments, mutually_exclusive=True)]
 
-    def __assign__simult__(self, args):
+    def _assign_simult(self, args):
         """
         Helper function to transform simultaneous assignments into a sequence of non-simultaneous assignments
         """

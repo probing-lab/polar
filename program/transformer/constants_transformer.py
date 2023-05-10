@@ -47,8 +47,8 @@ class ConstantsTransformer(Transformer):
         program.initial = new_initial_assignments
 
         program.loop_guard.subs(fixed_constants)
-        self.__subs_in_assigns__(program.initial, fixed_constants)
-        self.__subs_in_assigns__(program.loop_body, fixed_constants)
+        self._subs_in_assigns(program.initial, fixed_constants)
+        self._subs_in_assigns(program.loop_body, fixed_constants)
         for c, v in fixed_constants.items():
             program.variables.remove(c)
 
@@ -57,6 +57,6 @@ class ConstantsTransformer(Transformer):
 
         return program
 
-    def __subs_in_assigns__(self, assigns: List[Assignment], substitutions):
+    def _subs_in_assigns(self, assigns: List[Assignment], substitutions):
         for assign in assigns:
             assign.subs(substitutions)

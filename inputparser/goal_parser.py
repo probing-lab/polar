@@ -19,17 +19,17 @@ class GoalParser:
             raise ParseException(f"Malformed goal {goal}")
 
         if goal[0] == "E":
-            return GoalParser.__parse_moment__(goal)
+            return GoalParser._parse_moment(goal)
         if goal[0] == "k":
-            return GoalParser.__parse_moment_relative__(goal, CUMULANT)
+            return GoalParser._parse_moment_relative(goal, CUMULANT)
         if goal[0] == "c":
-            return GoalParser.__parse_moment_relative__(goal, CENTRAL)
+            return GoalParser._parse_moment_relative(goal, CENTRAL)
         if goal[0] == "P":
-            return GoalParser.__parse_tail_bound__(goal)
+            return GoalParser._parse_tail_bound(goal)
         raise ParseException(f"Unknown goal {goal}")
 
     @staticmethod
-    def __parse_moment_relative__(goal: str, kind):
+    def _parse_moment_relative(goal: str, kind):
         bracket_pos = goal.find("(")
         if bracket_pos < 0 or goal[-1] != ")":
             raise ParseException(f"Malformed goal {goal}")
@@ -41,14 +41,14 @@ class GoalParser:
             raise ParseException(f"Malformed goal {goal}")
 
     @staticmethod
-    def __parse_moment__(goal: str):
+    def _parse_moment(goal: str):
         if goal[1] != "(" or goal[-1] != ")":
             raise ParseException(f"Malformed goal {goal}")
         between_brackets = goal[2:-1].strip()
         return MOMENT, [sympify(between_brackets)]
 
     @staticmethod
-    def __parse_tail_bound__(goal: str):
+    def _parse_tail_bound(goal: str):
         match = re.search(
             "^P\\(([0-9a-zA-Z*/.+\\-)( ]*?)>=([0-9a-zA-Z*/.+\\-)( ]*?)\\)( )*<=( )*\\?( )*",
             goal,

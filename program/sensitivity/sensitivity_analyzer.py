@@ -11,7 +11,7 @@ SymbolSet = Set[SymengineSymbol]
 
 class SensivitiyAnalyzer:
     @classmethod
-    def __assignment_uses_dependent_variable__(
+    def _assignment_uses_dependent_variable(
         cls, assignment: Assignment, vars: Set[SymengineSymbol]
     ) -> bool:
         """
@@ -23,7 +23,7 @@ class SensivitiyAnalyzer:
         return False
 
     @classmethod
-    def __assignment_uses_parameter__(
+    def _assignment_uses_parameter(
         cls, assignment: Assignment, param: SymengineSymbol
     ) -> bool:
         """
@@ -52,13 +52,13 @@ class SensivitiyAnalyzer:
         # check first condition (initial values)
         for initial_action in program.initial:
             if isinstance(initial_action, Assignment):
-                if cls.__assignment_uses_parameter__(initial_action, param):
+                if cls._assignment_uses_parameter(initial_action, param):
                     dependent_vars.add(initial_action.variable)
 
         # check second conditions (assignment uses parameter)
         for body_action in program.loop_body:
             if isinstance(body_action, Assignment):
-                if cls.__assignment_uses_parameter__(body_action, param):
+                if cls._assignment_uses_parameter(body_action, param):
                     dependent_vars.add(body_action.variable)
 
         # loop as long as variables are added to the dependent variables (third condition)
@@ -70,7 +70,7 @@ class SensivitiyAnalyzer:
                 if isinstance(initial_action, Assignment):
                     if (
                         initial_action.variable not in dependent_vars
-                        and cls.__assignment_uses_dependent_variable__(
+                        and cls._assignment_uses_dependent_variable(
                             initial_action, dependent_vars
                         )
                     ):
@@ -80,7 +80,7 @@ class SensivitiyAnalyzer:
                 if isinstance(body_action, Assignment):
                     if (
                         body_action.variable not in dependent_vars
-                        and cls.__assignment_uses_dependent_variable__(
+                        and cls._assignment_uses_dependent_variable(
                             body_action, dependent_vars
                         )
                     ):
@@ -99,7 +99,7 @@ class SensivitiyAnalyzer:
         Find all diff-defective and diff-effective variables of the program, with respect to some parameter.
         """
         # dependent_vars = cls.get_dependent_variables(program, param)
-        dependency_graph = MCChecker.__get_dependency_graph__(program)
+        dependency_graph = MCChecker._get_dependency_graph(program)
         defective_vars = dependency_graph.get_bad_nodes()
         diff_defective_vars = set()
 

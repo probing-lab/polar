@@ -18,9 +18,9 @@ class SimulationResult:
     def __init__(self, samples: List[Run], goals: List):
         self.samples = samples
         self.goals = [sympify(g) for g in goals]
-        self.__preprocess_samples__()
+        self._preprocess_samples()
 
-    def __preprocess_samples__(self):
+    def _preprocess_samples(self):
         new_samples = []
         for run in self.samples:
             new_run = []

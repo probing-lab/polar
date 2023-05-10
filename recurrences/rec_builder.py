@@ -72,18 +72,18 @@ class RecBuilder:
         """
         self.context = RecBuilderContext()
         right_side = monomial
-        last_assign_index = self.__get_last_assign_index__(monomial.free_symbols)
+        last_assign_index = self._get_last_assign_index(monomial.free_symbols)
         for i in reversed(range(last_assign_index + 1)):
             assignment = self.program.loop_body[i]
-            if self.__assign_replace_is_necessary__(assignment, right_side):
+            if self._assign_replace_is_necessary(assignment, right_side):
                 right_side = right_side.expand()
-                right_side = self.__replace_assign__(right_side, assignment).expand()
-                right_side = self.__reduce_powers__(right_side)
+                right_side = self._replace_assign(right_side, assignment).expand()
+                right_side = self._reduce_powers(right_side)
 
-        right_side = self.__reduce_powers__(right_side)
+        right_side = self._reduce_powers(right_side)
         return right_side.simplify().expand()
 
-    def __assign_replace_is_necessary__(self, assign: Assignment, poly: Expr):
+    def _assign_replace_is_necessary(self, assign: Assignment, poly: Expr):
         """
         Returns true iff assign needs to be considered when constructing a moment recurrence.
         The argument "poly" is the intermediate result of constructing a moment recurrence.
@@ -94,7 +94,7 @@ class RecBuilder:
             return False
         return bool(self.context.triggers[assign.variable] & poly.free_symbols)
 
-    def __get_last_assign_index__(self, variables: Set[Symbol]):
+    def _get_last_assign_index(self, variables: Set[Symbol]):
         """
         Returns the maximum index of the assignments of all given variables.
         """
@@ -104,7 +104,7 @@ class RecBuilder:
                 max_index = self.program.var_to_index[v]
         return max_index
 
-    def __replace_assign__(self, poly: Expr, assign: Assignment):
+    def _replace_assign(self, poly: Expr, assign: Assignment):
         """
         Intuitively, the method returns the expected value of "poly" after executing assign.
         You can also think of the result as wp(assign, poly) (where wp is the weakest pre-expectation).
@@ -134,7 +134,7 @@ class RecBuilder:
                 )
             return result
 
-    def __reduce_powers__(self, poly: Expr):
+    def _reduce_powers(self, poly: Expr):
         """
         Reduces the power of finite-valued variables in a given expression.
         """
@@ -160,8 +160,8 @@ class RecBuilder:
         self.context = RecBuilderContext()
         result = monom
         for assign in reversed(self.program.initial):
-            if self.__assign_replace_is_necessary__(assign, result):
-                result = self.__replace_assign__(result, assign)
+            if self._assign_replace_is_necessary(assign, result):
+                result = self._replace_assign(result, assign)
                 result = result.expand()
 
         for sym in monom.free_symbols.difference(self.program.symbols):

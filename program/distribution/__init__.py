@@ -10,7 +10,7 @@ from .discrete_uniform import DiscreteUniform
 from .beta import Beta
 from .gamma import Gamma
 
-__distributions__ = {
+_distributions = {
     "Bernoulli": Bernoulli,
     "Normal": Normal,
     "Categorical": Categorical,
@@ -25,6 +25,6 @@ __distributions__ = {
 
 
 def distribution_factory(dist_name: str, parameters) -> Distribution:
-    if dist_name in __distributions__:
-        return __distributions__[dist_name](parameters)
+    if dist_name in _distributions:
+        return _distributions[dist_name](parameters)
     raise RuntimeError(f"Distribution {dist_name} is not supported")

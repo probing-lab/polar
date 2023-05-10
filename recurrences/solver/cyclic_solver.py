@@ -21,7 +21,7 @@ class CyclicSolver(Solver):
     numeric_roots: bool
     numeric_croots: bool
     numeric_eps: float
-    __is_exact__: bool
+    _is_exact: bool
 
     def __init__(
         self,
@@ -41,11 +41,11 @@ class CyclicSolver(Solver):
             for m, i in zip(recurrences.monomials, range(len(recurrences.monomials)))
         }
         self.characteristic_poly = self.recurrences.recurrence_matrix.charpoly()
-        self.__compute_general_solution__()
+        self._compute_general_solution()
 
-    def __compute_general_solution__(self):
+    def _compute_general_solution(self):
         unknowns = []
-        roots, self.__is_exact__ = get_all_roots(
+        roots, self._is_exact = get_all_roots(
             self.characteristic_poly,
             self.numeric_roots,
             self.numeric_croots,
@@ -69,7 +69,7 @@ class CyclicSolver(Solver):
 
     @property
     def is_exact(self) -> bool:
-        return self.__is_exact__
+        return self._is_exact
 
     @lru_cache(maxsize=None)
     def get(self, monomial):
@@ -81,19 +81,17 @@ class CyclicSolver(Solver):
 
         solution = self.general_solution
         if self.gen_sol_unknowns:
-            concrete_unknowns = self.__solve_for_unknowns__(monomial)
+            concrete_unknowns = self._solve_for_unknowns(monomial)
             unknown_subs = {
                 u: s for u, s in zip(self.gen_sol_unknowns, concrete_unknowns)
             }
             solution = self.general_solution.xreplace(unknown_subs)
 
-        solution = self.__add_beginning_values__(
-            solution, self.monom_to_index[monomial]
-        )
+        solution = self._add_beginning_values(solution, self.monom_to_index[monomial])
 
         return solution.expand()
 
-    def __solve_for_unknowns__(self, monomial: Expr):
+    def _solve_for_unknowns(self, monomial: Expr):
         number_equations = len(self.gen_sol_unknowns)
         monom_index = self.monom_to_index[monomial]
         concrete_values = [self.recurrences.init_values_vector]
@@ -109,7 +107,7 @@ class CyclicSolver(Solver):
             equations.append(eq)
         concrete_unknowns = solve_linear(equations, self.gen_sol_unknowns)
 
-        not_solved = self.__any_is_still_unknown__(concrete_unknowns)
+        not_solved = self._any_is_still_unknown(concrete_unknowns)
         next_n = number_equations + 1
         while not_solved:
             concrete_values.append(
@@ -122,11 +120,11 @@ class CyclicSolver(Solver):
             equations.append(eq)
             next_n += 1
             concrete_unknowns = solve_linear(equations, self.gen_sol_unknowns)
-            not_solved = self.__any_is_still_unknown__(concrete_unknowns)
+            not_solved = self._any_is_still_unknown(concrete_unknowns)
 
         return concrete_unknowns
 
-    def __add_beginning_values__(self, solution, monom_index):
+    def _add_beginning_values(self, solution, monom_index):
         beginning_values = [self.recurrences.init_values_vector]
         for _ in range(self.characteristic_poly.degree() - 1):
             beginning_values.append(
@@ -139,7 +137,7 @@ class CyclicSolver(Solver):
         pieces.append((solution, True))
         return Piecewise(*pieces)
 
-    def __any_is_still_unknown__(self, solutions):
+    def _any_is_still_unknown(self, solutions):
         for s in solutions:
             if s.free_symbols & set(self.gen_sol_unknowns_set):
                 return True

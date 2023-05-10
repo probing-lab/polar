@@ -71,5 +71,5 @@ class Or(Condition):
     def __hash__(self):
         return hash(("OR", self.cond1, self.cond2))
 
-    def __simple_copy__(self):
+    def _simple_copy(self):
         return Or(self.cond1.copy(), self.cond2.copy())

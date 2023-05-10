@@ -31,9 +31,9 @@ class StatesPlot(Plot):
         self.plt = None
         self.ani = None
         self.fps = -1
-        self.__build__()
+        self._build()
 
-    def __build__(self):
+    def _build(self):
         goal = sympify(self.goal)
         matplotlib.use("TkAgg")
         data = self.simulation_result.get_prepared_data(goal)

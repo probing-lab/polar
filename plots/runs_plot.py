@@ -34,9 +34,9 @@ class RunsPlot(Plot):
         self.is_probabilistic = is_probabilistic
         self.plt = None
         self.ani = None
-        self.__build__()
+        self._build()
 
-    def __build__(self):
+    def _build(self):
         fig, ax = plt.subplots()
         goal = sympify(self.goal)
         plt.ylabel("$\mathbb{R}$", rotation=0)

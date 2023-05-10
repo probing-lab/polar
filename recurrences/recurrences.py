@@ -43,10 +43,10 @@ class Recurrences:
             self.constant_symbols = program.symbols
         else:
             self.constant_symbols = const_symbols
-        self.__init_data__()
-        self.__init_is_acyclic__()
+        self._init_data()
+        self._init_is_acyclic()
 
-    def __init_data__(self):
+    def _init_data(self):
         """
         Initializes the recurrence matrix as well as the initial value vector
         """
@@ -89,7 +89,7 @@ class Recurrences:
         self.init_values_vector = Matrix(initial_values)
         self.recurrence_matrix = Matrix(coefficients)
 
-    def __init_is_acyclic__(self):
+    def _init_is_acyclic(self):
         self.is_acyclic = True
         dependencies = copy.deepcopy(self.dependencies)
         while dependencies.keys():

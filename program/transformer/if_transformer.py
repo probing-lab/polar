@@ -29,7 +29,7 @@ class IfTransformer(TreeTransformer):
 
         # If a variable in a condition is assigned within a branch we need to store its old value at the beginning
         # and use the old value in all conditions
-        condition_symbols = self.__get_all_symbols__(conditions)
+        condition_symbols = self._get_all_symbols(conditions)
         rename_subs = {}
 
         # Now, move the conditions of the if-statement into the conditions of the assignments
@@ -77,7 +77,7 @@ class IfTransformer(TreeTransformer):
 
         return tuple(all_assigns)
 
-    def __get_all_symbols__(self, conditions: List[Condition]):
+    def _get_all_symbols(self, conditions: List[Condition]):
         all_symbols = set()
         for c in conditions:
             all_symbols |= c.get_free_symbols()

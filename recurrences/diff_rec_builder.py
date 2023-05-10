@@ -23,7 +23,7 @@ class DiffRecBuilder:
         self.rec_builder = RecBuilder(program)
         self.dep_vars, _ = SensivitiyAnalyzer.get_dependent_variables(program, param)
 
-    def __is_monomial_p_dependent__(self, monomial: Expr):
+    def _is_monomial_p_dependent(self, monomial: Expr):
         """Check if a given sympy monomial is parameter-depedent"""
         if self.param in monomial.free_symbols:
             return True
@@ -74,7 +74,7 @@ class DiffRecBuilder:
         sum = original_rec.args if original_rec.is_Add else [original_rec]
         for summand in sum:
             # skip p-independent summands
-            if self.__is_monomial_p_dependent__(summand) is False:
+            if self._is_monomial_p_dependent(summand) is False:
                 continue
 
             # separate constant part and monomial part
@@ -90,7 +90,7 @@ class DiffRecBuilder:
 
             # emulate diff
             if self.param in constant_part.free_symbols:
-                if self.__is_monomial_p_dependent__(monomial_part):
+                if self._is_monomial_p_dependent(monomial_part):
                     # if both parts depend on param -> product rule
                     rec += constant_part.diff(self.param) * monomial_part
                     rec += constant_part * monomial_part * self.delta

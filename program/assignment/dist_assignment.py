@@ -55,12 +55,12 @@ class DistAssignment(Assignment):
         # if rest contains variables that are functions of self.variable (like sin(var)/cos(var) etc.)
         # then we need to compute the moment of all those variables and self together.
         # In this case we hand the responsibility to FunctionalAssignment
-        if self.__contains_dependent_funcs__(rec_builder_context, rest):
+        if self._contains_dependent_funcs(rec_builder_context, rest):
             func_vars = (
                 rec_builder_context.dist_var_dependent_func_vars[self.variable]
                 & rest.free_symbols
             )
-            dist_moment = self.__get_mixed_func_moment__(
+            dist_moment = self._get_mixed_func_moment(
                 k, rec_builder_context, func_vars, rest
             )
             rest = rest.xreplace({v: 1 for v in func_vars})
@@ -72,7 +72,7 @@ class DistAssignment(Assignment):
         if_not_cond = (1 - arithm_cond) * (self.default**k) * rest
         return if_cond + if_not_cond
 
-    def __get_mixed_func_moment__(
+    def _get_mixed_func_moment(
         self,
         k: int,
         rec_builder_context: "RecBuilderContext",
@@ -96,7 +96,7 @@ class DistAssignment(Assignment):
         # to FunctionalAssignment
         return FunctionalAssignment.get_func_moment(self.distribution, func_powers)
 
-    def __contains_dependent_funcs__(
+    def _contains_dependent_funcs(
         self, rec_builder_context: "RecBuilderContext", monom: Expr
     ):
         if self.variable not in rec_builder_context.dist_var_dependent_func_vars:

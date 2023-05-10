@@ -22,13 +22,13 @@ class ConditionsToArithm(Transformer):
 
     def execute(self, program: Program) -> Program:
         self.program = program
-        program.initial = self.__conditions_to_arithm__(program.initial)
-        program.loop_body = self.__conditions_to_arithm__(program.loop_body)
+        program.initial = self._conditions_to_arithm(program.initial)
+        program.loop_body = self._conditions_to_arithm(program.loop_body)
         if self.needs_info_update:
             program = UpdateInfoTransformer().execute(program)
         return program
 
-    def __conditions_to_arithm__(self, assignments: List[Assignment]):
+    def _conditions_to_arithm(self, assignments: List[Assignment]):
         new_assignments: List[Assignment] = []
         for assign in assignments:
             arithm_cond = assign.condition.to_arithm(self.program)

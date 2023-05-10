@@ -132,5 +132,5 @@ class Atom(Condition):
     def __hash__(self):
         return hash((self.poly1, self.cop, self.poly2))
 
-    def __simple_copy__(self):
+    def _simple_copy(self):
         return Atom(self.poly1.copy(), self.cop, self.poly2.copy())
