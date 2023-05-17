@@ -35,6 +35,6 @@ class ActionFactory:
             return CornishFisherAction(cli_args)
         if cli_args.mc_comb is not None:
             return MCCombinationAction(cli_args)
-        if cli_args.synth_solv:
+        if cli_args.synth_solv is not None:
             return SynthSolvAction(cli_args)
         return PrintBenchmarkAction(cli_args)
