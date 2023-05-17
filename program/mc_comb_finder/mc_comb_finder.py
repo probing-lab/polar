@@ -221,28 +221,27 @@ class MCCombFinder:
         return good_part_solution
 
     @classmethod
-    def find_good_combination(
-        cls,
-        combination_vars,
-        combination_deg,
-        program: Program,
-        numeric_roots,
-        numeric_croots,
-        numeric_eps,
-    ):
-        candidate, candidate_coefficients = cls.__get_candidate__(
-            combination_vars, combination_deg
-        )
+    def construct_candidate(cls, combination_vars, combination_deg, program):
+        candidate, candidate_coefficients = cls.__get_candidate__(combination_vars, combination_deg)
         rec_builder = RecBuilder(program)
         candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
+        return candidate, candidate_rec, candidate_coefficients
 
-        good_set = cls.__get_good_set__(
-            candidate_rec, program.non_mc_variables, program.variables
-        )
+    @classmethod
+    def construct_inhomogeneous(cls, candidate_rec, defective_variables, variables):
+        good_set = cls.__get_good_set__(candidate_rec, defective_variables, variables)
         rhs_good_part, good_coeffs = cls.__get_good_poly__(good_set)
+        return rhs_good_part, good_coeffs
+
+    @classmethod
+    def construct_homogenous(cls, candidate):
         k = Symbol(get_unique_var("k"), nonzero=True)
         kcandidate = (k * candidate).expand()
+        return k, kcandidate
 
+    @classmethod
+    def solve_quadratic_system(cls, candidate, candidate_rec, candidate_coefficients, kcandidate, rhs_good_part,
+                               good_coeffs, k):
         equations = cls.__construct_equations__(
             candidate_rec,
             candidate_coefficients,
@@ -251,16 +250,19 @@ class MCCombFinder:
             good_coeffs,
             k,
         )
-
-        symbols = list(candidate_coefficients) + list(good_coeffs) + [k]
         equations = [sympify(e) for e in equations]
+        symbols = list(candidate_coefficients) + list(good_coeffs) + [k]
         symbols = [sympify(s) for s in symbols]
         basis = groebner(equations, *symbols)
         solutions = solve([b for b in basis], symbols, dict=True)
         nice_solutions = cls.__get_nice_solutions__(solutions, equations, candidate, k)
+        return nice_solutions
+
+    @classmethod
+    def get_invariants(cls, candidate, rec_builder, nice_solutions, rhs_good_part, good_coeffs, numeric_roots,
+                       numeric_croots, numeric_eps, program, k):
         if len(nice_solutions) == 0:
             return None
-
         good_part_solution = cls.__solve_good_part__(
             rhs_good_part,
             good_coeffs,
@@ -269,7 +271,7 @@ class MCCombFinder:
             numeric_eps,
             program,
         )
-        combinations = []
+        invariants = []
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in nice_solutions:
             ans = solve_rec_by_summing(
@@ -278,8 +280,8 @@ class MCCombFinder:
                 inhom_part=sympify(good_part_solution),
             )
             ans = ans.xreplace(solution)
-            combinations.append((candidate.xreplace(solution), ans))
-        return combinations
+            invariants.append((candidate.xreplace(solution), ans))
+        return invariants
 
     @classmethod
     def find_good_combination_for_k(
@@ -334,7 +336,7 @@ class MCCombFinder:
             numeric_eps,
             program,
         )
-        combinations = []
+        invariants = []
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in solutions:
             ans = solve_rec_by_summing(
@@ -343,5 +345,17 @@ class MCCombFinder:
                 inhom_part=sympify(good_part_solution),
             )
             ans = ans.xreplace(solution)
-            combinations.append((candidate.xreplace(solution), ans))
-        return combinations
+            invariants.append((candidate.xreplace(solution), ans))
+        return invariants
+
+    @classmethod
+    def find_good_combination(cls, combination_vars, combination_deg, program: Program,
+                              numeric_roots, numeric_croots, numeric_eps):
+        rec_builder = RecBuilder(program)
+        candidate, candidate_rec, candidate_coefficients = cls.construct_candidate(combination_vars, combination_deg, program)
+        rhs_good_part, good_coeffs = cls.construct_inhomogeneous(candidate_rec, program.non_mc_variables, program.variables)
+        k, kcandidate = cls.construct_homogenous(candidate)
+        nice_solutions = cls.solve_quadratic_system(candidate, candidate_rec, candidate_coefficients, kcandidate,
+                                                    rhs_good_part, good_coeffs, k)
+        return cls.get_invariants(candidate, rec_builder, nice_solutions, rhs_good_part, good_coeffs, numeric_roots,
+                                    numeric_croots, numeric_eps, program, k)
