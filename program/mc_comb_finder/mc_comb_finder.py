@@ -222,7 +222,9 @@ class MCCombFinder:
 
     @classmethod
     def construct_candidate(cls, combination_vars, combination_deg, program):
-        candidate, candidate_coefficients = cls.__get_candidate__(combination_vars, combination_deg)
+        candidate, candidate_coefficients = cls.__get_candidate__(
+            combination_vars, combination_deg
+        )
         rec_builder = RecBuilder(program)
         candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
         return candidate, candidate_rec, candidate_coefficients
@@ -240,8 +242,16 @@ class MCCombFinder:
         return k, kcandidate
 
     @classmethod
-    def solve_quadratic_system(cls, candidate, candidate_rec, candidate_coefficients, kcandidate, rhs_good_part,
-                               good_coeffs, k):
+    def solve_quadratic_system(
+        cls,
+        candidate,
+        candidate_rec,
+        candidate_coefficients,
+        kcandidate,
+        rhs_good_part,
+        good_coeffs,
+        k,
+    ):
         equations = cls.__construct_equations__(
             candidate_rec,
             candidate_coefficients,
@@ -254,13 +264,32 @@ class MCCombFinder:
         symbols = list(candidate_coefficients) + list(good_coeffs) + [k]
         symbols = [sympify(s) for s in symbols]
         basis = groebner(equations, *symbols)
+        solution_exists = False
+        for b in basis:
+            if not b.is_symbol:
+                solution_exists = True
+        if solution_exists:
+            print("I found a solution. Maybe I won't tell you.")
+        else:
+            print("There really really is not solution.")
         solutions = solve([b for b in basis], symbols, dict=True)
         nice_solutions = cls.__get_nice_solutions__(solutions, equations, candidate, k)
         return nice_solutions
 
     @classmethod
-    def get_invariants(cls, candidate, rec_builder, nice_solutions, rhs_good_part, good_coeffs, numeric_roots,
-                       numeric_croots, numeric_eps, program, k):
+    def get_invariants(
+        cls,
+        candidate,
+        rec_builder,
+        nice_solutions,
+        rhs_good_part,
+        good_coeffs,
+        numeric_roots,
+        numeric_croots,
+        numeric_eps,
+        program,
+        k,
+    ):
         if len(nice_solutions) == 0:
             return None
         good_part_solution = cls.__solve_good_part__(
@@ -349,13 +378,41 @@ class MCCombFinder:
         return invariants
 
     @classmethod
-    def find_good_combination(cls, combination_vars, combination_deg, program: Program,
-                              numeric_roots, numeric_croots, numeric_eps):
+    def find_good_combination(
+        cls,
+        combination_vars,
+        combination_deg,
+        program: Program,
+        numeric_roots,
+        numeric_croots,
+        numeric_eps,
+    ):
         rec_builder = RecBuilder(program)
-        candidate, candidate_rec, candidate_coefficients = cls.construct_candidate(combination_vars, combination_deg, program)
-        rhs_good_part, good_coeffs = cls.construct_inhomogeneous(candidate_rec, program.non_mc_variables, program.variables)
+        candidate, candidate_rec, candidate_coefficients = cls.construct_candidate(
+            combination_vars, combination_deg, program
+        )
+        rhs_good_part, good_coeffs = cls.construct_inhomogeneous(
+            candidate_rec, program.non_mc_variables, program.variables
+        )
         k, kcandidate = cls.construct_homogenous(candidate)
-        nice_solutions = cls.solve_quadratic_system(candidate, candidate_rec, candidate_coefficients, kcandidate,
-                                                    rhs_good_part, good_coeffs, k)
-        return cls.get_invariants(candidate, rec_builder, nice_solutions, rhs_good_part, good_coeffs, numeric_roots,
-                                    numeric_croots, numeric_eps, program, k)
+        nice_solutions = cls.solve_quadratic_system(
+            candidate,
+            candidate_rec,
+            candidate_coefficients,
+            kcandidate,
+            rhs_good_part,
+            good_coeffs,
+            k,
+        )
+        return cls.get_invariants(
+            candidate,
+            rec_builder,
+            nice_solutions,
+            rhs_good_part,
+            good_coeffs,
+            numeric_roots,
+            numeric_croots,
+            numeric_eps,
+            program,
+            k,
+        )
