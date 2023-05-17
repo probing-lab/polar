@@ -275,9 +275,9 @@ class ArgumentParser:
         self.argument_parser.add_argument(
             "--synth_solv",
             dest="synth_solv",
-            default=2,
-            type=int,
-            help="The degree of the polynomial invariant in the defective variables used for replacement"
+            type=str,
+            nargs="*",
+            help="The variables to be replaced by a single fresh effective variable"
         )
 
     def parse_args(self):
