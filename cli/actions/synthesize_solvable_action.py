@@ -44,11 +44,8 @@ class SynthSolvAction(Action):
         )
 
         if len(invariants) == 0:
-            print(
-                f"No solvable loop found with degree {combination_deg}. Try using other degrees."
-            )
-            print(program)
-            return [], []
+            print(solvable_programs[0])
+            return [], solvable_programs
 
         for (invariant, solvable_program) in zip(invariants, solvable_programs):
             print("Synthesized solvable loop: ")
