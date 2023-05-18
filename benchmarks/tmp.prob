@@ -1,0 +1,6 @@
+while true:
+    t1 = x + 1
+    t2 = y + x
+    x = t1
+    y = t2
+end

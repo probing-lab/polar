@@ -47,7 +47,7 @@ class SynthSolvAction(Action):
             print(solvable_programs[0])
             return [], solvable_programs
 
-        for (invariant, solvable_program) in zip(invariants, solvable_programs):
+        for invariant, solvable_program in zip(invariants, solvable_programs):
             print("Synthesized solvable loop: ")
             print(solvable_program)
             print()
