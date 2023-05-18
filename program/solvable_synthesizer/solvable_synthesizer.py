@@ -41,42 +41,31 @@ class SolvableSynthesizer:
             good_coeffs,
             k,
         )
-        if len(nice_solutions) == 0:
-            return [], []
 
-        combinations = []
-        for solution in nice_solutions:
-            s = Symbol(get_unique_var("s"), nonzero=True)
-            ans = (k.xreplace(solution)) * s + (rhs_good_part.xreplace(solution))
-            combinations.append((s, ans))
-
-        if len(combinations) == 0:
-            print(
-                f"No combination found with degree {combination_deg}. Try using higher degrees."
-            )
-            return [], []
-        else:
-            rec_builder = RecBuilder(program)
-            solvable_programs = []
-            for combination in combinations:
-                solvable_loop_body = []
-                solvable_loop_variables = []
-                for poly_assign in program.loop_body:
-                    var = poly_assign.variable
-                    if var in program.mc_variables:
-                        solvable_loop_body.append(
-                            PolyAssignment(
-                                var, [rec_builder.get_recurrence_poly(var, [var])], [1]
-                            )
+        rec_builder = RecBuilder(program)
+        if len(nice_solutions) == 0:  # no combination found
+            solvable_loop_body = []
+            solvable_loop_variables = []
+            fresh = dict()
+            for poly_assign in program.loop_body:
+                var = poly_assign.variable
+                if var in program.mc_variables:
+                    t = Symbol(get_unique_var("t"), nonzero=True)
+                    solvable_loop_body.append(
+                        PolyAssignment(
+                            t, [rec_builder.get_recurrence_poly(var, [var])], [1]
                         )
-                        solvable_loop_variables.append(var)
-                comb_var, comb_var_assign = combination[0], combination[1]
-                solvable_loop_body.append(
-                    PolyAssignment(comb_var, [comb_var_assign], [1])
-                )
-                solvable_loop_variables.append(comb_var)
+                    )
+                    fresh[var] = t
+                    solvable_loop_variables.append(t)
 
-                solvable_program = Program(
+            for poly_assign in program.loop_body:
+                var = poly_assign.variable
+                if var in program.mc_variables:
+                    solvable_loop_body.append(PolyAssignment(var, [fresh[var]], [1]))
+
+            return [], [
+                Program(
                     [],
                     solvable_loop_variables,
                     solvable_loop_variables,
@@ -85,9 +74,55 @@ class SolvableSynthesizer:
                     solvable_loop_body,
                     program.is_probabilistic,
                 )
-                solvable_program.typedefs = program.typedefs
+            ]
 
-                solvable_programs.append(solvable_program)
+        combinations = []
+        for solution in nice_solutions:
+            s = Symbol(get_unique_var("s"), nonzero=True)
+            ans = (k.xreplace(solution)) * s + (rhs_good_part.xreplace(solution))
+            combinations.append((s, ans))
+
+        solvable_programs = []
+        for combination in combinations:
+            solvable_loop_body = []
+            solvable_loop_variables = []
+            replaced = False
+            fresh = dict()
+            for poly_assign in program.loop_body:
+                var = poly_assign.variable
+                if var in program.mc_variables:
+                    t = Symbol(get_unique_var("t"), nonzero=True)
+                    solvable_loop_body.append(
+                        PolyAssignment(
+                            t, [rec_builder.get_recurrence_poly(var, [var])], [1]
+                        )
+                    )
+                    fresh[var] = t
+                    solvable_loop_variables.append(t)
+                elif var in combination_vars and not replaced:
+                    replaced = True
+                    comb_var, comb_var_assign = combination[0], combination[1]
+                    solvable_loop_body.append(
+                        PolyAssignment(comb_var, [comb_var_assign], [1])
+                    )
+                    solvable_loop_variables.append(comb_var)
+
+            for poly_assign in program.loop_body:
+                var = poly_assign.variable
+                if var in program.mc_variables:
+                    solvable_loop_body.append(PolyAssignment(var, [fresh[var]], [1]))
+
+            solvable_program = Program(
+                [],
+                solvable_loop_variables,
+                solvable_loop_variables,
+                program.initial,
+                program.loop_guard,
+                solvable_loop_body,
+                program.is_probabilistic,
+            )
+            solvable_program.typedefs = program.typedefs
+            solvable_programs.append(solvable_program)
 
         invariants = MCCombFinder.get_invariants(
             candidate,
