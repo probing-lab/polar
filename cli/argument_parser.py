@@ -277,7 +277,7 @@ class ArgumentParser:
             dest="synth_solv",
             type=str,
             nargs="*",
-            help="The variables to be replaced by a single fresh effective variable"
+            help="The variables to be replaced by a single fresh effective variable",
         )
 
     def parse_args(self):
