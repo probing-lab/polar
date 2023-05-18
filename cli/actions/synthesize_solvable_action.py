@@ -20,7 +20,7 @@ class SynthSolvAction(Action):
 
         if len(program.non_mc_variables) == 0:
             print(f"Loop in {benchmark} is already solvable.")
-            return
+            return [], []
 
         combination_vars = []
         if len(self.cli_args.synth_solv) == 0:
@@ -40,12 +40,15 @@ class SynthSolvAction(Action):
             program,
             self.cli_args.numeric_roots,
             self.cli_args.numeric_croots,
-            self.cli_args.numeric_eps
+            self.cli_args.numeric_eps,
         )
 
         if len(invariants) == 0:
-            print(f"No solvable loop found with degree {combination_deg}. Try using other degrees.")
-            return None, None
+            print(
+                f"No solvable loop found with degree {combination_deg}. Try using other degrees."
+            )
+            print(program)
+            return [], []
 
         for (invariant, solvable_program) in zip(invariants, solvable_programs):
             print("Synthesized solvable loop: ")
