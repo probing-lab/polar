@@ -26,11 +26,17 @@ class SimulationResult:
             new_run = []
             for state in run:
                 state = {sympify(k): v for k, v in state.items()}
-                goal_values = {g: float(sympify(g).subs(state)) for g in self.goals}
+                goal_values = {g: self._goal_to_float(g, state) for g in self.goals}
                 state.update(goal_values)
                 new_run.append(state)
             new_samples.append(new_run)
         self.samples = new_samples
+
+    def _goal_to_float(self, goal, state):
+        result = sympify(goal).subs(state)
+        if not result.is_Number:
+            return float("nan")
+        return float(result)
 
     def get_average_goals(self, iteration=-1):
         result = {}

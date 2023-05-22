@@ -1,6 +1,5 @@
+x = 0
 while true:
-    t1 = x + 1
-    t2 = y + x
-    x = t1
-    y = t2
+    x = x + 1
+    y = x
 end
