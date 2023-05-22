@@ -18,10 +18,6 @@ class SynthSolvAction(Action):
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
         program = prepare_program(program, self.cli_args)
 
-        if len(program.non_mc_variables) == 0:
-            print(f"Loop in {benchmark} is already solvable.")
-            return [], []
-
         combination_vars = []
         if len(self.cli_args.synth_solv) == 0:
             for var in program.non_mc_variables:

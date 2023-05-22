@@ -301,15 +301,8 @@ class MCCombFinder:
             program,
         )
         invariants = []
-        initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in nice_solutions:
-            ans = solve_rec_by_summing(
-                rec_coeff=solution[sympify(k)],
-                init_value=initial_candidate,
-                inhom_part=sympify(good_part_solution),
-            )
-            ans = ans.xreplace(solution)
-            invariants.append((candidate.xreplace(solution), ans))
+            invariants.append(candidate.xreplace(solution))
         return invariants
 
     @classmethod
