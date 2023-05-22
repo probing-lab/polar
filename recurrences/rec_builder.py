@@ -53,15 +53,14 @@ class RecBuilder:
         recurrences of the monomials (by linearity of expectation).
         """
         monoms = get_terms_with_vars(poly, variables)
-        monoms = monoms[0]
+        monoms, constant = monoms[0], monoms[1]
         index_to_vars = {i: var for i, var in enumerate(variables)}
-        poly, poly_rec = Zero(), Zero()
+        poly_rec = constant
         for monom, coeff in monoms:
             term = One()
             for i in range(len(monom)):
                 term *= index_to_vars[i] ** monom[i]
             poly_rec += coeff * self.get_recurrence(term)
-            poly += term
         return poly_rec.expand()
 
     @lru_cache(maxsize=None)
@@ -168,6 +167,21 @@ class RecBuilder:
             result = result.xreplace({sym: Symbol(f"{sym}0")})
 
         return result.expand()
+
+    def get_initial_value_poly(self, poly: Expr, variables: List[Symbol]):
+        """
+        Constructs a single initial value for the moment recurrence of a given polynomial.
+        """
+        monoms = get_terms_with_vars(poly, variables)
+        monoms, constant = monoms[0], monoms[1]
+        index_to_vars = {i: var for i, var in enumerate(variables)}
+        value = constant
+        for monom, coeff in monoms:
+            term = One()
+            for i in range(len(monom)):
+                term *= index_to_vars[i] ** monom[i]
+            value += coeff * self.get_initial_value(term)
+        return value.expand()
 
     def get_initial_values(self, monomials: Set[Expr]):
         """
