@@ -16,6 +16,7 @@ class SolvableSynthesizer:
     @classmethod
     def handle_solvable_loop(cls, program):
         rec_builder = RecBuilder(program)
+        solvable_loop_initial = []
         solvable_loop_body = []
         solvable_loop_variables = []
         fresh = dict()
@@ -23,9 +24,12 @@ class SolvableSynthesizer:
             var = poly_assign.variable
             if var in program.mc_variables:
                 t = Symbol(get_unique_var("t"), nonzero=True)
+                solvable_loop_initial.append(
+                    PolyAssignment.deterministic(t, rec_builder.get_initial_value(var))
+                )
                 solvable_loop_body.append(
-                    PolyAssignment(
-                        t, [rec_builder.get_recurrence_poly(var, [var])], [1]
+                    PolyAssignment.deterministic(
+                        t, rec_builder.get_recurrence_poly(var, [var])
                     )
                 )
                 fresh[var] = t
@@ -34,14 +38,17 @@ class SolvableSynthesizer:
         for poly_assign in program.loop_body:
             var = poly_assign.variable
             if var in program.mc_variables:
-                solvable_loop_body.append(PolyAssignment(var, [fresh[var]], [1]))
+                solvable_loop_initial.append(
+                    PolyAssignment.deterministic(var, fresh[var])
+                )
+                solvable_loop_body.append(PolyAssignment.deterministic(var, fresh[var]))
 
         return [], [
             Program(
                 [],
                 solvable_loop_variables,
                 solvable_loop_variables,
-                program.initial,
+                solvable_loop_initial,
                 program.loop_guard,
                 solvable_loop_body,
                 program.is_probabilistic,
@@ -67,10 +74,15 @@ class SolvableSynthesizer:
         for solution in nice_solutions:
             s = Symbol(get_unique_var("s"), nonzero=True)
             ans = (k.xreplace(solution)) * s + (rhs_good_part.xreplace(solution))
-            combinations.append((s, ans))
+            specialized_candidate = candidate.xreplace(solution)
+            initial_candidate = rec_builder.get_initial_value_poly(
+                specialized_candidate, combination_vars
+            )
+            combinations.append((s, ans, initial_candidate))
 
         solvable_programs = []
         for combination in combinations:
+            solvable_loop_initial = []
             solvable_loop_body = []
             solvable_loop_variables = []
             replaced = False
@@ -79,9 +91,14 @@ class SolvableSynthesizer:
                 var = poly_assign.variable
                 if var in program.mc_variables:
                     t = Symbol(get_unique_var("t"), nonzero=True)
+                    solvable_loop_initial.append(
+                        PolyAssignment.deterministic(
+                            t, rec_builder.get_initial_value(var)
+                        )
+                    )
                     solvable_loop_body.append(
-                        PolyAssignment(
-                            t, [rec_builder.get_recurrence_poly(var, [var])], [1]
+                        PolyAssignment.deterministic(
+                            t, rec_builder.get_recurrence_poly(var, [var])
                         )
                     )
                     fresh[var] = t
@@ -89,21 +106,29 @@ class SolvableSynthesizer:
                 elif var in combination_vars and not replaced:
                     replaced = True
                     comb_var, comb_var_assign = combination[0], combination[1]
+                    solvable_loop_initial.append(
+                        PolyAssignment.deterministic(comb_var, combination[2])
+                    )
                     solvable_loop_body.append(
-                        PolyAssignment(comb_var, [comb_var_assign], [1])
+                        PolyAssignment.deterministic(comb_var, comb_var_assign)
                     )
                     solvable_loop_variables.append(comb_var)
 
             for poly_assign in program.loop_body:
                 var = poly_assign.variable
                 if var in program.mc_variables:
-                    solvable_loop_body.append(PolyAssignment(var, [fresh[var]], [1]))
+                    solvable_loop_initial.append(
+                        PolyAssignment.deterministic(var, fresh[var])
+                    )
+                    solvable_loop_body.append(
+                        PolyAssignment.deterministic(var, fresh[var])
+                    )
 
             solvable_program = Program(
                 [],
                 solvable_loop_variables,
                 solvable_loop_variables,
-                program.initial,
+                solvable_loop_initial,
                 program.loop_guard,
                 solvable_loop_body,
                 program.is_probabilistic,
