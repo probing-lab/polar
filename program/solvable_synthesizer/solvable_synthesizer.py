@@ -160,6 +160,8 @@ class SolvableSynthesizer:
         numeric_croots,
         numeric_eps,
     ):
+        if len(combination_vars) == 0:  # loop is already solvable
+            return cls.handle_solvable_loop(program)
         (
             candidate,
             candidate_rec,
