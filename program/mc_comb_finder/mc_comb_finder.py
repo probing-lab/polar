@@ -304,7 +304,7 @@ class MCCombFinder:
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in nice_solutions:
             ans = solve_rec_by_summing(
-                rec_coeff=k,
+                rec_coeff=k.xreplace(solution),
                 init_value=initial_candidate.xreplace(solution),
                 inhom_part=sympify(good_part_solution).xreplace(solution),
             )
@@ -368,7 +368,7 @@ class MCCombFinder:
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in solutions:
             ans = solve_rec_by_summing(
-                rec_coeff=k,
+                rec_coeff=k.xreplace(solution),
                 init_value=initial_candidate.xreplace(solution),
                 inhom_part=sympify(good_part_solution).xreplace(solution),
             )
