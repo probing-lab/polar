@@ -370,10 +370,9 @@ class MCCombFinder:
         for solution in solutions:
             ans = solve_rec_by_summing(
                 rec_coeff=k,
-                init_value=initial_candidate,
-                inhom_part=sympify(good_part_solution),
+                init_value=initial_candidate.xreplace(solution),
+                inhom_part=sympify(good_part_solution).xreplace(solution),
             )
-            ans = ans.xreplace(solution)
             invariants.append((candidate.xreplace(solution), ans))
         return invariants
 
