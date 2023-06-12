@@ -274,6 +274,6 @@ def is_solvable(poly: Expr, program):
         for i in range(len(power)):
             if power[i] > 0:
                 cur_var = index_to_vars[i]
-                if cur_var in program.non_mc_variables:
+                if cur_var in program.defective_variables:
                     return False
     return True

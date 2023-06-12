@@ -20,7 +20,7 @@ class SynthSolvLoopAction(Action):
 
         candidate_vars = []
         if len(self.cli_args.synth_solv_loop) == 0:
-            for var in program.non_mc_variables:
+            for var in program.defective_variables:
                 if var in program.original_variables:
                     candidate_vars.append(var)
         else:
