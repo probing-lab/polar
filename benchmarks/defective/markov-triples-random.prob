@@ -7,4 +7,3 @@ while true:
         a, b, c = b, 3*b*c - a, c
     end
 end
-

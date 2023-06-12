@@ -1,8 +1,0 @@
-x = 0
-f = 1
-i = 0
-while true:
-    x = x + 1
-    f = x*f
-    i = i + 1
-end
