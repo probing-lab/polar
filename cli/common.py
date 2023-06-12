@@ -30,7 +30,7 @@ from utils.expressions import get_monoms
 
 
 def get_moment(monom, solvers, rec_builder, cli_args, program):
-    if cli_args.mc_check and not is_moment_computable(monom, program):
+    if cli_args.solvability_check and not is_moment_computable(monom, program):
         raise Exception(f"{monom} is not moment computable.")
 
     if monom not in solvers:
