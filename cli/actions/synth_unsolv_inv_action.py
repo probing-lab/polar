@@ -40,7 +40,7 @@ class SynthUnsolvInvAction(Action):
 
         # First look for combinations where k=1
         print("Searching for combinations for special case k = 1..")
-        solutions = UnsolvInvSynthesizer.find_good_combination_for_k(
+        solutions = UnsolvInvSynthesizer.synth_inv_for_k(
             1,
             candidate_vars,
             inv_deg,
@@ -62,7 +62,7 @@ class SynthUnsolvInvAction(Action):
 
         # Then look for the general case
         print("Searching for combinations, general case..")
-        solutions = UnsolvInvSynthesizer.find_good_combination(
+        solutions = UnsolvInvSynthesizer.synth_inv(
             candidate_vars,
             inv_deg,
             program,

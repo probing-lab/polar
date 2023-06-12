@@ -30,7 +30,7 @@ class SynthSolvLoopAction(Action):
         print(colored("- Analysis Result -", "cyan"))
         print(colored("-------------------", "cyan"))
         print()
-        invariants, solvable_programs = SolvLoopSynthesizer.synthesize(
+        invariants, solvable_programs = SolvLoopSynthesizer.synth_loop(
             candidate_vars,
             inv_deg,
             program,

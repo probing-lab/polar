@@ -60,10 +60,10 @@ class SolvLoopSynthesizer:
         cls,
         nice_solutions,
         program,
-        rhs_good_part,
+        rhs_effective_part,
         combination_vars,
         candidate,
-        good_coeffs,
+        effective_part_coeffs,
         numeric_roots,
         numeric_croots,
         numeric_eps,
@@ -73,7 +73,7 @@ class SolvLoopSynthesizer:
         combinations = []
         for solution in nice_solutions:
             s = Symbol(get_unique_var("s"), nonzero=True)
-            ans = (k.xreplace(solution)) * s + (rhs_good_part.xreplace(solution))
+            ans = (k.xreplace(solution)) * s + (rhs_effective_part.xreplace(solution))
             specialized_candidate = candidate.xreplace(solution)
             initial_candidate = rec_builder.get_initial_value_poly(
                 specialized_candidate, combination_vars
@@ -140,8 +140,8 @@ class SolvLoopSynthesizer:
             candidate,
             rec_builder,
             nice_solutions,
-            rhs_good_part,
-            good_coeffs,
+            rhs_effective_part,
+            effective_part_coeffs,
             numeric_roots,
             numeric_croots,
             numeric_eps,
@@ -151,7 +151,7 @@ class SolvLoopSynthesizer:
         return invariants, solvable_programs
 
     @classmethod
-    def synthesize(
+    def synth_loop(
         cls,
         combination_vars,
         combination_deg,
@@ -169,17 +169,20 @@ class SolvLoopSynthesizer:
         ) = UnsolvInvSynthesizer.construct_candidate(
             combination_vars, combination_deg, program
         )
-        rhs_good_part, good_coeffs = UnsolvInvSynthesizer.construct_inhomogeneous(
+        (
+            rhs_effective_part,
+            effective_part_coeffs,
+        ) = UnsolvInvSynthesizer.construct_inhomogeneous_part(
             candidate_rec, program.non_mc_variables, program.variables
         )
-        k, kcandidate = UnsolvInvSynthesizer.construct_homogenous(candidate)
+        k, kcandidate = UnsolvInvSynthesizer.construct_homogenous_part(candidate)
         nice_solutions = UnsolvInvSynthesizer.solve_quadratic_system(
             candidate,
             candidate_rec,
             candidate_coefficients,
             kcandidate,
-            rhs_good_part,
-            good_coeffs,
+            rhs_effective_part,
+            effective_part_coeffs,
             k,
         )
 
@@ -189,10 +192,10 @@ class SolvLoopSynthesizer:
             return cls.handle_unsolvable_loop(
                 nice_solutions,
                 program,
-                rhs_good_part,
+                rhs_effective_part,
                 combination_vars,
                 candidate,
-                good_coeffs,
+                effective_part_coeffs,
                 numeric_roots,
                 numeric_croots,
                 numeric_eps,
