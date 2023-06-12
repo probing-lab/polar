@@ -1,5 +1,0 @@
-x = 0
-while true:
-    g = Normal(2, 1)
-    x = x + g
-end

@@ -1,0 +1,37 @@
+
+8888888b.   .d88888b.  888             d8888 8888888b.
+888   Y88b d88P" "Y88b 888            d88888 888   Y88b
+888    888 888     888 888           d88P888 888    888
+888   d88P 888     888 888          d88P 888 888   d88P
+8888888P"  888     888 888         d88P  888 8888888P"
+888        888     888 888        d88P   888 888 T88b
+888        Y88b. .d88P 888       d8888888888 888  T88b
+888         "Y88888P"  88888888 d88P     888 888   T88b
+
+By the ProbInG group
+
+
+
+-------------------
+- Analysis Result -
+-------------------
+
+I found a solution. Maybe I won't tell you.
+Synthesized solvable loop:
+types
+    s : Finite(0, 1)
+end
+_t9 = s0
+_s8 = x0*_u5 - y0*_u5
+s = _t9
+while true:
+    _t9 = 1/2
+    _s8 = (5/6)*_s8
+    s = _t9
+end
+
+Invariant used:
+(x*_u5 - y*_u5, (x0 - y0)*(5/6)**n*_u5)
+
+
+Elapsed time: 0.354628324508667 s
