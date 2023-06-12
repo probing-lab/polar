@@ -14,25 +14,25 @@ class SynthSolvLoopAction(Action):
 
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
-        combination_deg = self.cli_args.inv_deg
+        inv_deg = self.cli_args.inv_deg
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
         program = prepare_program(program, self.cli_args)
 
-        combination_vars = []
+        candidate_vars = []
         if len(self.cli_args.synth_solv_loop) == 0:
             for var in program.non_mc_variables:
                 if var in program.original_variables:
-                    combination_vars.append(var)
+                    candidate_vars.append(var)
         else:
-            combination_vars = [sympify(v) for v in self.cli_args.synth_solv_loop]
+            candidate_vars = [sympify(v) for v in self.cli_args.synth_solv_loop]
 
         print(colored("-------------------", "cyan"))
         print(colored("- Analysis Result -", "cyan"))
         print(colored("-------------------", "cyan"))
         print()
         invariants, solvable_programs = SolvLoopSynthesizer.synthesize(
-            combination_vars,
-            combination_deg,
+            candidate_vars,
+            inv_deg,
             program,
             self.cli_args.numeric_roots,
             self.cli_args.numeric_croots,

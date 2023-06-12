@@ -9,7 +9,7 @@ from .expressions import (
     solve_linear,
     without_piecewise,
     eval_re,
-    is_moment_computable,
+    is_solvable,
     numerify_croots,
     unpack_piecewise,
     get_max_case_in_piecewise,

@@ -266,7 +266,7 @@ def are_coprime(integers: List):
     return True
 
 
-def is_moment_computable(poly: Expr, program):
+def is_solvable(poly: Expr, program):
     monoms = get_terms_with_vars(poly=poly, variables=program.variables)[0]
     index_to_vars = {i: var for i, var in enumerate(program.variables)}
     for monom in monoms:
