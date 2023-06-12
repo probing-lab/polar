@@ -13,7 +13,6 @@ class UnsolvInvSynthesizer:
     TODO: Some parts this class are not so nice because sympy's solver for polynomial systems of equation is incomplete.
     TODO: Especially finding a combination for a fixed k is not ideal.
     TODO: Fix this as soon as sympy improves their procedure for systems of polynomial equations.
-
     In essence the class follows the procedure described in our paper
     "Solving Invariant Generation for Unsolvable Loops".
     """
@@ -51,44 +50,40 @@ class UnsolvInvSynthesizer:
         return ans, coeffs
 
     @classmethod
-    def __get_good_set__(cls, candidate_rec, bad_variables, variables):
-        """
-        Get set of all effective monomials appearing in candidate_rec
-        """
+    def __get_effective_monoms__(cls, candidate_rec, defective_variables, variables):
         result = set()
         monoms = get_terms_with_vars(candidate_rec, variables)[0]
         index_to_vars = {i: var for i, var in enumerate(variables)}
         for monom, coeff in monoms:
-            bad = False
+            defective = False
             term = 0
             for i in range(len(monom)):
                 if monom[i] == 0:
                     continue
                 cur_var = index_to_vars[i]
-                if cur_var in bad_variables:
-                    bad = True
+                if cur_var in defective_variables:
+                    defective = True
                 term += cur_var ** monom[i]
-            if not bad and sum(monom) > 0:
+            if not defective and sum(monom) > 0:
                 result.add(term)
         return result
 
     @classmethod
-    def __get_good_poly__(cls, good_set):
+    def __get_effective_poly__(cls, good_set):
         """
-        Construct the polynomial representing the sigma on rhs of Eq. (3) in paper
+        Construct the polynomial with effective monomials representing the sigma on rhs of Eq. (3) in the SAS paper
         """
-        rhs_good_part = 0
+        poly = 0
         symbols = set()
         for term in good_set:
             coeff = Symbol(get_unique_var())
             symbols.add(coeff)
-            rhs_good_part += coeff * term
+            poly += coeff * term
 
         coeff = Symbol(get_unique_var())
         symbols.add(coeff)
-        rhs_good_part += coeff
-
-        return rhs_good_part, symbols
+        poly += coeff
+        return poly, symbols
 
     @classmethod
     def __solution_exact__(cls, equations, solution):
@@ -121,8 +116,8 @@ class UnsolvInvSynthesizer:
         candidate_rec,
         candidate_coefficients,
         kcandidate,
-        rhs_good_part,
-        good_coeffs,
+        rhs_effective_part,
+        effective_part_coeffs,
         k,
     ):
         """
@@ -134,7 +129,9 @@ class UnsolvInvSynthesizer:
         kcandidate_monoms = get_monoms(
             kcandidate, candidate_coefficients | {k}, with_constant=True
         )
-        good_part_monoms = get_monoms(rhs_good_part, good_coeffs, with_constant=True)
+        good_part_monoms = get_monoms(
+            rhs_effective_part, effective_part_coeffs, with_constant=True
+        )
         equation_terms = {}
         for coeff, monom in candidate_rec_monoms:
             equation_terms[monom] = equation_terms.get(monom, 0) + coeff
@@ -188,10 +185,10 @@ class UnsolvInvSynthesizer:
         return nice_solutions
 
     @classmethod
-    def __solve_good_part__(
+    def __solve_effective_part__(
         cls,
-        rhs_good_part,
-        good_coeffs,
+        rhs_effective_part,
+        effective_part_coeffs,
         numeric_roots,
         numeric_croots,
         numeric_eps,
@@ -200,11 +197,13 @@ class UnsolvInvSynthesizer:
         """
         Fina a closed form for the summation in Eq. (3) with respect to n and initial values.
         """
-        good_part_monoms = get_monoms(rhs_good_part, good_coeffs, with_constant=True)
-        good_part_solution = 0
-        for coeff, monom in good_part_monoms:
+        effective_part_monoms = get_monoms(
+            rhs_effective_part, effective_part_coeffs, with_constant=True
+        )
+        effective_part_solution = 0
+        for coeff, monom in effective_part_monoms:
             if monom == 1:
-                good_part_solution += coeff
+                effective_part_solution += coeff
                 continue
             rec_builder = RecBuilder(program)
             recs = rec_builder.get_recurrences(monom)
@@ -214,29 +213,35 @@ class UnsolvInvSynthesizer:
                 numeric_croots=numeric_croots,
                 numeric_eps=numeric_eps,
             )
-            good_part_solution += coeff * rec_solver.get(monom)
-        good_part_solution = good_part_solution.xreplace(
+            effective_part_solution += coeff * rec_solver.get(monom)
+        effective_part_solution = effective_part_solution.xreplace(
             {sympify("n"): sympify("n") - 1}
         )
-        return good_part_solution
+        return effective_part_solution
 
     @classmethod
-    def construct_candidate(cls, combination_vars, combination_deg, program):
+    def construct_candidate(cls, candidate_vars, combination_deg, program):
         candidate, candidate_coefficients = cls.__get_candidate__(
-            combination_vars, combination_deg
+            candidate_vars, combination_deg
         )
         rec_builder = RecBuilder(program)
-        candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
+        candidate_rec = rec_builder.get_recurrence_poly(candidate, candidate_vars)
         return candidate, candidate_rec, candidate_coefficients
 
     @classmethod
-    def construct_inhomogeneous(cls, candidate_rec, defective_variables, variables):
-        good_set = cls.__get_good_set__(candidate_rec, defective_variables, variables)
-        rhs_good_part, good_coeffs = cls.__get_good_poly__(good_set)
-        return rhs_good_part, good_coeffs
+    def construct_inhomogeneous_part(
+        cls, candidate_rec, defective_variables, variables
+    ):
+        effective_monoms = cls.__get_effective_monoms__(
+            candidate_rec, defective_variables, variables
+        )
+        rhs_effective_part, effective_coeffs = cls.__get_effective_poly__(
+            effective_monoms
+        )
+        return rhs_effective_part, effective_coeffs
 
     @classmethod
-    def construct_homogenous(cls, candidate):
+    def construct_homogenous_part(cls, candidate):
         k = Symbol(get_unique_var("k"), nonzero=True)
         kcandidate = (k * candidate).expand()
         return k, kcandidate
@@ -248,20 +253,20 @@ class UnsolvInvSynthesizer:
         candidate_rec,
         candidate_coefficients,
         kcandidate,
-        rhs_good_part,
-        good_coeffs,
+        rhs_effective_part,
+        effective_part_coeffs,
         k,
     ):
         equations = cls.__construct_equations__(
             candidate_rec,
             candidate_coefficients,
             kcandidate,
-            rhs_good_part,
-            good_coeffs,
+            rhs_effective_part,
+            effective_part_coeffs,
             k,
         )
         equations = [sympify(e) for e in equations]
-        symbols = list(candidate_coefficients) + list(good_coeffs) + [k]
+        symbols = list(candidate_coefficients) + list(effective_part_coeffs) + [k]
         symbols = [sympify(s) for s in symbols]
         basis = groebner(equations, *symbols)
         solution_exists = False
@@ -282,8 +287,8 @@ class UnsolvInvSynthesizer:
         candidate,
         rec_builder,
         nice_solutions,
-        rhs_good_part,
-        good_coeffs,
+        rhs_effective_part,
+        effective_part_coeffs,
         numeric_roots,
         numeric_croots,
         numeric_eps,
@@ -292,9 +297,9 @@ class UnsolvInvSynthesizer:
     ):
         if len(nice_solutions) == 0:
             return None
-        good_part_solution = cls.__solve_good_part__(
-            rhs_good_part,
-            good_coeffs,
+        good_part_solution = cls.__solve_effective_part__(
+            rhs_effective_part,
+            effective_part_coeffs,
             numeric_roots,
             numeric_croots,
             numeric_eps,
@@ -312,7 +317,7 @@ class UnsolvInvSynthesizer:
         return invariants
 
     @classmethod
-    def find_good_combination_for_k(
+    def synth_inv_for_k(
         cls,
         k: Union[Number, int],
         combination_vars,
@@ -328,22 +333,24 @@ class UnsolvInvSynthesizer:
         rec_builder = RecBuilder(program)
         candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
 
-        good_set = cls.__get_good_set__(
+        effective_monoms = cls.__get_effective_monoms__(
             candidate_rec, program.non_mc_variables, program.variables
         )
-        rhs_good_part, good_coeffs = cls.__get_good_poly__(good_set)
+        rhs_effective_part, effective_part_coeffs = cls.__get_effective_poly__(
+            effective_monoms
+        )
         kcandidate = (k * candidate).expand()
 
         equations = cls.__construct_equations__(
             candidate_rec,
             candidate_coefficients,
             kcandidate,
-            rhs_good_part,
-            good_coeffs,
+            rhs_effective_part,
+            effective_part_coeffs,
             k,
         )
 
-        symbols = list(candidate_coefficients) + list(good_coeffs)
+        symbols = list(candidate_coefficients) + list(effective_part_coeffs)
         equations = [sympify(e) for e in equations]
         symbols = [sympify(s) for s in symbols]
         tmp_solutions = linsolve(equations, symbols)
@@ -356,9 +363,9 @@ class UnsolvInvSynthesizer:
         if len(solutions) == 0:
             return None
 
-        good_part_solution = cls.__solve_good_part__(
-            rhs_good_part,
-            good_coeffs,
+        effective_part_solutions = cls.__solve_effective_part__(
+            rhs_effective_part,
+            effective_part_coeffs,
             numeric_roots,
             numeric_croots,
             numeric_eps,
@@ -370,13 +377,13 @@ class UnsolvInvSynthesizer:
             ans = solve_rec_by_summing(
                 rec_coeff=k,
                 init_value=initial_candidate.xreplace(solution),
-                inhom_part=sympify(good_part_solution).xreplace(solution),
+                inhom_part=sympify(effective_part_solutions).xreplace(solution),
             )
             invariants.append((candidate.xreplace(solution), ans))
         return invariants
 
     @classmethod
-    def find_good_combination(
+    def synth_inv(
         cls,
         combination_vars,
         combination_deg,
@@ -389,25 +396,25 @@ class UnsolvInvSynthesizer:
         candidate, candidate_rec, candidate_coefficients = cls.construct_candidate(
             combination_vars, combination_deg, program
         )
-        rhs_good_part, good_coeffs = cls.construct_inhomogeneous(
+        rhs_effective_part, effective_part_coeffs = cls.construct_inhomogeneous_part(
             candidate_rec, program.non_mc_variables, program.variables
         )
-        k, kcandidate = cls.construct_homogenous(candidate)
+        k, kcandidate = cls.construct_homogenous_part(candidate)
         nice_solutions = cls.solve_quadratic_system(
             candidate,
             candidate_rec,
             candidate_coefficients,
             kcandidate,
-            rhs_good_part,
-            good_coeffs,
+            rhs_effective_part,
+            effective_part_coeffs,
             k,
         )
         return cls.get_invariants(
             candidate,
             rec_builder,
             nice_solutions,
-            rhs_good_part,
-            good_coeffs,
+            rhs_effective_part,
+            effective_part_coeffs,
             numeric_roots,
             numeric_croots,
             numeric_eps,

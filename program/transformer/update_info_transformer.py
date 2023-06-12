@@ -150,9 +150,9 @@ class UpdateInfoTransformer(Transformer):
         return all_symbols
 
     def _set_mc_variables(self):
-        mc_vars, non_mc_vars = SolvabilityChecker.get_mc_variables(self.program)
-        self.program.mc_variables = mc_vars
-        self.program.non_mc_variables = non_mc_vars
+        effective_vars, defective_vars = SolvabilityChecker.get_variables(self.program)
+        self.program.mc_variables = effective_vars
+        self.program.non_mc_variables = defective_vars
 
 
 @dataclass

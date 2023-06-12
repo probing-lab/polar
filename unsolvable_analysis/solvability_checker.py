@@ -6,15 +6,13 @@ from program.assignment import PolyAssignment
 from utils import expressions, Graph
 
 
-GoodVars = Set[Symbol]
-BadVars = Set[Symbol]
+effective_vars = Set[Symbol]
+defective_vars = Set[Symbol]
 
 
 class SolvabilityChecker:
     """
-    Class which constructs the dependency graph between the variables assigned and
-    returns the set of moment computable and non moment computable variables later used for
-    finding moment computable combinations.
+    Constructs the variable dependency graph and returns the set of effective and defective variables.
     """
 
     @classmethod
@@ -78,8 +76,8 @@ class SolvabilityChecker:
         return dependency_graph
 
     @classmethod
-    def get_mc_variables(cls, program: Program) -> Tuple[GoodVars, BadVars]:
+    def get_variables(cls, program: Program) -> Tuple[effective_vars, defective_vars]:
         dependency_graph = SolvabilityChecker._get_dependency_graph(program)
-        bad_variables = dependency_graph.get_bad_nodes()
-        good_variables = set(program.variables) - set(bad_variables)
-        return set(good_variables), set(bad_variables)
+        defective_vars = dependency_graph.get_bad_nodes()
+        effective_vars = set(program.variables) - set(defective_vars)
+        return set(effective_vars), set(defective_vars)
