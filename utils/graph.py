@@ -90,9 +90,9 @@ class Graph:
                         return True
         return False
 
-    def get_bad_nodes(self):
+    def get_defective_nodes(self):
         """
-        Responsible for detecting bad variables in dependency graph. A variable is bad iff
+        Responsible for detecting defective variables in dependency graph. A variable is defective iff
         1. It appears on a cycle with at least one non-linear dependency typed edge.
         2. Is reachable from any vertex of any cycle described above.
         """

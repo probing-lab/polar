@@ -171,7 +171,7 @@ def prepare_program(program, cli_args):
     # Replace/Add constants in loop body
     program = ConstantsTransformer().execute(program)
     # Update program info like variables and symbols
-    program = UpdateInfoTransformer(ignore_mc_variables=True).execute(program)
+    program = UpdateInfoTransformer(ignore_unsolvability=True).execute(program)
     # Infer types for variables
     if not cli_args.disable_type_inference:
         program = TypeInferer(cli_args.type_fp_iterations).execute(program)

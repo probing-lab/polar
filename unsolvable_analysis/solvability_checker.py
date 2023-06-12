@@ -78,6 +78,6 @@ class SolvabilityChecker:
     @classmethod
     def get_variables(cls, program: Program) -> Tuple[effective_vars, defective_vars]:
         dependency_graph = SolvabilityChecker._get_dependency_graph(program)
-        defective_vars = dependency_graph.get_bad_nodes()
+        defective_vars = dependency_graph.get_defective_nodes()
         effective_vars = set(program.variables) - set(defective_vars)
         return set(effective_vars), set(defective_vars)

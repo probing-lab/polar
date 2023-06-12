@@ -11,7 +11,7 @@ class UnsolvInvSynthesizer:
     """
     Generates all possible polynomial invariants with some given variables upto a fixed degree
     TODO: Some parts this class are not so nice because sympy's solver for polynomial systems of equation is incomplete.
-    TODO: Especially finding a combination for a fixed k is not ideal.
+    TODO: Especially finding a candidate for a fixed k is not ideal.
     TODO: Fix this as soon as sympy improves their procedure for systems of polynomial equations.
     In essence the class follows the procedure described in our paper
     "Solving Invariant Generation for Unsolvable Loops".
@@ -220,9 +220,9 @@ class UnsolvInvSynthesizer:
         return effective_part_solution
 
     @classmethod
-    def construct_candidate(cls, candidate_vars, combination_deg, program):
+    def construct_candidate(cls, candidate_vars, inv_deg, program):
         candidate, candidate_coefficients = cls.__get_candidate__(
-            candidate_vars, combination_deg
+            candidate_vars, inv_deg
         )
         rec_builder = RecBuilder(program)
         candidate_rec = rec_builder.get_recurrence_poly(candidate, candidate_vars)
@@ -320,21 +320,21 @@ class UnsolvInvSynthesizer:
     def synth_inv_for_k(
         cls,
         k: Union[Number, int],
-        combination_vars,
-        combination_deg,
+        candidate_vars,
+        inv_deg,
         program: Program,
         numeric_roots,
         numeric_croots,
         numeric_eps,
     ):
         candidate, candidate_coefficients = cls.__get_candidate__(
-            combination_vars, combination_deg
+            candidate_vars, inv_deg
         )
         rec_builder = RecBuilder(program)
-        candidate_rec = rec_builder.get_recurrence_poly(candidate, combination_vars)
+        candidate_rec = rec_builder.get_recurrence_poly(candidate, candidate_vars)
 
         effective_monoms = cls.__get_effective_monoms__(
-            candidate_rec, program.non_mc_variables, program.variables
+            candidate_rec, program.defective_variables, program.variables
         )
         rhs_effective_part, effective_part_coeffs = cls.__get_effective_poly__(
             effective_monoms
@@ -385,8 +385,8 @@ class UnsolvInvSynthesizer:
     @classmethod
     def synth_inv(
         cls,
-        combination_vars,
-        combination_deg,
+        candidate_vars,
+        inv_deg,
         program: Program,
         numeric_roots,
         numeric_croots,
@@ -394,10 +394,10 @@ class UnsolvInvSynthesizer:
     ):
         rec_builder = RecBuilder(program)
         candidate, candidate_rec, candidate_coefficients = cls.construct_candidate(
-            combination_vars, combination_deg, program
+            candidate_vars, inv_deg, program
         )
         rhs_effective_part, effective_part_coeffs = cls.construct_inhomogeneous_part(
-            candidate_rec, program.non_mc_variables, program.variables
+            candidate_rec, program.defective_variables, program.variables
         )
         k, kcandidate = cls.construct_homogenous_part(candidate)
         nice_solutions = cls.solve_quadratic_system(

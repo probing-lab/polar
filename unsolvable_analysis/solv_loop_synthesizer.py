@@ -22,7 +22,7 @@ class SolvLoopSynthesizer:
         fresh = dict()
         for poly_assign in program.loop_body:
             var = poly_assign.variable
-            if var in program.mc_variables:
+            if var in program.effective_variables:
                 t = Symbol(get_unique_var("t"), nonzero=True)
                 solvable_loop_initial.append(
                     PolyAssignment.deterministic(t, rec_builder.get_initial_value(var))
@@ -37,7 +37,7 @@ class SolvLoopSynthesizer:
 
         for poly_assign in program.loop_body:
             var = poly_assign.variable
-            if var in program.mc_variables:
+            if var in program.effective_variables:
                 solvable_loop_initial.append(
                     PolyAssignment.deterministic(var, fresh[var])
                 )
@@ -61,7 +61,7 @@ class SolvLoopSynthesizer:
         nice_solutions,
         program,
         rhs_effective_part,
-        combination_vars,
+        candidate_vars,
         candidate,
         effective_part_coeffs,
         numeric_roots,
@@ -76,7 +76,7 @@ class SolvLoopSynthesizer:
             ans = (k.xreplace(solution)) * s + (rhs_effective_part.xreplace(solution))
             specialized_candidate = candidate.xreplace(solution)
             initial_candidate = rec_builder.get_initial_value_poly(
-                specialized_candidate, combination_vars
+                specialized_candidate, candidate_vars
             )
             combinations.append((s, ans, initial_candidate))
 
@@ -89,7 +89,7 @@ class SolvLoopSynthesizer:
             fresh = dict()
             for poly_assign in program.loop_body:
                 var = poly_assign.variable
-                if var in program.mc_variables:
+                if var in program.effective_variables:
                     t = Symbol(get_unique_var("t"), nonzero=True)
                     solvable_loop_initial.append(
                         PolyAssignment.deterministic(
@@ -103,7 +103,7 @@ class SolvLoopSynthesizer:
                     )
                     fresh[var] = t
                     solvable_loop_variables.append(t)
-                elif var in combination_vars and not replaced:
+                elif var in candidate_vars and not replaced:
                     replaced = True
                     comb_var, comb_var_assign = combination[0], combination[1]
                     solvable_loop_initial.append(
@@ -116,7 +116,7 @@ class SolvLoopSynthesizer:
 
             for poly_assign in program.loop_body:
                 var = poly_assign.variable
-                if var in program.mc_variables:
+                if var in program.effective_variables:
                     solvable_loop_initial.append(
                         PolyAssignment.deterministic(var, fresh[var])
                     )
@@ -153,27 +153,25 @@ class SolvLoopSynthesizer:
     @classmethod
     def synth_loop(
         cls,
-        combination_vars,
-        combination_deg,
+        candidate_vars,
+        inv_deg,
         program: Program,
         numeric_roots,
         numeric_croots,
         numeric_eps,
     ):
-        if len(combination_vars) == 0:  # loop is already solvable
+        if len(candidate_vars) == 0:  # loop is already solvable
             return cls.handle_solvable_loop(program)
         (
             candidate,
             candidate_rec,
             candidate_coefficients,
-        ) = UnsolvInvSynthesizer.construct_candidate(
-            combination_vars, combination_deg, program
-        )
+        ) = UnsolvInvSynthesizer.construct_candidate(candidate_vars, inv_deg, program)
         (
             rhs_effective_part,
             effective_part_coeffs,
         ) = UnsolvInvSynthesizer.construct_inhomogeneous_part(
-            candidate_rec, program.non_mc_variables, program.variables
+            candidate_rec, program.defective_variables, program.variables
         )
         k, kcandidate = UnsolvInvSynthesizer.construct_homogenous_part(candidate)
         nice_solutions = UnsolvInvSynthesizer.solve_quadratic_system(
@@ -186,14 +184,14 @@ class SolvLoopSynthesizer:
             k,
         )
 
-        if len(nice_solutions) == 0:  # no combination found
+        if len(nice_solutions) == 0:  # no invariant found
             return cls.handle_solvable_loop(program)
         else:
             return cls.handle_unsolvable_loop(
                 nice_solutions,
                 program,
                 rhs_effective_part,
-                combination_vars,
+                candidate_vars,
                 candidate,
                 effective_part_coeffs,
                 numeric_roots,

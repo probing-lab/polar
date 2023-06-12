@@ -23,10 +23,10 @@ class UpdateInfoTransformer(Transformer):
     """
 
     program: Program
-    ignore_mc_variables: bool
+    ignore_unsolvability: bool
 
-    def __init__(self, ignore_mc_variables: bool = False):
-        self.ignore_mc_variables = ignore_mc_variables
+    def __init__(self, ignore_unsolvability: bool = False):
+        self.ignore_unsolvability = ignore_unsolvability
 
     def execute(self, program: Program) -> Program:
         self.program = program
@@ -34,8 +34,8 @@ class UpdateInfoTransformer(Transformer):
         self._set_dists_for_func_assignments(self.program.initial)
         self._set_dists_for_func_assignments(self.program.loop_body)
         self._set_dependencies()
-        if not self.ignore_mc_variables:
-            self._set_mc_variables()
+        if not self.ignore_unsolvability:
+            self._set_effective_defective_variables()
         return program
 
     def _set_variables_and_symbols(self):
@@ -149,10 +149,10 @@ class UpdateInfoTransformer(Transformer):
             all_symbols |= assign.get_free_symbols()
         return all_symbols
 
-    def _set_mc_variables(self):
+    def _set_effective_defective_variables(self):
         effective_vars, defective_vars = SolvabilityChecker.get_variables(self.program)
-        self.program.mc_variables = effective_vars
-        self.program.non_mc_variables = defective_vars
+        self.program.effective_variables = effective_vars
+        self.program.defective_variables = defective_vars
 
 
 @dataclass

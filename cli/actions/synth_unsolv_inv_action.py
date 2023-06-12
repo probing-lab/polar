@@ -19,7 +19,7 @@ class SynthUnsolvInvAction(Action):
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
         program = prepare_program(program, self.cli_args)
 
-        if len(program.non_mc_variables) == 0:
+        if len(program.defective_variables) == 0:
             print(
                 f"--synth_unsolv_inv not applicable to {benchmark} since all variables are already effective."
             )
@@ -27,7 +27,7 @@ class SynthUnsolvInvAction(Action):
 
         candidate_vars = []
         if len(self.cli_args.synth_unsolv_inv) == 0:
-            for var in program.non_mc_variables:
+            for var in program.defective_variables:
                 if var in program.original_variables:
                     candidate_vars.append(var)
         else:
@@ -38,8 +38,8 @@ class SynthUnsolvInvAction(Action):
         print(colored("-------------------", "cyan"))
         print()
 
-        # First look for combinations where k=1
-        print("Searching for combinations for special case k = 1..")
+        # First look for invariants where k=1
+        print("Searching for invariants for special case k = 1..")
         solutions = UnsolvInvSynthesizer.synth_inv_for_k(
             1,
             candidate_vars,
@@ -51,7 +51,7 @@ class SynthUnsolvInvAction(Action):
         )
 
         if solutions is None:
-            print(f"No combination found with degree {inv_deg} and k=1")
+            print(f"No invariant found with degree {inv_deg} and k=1")
         else:
             for sol in solutions:
                 invariant, closed_form = sol[0], sol[1]
@@ -61,7 +61,7 @@ class SynthUnsolvInvAction(Action):
         print()
 
         # Then look for the general case
-        print("Searching for combinations, general case..")
+        print("Searching for invariants, general case..")
         solutions = UnsolvInvSynthesizer.synth_inv(
             candidate_vars,
             inv_deg,
@@ -72,7 +72,7 @@ class SynthUnsolvInvAction(Action):
         )
         if solutions is None:
             print(
-                f"No combination found with degree {inv_deg}. Try using other degrees."
+                f"No invariants found with degree {inv_deg}. Try using other degrees."
             )
         else:
             for sol in solutions:

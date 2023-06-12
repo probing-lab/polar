@@ -100,7 +100,7 @@ class SensivitiyAnalyzer:
         """
         # dependent_vars = cls.get_dependent_variables(program, param)
         dependency_graph = SolvabilityChecker._get_dependency_graph(program)
-        defective_vars = dependency_graph.get_bad_nodes()
+        defective_vars = dependency_graph.get_defective_nodes()
         diff_defective_vars = set()
 
         # find all param-dependent vars that are part of a non-linear loop
