@@ -1,12 +1,12 @@
 from program.assignment import PolyAssignment
-from program.mc_comb_finder import MCCombFinder
+from .unsolv_inv_synthesizer import UnsolvInvSynthesizer
 from recurrences import RecBuilder
 from utils import get_unique_var
 from symengine.lib.symengine_wrapper import Symbol
 from program import Program
 
 
-class SolvableSynthesizer:
+class SolvLoopSynthesizer:
     """
     Synthesizes all solvable loops from an unsolvable loop and returns a list of pairs (inv, program) where inv is the
     list of invariants used for replacing the defective variables with a fresh variable and program is the
@@ -136,7 +136,7 @@ class SolvableSynthesizer:
             solvable_program.typedefs = program.typedefs
             solvable_programs.append(solvable_program)
 
-        invariants = MCCombFinder.get_invariants(
+        invariants = UnsolvInvSynthesizer.get_invariants(
             candidate,
             rec_builder,
             nice_solutions,
@@ -166,12 +166,14 @@ class SolvableSynthesizer:
             candidate,
             candidate_rec,
             candidate_coefficients,
-        ) = MCCombFinder.construct_candidate(combination_vars, combination_deg, program)
-        rhs_good_part, good_coeffs = MCCombFinder.construct_inhomogeneous(
+        ) = UnsolvInvSynthesizer.construct_candidate(
+            combination_vars, combination_deg, program
+        )
+        rhs_good_part, good_coeffs = UnsolvInvSynthesizer.construct_inhomogeneous(
             candidate_rec, program.non_mc_variables, program.variables
         )
-        k, kcandidate = MCCombFinder.construct_homogenous(candidate)
-        nice_solutions = MCCombFinder.solve_quadratic_system(
+        k, kcandidate = UnsolvInvSynthesizer.construct_homogenous(candidate)
+        nice_solutions = UnsolvInvSynthesizer.solve_quadratic_system(
             candidate,
             candidate_rec,
             candidate_coefficients,

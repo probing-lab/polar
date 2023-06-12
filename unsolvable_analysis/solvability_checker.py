@@ -10,7 +10,7 @@ GoodVars = Set[Symbol]
 BadVars = Set[Symbol]
 
 
-class MCChecker:
+class SolvabilityChecker:
     """
     Class which constructs the dependency graph between the variables assigned and
     returns the set of moment computable and non moment computable variables later used for
@@ -79,7 +79,7 @@ class MCChecker:
 
     @classmethod
     def get_mc_variables(cls, program: Program) -> Tuple[GoodVars, BadVars]:
-        dependency_graph = MCChecker._get_dependency_graph(program)
+        dependency_graph = SolvabilityChecker._get_dependency_graph(program)
         bad_variables = dependency_graph.get_bad_nodes()
         good_variables = set(program.variables) - set(bad_variables)
         return set(good_variables), set(bad_variables)

@@ -7,7 +7,7 @@ from program import Program
 from recurrences.solver import RecurrenceSolver
 
 
-class MCCombFinder:
+class UnsolvInvSynthesizer:
     """
     Generates all possible polynomial invariants with some given variables upto a fixed degree
     TODO: Some parts this class are not so nice because sympy's solver for polynomial systems of equation is incomplete.
