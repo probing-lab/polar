@@ -6,7 +6,7 @@ from termcolor import colored
 from unsolvable_analysis import SolvLoopSynthesizer
 
 
-class SynthSolvAction(Action):
+class SynthSolvLoopAction(Action):
     cli_args: Namespace
 
     def __init__(self, cli_args: Namespace):
@@ -14,17 +14,17 @@ class SynthSolvAction(Action):
 
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
-        combination_deg = self.cli_args.mc_comb_deg
+        combination_deg = self.cli_args.inv_deg
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
         program = prepare_program(program, self.cli_args)
 
         combination_vars = []
-        if len(self.cli_args.synth_solv) == 0:
+        if len(self.cli_args.synth_solv_loop) == 0:
             for var in program.non_mc_variables:
                 if var in program.original_variables:
                     combination_vars.append(var)
         else:
-            combination_vars = [sympify(v) for v in self.cli_args.synth_solv]
+            combination_vars = [sympify(v) for v in self.cli_args.synth_solv_loop]
 
         print(colored("-------------------", "cyan"))
         print(colored("- Analysis Result -", "cyan"))

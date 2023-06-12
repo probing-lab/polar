@@ -1,14 +1,14 @@
 from argparse import Namespace
 
-from cli.actions.bayesian_network_action import BayesNetworkAction
-from cli.actions.sensitivity_action import SensitivityAction
+from .bayesian_network_action import BayesNetworkAction
+from .sensitivity_action import SensitivityAction
 from .simulation_action import Action, SimulationAction
 from .plot_action import PlotAction
 from .gram_charlier_action import GramCharlierAction
 from .cornish_fisher_action import CornishFisherAction
-from .mc_combination_action import MCCombinationAction
+from .synth_unsolv_inv_action import SynthUnsolvInvAction
 from .print_benchmark_action import PrintBenchmarkAction
-from .synthesize_solvable_action import SynthSolvAction
+from .synth_solv_loop_action import SynthSolvLoopAction
 from .goals_action import GoalsAction
 
 
@@ -33,8 +33,8 @@ class ActionFactory:
             return GramCharlierAction(cli_args)
         if cli_args.cornish_fisher:
             return CornishFisherAction(cli_args)
-        if cli_args.mc_comb is not None:
-            return MCCombinationAction(cli_args)
-        if cli_args.synth_solv is not None:
-            return SynthSolvAction(cli_args)
+        if cli_args.synth_unsolv_inv is not None:
+            return SynthUnsolvInvAction(cli_args)
+        if cli_args.synth_solv_loop is not None:
+            return SynthSolvLoopAction(cli_args)
         return PrintBenchmarkAction(cli_args)

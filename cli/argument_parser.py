@@ -218,24 +218,24 @@ class ArgumentParser:
             help="If set, moments of functions of distributions which would be transcendental won't be approximated by rationals",
         )
         self.argument_parser.add_argument(
-            "--mc_check",
+            "--solvability_check",
             action="store_true",
             default=False,
-            help="If set Polar checks if the goal is moment-computable and throws and error if not",
+            help="If set Polar checks if the goal is effective/solvable and throws and error if not",
         )
         self.argument_parser.add_argument(
-            "--mc_comb",
-            dest="mc_comb",
+            "--synth_unsolv_inv",
+            dest="synth_unsolv_inv",
             type=str,
             nargs="*",
-            help="The variables to include in the moment computable combination candidate",
+            help="The variables to include in the candidate for synthesizing an invariant for an unsolvable loop",
         )
         self.argument_parser.add_argument(
-            "--mc_comb_deg",
-            dest="mc_comb_deg",
+            "--inv_deg",
+            dest="inv_deg",
             default=2,
             type=int,
-            help="The maximum degree of a monomial in the moment computable candidate",
+            help="The maximum degree of the invariant to synthesize given an unsolvable loop",
         )
         self.argument_parser.add_argument(
             "--bif_to_prob",
@@ -273,11 +273,11 @@ class ArgumentParser:
             symbolic constants by differentiating the closed form solution""",
         )
         self.argument_parser.add_argument(
-            "--synth_solv",
-            dest="synth_solv",
+            "--synth_solv_loop",
+            dest="synth_solv_loop",
             type=str,
             nargs="*",
-            help="The variables to be replaced by a single fresh effective variable",
+            help="Synthesize a solvable loop from an unsolvable loop",
         )
 
     def parse_args(self):
