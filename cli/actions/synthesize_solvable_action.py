@@ -3,7 +3,7 @@ from symengine.lib.symengine_wrapper import sympify
 from .action import Action
 from cli.common import prepare_program, parse_program
 from termcolor import colored
-from program.solvable_synthesizer import SolvableSynthesizer
+from unsolvable_analysis import SolvLoopSynthesizer
 
 
 class SynthSolvAction(Action):
@@ -30,7 +30,7 @@ class SynthSolvAction(Action):
         print(colored("- Analysis Result -", "cyan"))
         print(colored("-------------------", "cyan"))
         print()
-        invariants, solvable_programs = SolvableSynthesizer.synthesize(
+        invariants, solvable_programs = SolvLoopSynthesizer.synthesize(
             combination_vars,
             combination_deg,
             program,

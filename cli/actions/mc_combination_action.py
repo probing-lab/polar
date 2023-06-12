@@ -3,7 +3,7 @@ from .action import Action
 from symengine.lib.symengine_wrapper import sympify
 import sympy
 from termcolor import colored
-from program.mc_comb_finder import MCCombFinder
+from unsolvable_analysis import UnsolvInvSynthesizer
 from cli.common import prepare_program, parse_program
 
 
@@ -40,7 +40,7 @@ class MCCombinationAction(Action):
 
         # First look for combinations where k=1
         print("Searching for combinations for special case k = 1..")
-        combinations = MCCombFinder.find_good_combination_for_k(
+        combinations = UnsolvInvSynthesizer.find_good_combination_for_k(
             1,
             combination_vars,
             combination_deg,
@@ -62,7 +62,7 @@ class MCCombinationAction(Action):
 
         # Then look for the general case
         print("Searching for combinations, general case..")
-        combinations = MCCombFinder.find_good_combination(
+        combinations = UnsolvInvSynthesizer.find_good_combination(
             combination_vars,
             combination_deg,
             program,

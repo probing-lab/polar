@@ -5,7 +5,7 @@ from itertools import combinations
 from .exceptions import TransformException
 from .transformer import Transformer
 from program import Program
-from program.mc_checker import MCChecker
+from unsolvable_analysis import SolvabilityChecker
 from program.assignment import (
     DistAssignment,
     FunctionalAssignment,
@@ -150,7 +150,7 @@ class UpdateInfoTransformer(Transformer):
         return all_symbols
 
     def _set_mc_variables(self):
-        mc_vars, non_mc_vars = MCChecker.get_mc_variables(self.program)
+        mc_vars, non_mc_vars = SolvabilityChecker.get_mc_variables(self.program)
         self.program.mc_variables = mc_vars
         self.program.non_mc_variables = non_mc_vars
 
