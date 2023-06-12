@@ -19,7 +19,7 @@ from sympy import limit_seq, Symbol
 from sympy import sympify as sympy_sympify
 from utils import (
     raw_moments_to_cumulants,
-    is_moment_computable,
+    is_solvable,
     eval_re,
     unpack_piecewise,
     get_max_case_in_piecewise,
@@ -30,8 +30,8 @@ from utils.expressions import get_monoms
 
 
 def get_moment(monom, solvers, rec_builder, cli_args, program):
-    if cli_args.solvability_check and not is_moment_computable(monom, program):
-        raise Exception(f"{monom} is not moment computable.")
+    if cli_args.solvability_check and not is_solvable(monom, program):
+        raise Exception(f"{monom} is not effective/solvable.")
 
     if monom not in solvers:
         recurrences = rec_builder.get_recurrences(monom)
