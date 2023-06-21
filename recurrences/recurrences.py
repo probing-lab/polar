@@ -15,13 +15,20 @@ class Recurrences:
     program: Program
     recurrence_dict: Dict[Expr, Expr]
     init_values_dict: Dict[Expr, Expr]
-    recurrence_matrix: Matrix
-    init_values_vector: Matrix
     monomials: List[Expr]
     dependencies: Dict[Expr, Set[Expr]]
     is_acyclic: bool
     is_inhomogeneous = False
     constant_symbols: List[Symbol]
+    # Stores the recurrence in homogenous form
+    # i.e: Recurrence is recurrence_matrix^n * init_values_vector
+    recurrence_matrix: Matrix
+    init_values_vector: Matrix
+    # Stores the recurrence in inhomogeneous form
+    # i.e: Recurrence equation is f(n+1) = A*f(n) + b with initial values x (b might be 0)
+    A: Matrix
+    b: Matrix
+    x: Matrix
 
     def __init__(
         self,
@@ -77,14 +84,22 @@ class Recurrences:
 
         initial_values = [self.init_values_dict[v] for v in self.monomials]
 
-        # If the system is inhomogeneous (constant inhomogeneous part). Then we need to fill
-        # up those recurrence coefficients which are homogeneous with "0".
         if self.is_inhomogeneous:
+            self.A = Matrix(coefficients)[:, :-1]
+            self.b = Matrix(coefficients)[:, -1]
+            self.x = Matrix(initial_values)
+
+            # If the system is inhomogeneous (constant inhomogeneous part). Then we need to fill
+            # up those recurrence coefficients which are homogeneous with "0".
             initial_values.append(sympify(1))
             for cs in coefficients:
                 if len(cs) == len(self.monomials):
                     cs.append(sympify(0))
             coefficients.append([sympify(0) for _ in self.monomials] + [sympify(1)])
+        else:
+            self.A = Matrix(coefficients)
+            self.b = Matrix([sympify(0) for _ in self.monomials])
+            self.x = Matrix(initial_values)
 
         self.init_values_vector = Matrix(initial_values)
         self.recurrence_matrix = Matrix(coefficients)
