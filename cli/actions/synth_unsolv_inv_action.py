@@ -40,14 +40,14 @@ class SynthUnsolvInvAction(Action):
 
         # First look for invariants where k=1
         print("Searching for invariants for special case k = 1..")
-        solutions = UnsolvInvSynthesizer.synth_inv_for_k(
-            1,
+        solutions = UnsolvInvSynthesizer.synth_inv(
             candidate_vars,
             inv_deg,
             program,
             self.cli_args.numeric_roots,
             self.cli_args.numeric_croots,
             self.cli_args.numeric_eps,
+            k=1,
         )
 
         if solutions is None:
