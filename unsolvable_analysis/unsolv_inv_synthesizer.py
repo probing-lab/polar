@@ -1,7 +1,7 @@
 from typing import Union
 from utils import get_unique_var, solve_rec_by_summing, get_terms_with_vars, get_monoms
 from symengine.lib.symengine_wrapper import Symbol
-from sympy import solve, sympify, groebner, Number, linsolve
+from sympy import sympify, Number, linsolve, nonlinsolve
 from recurrences import RecBuilder
 from program import Program
 from recurrences.solver import RecurrenceSolver
@@ -10,11 +10,9 @@ from recurrences.solver import RecurrenceSolver
 class UnsolvInvSynthesizer:
     """
     Generates all possible polynomial invariants with some given variables upto a fixed degree
-    TODO: Some parts this class are not so nice because sympy's solver for polynomial systems of equation is incomplete.
-    TODO: Especially finding a candidate for a fixed k is not ideal.
-    TODO: Fix this as soon as sympy improves their procedure for systems of polynomial equations.
     In essence the class follows the procedure described in our paper
     "Solving Invariant Generation for Unsolvable Loops".
+    Additionally, the class has the functionality of finding invariants for a fixed "k" (then all equations are linear).
     """
 
     @classmethod
@@ -86,20 +84,6 @@ class UnsolvInvSynthesizer:
         return poly, symbols
 
     @classmethod
-    def __solution_exact__(cls, equations, solution):
-        nequations = []
-        nequations_variables = set()
-        okay = True
-        for eq in equations:
-            substituted_equation = eq.subs(solution).simplify()
-            if not substituted_equation.is_number:
-                okay = False
-                nequations.append(substituted_equation)
-                for symb in substituted_equation.free_symbols:
-                    nequations_variables.add(symb)
-        return okay, nequations, nequations_variables
-
-    @classmethod
     def __get_init_value_candidate__(cls, candidate, rec_builder):
         """
         Computes the initial value of the candidate (0'th iteration, i.e., before loop).
@@ -143,46 +127,6 @@ class UnsolvInvSynthesizer:
         for eq in equation_terms.values():
             equations.append(eq)
         return equations
-
-    @classmethod
-    def __get_nice_solutions__(cls, solutions, equations, candidate, k):
-        """
-        Keeps plugging in solutions of SymPy and solving new-made equations until all evaluate to zero. Also,
-        eliminates trivial solutions.
-        """
-        nice_solutions = []
-        for solution in solutions:
-            solution_exact, nequations, nequations_variables = cls.__solution_exact__(
-                equations, solution
-            )
-            wrong_solution = False
-            while not solution_exact:
-                nsolutions = solve(nequations, nequations_variables)
-                if type(nsolutions) is list:
-                    if len(nsolutions) == 0:
-                        wrong_solution = True
-                        break
-                else:
-                    for var in solution.keys():
-                        solution[var] = solution[var].subs(nsolutions).simplify()
-                    for var in nsolutions:
-                        solution[var] = nsolutions[var]
-                (
-                    solution_exact,
-                    nequations,
-                    nequations_variables,
-                ) = cls.__solution_exact__(equations, solution)
-            if not wrong_solution:
-                nice_solutions.append(solution)
-        solutions = nice_solutions
-        nice_solutions = []
-        for solution in solutions:
-            if candidate.xreplace(solution) == 0:
-                continue
-            if not sympify(k) in solution:
-                continue
-            nice_solutions.append(solution)
-        return nice_solutions
 
     @classmethod
     def __solve_effective_part__(
@@ -241,8 +185,9 @@ class UnsolvInvSynthesizer:
         return rhs_effective_part, effective_coeffs
 
     @classmethod
-    def construct_homogenous_part(cls, candidate):
-        k = Symbol(get_unique_var("k"), nonzero=True)
+    def construct_homogenous_part(cls, candidate, k: Union[Number, int, None] = None):
+        if k is None:
+            k = Symbol(get_unique_var("k"), nonzero=True)
         kcandidate = (k * candidate).expand()
         return k, kcandidate
 
@@ -255,7 +200,7 @@ class UnsolvInvSynthesizer:
         kcandidate,
         rhs_effective_part,
         effective_part_coeffs,
-        k,
+        k: Union[Number, int, Symbol],
     ):
         equations = cls.__construct_equations__(
             candidate_rec,
@@ -266,104 +211,38 @@ class UnsolvInvSynthesizer:
             k,
         )
         equations = [sympify(e) for e in equations]
-        symbols = list(candidate_coefficients) + list(effective_part_coeffs) + [k]
+        symbols = list(candidate_coefficients) + list(effective_part_coeffs)
+        if isinstance(k, Symbol):
+            symbols.append(k)
         symbols = [sympify(s) for s in symbols]
-        basis = groebner(equations, *symbols)
-        solution_exists = False
-        for b in basis:
-            if not b.is_symbol:
-                solution_exists = True
-        if solution_exists:
-            print("I found a solution. Maybe I won't tell you.")
+        if isinstance(k, Symbol):
+            solutions = nonlinsolve(equations, symbols)
         else:
-            print("There really really is not solution.")
-        solutions = solve([b for b in basis], symbols, dict=True)
-        nice_solutions = cls.__get_nice_solutions__(solutions, equations, candidate, k)
-        return nice_solutions
+            solutions = linsolve(equations, symbols)
+        solutions = [{sym: val for sym, val in zip(symbols, sol)} for sol in solutions]
+        non_trivial_solutions = [
+            sol for sol in solutions if candidate.xreplace(sol) != 0
+        ]
+
+        return non_trivial_solutions
 
     @classmethod
     def get_invariants(
         cls,
         candidate,
         rec_builder,
-        nice_solutions,
+        solutions,
         rhs_effective_part,
         effective_part_coeffs,
         numeric_roots,
         numeric_croots,
         numeric_eps,
         program,
-        k,
+        k: Union[Number, int, Symbol],
     ):
-        if len(nice_solutions) == 0:
-            return None
-        good_part_solution = cls.__solve_effective_part__(
-            rhs_effective_part,
-            effective_part_coeffs,
-            numeric_roots,
-            numeric_croots,
-            numeric_eps,
-            program,
-        )
-        invariants = []
-        initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
-        for solution in nice_solutions:
-            ans = solve_rec_by_summing(
-                rec_coeff=k.xreplace(solution),
-                init_value=initial_candidate.xreplace(solution),
-                inhom_part=sympify(good_part_solution).xreplace(solution),
-            )
-            invariants.append((candidate.xreplace(solution), ans))
-        return invariants
-
-    @classmethod
-    def synth_inv_for_k(
-        cls,
-        k: Union[Number, int],
-        candidate_vars,
-        inv_deg,
-        program: Program,
-        numeric_roots,
-        numeric_croots,
-        numeric_eps,
-    ):
-        candidate, candidate_coefficients = cls.__get_candidate__(
-            candidate_vars, inv_deg
-        )
-        rec_builder = RecBuilder(program)
-        candidate_rec = rec_builder.get_recurrence_poly(candidate, candidate_vars)
-
-        effective_monoms = cls.__get_effective_monoms__(
-            candidate_rec, program.defective_variables, program.variables
-        )
-        rhs_effective_part, effective_part_coeffs = cls.__get_effective_poly__(
-            effective_monoms
-        )
-        kcandidate = (k * candidate).expand()
-
-        equations = cls.__construct_equations__(
-            candidate_rec,
-            candidate_coefficients,
-            kcandidate,
-            rhs_effective_part,
-            effective_part_coeffs,
-            k,
-        )
-
-        symbols = list(candidate_coefficients) + list(effective_part_coeffs)
-        equations = [sympify(e) for e in equations]
-        symbols = [sympify(s) for s in symbols]
-        tmp_solutions = linsolve(equations, symbols)
-        solutions = []
-        for tmps in tmp_solutions:
-            if not all([v == 0 for v in tmps]):
-                solutions.append(
-                    {symbol: value for symbol, value in zip(symbols, tmps)}
-                )
         if len(solutions) == 0:
             return None
-
-        effective_part_solutions = cls.__solve_effective_part__(
+        effective_part_solution = cls.__solve_effective_part__(
             rhs_effective_part,
             effective_part_coeffs,
             numeric_roots,
@@ -374,10 +253,11 @@ class UnsolvInvSynthesizer:
         invariants = []
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in solutions:
+            k = k.xreplace(solution) if isinstance(k, Symbol) else k
             ans = solve_rec_by_summing(
                 rec_coeff=k,
                 init_value=initial_candidate.xreplace(solution),
-                inhom_part=sympify(effective_part_solutions).xreplace(solution),
+                inhom_part=sympify(effective_part_solution).xreplace(solution),
             )
             invariants.append((candidate.xreplace(solution), ans))
         return invariants
@@ -391,6 +271,7 @@ class UnsolvInvSynthesizer:
         numeric_roots,
         numeric_croots,
         numeric_eps,
+        k: Union[Number, int, None] = None,
     ):
         rec_builder = RecBuilder(program)
         candidate, candidate_rec, candidate_coefficients = cls.construct_candidate(
@@ -399,8 +280,8 @@ class UnsolvInvSynthesizer:
         rhs_effective_part, effective_part_coeffs = cls.construct_inhomogeneous_part(
             candidate_rec, program.defective_variables, program.variables
         )
-        k, kcandidate = cls.construct_homogenous_part(candidate)
-        nice_solutions = cls.solve_quadratic_system(
+        k, kcandidate = cls.construct_homogenous_part(candidate, k)
+        solutions = cls.solve_quadratic_system(
             candidate,
             candidate_rec,
             candidate_coefficients,
@@ -412,7 +293,7 @@ class UnsolvInvSynthesizer:
         return cls.get_invariants(
             candidate,
             rec_builder,
-            nice_solutions,
+            solutions,
             rhs_effective_part,
             effective_part_coeffs,
             numeric_roots,
