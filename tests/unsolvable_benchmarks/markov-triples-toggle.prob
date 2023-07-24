@@ -1,0 +1,11 @@
+a, b, c = 1, 1, 2
+branch = 0
+while true:
+    if branch == 0:
+        a, b, c = a, 3*a*b - c, b
+        branch = 1
+    else:
+        a, b, c = b, 3*b*c - a, c
+        branch = 0
+    end
+end
