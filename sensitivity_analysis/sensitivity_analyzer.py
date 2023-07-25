@@ -1,7 +1,6 @@
 from typing import Set, Tuple
 from program import Program
 from program.assignment.poly_assignment import PolyAssignment
-from unsolvable_analysis import SolvabilityChecker
 from utils import expressions
 from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
 from program.assignment.assignment import Assignment
@@ -99,6 +98,8 @@ class SensivitiyAnalyzer:
         Find all diff-defective and diff-effective variables of the program, with respect to some parameter.
         """
         # dependent_vars = cls.get_dependent_variables(program, param)
+        from unsolvable_analysis import SolvabilityChecker
+
         dependency_graph = SolvabilityChecker._get_dependency_graph(program)
         defective_vars = dependency_graph.get_defective_nodes()
         diff_defective_vars = set()
