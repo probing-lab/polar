@@ -1,7 +1,7 @@
 from typing import Union
 from utils import get_unique_var, solve_rec_by_summing, get_terms_with_vars, get_monoms
 from symengine.lib.symengine_wrapper import Symbol
-from sympy import sympify, Number, linsolve, nonlinsolve
+from sympy import sympify, Number, linsolve, nonlinsolve, Complement
 from recurrences import RecBuilder
 from program import Program
 from recurrences.solver import RecurrenceSolver
@@ -220,6 +220,13 @@ class UnsolvInvSynthesizer:
         else:
             solutions = linsolve(equations, symbols)
         solutions = [{sym: val for sym, val in zip(symbols, sol)} for sol in solutions]
+        # Solutions might contain "Complements" to ensure that some constants are not 0. We can ignore those
+        # for further processing, and just take the expression. For instance Complement({u}, {0}) becomes u.
+        for solution in solutions:
+            for sym, val in solution.items():
+                if isinstance(val, Complement):
+                    solution[sym] = val.args[0].args[0]
+
         non_trivial_solutions = [
             sol for sol in solutions if candidate.xreplace(sol) != 0
         ]
@@ -253,9 +260,8 @@ class UnsolvInvSynthesizer:
         invariants = []
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in solutions:
-            k = k.xreplace(solution) if isinstance(k, Symbol) else k
             ans = solve_rec_by_summing(
-                rec_coeff=k,
+                rec_coeff=k.xreplace(solution) if isinstance(k, Symbol) else k,
                 init_value=initial_candidate.xreplace(solution),
                 inhom_part=sympify(effective_part_solution).xreplace(solution),
             )
