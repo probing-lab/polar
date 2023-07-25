@@ -43,17 +43,20 @@ class SolvLoopSynthesizer:
                 )
                 solvable_loop_body.append(PolyAssignment.deterministic(var, fresh[var]))
 
-        return [], [
-            Program(
-                [],
-                solvable_loop_variables,
-                solvable_loop_variables,
-                solvable_loop_initial,
-                program.loop_guard,
-                solvable_loop_body,
-                program.is_probabilistic,
-            )
-        ]
+        program = Program(
+            [],
+            solvable_loop_variables,
+            solvable_loop_variables,
+            solvable_loop_initial,
+            program.loop_guard,
+            solvable_loop_body,
+            program.is_probabilistic,
+        )
+        from program.transformer import UpdateInfoTransformer
+
+        program = UpdateInfoTransformer(True).execute(program)
+
+        return [], [program]
 
     @classmethod
     def handle_unsolvable_loop(
@@ -134,6 +137,9 @@ class SolvLoopSynthesizer:
                 program.is_probabilistic,
             )
             solvable_program.typedefs = program.typedefs
+            from program.transformer import UpdateInfoTransformer
+
+            solvable_program = UpdateInfoTransformer(True).execute(solvable_program)
             solvable_programs.append(solvable_program)
 
         invariants = UnsolvInvSynthesizer.get_invariants(
