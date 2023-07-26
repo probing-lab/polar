@@ -11,7 +11,7 @@ def get_candidate_vars(variables):
 
 
 def synth_inv(vs, deg, program, k=None):
-    return UnsolvInvSynthesizer.synth_inv(vs, deg, program, False, False, 0, k)
+    return UnsolvInvSynthesizer.synth_inv(vs, deg, program, k)
 
 
 class TestUnsolvableInvariantSynthesis(unittest.TestCase):

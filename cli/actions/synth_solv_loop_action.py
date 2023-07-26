@@ -32,12 +32,7 @@ class SynthSolvLoopAction(Action):
         print(colored("-------------------", "cyan"))
         print()
         invariants, solvable_programs = SolvLoopSynthesizer.synth_loop(
-            candidate_vars,
-            inv_deg,
-            program,
-            self.cli_args.numeric_roots,
-            self.cli_args.numeric_croots,
-            self.cli_args.numeric_eps,
+            candidate_vars, inv_deg, program
         )
 
         if len(invariants) == 0:

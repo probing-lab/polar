@@ -67,9 +67,6 @@ class SolvLoopSynthesizer:
         candidate_vars,
         candidate,
         effective_part_coeffs,
-        numeric_roots,
-        numeric_croots,
-        numeric_eps,
         k,
     ):
         rec_builder = RecBuilder(program)
@@ -148,24 +145,13 @@ class SolvLoopSynthesizer:
             nice_solutions,
             rhs_effective_part,
             effective_part_coeffs,
-            numeric_roots,
-            numeric_croots,
-            numeric_eps,
             program,
             k,
         )
         return invariants, solvable_programs
 
     @classmethod
-    def synth_loop(
-        cls,
-        candidate_vars,
-        inv_deg,
-        program: Program,
-        numeric_roots,
-        numeric_croots,
-        numeric_eps,
-    ):
+    def synth_loop(cls, candidate_vars, inv_deg, program: Program):
         if len(candidate_vars) == 0:  # loop is already solvable
             return cls.handle_solvable_loop(program)
         (
@@ -200,8 +186,5 @@ class SolvLoopSynthesizer:
                 candidate_vars,
                 candidate,
                 effective_part_coeffs,
-                numeric_roots,
-                numeric_croots,
-                numeric_eps,
                 k,
             )

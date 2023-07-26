@@ -130,13 +130,7 @@ class UnsolvInvSynthesizer:
 
     @classmethod
     def __solve_effective_part__(
-        cls,
-        rhs_effective_part,
-        effective_part_coeffs,
-        numeric_roots,
-        numeric_croots,
-        numeric_eps,
-        program,
+        cls, rhs_effective_part, effective_part_coeffs, program
     ):
         """
         Fina a closed form for the summation in Eq. (3) with respect to n and initial values.
@@ -151,12 +145,7 @@ class UnsolvInvSynthesizer:
                 continue
             rec_builder = RecBuilder(program)
             recs = rec_builder.get_recurrences(monom)
-            rec_solver = RecurrenceSolver(
-                recurrences=recs,
-                numeric_roots=numeric_roots,
-                numeric_croots=numeric_croots,
-                numeric_eps=numeric_eps,
-            )
+            rec_solver = RecurrenceSolver(recs)
             effective_part_solution += coeff * rec_solver.get(monom)
         effective_part_solution = effective_part_solution.xreplace(
             {sympify("n"): sympify("n") - 1}
@@ -241,9 +230,6 @@ class UnsolvInvSynthesizer:
         solutions,
         rhs_effective_part,
         effective_part_coeffs,
-        numeric_roots,
-        numeric_croots,
-        numeric_eps,
         program,
         k: Union[Number, int, Symbol],
     ):
@@ -252,9 +238,6 @@ class UnsolvInvSynthesizer:
         effective_part_solution = cls.__solve_effective_part__(
             rhs_effective_part,
             effective_part_coeffs,
-            numeric_roots,
-            numeric_croots,
-            numeric_eps,
             program,
         )
         invariants = []
@@ -274,9 +257,6 @@ class UnsolvInvSynthesizer:
         candidate_vars,
         inv_deg,
         program: Program,
-        numeric_roots,
-        numeric_croots,
-        numeric_eps,
         k: Union[Number, int, None] = None,
     ):
         rec_builder = RecBuilder(program)
@@ -302,9 +282,6 @@ class UnsolvInvSynthesizer:
             solutions,
             rhs_effective_part,
             effective_part_coeffs,
-            numeric_roots,
-            numeric_croots,
-            numeric_eps,
             program,
             k,
         )

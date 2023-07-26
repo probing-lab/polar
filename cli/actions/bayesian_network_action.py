@@ -37,7 +37,7 @@ class BayesNetworkAction(Action):
         print("The following code has been generated from the input:")
         code = codegen.generate_code()
         print(code + "\n")
-        program = Parser().parse_string(code, self.cli_args.transform_categoricals)
+        program = Parser().parse_string(code)
 
         if self.cli_args.bif_to_prob:
             with open(self.cli_args.bif_to_prob, "w") as output_file:

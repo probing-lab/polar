@@ -10,9 +10,9 @@ class RecurrenceSolver(Solver):
     def __init__(
         self,
         recurrences: Recurrences,
-        numeric_roots: bool,
-        numeric_croots: bool,
-        numeric_eps: float,
+        numeric_roots: bool = None,
+        numeric_croots: bool = None,
+        numeric_eps: float = None,
         force_cyclic_solver: bool = False,
     ):
         if recurrences.is_acyclic and not force_cyclic_solver:

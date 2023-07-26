@@ -7,6 +7,7 @@ from .solver import Solver
 from utils import get_all_roots, solve_linear
 from recurrences.exceptions import SolverException
 from recurrences import Recurrences
+import settings
 
 
 class CyclicSolver(Solver):
@@ -26,15 +27,19 @@ class CyclicSolver(Solver):
     def __init__(
         self,
         recurrences: Recurrences,
-        numeric_roots: bool,
-        numeric_croots: bool,
-        numeric_eps: float,
+        numeric_roots: bool = None,
+        numeric_croots: bool = None,
+        numeric_eps: float = None,
     ):
         self.n = symbols("n", integer=True)
         self.recurrences = recurrences
-        self.numeric_roots = numeric_roots
-        self.numeric_croots = numeric_croots
-        self.numeric_eps = numeric_eps
+        self.numeric_roots = (
+            settings.numeric_roots if numeric_roots is None else numeric_roots
+        )
+        self.numeric_croots = (
+            settings.numeric_croots if numeric_croots is None else numeric_croots
+        )
+        self.numeric_eps = settings.numeric_eps if numeric_eps is None else numeric_eps
         self.monomials = set(recurrences.monomials)
         self.monom_to_index = {
             m: i
