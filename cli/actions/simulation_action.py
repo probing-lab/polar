@@ -15,7 +15,7 @@ class SimulationAction(Action):
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
         parser = Parser()
-        program = parser.parse_file(benchmark, self.cli_args.transform_categoricals)
+        program = parser.parse_file(benchmark)
         print(colored("------------------", "magenta"))
         print(colored("- Parsed program -", "magenta"))
         print(colored("------------------", "magenta"))

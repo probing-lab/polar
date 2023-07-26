@@ -1,9 +1,6 @@
-from threading import Condition
 from typing import List
 
-from sympy.core.symbol import var
 from bayesnet.bayes_network import BayesNetwork
-from bayesnet.bayes_variable import BayesVariable
 from bayesnet.exceptions import QueryException
 from cli.common import transform_to_after_loop
 from .query import Query

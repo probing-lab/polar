@@ -42,13 +42,7 @@ class SynthUnsolvInvAction(Action):
         # First look for invariants where k=1
         print("Searching for invariants for special case k = 1..")
         solutions = UnsolvInvSynthesizer.synth_inv(
-            candidate_vars,
-            inv_deg,
-            program,
-            self.cli_args.numeric_roots,
-            self.cli_args.numeric_croots,
-            self.cli_args.numeric_eps,
-            k=1,
+            candidate_vars, inv_deg, program, k=1
         )
 
         if solutions is None:
@@ -63,14 +57,7 @@ class SynthUnsolvInvAction(Action):
 
         # Then look for the general case
         print("Searching for invariants, general case..")
-        solutions = UnsolvInvSynthesizer.synth_inv(
-            candidate_vars,
-            inv_deg,
-            program,
-            self.cli_args.numeric_roots,
-            self.cli_args.numeric_croots,
-            self.cli_args.numeric_eps,
-        )
+        solutions = UnsolvInvSynthesizer.synth_inv(candidate_vars, inv_deg, program)
         if solutions is None:
             print(
                 f"No invariants found with degree {inv_deg}. Try using other degrees."

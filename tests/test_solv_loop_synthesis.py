@@ -7,7 +7,6 @@ from recurrences import RecBuilder
 from unsolvable_analysis import SolvLoopSynthesizer
 
 from .common import get_unsolvable_program, assert_specified_proportional
-from utils import unpack_piecewise
 
 
 def get_candidate_vars(variables):
@@ -15,7 +14,7 @@ def get_candidate_vars(variables):
 
 
 def synth_loop(vs, deg, program):
-    return SolvLoopSynthesizer.synth_loop(vs, deg, program, False, False, 0)
+    return SolvLoopSynthesizer.synth_loop(vs, deg, program)
 
 
 def get_recurrence(program, monom, monom_alias=None):

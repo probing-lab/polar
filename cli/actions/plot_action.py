@@ -1,6 +1,5 @@
 from argparse import Namespace
 from .action import Action
-from copy import deepcopy
 from inputparser import Parser
 from recurrences import RecBuilder
 from symengine.lib.symengine_wrapper import sympify
@@ -9,6 +8,7 @@ from plots import StatesPlot, RunsPlot
 from cli.common import get_moment
 from program import normalize_program
 from inputparser import parse_program
+import settings
 
 
 class PlotAction(Action):
@@ -26,19 +26,17 @@ class PlotAction(Action):
             program = normalize_program(program)
             rec_builder = RecBuilder(program)
             solvers = {}
-            solver_args = deepcopy(self.cli_args)
-            solver_args.numeric_roots = True
-            solver_args.numeric_croots = True
-            solver_args.numeric_eps = 0.0000001
+            settings.numeric_croots = True
+            settings.numeric_roots = True
             if self.cli_args.plot_std:
                 second_moment, _ = get_moment(
-                    monom**2, solvers, rec_builder, solver_args, program
+                    monom**2, solvers, rec_builder, self.cli_args, program
                 )
             first_moment, _ = get_moment(
-                monom, solvers, rec_builder, solver_args, program
+                monom, solvers, rec_builder, self.cli_args, program
             )
 
-        program = Parser().parse_file(benchmark, self.cli_args.transform_categoricals)
+        program = Parser().parse_file(benchmark)
         simulator = Simulator(self.cli_args.simulation_iter)
         result = simulator.simulate(program, [monom], self.cli_args.number_samples)
         if self.cli_args.states_plot:

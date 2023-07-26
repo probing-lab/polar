@@ -19,7 +19,7 @@ numeric_croots: bool = False
 # Interval epsilon for the potential approximation of roots
 numeric_eps: float = 1e-10
 
-# If set any loop guard will be overridden with 'true'"
+# If set any loop guard will be overridden with 'true'
 trivial_guard: bool = False
 
 # If true, moments of functions of distributions which would be transcendental won't be approximated by rationals
