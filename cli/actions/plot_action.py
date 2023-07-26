@@ -22,8 +22,8 @@ class PlotAction(Action):
         monom = sympify(self.cli_args.plot)
         first_moment = second_moment = None
         if self.cli_args.plot_expectation or self.cli_args.plot_std:
-            program = parse_program(benchmark, self.cli_args.transform_categoricals)
-            program = normalize_program(program, self.cli_args)
+            program = parse_program(benchmark)
+            program = normalize_program(program)
             rec_builder = RecBuilder(program)
             solvers = {}
             solver_args = deepcopy(self.cli_args)

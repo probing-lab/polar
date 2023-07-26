@@ -49,7 +49,7 @@ class BayesNetworkAction(Action):
 
         goal_queries = query.generate_query(network, codegen.polar_variable_names)
         cli_args = ArgumentParser().get_defaults()
-        program = normalize_program(program, cli_args)
+        program = normalize_program(program)
         rec_builder = RecBuilder(program)
 
         parsed_queries = [GoalParser.parse(goal) for goal in goal_queries]

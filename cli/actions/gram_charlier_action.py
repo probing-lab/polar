@@ -21,8 +21,8 @@ class GramCharlierAction(Action):
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
         monom = sympify(self.cli_args.gram_charlier)
-        program = parse_program(benchmark, self.cli_args.transform_categoricals)
-        program = normalize_program(program, self.cli_args)
+        program = parse_program(benchmark)
+        program = normalize_program(program)
         if self.cli_args.after_loop:
             cumulants = get_all_cumulants_after_loop(
                 program, monom, self.cli_args.gram_charlier_order, self.cli_args

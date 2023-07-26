@@ -1,4 +1,3 @@
-from cli import ArgumentParser
 from program import normalize_program
 from inputparser import parse_program
 import os
@@ -18,10 +17,9 @@ def get_test_specs(filename, spec_id):
 
 
 def get_unsolvable_program(benchmark: str):
-    args = ArgumentParser().get_defaults()
     path = os.path.dirname(__file__) + "/unsolvable_benchmarks/" + benchmark
-    program = parse_program(path, args.transform_categoricals)
-    return normalize_program(program, args)
+    program = parse_program(path)
+    return normalize_program(program)
 
 
 def assert_specified_proportional(general_expr, equal_expr):

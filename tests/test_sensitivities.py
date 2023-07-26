@@ -3,7 +3,6 @@ import os
 import unittest
 
 from tests.test_raw_moments import get_raw_moment
-from cli import ArgumentParser
 from program import normalize_program
 from inputparser import parse_program
 from recurrences import DiffRecBuilder
@@ -12,6 +11,7 @@ from utils import unpack_piecewise
 from tests.common import get_test_specs
 from symengine import sympify as symengify
 from sympy import Symbol, sympify
+import settings
 
 
 def create_sensitivity_test(
@@ -41,10 +41,9 @@ def create_sensitivity_test(
 
 
 def get_sensitivity(benchmark, monom, param):
-    args = ArgumentParser().get_defaults()
-    args.exact_func_moments = True
-    program = parse_program(benchmark, args.transform_categoricals)
-    program = normalize_program(program, args)
+    settings.exact_func_moments = True
+    program = parse_program(benchmark)
+    program = normalize_program(program)
     diff_rec_builder = DiffRecBuilder(program, param)
     recurrences = diff_rec_builder.get_recurrences(monom)
     solver = RecurrenceSolver(recurrences, False, False, 0)

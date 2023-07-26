@@ -1,3 +1,4 @@
+import settings
 from type_inference import FiniteFixedPointTyper
 from .transformer import Transformer
 from program import Program
@@ -10,8 +11,10 @@ class TypeInferer(Transformer):
     Moreover, every variable is assumed to have only a single assignment.
     """
 
-    def __init__(self, fp_iterations: int):
-        self.fp_iterations = fp_iterations
+    def __init__(self, fp_iterations: int = -1):
+        self.fp_iterations = (
+            settings.type_fp_iterations if fp_iterations < 0 else fp_iterations
+        )
 
     def execute(self, program: Program) -> Program:
         typer = FiniteFixedPointTyper(self.fp_iterations)
