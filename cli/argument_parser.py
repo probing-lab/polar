@@ -1,6 +1,20 @@
 from argparse import ArgumentParser as ArgParser
 import glob
 
+import settings
+
+
+def _set_settings(args):
+    settings.transform_categoricals = args.transform_categoricals
+    settings.cond2arithm = args.cond2arithm
+    settings.disable_type_inference = args.disable_type_inference
+    settings.type_fp_iterations = args.type_fp_iterations
+    settings.numeric_roots = args.numeric_roots
+    settings.numeric_croots = args.numeric_croots
+    settings.numeric_eps = args.numeric_eps
+    settings.trivial_guard = args.trivial_guard
+    settings.exact_func_moments = args.exact_func_moments
+
 
 class ArgumentParser:
     def __init__(self):
@@ -151,44 +165,44 @@ class ArgumentParser:
         self.argument_parser.add_argument(
             "--transform_categoricals",
             action="store_true",
-            default=False,
+            default=settings.transform_categoricals,
             help="If set transform categorical assignments into multiple individual assignments",
         )
         self.argument_parser.add_argument(
             "--cond2arithm",
             action="store_true",
-            default=False,
+            default=settings.cond2arithm,
             help="If set converts all conditions to arithmetic ahead of the main computation",
         )
         self.argument_parser.add_argument(
             "--disable_type_inference",
             action="store_true",
-            default=False,
+            default=settings.disable_type_inference,
             help="If set there won't be automatic type inference",
         )
         self.argument_parser.add_argument(
             "--type_fp_iterations",
             dest="type_fp_iterations",
-            default=100,
+            default=settings.type_fp_iterations,
             type=int,
             help="Number of iterations in the fixedpoint computation of the type inference",
         )
         self.argument_parser.add_argument(
             "--numeric_roots",
             action="store_true",
-            default=False,
+            default=settings.numeric_roots,
             help="If set the roots in the recurrence computation will be computed numerically",
         )
         self.argument_parser.add_argument(
             "--numeric_croots",
             action="store_true",
-            default=False,
+            default=settings.numeric_croots,
             help="If set the complex roots in the recurrence computation will be computed numerically",
         )
         self.argument_parser.add_argument(
             "--numeric_eps",
             dest="numeric_eps",
-            default=1e-10,
+            default=settings.numeric_eps,
             type=float,
             help="Interval epsilon for the potential approximation of roots",
         )
@@ -202,7 +216,7 @@ class ArgumentParser:
         self.argument_parser.add_argument(
             "--trivial_guard",
             action="store_true",
-            default=False,
+            default=settings.trivial_guard,
             help="If set any loop guard will be overridden with 'true'",
         )
         self.argument_parser.add_argument(
@@ -214,7 +228,7 @@ class ArgumentParser:
         self.argument_parser.add_argument(
             "--exact_func_moments",
             action="store_true",
-            default=False,
+            default=settings.exact_func_moments,
             help="If set, moments of functions of distributions which would be transcendental won't be approximated by rationals",
         )
         self.argument_parser.add_argument(
@@ -289,6 +303,7 @@ class ArgumentParser:
                 "No benchmark given. Run with '--help' for more information."
             )
 
+        _set_settings(args)
         return args
 
     def get_defaults(self):

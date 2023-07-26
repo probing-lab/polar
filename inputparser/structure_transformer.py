@@ -7,6 +7,7 @@ from program.ifstatem import IfStatem
 from program.type import type_factory, Type
 from utils import get_unique_var
 from .exceptions import ParseException
+import settings
 
 
 class StructureTransformer(Transformer):
@@ -14,12 +15,11 @@ class StructureTransformer(Transformer):
     Lark transformer which transform the parse tree returned by lark into our own representations
     """
 
-    def __init__(self, transform_categoricals):
+    def __init__(self):
         super().__init__()
         self.program_variables = set()
         self.artificial_variables = set()
         self.is_probabilistic = False
-        self.transform_categoricals = transform_categoricals
 
     def program(self, args) -> Program:
         """
@@ -133,7 +133,7 @@ class StructureTransformer(Transformer):
             last_param = f"1-{'-'.join(probabilities)}"
             probabilities.append(last_param)
 
-        if self.transform_categoricals:
+        if settings.transform_categoricals:
             return self._transform_categorical(var, polynomials, probabilities)
         else:
             return PolyAssignment(var, polynomials, probabilities)

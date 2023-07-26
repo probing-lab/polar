@@ -17,8 +17,8 @@ class SynthUnsolvInvAction(Action):
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
         inv_deg = self.cli_args.inv_deg
-        program = parse_program(benchmark, self.cli_args.transform_categoricals)
-        program = normalize_program(program, self.cli_args)
+        program = parse_program(benchmark)
+        program = normalize_program(program)
 
         if len(program.defective_variables) == 0:
             print(

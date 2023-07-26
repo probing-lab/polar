@@ -35,8 +35,8 @@ def create_raw_moment_after_loop_test(benchmark, monom, general_form):
 
 def get_raw_moment_after_loop(benchmark, monom):
     args = ArgumentParser().get_defaults()
-    program = parse_program(benchmark, args.transform_categoricals)
-    program = normalize_program(program, args)
+    program = parse_program(benchmark)
+    program = normalize_program(program)
     rec_builder = RecBuilder(program)
     moment, is_exact = get_moment_given_termination(
         monom, {}, rec_builder, args, program

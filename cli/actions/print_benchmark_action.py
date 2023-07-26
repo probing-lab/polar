@@ -23,9 +23,9 @@ class PrintBenchmarkAction(Action):
             network = BifParser().parse_file(benchmark)
             codegen = CodeGenerator(network)
             code = codegen.generate_code()
-            program = Parser().parse_string(code, self.cli_args.transform_categoricals)
+            program = Parser().parse_string(code)
         else:
-            program = parse_program(benchmark, self.cli_args.transform_categoricals)
+            program = parse_program(benchmark)
 
         print(colored("------------------", "magenta"))
         print(colored("- Parsed program -", "magenta"))
@@ -33,7 +33,7 @@ class PrintBenchmarkAction(Action):
         print(program)
         print()
 
-        program = normalize_program(program, self.cli_args)
+        program = normalize_program(program)
         print(colored("-----------------------", "magenta"))
         print(colored("- Transformed program -", "magenta"))
         print(colored("-----------------------", "magenta"))

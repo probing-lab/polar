@@ -47,8 +47,8 @@ class GoalsAction(Action):
 
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
-        program = parse_program(benchmark, self.cli_args.transform_categoricals)
-        program = normalize_program(program, self.cli_args)
+        program = parse_program(benchmark)
+        program = normalize_program(program)
         rec_builder = RecBuilder(program)
         self.initialize_program(program, rec_builder)
         self.handle_all_goals()

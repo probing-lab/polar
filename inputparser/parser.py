@@ -13,20 +13,20 @@ class Parser:
     Parsers which takes a .prob source file and returns the program in a form such that it can be used further.
     """
 
-    def parse_file(self, filepath: str, transform_categoricals=False) -> Program:
+    def parse_file(self, filepath: str) -> Program:
         with open(filepath) as file:
-            program = self.parse_string(file.read(), transform_categoricals)
+            program = self.parse_string(file.read())
         return program
 
-    def parse_string(self, code: str, transform_categoricals=False) -> Program:
+    def parse_string(self, code: str) -> Program:
         with open(GRAMMAR_FILE_PATH) as grammar_file:
             parser = Lark(
                 grammar_file, transformer=ArithmeticToStringTransformer, parser="lalr"
             )
             tree = parser.parse(code)
-            program = StructureTransformer(transform_categoricals).transform(tree)
+            program = StructureTransformer().transform(tree)
         return program
 
 
-def parse_program(benchmark: str, transform_categorial=False) -> Program:
-    return Parser().parse_file(benchmark, transform_categorial)
+def parse_program(benchmark: str) -> Program:
+    return Parser().parse_file(benchmark)

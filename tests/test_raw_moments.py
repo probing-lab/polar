@@ -2,7 +2,6 @@ import glob
 import os
 import unittest
 
-from cli import ArgumentParser
 from program import normalize_program
 from inputparser import parse_program
 from recurrences import RecBuilder
@@ -11,6 +10,8 @@ from utils import unpack_piecewise
 from tests.common import get_test_specs
 
 from sympy import Symbol, sympify
+
+import settings
 
 
 def create_raw_moment_test(benchmark, monom, initial_value, general_form):
@@ -32,10 +33,9 @@ def create_raw_moment_test(benchmark, monom, initial_value, general_form):
 
 
 def get_raw_moment(benchmark, monom):
-    args = ArgumentParser().get_defaults()
-    args.exact_func_moments = True
-    program = parse_program(benchmark, args.transform_categoricals)
-    program = normalize_program(program, args)
+    settings.exact_func_moments = True
+    program = parse_program(benchmark)
+    program = normalize_program(program)
     rec_builder = RecBuilder(program)
     recurrences = rec_builder.get_recurrences(monom)
     solver = RecurrenceSolver(recurrences, False, False, 0)

@@ -1,4 +1,6 @@
 from typing import List, Tuple
+
+import settings
 from .transformer import Transformer
 from program import Program
 from program.condition import Condition, TrueCond, And
@@ -16,8 +18,10 @@ class LoopGuardTransformer(Transformer):
 
     trivial_guard: bool = False
 
-    def __init__(self, trivial_guard: bool):
-        self.trivial_guard = trivial_guard
+    def __init__(self, trivial_guard: bool = None):
+        self.trivial_guard = (
+            settings.trivial_guard if trivial_guard is None else trivial_guard
+        )
 
     def execute(self, program: Program) -> Program:
         if self.trivial_guard:

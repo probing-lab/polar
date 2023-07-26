@@ -21,8 +21,8 @@ class SensitivityAction(Action):
 
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
-        program = parse_program(benchmark, self.cli_args.transform_categoricals)
-        self.program = normalize_program(program, self.cli_args)
+        program = parse_program(benchmark)
+        self.program = normalize_program(program)
 
         if self.cli_args.sensitivity_analysis:
             self._analyze_sensitivity()

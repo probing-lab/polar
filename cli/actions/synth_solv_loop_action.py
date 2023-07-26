@@ -16,8 +16,8 @@ class SynthSolvLoopAction(Action):
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
         inv_deg = self.cli_args.inv_deg
-        program = parse_program(benchmark, self.cli_args.transform_categoricals)
-        program = normalize_program(program, self.cli_args)
+        program = parse_program(benchmark)
+        program = normalize_program(program)
 
         candidate_vars = []
         if len(self.cli_args.synth_solv_loop) == 0:
