@@ -4,7 +4,8 @@ import unittest
 
 from tests.test_raw_moments import get_raw_moment
 from cli import ArgumentParser
-from cli.common import prepare_program, parse_program
+from cli.common import prepare_program
+from inputparser import parse_program
 from recurrences import DiffRecBuilder
 from recurrences.solver import RecurrenceSolver
 from utils import unpack_piecewise

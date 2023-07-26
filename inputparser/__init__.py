@@ -1,4 +1,4 @@
-from .parser import Parser
+from .parser import Parser, parse_program
 from .goal_parser import (
     GoalParser,
     MOMENT,

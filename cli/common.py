@@ -1,4 +1,3 @@
-from inputparser import Parser
 from program.transformer import (
     LoopGuardTransformer,
     DistTransformer,
@@ -151,10 +150,6 @@ def prettify_piecewise(expression):
     for n in range(max_case + 1):
         special_cases.append(str(expression.subs({Symbol("n", integer=True): n})))
     return "; ".join(special_cases) + "; " + str(unpack_piecewise(expression))
-
-
-def parse_program(benchmark, transform_categorial=False):
-    return Parser().parse_file(benchmark, transform_categorial)
 
 
 def prepare_program(program, cli_args):

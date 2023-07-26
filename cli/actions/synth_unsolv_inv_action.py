@@ -4,7 +4,8 @@ from symengine.lib.symengine_wrapper import sympify
 import sympy
 from termcolor import colored
 from unsolvable_analysis import UnsolvInvSynthesizer
-from cli.common import prepare_program, parse_program
+from cli.common import prepare_program
+from inputparser import parse_program
 
 
 class SynthUnsolvInvAction(Action):

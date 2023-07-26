@@ -1,4 +1,5 @@
-from cli import ArgumentParser, parse_program, prepare_program
+from cli import ArgumentParser, prepare_program
+from inputparser import parse_program
 import os
 from sympy import sympify
 

@@ -26,3 +26,7 @@ class Parser:
             tree = parser.parse(code)
             program = StructureTransformer(transform_categoricals).transform(tree)
         return program
+
+
+def parse_program(benchmark, transform_categorial=False):
+    return Parser().parse_file(benchmark, transform_categorial)

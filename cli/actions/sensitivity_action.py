@@ -2,7 +2,8 @@ from argparse import Namespace
 from typing import Tuple
 
 from cli.actions.goals_action import GoalsAction
-from cli.common import parse_program, prepare_program
+from cli.common import prepare_program
+from inputparser import parse_program
 from inputparser.exceptions import ParseException
 from inputparser.goal_parser import CENTRAL, CUMULANT, MOMENT
 from recurrences import RecBuilder, DiffRecBuilder

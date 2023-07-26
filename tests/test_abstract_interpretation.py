@@ -2,7 +2,8 @@ import os
 import unittest
 
 from cli import ArgumentParser
-from cli.common import prepare_program, parse_program
+from cli.common import prepare_program
+from inputparser import parse_program
 from symengine.lib.symengine_wrapper import sympify
 
 
