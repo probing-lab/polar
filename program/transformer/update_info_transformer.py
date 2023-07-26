@@ -5,7 +5,6 @@ from itertools import combinations
 from .exceptions import TransformException
 from .transformer import Transformer
 from program import Program
-from unsolvable_analysis import SolvabilityChecker
 from program.assignment import (
     DistAssignment,
     FunctionalAssignment,
@@ -150,6 +149,8 @@ class UpdateInfoTransformer(Transformer):
         return all_symbols
 
     def _set_effective_defective_variables(self):
+        from unsolvable_analysis import SolvabilityChecker
+
         effective_vars, defective_vars = SolvabilityChecker.get_variables(self.program)
         self.program.effective_variables = effective_vars
         self.program.defective_variables = defective_vars

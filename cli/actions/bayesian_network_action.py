@@ -10,7 +10,8 @@ from inputparser import Parser
 from recurrences.rec_builder import RecBuilder
 from .action import Action
 from program import Program
-from cli.common import prepare_program, get_moment
+from cli.common import get_moment
+from program import normalize_program
 
 
 class BayesNetworkAction(Action):
@@ -48,7 +49,7 @@ class BayesNetworkAction(Action):
 
         goal_queries = query.generate_query(network, codegen.polar_variable_names)
         cli_args = ArgumentParser().get_defaults()
-        program = prepare_program(program, cli_args)
+        program = normalize_program(program, cli_args)
         rec_builder = RecBuilder(program)
 
         parsed_queries = [GoalParser.parse(goal) for goal in goal_queries]

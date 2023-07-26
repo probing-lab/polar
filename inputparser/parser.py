@@ -28,5 +28,5 @@ class Parser:
         return program
 
 
-def parse_program(benchmark, transform_categorial=False):
+def parse_program(benchmark: str, transform_categorial=False) -> Program:
     return Parser().parse_file(benchmark, transform_categorial)

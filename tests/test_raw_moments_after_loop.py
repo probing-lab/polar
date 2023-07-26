@@ -4,10 +4,10 @@ import unittest
 
 from cli.argument_parser import ArgumentParser
 from cli.common import (
-    prepare_program,
     get_moment_given_termination,
     transform_to_after_loop,
 )
+from program import normalize_program
 from inputparser import parse_program
 from recurrences import RecBuilder
 from utils import unpack_piecewise
@@ -36,7 +36,7 @@ def create_raw_moment_after_loop_test(benchmark, monom, general_form):
 def get_raw_moment_after_loop(benchmark, monom):
     args = ArgumentParser().get_defaults()
     program = parse_program(benchmark, args.transform_categoricals)
-    program = prepare_program(program, args)
+    program = normalize_program(program, args)
     rec_builder = RecBuilder(program)
     moment, is_exact = get_moment_given_termination(
         monom, {}, rec_builder, args, program

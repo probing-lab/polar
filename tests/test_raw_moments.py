@@ -3,7 +3,7 @@ import os
 import unittest
 
 from cli import ArgumentParser
-from cli.common import prepare_program
+from program import normalize_program
 from inputparser import parse_program
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
@@ -35,7 +35,7 @@ def get_raw_moment(benchmark, monom):
     args = ArgumentParser().get_defaults()
     args.exact_func_moments = True
     program = parse_program(benchmark, args.transform_categoricals)
-    program = prepare_program(program, args)
+    program = normalize_program(program, args)
     rec_builder = RecBuilder(program)
     recurrences = rec_builder.get_recurrences(monom)
     solver = RecurrenceSolver(recurrences, False, False, 0)

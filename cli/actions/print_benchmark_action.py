@@ -6,7 +6,7 @@ from bayesnet.code_generator import CodeGenerator
 
 from inputparser import Parser
 from .action import Action
-from cli.common import prepare_program
+from program import normalize_program
 from inputparser import parse_program
 
 
@@ -33,7 +33,7 @@ class PrintBenchmarkAction(Action):
         print(program)
         print()
 
-        program = prepare_program(program, self.cli_args)
+        program = normalize_program(program, self.cli_args)
         print(colored("-----------------------", "magenta"))
         print(colored("- Transformed program -", "magenta"))
         print(colored("-----------------------", "magenta"))

@@ -1,16 +1,3 @@
-from program.transformer import (
-    LoopGuardTransformer,
-    DistTransformer,
-    IfTransformer,
-    MultiAssignTransformer,
-    ConditionsReducer,
-    ConstantsTransformer,
-    UpdateInfoTransformer,
-    TypeInferer,
-    ConditionsNormalizer,
-    ConditionsToArithm,
-)
-from program.assignment import FunctionalAssignment
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from symengine.lib.symengine_wrapper import sympify
@@ -150,34 +137,3 @@ def prettify_piecewise(expression):
     for n in range(max_case + 1):
         special_cases.append(str(expression.subs({Symbol("n", integer=True): n})))
     return "; ".join(special_cases) + "; " + str(unpack_piecewise(expression))
-
-
-def prepare_program(program, cli_args):
-    # Transform the loop-guard into an if-statement
-    program = LoopGuardTransformer(cli_args.trivial_guard).execute(program)
-    # Transform non-constant distributions parameters
-    program = DistTransformer().execute(program)
-    # Flatten if-statements
-    program = IfTransformer().execute(program)
-    # Make sure every variable has only 1 assignment
-    program = MultiAssignTransformer().execute(program)
-    # Create aliases for expressions in conditions.
-    program = ConditionsReducer().execute(program)
-    # Replace/Add constants in loop body
-    program = ConstantsTransformer().execute(program)
-    # Update program info like variables and symbols
-    program = UpdateInfoTransformer(ignore_unsolvability=True).execute(program)
-    # Infer types for variables
-    if not cli_args.disable_type_inference:
-        program = TypeInferer(cli_args.type_fp_iterations).execute(program)
-    # Update dependency graph (because finite variables are now detected)
-    program = UpdateInfoTransformer().execute(program)
-    # Turn all conditions into normalized form
-    program = ConditionsNormalizer().execute(program)
-    # Convert all conditions to arithmetic
-    if cli_args.cond2arithm:
-        program = ConditionsToArithm().execute(program)
-    # Pass the "exact functional moments" parameter to the FunctionalAssignment class
-    FunctionalAssignment.exact_func_moments = cli_args.exact_func_moments
-
-    return program
