@@ -4,7 +4,7 @@ import unittest
 
 from tests.test_raw_moments import get_raw_moment
 from cli import ArgumentParser
-from cli.common import prepare_program
+from program import normalize_program
 from inputparser import parse_program
 from recurrences import DiffRecBuilder
 from recurrences.solver import RecurrenceSolver
@@ -44,7 +44,7 @@ def get_sensitivity(benchmark, monom, param):
     args = ArgumentParser().get_defaults()
     args.exact_func_moments = True
     program = parse_program(benchmark, args.transform_categoricals)
-    program = prepare_program(program, args)
+    program = normalize_program(program, args)
     diff_rec_builder = DiffRecBuilder(program, param)
     recurrences = diff_rec_builder.get_recurrences(monom)
     solver = RecurrenceSolver(recurrences, False, False, 0)

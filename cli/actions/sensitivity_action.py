@@ -2,7 +2,7 @@ from argparse import Namespace
 from typing import Tuple
 
 from cli.actions.goals_action import GoalsAction
-from cli.common import prepare_program
+from program import normalize_program
 from inputparser import parse_program
 from inputparser.exceptions import ParseException
 from inputparser.goal_parser import CENTRAL, CUMULANT, MOMENT
@@ -22,7 +22,7 @@ class SensitivityAction(Action):
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
-        self.program = prepare_program(program, self.cli_args)
+        self.program = normalize_program(program, self.cli_args)
 
         if self.cli_args.sensitivity_analysis:
             self._analyze_sensitivity()

@@ -4,7 +4,7 @@ from symengine.lib.symengine_wrapper import sympify
 import sympy
 from termcolor import colored
 from unsolvable_analysis import UnsolvInvSynthesizer
-from cli.common import prepare_program
+from program import normalize_program
 from inputparser import parse_program
 
 
@@ -18,7 +18,7 @@ class SynthUnsolvInvAction(Action):
         benchmark = args[0]
         inv_deg = self.cli_args.inv_deg
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
-        program = prepare_program(program, self.cli_args)
+        program = normalize_program(program, self.cli_args)
 
         if len(program.defective_variables) == 0:
             print(

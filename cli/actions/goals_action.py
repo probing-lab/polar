@@ -25,13 +25,13 @@ from termcolor import colored
 from cli.common import (
     get_all_moments_given_termination,
     get_moment_given_termination,
-    prepare_program,
     get_moment,
     get_all_moments,
     print_is_exact,
     prettify_piecewise,
     transform_to_after_loop,
 )
+from program import normalize_program
 from inputparser import parse_program
 from invariants import InvariantIdeal
 
@@ -48,7 +48,7 @@ class GoalsAction(Action):
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
         program = parse_program(benchmark, self.cli_args.transform_categoricals)
-        program = prepare_program(program, self.cli_args)
+        program = normalize_program(program, self.cli_args)
         rec_builder = RecBuilder(program)
         self.initialize_program(program, rec_builder)
         self.handle_all_goals()
