@@ -25,7 +25,6 @@ from termcolor import colored
 from cli.common import (
     get_all_moments_given_termination,
     get_moment_given_termination,
-    parse_program,
     prepare_program,
     get_moment,
     get_all_moments,
@@ -33,6 +32,7 @@ from cli.common import (
     prettify_piecewise,
     transform_to_after_loop,
 )
+from inputparser import parse_program
 from invariants import InvariantIdeal
 
 

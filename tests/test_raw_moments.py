@@ -3,7 +3,8 @@ import os
 import unittest
 
 from cli import ArgumentParser
-from cli.common import prepare_program, parse_program
+from cli.common import prepare_program
+from inputparser import parse_program
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
 from utils import unpack_piecewise

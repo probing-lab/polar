@@ -6,7 +6,8 @@ from recurrences import RecBuilder
 from symengine.lib.symengine_wrapper import sympify
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
-from cli.common import prepare_program, get_moment, parse_program
+from cli.common import prepare_program, get_moment
+from inputparser import parse_program
 
 
 class PlotAction(Action):

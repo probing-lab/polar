@@ -1,7 +1,8 @@
 from argparse import Namespace
 from symengine.lib.symengine_wrapper import sympify
 from .action import Action
-from cli.common import prepare_program, parse_program
+from cli.common import prepare_program
+from inputparser import parse_program
 from termcolor import colored
 from unsolvable_analysis import SolvLoopSynthesizer
 

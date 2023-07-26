@@ -6,11 +6,11 @@ from bayesnet.query.exact_inference_query import ExactInferenceQuery
 from cli.argument_parser import ArgumentParser
 from inputparser import GoalParser
 from inputparser.goal_parser import MOMENT
-from inputparser.parser import Parser
+from inputparser import Parser
 from recurrences.rec_builder import RecBuilder
 from .action import Action
 from program import Program
-from cli.common import prepare_program, get_moment, parse_program
+from cli.common import prepare_program, get_moment
 
 
 class BayesNetworkAction(Action):

@@ -6,7 +6,8 @@ from bayesnet.code_generator import CodeGenerator
 
 from inputparser import Parser
 from .action import Action
-from cli.common import prepare_program, parse_program
+from cli.common import prepare_program
+from inputparser import parse_program
 
 
 class PrintBenchmarkAction(Action):

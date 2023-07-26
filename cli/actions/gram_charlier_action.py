@@ -8,8 +8,8 @@ from cli.common import (
     prepare_program,
     get_all_cumulants,
     get_all_cumulants_after_loop,
-    parse_program,
 )
+from inputparser import parse_program
 
 
 class GramCharlierAction(Action):

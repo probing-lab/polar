@@ -7,8 +7,8 @@ from cli.common import (
     prepare_program,
     get_moment_given_termination,
     transform_to_after_loop,
-    parse_program,
 )
+from inputparser import parse_program
 from recurrences import RecBuilder
 from utils import unpack_piecewise
 from tests.common import get_test_specs
