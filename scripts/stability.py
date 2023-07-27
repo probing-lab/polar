@@ -1,5 +1,5 @@
-from cli import ArgumentParser, prepare_program
 from inputparser import Parser
+from program import normalize_program
 from recurrences.rec_builder import RecBuilder
 
 from stability_analysis import SymbolicStabilityAnalyzer, NumericStabilityAnalyzer
@@ -48,7 +48,7 @@ end
 """
 
 program = Parser().parse_string(source_code)
-program = prepare_program(program, ArgumentParser().get_defaults())
+program = normalize_program(program)
 
 rec_builder = RecBuilder(program)
 recurrences = rec_builder.get_recurrences("y_measure")

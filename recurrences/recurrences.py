@@ -85,10 +85,6 @@ class Recurrences:
         initial_values = [self.init_values_dict[v] for v in self.monomials]
 
         if self.is_inhomogeneous:
-            self.A = Matrix(coefficients)[:, :-1]
-            self.b = Matrix(coefficients)[:, -1]
-            self.x = Matrix(initial_values)
-
             # If the system is inhomogeneous (constant inhomogeneous part). Then we need to fill
             # up those recurrence coefficients which are homogeneous with "0".
             initial_values.append(sympify(1))
@@ -96,6 +92,9 @@ class Recurrences:
                 if len(cs) == len(self.monomials):
                     cs.append(sympify(0))
             coefficients.append([sympify(0) for _ in self.monomials] + [sympify(1)])
+            self.A = Matrix(coefficients)[:-1, :-1]
+            self.b = Matrix(coefficients)[:-1, -1]
+            self.x = Matrix(initial_values)
         else:
             self.A = Matrix(coefficients)
             self.b = Matrix([sympify(0) for _ in self.monomials])
