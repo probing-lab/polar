@@ -133,7 +133,6 @@ class SolvLoopSynthesizer:
                 solvable_loop_body,
                 program.is_probabilistic,
             )
-            solvable_program.typedefs = program.typedefs
             from program.transformer import UpdateInfoTransformer
 
             solvable_program = UpdateInfoTransformer(True).execute(solvable_program)
