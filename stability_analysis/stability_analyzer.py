@@ -17,3 +17,7 @@ class StabilityAnalyzer(ABC):
     @abstractmethod
     def get_equilibrium(self):
         pass
+
+    @abstractmethod
+    def get_rho(self):
+        pass

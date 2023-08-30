@@ -1,7 +1,7 @@
 from functools import lru_cache
 from math import prod
-from typing import Set, List
-from symengine.lib.symengine_wrapper import Expr, Symbol, sympify, One, Zero
+from typing import List, Set
+from symengine.lib.symengine_wrapper import Expr, Symbol, sympify, One
 from program import Program
 from program.assignment import Assignment
 from program.type import Finite
@@ -23,13 +23,12 @@ class RecBuilder:
         self.program = program
 
     @lru_cache(maxsize=None)
-    def get_recurrences(self, monomial: Expr) -> Recurrences:
+    def get_recurrences(self, *monomials: Expr | str) -> Recurrences:
         """
         Constructs a complete system of linear recurrences (over expected values) completely describing
-        the expected value of "monomial".
+        the expected value(s) of "monomials".
         """
-        monomial = sympify(monomial)
-        to_process = {monomial}
+        to_process = {sympify(m) for m in monomials}
         processed = set()
         recurrence_dict = {}
         while to_process:

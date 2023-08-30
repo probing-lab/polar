@@ -27,6 +27,11 @@ class NumericStabilityAnalyzer(StabilityAnalyzer):
         return result
 
     @lru_cache(maxsize=None)
+    def get_rho(self):
+        eigvs = self._get_eigenvalues()
+        return max([abs(ev) for ev in eigvs.keys()])
+
+    @lru_cache(maxsize=None)
     def is_globally_stable(self) -> bool:
         eigvs = self._get_eigenvalues()
         return all([abs(ev) < 1 for ev in eigvs.keys()])

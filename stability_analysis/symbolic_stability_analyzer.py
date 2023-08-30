@@ -1,5 +1,5 @@
 from functools import lru_cache
-from sympy import eye
+from sympy import eye, Max
 from recurrences import Recurrences
 from stability_analysis.stability_analyzer import StabilityAnalyzer
 
@@ -18,6 +18,11 @@ class SymbolicStabilityAnalyzer(StabilityAnalyzer):
     @lru_cache(maxsize=None)
     def _compare_eigenvalues_with(self, k: int):
         return [abs(ev).compare(k) for ev in self._get_eigenvalues().keys()]
+
+    @lru_cache(maxsize=None)
+    def get_rho(self):
+        eigvs = self._get_eigenvalues()
+        return Max(*[abs(ev) for ev in eigvs.keys()])
 
     @lru_cache(maxsize=None)
     def is_globally_stable(self) -> bool:
