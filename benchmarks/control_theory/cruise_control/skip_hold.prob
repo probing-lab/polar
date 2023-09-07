@@ -33,13 +33,11 @@ while true:
     actuation_fail = Bernoulli(pa)
     if overrun == 0 && actuation_fail == 0:
         u = -872.54*y1 - 131.49*y2 - 10.097*y3
-    else:
-        u = 0
     end
 
     # measurements
     sensor_fail = Bernoulli(ps)
-    if sensor_fail == 0:
+    if sensor_fail == 0 && overrun == 0:
         y1 = x1
         y2 = x2
         y3 = x3

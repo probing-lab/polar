@@ -39,7 +39,7 @@ while true:
 
     # measurements
     sensor_fail = Bernoulli(ps)
-    if sensor_fail == 0:
+    if sensor_fail == 0 && overrun == 0:
         y1 = x1
         y2 = x2
         y3 = x3
