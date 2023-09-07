@@ -14,6 +14,11 @@ z2 = 1
 y1 = 0.5 * x1
 y2 = 0.25 * x3
 
+# Failure probabilities
+ps = 0
+pc = 0
+pa = 0
+
 while true:
     # old values
     x1o = x1
@@ -27,14 +32,24 @@ while true:
     x2 = x2o + 0.045*x3o + 0.0058*u
     x3 = x3o + 0.256*u
 
+    overrun = Bernoulli(pc)
+    actuation_fail = Bernoulli(pa)
+
     # controller evolution
-    z1 = z1o + 0.025 * y1
-    z2 = 0.9685*z2o - 0.2608 * y1
+    if overrun == 0:
+        z1 = z1o + 0.025 * y1
+        z2 = 0.9685*z2o - 0.2608 * y1
+    end
 
     # new command
-    u = -0.108*z1o - 0.2608*z2o - 2.43*y1 - 3*y2
+    if overrun == 0 && actuation_fail == 0:
+        u = -0.108*z1o - 0.2608*z2o - 2.43*y1 - 3*y2
+    end
 
     # measurements
-    y1 = 0.5 * x1
-    y2 = 0.25 * x3
+    sensor_fail = Bernoulli(ps)
+    if sensor_fail == 0:
+        y1 = 0.5 * x1
+        y2 = 0.25 * x3
+    end
 end
