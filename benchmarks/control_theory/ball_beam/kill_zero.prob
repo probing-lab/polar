@@ -15,9 +15,9 @@ y1 = 0.5 * x1
 y2 = 0.25 * x3
 
 # Failure probabilities
-ps = 0
+#ps = 0
 pc = 0
-pa = 0
+#pa = 0
 
 while true:
     # old values
