@@ -1,0 +1,7 @@
+a,b,c = 0,1,1
+z,x = 1,0
+while true:
+    a,b,c = b,c,b+c
+    z = -z
+    x = x + a**2
+end
