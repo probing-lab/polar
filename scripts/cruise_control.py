@@ -2,7 +2,7 @@ from inputparser import Parser
 from program import normalize_program
 from recurrences.rec_builder import RecBuilder
 from symengine.lib.symengine_wrapper import sympify
-from stability_analysis import NumericStabilityAnalyzer
+from stability_analysis import NumericStabilityAnalyzer, SymbolicStabilityAnalyzer
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,8 +28,8 @@ def get_rho(strategy, ps=0.0, pc=0.0, pa=0.0):
         "x1", "x2", "x3", "x1**2", "x2**2", "x3**2"
     )
 
-    analyzer = NumericStabilityAnalyzer(recurrences)
-    return analyzer.get_rho()
+    analyzer = SymbolicStabilityAnalyzer(recurrences)
+    return float(analyzer.get_rho())
 
 
 def compute_single_variations(strategy):
@@ -11590,4 +11590,7 @@ if __name__ == "__main__":
     # plot_fig2()
     # print_table1()
     # compute_double_variations("skip_hold")
-    plot_fig4()
+    # plot_fig4()
+    pcs = np.arange(0.4, 0.6, 0.01)
+    for pc in pcs:
+        print(f"{pc}: {get_rho('skip_hold', pc=pc)}")

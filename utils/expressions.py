@@ -195,6 +195,9 @@ def solve_by_equating_coefficients(poly: Expr, variables, k: Symbol):
 
 
 def eval_re(n, expression):
+    import sys
+
+    sys.set_int_max_str_digits(0)
     result = expression.xreplace({symbols("n"): n, symbols("n", integer=True): n})
     return re(result.expand())
 

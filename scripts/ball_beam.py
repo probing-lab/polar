@@ -11623,4 +11623,7 @@ if __name__ == "__main__":
     # compute_double_variations_fast()
     # plot_fig6()
     # print_table2()
-    plot_fig8()
+    # plot_fig8()
+    pcs = np.arange(0.6, 0.8, 0.01)
+    for pc in pcs:
+        print(f"{pc}: {get_rho('skip_hold', pc=pc)}")
