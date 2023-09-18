@@ -5,7 +5,6 @@ import numpy as np
 
 
 class NumericStabilityAnalyzer(StabilityAnalyzer):
-
     recurrences: Recurrences
     A: np.ndarray
     b: np.ndarray

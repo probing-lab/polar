@@ -5,7 +5,6 @@ from stability_analysis.stability_analyzer import StabilityAnalyzer
 
 
 class SymbolicStabilityAnalyzer(StabilityAnalyzer):
-
     recurrences: Recurrences
 
     def __init__(self, recurrences: Recurrences):
