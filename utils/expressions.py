@@ -20,21 +20,13 @@ def float_to_rational(expr: Expr):
     return sympy2symengine(Rational(str(expr)))
 
 
-def get_all_roots(poly: Poly, numeric=False, numeric_croots=False, eps=1e-10):
-    exact = True
+def get_all_roots(poly: Poly, numeric=False, numeric_croots=False):
     if numeric:
-        poly_roots = poly.intervals(eps=eps)
-        if isinstance(poly_roots, tuple):
-            tmp = []
-            for r in poly_roots:
-                tmp += r
-            poly_roots = tmp
-        result = []
-        for (h, l), m in poly_roots:
-            result.append(((h + l) / 2, m))
-            if h != l:
-                exact = False
-        return result, exact
+        poly_roots = poly.nroots()
+        result = {}
+        for root in poly_roots:
+            result[root] = 1 if root not in result else result[root] + 1
+        return list(result.items()), False
 
     try:
         poly_roots = poly.all_roots(multiple=False)

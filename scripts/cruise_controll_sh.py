@@ -1,4 +1,5 @@
 import numpy as np
+from progress.bar import Bar
 
 
 def run_process():
@@ -9,8 +10,8 @@ def run_process():
     y1 = x1
     y2 = x2
     y3 = x3
-    pc = 0.4
-    for i in range(100):
+    pc = 0.5
+    for _ in range(100):
         # store old values
         x1o = x1
         x2o = x2
@@ -35,6 +36,11 @@ def run_process():
 
 if __name__ == "__main__":
     data = []
-    for _ in range(1000):
-        data.append(run_process())
+    num_samples = 10**7
+    with Bar("Computing samples", max=num_samples) as bar:
+        for i in range(num_samples):
+            data.append(run_process())
+            bar.next()
+            if (i + 1) % 1000 == 0:
+                print(" ", np.average(data))
     print(np.average(data))

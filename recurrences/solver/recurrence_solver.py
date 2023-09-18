@@ -12,15 +12,12 @@ class RecurrenceSolver(Solver):
         recurrences: Recurrences,
         numeric_roots: bool = None,
         numeric_croots: bool = None,
-        numeric_eps: float = None,
         force_cyclic_solver: bool = False,
     ):
         if recurrences.is_acyclic and not force_cyclic_solver:
             self.solver = AcyclicSolver(recurrences)
         else:
-            self.solver = CyclicSolver(
-                recurrences, numeric_roots, numeric_croots, numeric_eps
-            )
+            self.solver = CyclicSolver(recurrences, numeric_roots, numeric_croots)
 
     @property
     def is_exact(self) -> bool:

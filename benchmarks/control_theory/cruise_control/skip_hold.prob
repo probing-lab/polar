@@ -13,7 +13,7 @@ y3 = x3
 
 # Failure probabilities
 ps = 0
-pc = 0.48
+pc = 0.5
 pa = 0
 
 while true:
