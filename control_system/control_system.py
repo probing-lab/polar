@@ -12,6 +12,7 @@ class ControlSystem:
 
     dynamics: Matrix
     state_symbol: str
+    state_variables: [str]
 
     def __init__(self, state_symbol: str = "x"):
         self.state_symbol = state_symbol
@@ -27,3 +28,4 @@ class ControlSystem:
 
     def set_dynamics(self, d: Matrix):
         self.dynamics = d
+        self.state_variables = [self.state_symbol + str(i) for i in range(d.rows)]

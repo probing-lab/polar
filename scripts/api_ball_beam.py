@@ -15,7 +15,7 @@ ball_beam_system.add_sensor(sensor)
 
 # Construct and add actuator
 actuator = Actuator()
-actuator.set_effect(Matrix([[2.9e-5, 0.0058, 0.256]]).T)
+actuator.set_effect(Matrix([2.9e-5, 0.0058, 0.256]))
 actuator.set_fault_probability(0.3)
 actuator.set_fault_strategy(ActuatorFaultStrategy.HOLD)
 ball_beam_system.add_actuator(actuator)
@@ -24,9 +24,13 @@ ball_beam_system.add_actuator(actuator)
 controller = Controller()
 controller.set_dynamics(Matrix([[1, 0], [0, 0.9685]]))
 sensor_state_effect = Matrix([[0.025, 0], [-0.2608, 0]])
-sensor_act_effect = Matrix([-2.43, -3])
+sensor_act_effect = Matrix([-2.43, -3]).T
 controller.set_sensor(sensor, sensor_state_effect, sensor_act_effect)
-state_influence = Matrix([-0.108, -0.2608])
+state_influence = Matrix([-0.108, -0.2608]).T
 controller.set_actuator(actuator, state_influence)
 controller.set_fault_probability(0.5)
 ball_beam_system.add_controller(controller)
+
+converter = CSConverter(ball_beam_system)
+program = converter.construct_program()
+print(program)

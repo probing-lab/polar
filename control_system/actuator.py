@@ -10,6 +10,7 @@ class ActuatorFaultStrategy(Enum):
 class Actuator:
     effect: Matrix
     symbol: str
+    variables: [str]
     fault_probability: Expr
     fault_strategy: ActuatorFaultStrategy
 
@@ -18,6 +19,7 @@ class Actuator:
 
     def set_effect(self, e: Matrix):
         self.effect = e
+        self.variables = [self.symbol + str(i) for i in range(e.cols)]
 
     def set_fault_probability(self, p: Expr | float):
         self.fault_probability = sympify(p)

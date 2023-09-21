@@ -16,8 +16,9 @@ class ControllerFaultStrategy(Enum):
 
 
 class Controller:
-    dynamics: Matrix
+    dynamics: Matrix = None
     state_symbol: str
+    state_variables: [str] = []
     sensor: Tuple[Sensor, StateEffect, ActuatorEffect]
     actuator: Tuple[Actuator, StateInfluence]
     fault_probability: Expr
@@ -28,13 +29,17 @@ class Controller:
 
     def set_dynamics(self, d: Matrix):
         self.dynamics = d
+        self.state_variables = [self.state_symbol + str(i) for i in range(d.rows)]
 
     def set_sensor(
-        self, sensor: Sensor, state_effect: StateEffect, actuator_effect: ActuatorEffect
+        self,
+        sensor: Sensor,
+        state_effect: StateEffect = None,
+        actuator_effect: ActuatorEffect = None,
     ):
         self.sensor = (sensor, state_effect, actuator_effect)
 
-    def set_actuator(self, actuator: Actuator, state_influence: StateInfluence):
+    def set_actuator(self, actuator: Actuator, state_influence: StateInfluence = None):
         self.actuator = (actuator, state_influence)
 
     def set_fault_probability(self, p: Expr | float):
