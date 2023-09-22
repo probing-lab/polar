@@ -16,6 +16,7 @@ class ControllerFaultStrategy(Enum):
 
 
 class Controller:
+    name: str
     dynamics: Matrix = None
     state_symbol: str
     state_variables: [str] = []
@@ -24,8 +25,9 @@ class Controller:
     fault_probability: Expr
     fault_strategy: ControllerFaultStrategy
 
-    def __init__(self, state_symbol: str = "z"):
+    def __init__(self, state_symbol: str = "z", name: str = "c"):
         self.state_symbol = state_symbol
+        self.name = name
 
     def set_dynamics(self, d: Matrix):
         self.dynamics = d

@@ -44,12 +44,20 @@ class CSConverter:
         actuator, state_influence = controller.actuator
         sensor, state_effect, act_effect = controller.sensor
 
+        # Add variables for sensor inputs
+        sensor_input_variables = [sv + controller.name for sv in sensor.variables]
+        sensor_input_assigns = [
+            PolyAssignment.deterministic(iv, sv)
+            for iv, sv in zip(sensor_input_variables, sensor.variables)
+        ]
+        self.loop_body += sensor_input_assigns
+
         # Add assignments for actuator
         act_expressions = Matrix.zeros(len(actuator.variables), 1)
         if state_influence is not None:
             act_expressions += state_influence * Matrix(controller.state_variables)
         if act_effect is not None:
-            act_expressions += act_effect * Matrix(sensor.variables)
+            act_expressions += act_effect * Matrix(sensor_input_variables)
         act_assigns = [
             PolyAssignment.deterministic(v, e)
             for v, e in zip(actuator.variables, act_expressions)
@@ -61,7 +69,7 @@ class CSConverter:
         if controller.dynamics is not None:
             expressions = controller.dynamics * Matrix(controller.state_variables)
             if state_effect is not None:
-                expressions += state_effect * Matrix(sensor.variables)
+                expressions += state_effect * Matrix(sensor_input_variables)
             assigns = [
                 PolyAssignment.deterministic(v, e)
                 for v, e in zip(controller.state_variables, expressions)
