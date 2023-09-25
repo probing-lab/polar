@@ -1,0 +1,11 @@
+y = 0
+x = 1
+while true:
+    coin1 = Bernoulli(1/2)
+    coin2 = Bernoulli(1/2)
+    if coin1 + coin2 < 2:
+        y = y + 1 {1/2} y - 2
+        g = Normal(y, 1)
+        x = x + g**2
+    end
+end
