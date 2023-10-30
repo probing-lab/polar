@@ -1,0 +1,8 @@
+u,w,x,y,z = 0,1,2,3,4
+while true:
+    z = z+p**2 {1/2} z+p
+    y = y - 5*p*z
+    w = 5*w + x**2
+    x = 5+w+x
+    u = x+p*y
+end
