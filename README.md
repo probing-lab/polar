@@ -123,7 +123,64 @@ pip install -r requirements.txt
 
 ## Supported Loops
 
+The problems Polar can solve are uncomputable for arbitrary probabilistic loops. This means that an algorithm and a
+tool capable of handling any loop do not exist. Consequently, Polar imposes certain restrictions on the loops it can
+analyze. However, if an input loop meets these restrictions, Polar is guaranteed to be able to analyze it, although
+the process can be time-consuming. In many cases, though, Polar is quite efficient. The loops for Polar are written in a
+custom language. Here's an example:
 
+```python
+x,y = 1,0
+while true:
+    c1 = Bernoulli(1/2)
+    c2 = Bernoulli(1/2)
+    if c1 + c2 < 2:
+        y = y + 1 {1/2} y - 2 {1/3} y
+        g = Normal(y,1)
+        x = x + g**2
+    end
+end
+```
+
+Generally, the input loops for Polar consist of a section for initial variable assignments followed by a while loop.
+Standard arithmetic is allowed in variable assignments, using Python syntax.
+Additionally, you can draw from common probability distributions such as `Bernoulli` and `Normal`.
+Polar also supports expressions for probabilistic choice. For instance, `y` is assigned `y+1` with probability `1/2`,
+`y-2` with probability `1/3`, and to `y` otherwise. The use of `if` statements, `if-elif-else` statements,
+and loop guards are also possible.
+
+
+### Loop Restrictions
+
+For Polar to analyze input loops, they must adhere to the following restrictions:
+
+1. **All variables in if-conditions and the loop guard must only assume finitely many values.**
+2. **All probabilities and distribution parameters must be constant**
+3. **Non-linear variable dependencies must be acylcic.**
+
+Ad restriction 1:
+In the example, both `c1` and `c2` are drawn from Bernoulli distributions and hence are only `0` or `1`.
+It is acceptable to use them in conditions and guards. However, `y` cannot be used in conditions and guards, as
+it could potentially assume any natural number.
+
+Ad restriction 2:
+For some distributions, such as `Normal`, it is permissible to use non-constant distribution parameters.
+
+Ad restriction 3:
+The restriction forbids variables `v1`, ... `vk`, where `v1` depends on `v2`, `v2` on `v3`, ...,
+`vk` depends on `v1`, with at least one of these dependencies being non-linear.
+In the example `x` depends non-linearly on `g` (through `g**2` in the assignment of `x`).
+However, since `g` does not depend on `x` this non-linear dependency is acceptable.
+
+There is technically one more restriction: programs can only draw from distributions for which all moments exist.
+However, the syntax for the input loops only allows such distributions.
+
+If your input program satisfies these restrictions, Polar theoretically guarantees its analyzability.
+Dropping any these restrictions leads to uncomputability or serious hardness barriers.
+For more details on the hardness barriers see your publication [Strong Invariants Are Hard](https://arxiv.org/abs/2307.10902).
+
+For more details on the syntax of input programs and Polar itself see your
+publication [This Is the Moment for Probabilistic Loops](https://arxiv.org/abs/2204.07185).
 
 ## Usage
 
