@@ -182,15 +182,60 @@ For more details on the hardness barriers see your publication [Strong Invariant
 For more details on the syntax of input programs and Polar itself see your
 publication [This Is the Moment for Probabilistic Loops](https://arxiv.org/abs/2204.07185).
 
+
 ## Usage
 
+### Computing Closed-Form Formulas
+
+Polar's core functionality lies in computing closed-form formulas for variables within a (probabilistic) loop.
+These formulas, parameterized by the number of loop iterations `n`, provide the value of a given program variable after `n` iterations.
+In probabilistic loops, instead of direct values, the formulas describe the moments of program variables.
+For example, to compute the expected value of the variable `x` in a probabilistic loop located in `documentation/loops/loop.prob`,
+execute the following command:
+
 ```bash
-python polar.py benchmarks/polar_paper/illustrating.prob --goals "E(z)"
+python polar.py documentation/loops/loop.prob --goals "E(x)"
 ```
 
-The parameter `goals` takes any expected value of monomials of program variables, for instance `"E(x**2)"`, `"E(t*x**2)"`, etc.
-To compute the variance you can pass `"c2(x)"`.
-In general, to compute the kth central moment (where k is a natural number), pass `"ck(x)"` to the goals parameter.
+The parameter `goals` accepts expected value of monomials of program variables, for instance `"E(x**2)"`, `"E(t*x**2)"`, and so on.
+To compute the variance use `"c2(x)"`.
+For the kth central moment (where k is a natural number), use `"ck(x)"`.
+
+### Computing Invariants
+
+To compute polynomial invariants among the expected values and variances of `x` and `y`, include all these moments
+in the `goal` parameter and additionally pass the `invariant` parameter:
+
+```bash
+python polar.py documentation/loops/loop.prob --goals "E(x)" "E(y)" "c2(x)" "c2(y)" --invariants
+```
+
+Polar will then output formulas for all the moments specified in the `goals` parameter, along with the following three invariants:
+
+```python
+E(x) - 1024*c2(y)**3/658503 - 2128*c2(y)**2/7569 - 205*c2(y)/174 - 1 = 0
+E(y) + 8*c2(y)/87 = 0
+c2(x) - 6864896*c2(y)**5/4984209207 - 22626304*c2(y)**4/171869283 - 1252660*c2(y)**3/1975509 - 291097*c2(y)**2/181656 - 131467*c2(y)/33408 = 0
+```
+
+These are not just any invariants; they form a basis for all polynomial invariants among the moments specified in `goals`.
+For more details on why these constitute a basis, refer to moment invariant ideals in the paper [Strong Invariants Are Hard](https://arxiv.org/abs/2307.10902).
+
+To compute invariants for non-probabilistic loops, such as the loop that calculates Fibonacci numbers, omit the `goals` parameter:
+
+```bash
+python polar.py documentation/loops/fibonacci.prob --invariants
+```
+
+In this case, Polar provides the following invariant:
+
+```python
+a**4 + 2*a**3*b - a**2*b**2 - 2*a*b**3 + b**4 - 1 = 0
+```
+
+This invariant is a basis for *all* polynomial invariants among the program variables `a` and `b`. As `a` and `b`
+represent two consecutive Fibonacci numbers in this example, the invariant encapsulates all polynomial identities
+that hold between two consecutive Fibonacci numbers.
 
 For a list of all parameters supported by Polar run:
 
