@@ -1,0 +1,6 @@
+a,b,c = 0, 0, 1
+z = 1
+while true:
+    a, b, c = b, c, b + c
+    z = -z
+end
