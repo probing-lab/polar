@@ -252,6 +252,12 @@ For a list of all parameters supported by Polar run:
 python polar.py --help
 ```
 
+### For more information and examples check out the following Jupyter notebooks:
+- [Computing closed-form formulas](documentation/closed-forms.ipynb)
+- [Computing invariant ideals](documentation/invariants.ipynb)
+- Sensitivity Analysis (TODO)
+- Invariants for Unsolvable Loops (TODO)
+
 
 ## Run Tests
 
