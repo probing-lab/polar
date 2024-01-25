@@ -177,10 +177,10 @@ However, the syntax for the input loops only allows such distributions.
 
 If your input program satisfies these restrictions, Polar theoretically guarantees its analyzability.
 Dropping any these restrictions leads to uncomputability or serious hardness barriers.
-For more details on the hardness barriers see your publication [Strong Invariants Are Hard](https://arxiv.org/abs/2307.10902).
+For more details on the hardness barriers see your publication [Strong Invariants Are Hard](https://dl.acm.org/doi/abs/10.1145/3632872).
 
 For more details on the syntax of input programs and Polar itself see your
-publication [This Is the Moment for Probabilistic Loops](https://arxiv.org/abs/2204.07185).
+publication [This Is the Moment for Probabilistic Loops](https://dl.acm.org/doi/10.1145/3563341).
 
 
 ## Usage
@@ -228,7 +228,7 @@ c2(x) - 6864896*c2(y)**5/4984209207 - 22626304*c2(y)**4/171869283 - 1252660*c2(y
 ```
 
 These are not just any invariants; they form a basis for all polynomial invariants among the moments specified in `goals`.
-For more details on why these constitute a basis, refer to moment invariant ideals in the paper [Strong Invariants Are Hard](https://arxiv.org/abs/2307.10902).
+For more details on why these constitute a basis, refer to moment invariant ideals in the paper [Strong Invariants Are Hard](https://dl.acm.org/doi/abs/10.1145/3632872).
 
 To compute invariants for non-probabilistic loops, such as the loop that calculates Fibonacci numbers, omit the `goals` parameter:
 
@@ -255,8 +255,8 @@ python polar.py --help
 ### For more information and examples check out the following Jupyter notebooks:
 - [Computing closed-form formulas](documentation/closed-forms.ipynb)
 - [Computing invariant ideals](documentation/invariants.ipynb)
-- Sensitivity Analysis (TODO)
-- Invariants for Unsolvable Loops (TODO)
+- [Parameters & Sensitivity Analysis](documentation/sensitivity-analysis.ipynb)
+- [Unsolvable Loop Analysis](documentation/unsolvable-loop-analysis.ipynb)
 
 
 ## Run Tests
