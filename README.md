@@ -256,6 +256,7 @@ python polar.py --help
 - [Computing closed-form formulas](documentation/closed-forms.ipynb)
 - [Computing invariant ideals](documentation/invariants.ipynb)
 - [Parameters & Sensitivity Analysis](documentation/sensitivity-analysis.ipynb)
+- [Loop Guards & Moments after termination](documentation/loop-guards-termination.ipynb)
 - [Unsolvable Loop Analysis](documentation/unsolvable-loop-analysis.ipynb)
 
 
