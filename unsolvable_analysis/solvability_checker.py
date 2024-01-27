@@ -46,10 +46,12 @@ class SolvabilityChecker:
                     for powers, coeff in monoms:
                         infinite_vars_cnt = sum(
                             [
-                                1
-                                if powers[i] > 0
-                                and not cls._is_simple(index_to_vars[i], program)
-                                else 0
+                                (
+                                    1
+                                    if powers[i] > 0
+                                    and not cls._is_simple(index_to_vars[i], program)
+                                    else 0
+                                )
                                 for i in range(len(powers))
                             ]
                         )

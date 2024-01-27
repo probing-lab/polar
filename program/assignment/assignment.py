@@ -10,7 +10,9 @@ from program.condition import Condition, TrueCond, And
 
 class Assignment(ABC):
     variable: Symbol  # the variable to assign to
-    condition: Condition  # a condition which has to hold in order for tha assignment to happen
+    condition: (
+        Condition  # a condition which has to hold in order for tha assignment to happen
+    )
     default: Symbol  # the value to assign if condition is false
 
     def __init__(self, variable, condition=TrueCond(), default=None):

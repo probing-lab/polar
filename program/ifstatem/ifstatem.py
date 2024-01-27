@@ -5,7 +5,9 @@ from utils import indent_string
 
 class IfStatem:
     conditions: List[Condition]
-    mutually_exclusive: bool  # Flag to signal that all conditions are mutually exclusive
+    mutually_exclusive: (
+        bool  # Flag to signal that all conditions are mutually exclusive
+    )
     branches: List
     else_branch = None
 
