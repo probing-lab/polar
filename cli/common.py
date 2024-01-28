@@ -69,9 +69,7 @@ def get_all_moments(monom, max_moment, solvers, rec_builder, cli_args, program):
     moments = {}
     all_exact = True
     for i in reversed(range(1, max_moment + 1)):
-        moment, is_exact = get_moment(
-            monom**i, solvers, rec_builder, cli_args, program
-        )
+        moment, is_exact = get_moment(monom**i, solvers, rec_builder, cli_args, program)
         all_exact = all_exact and is_exact
         moments[i] = moment
     return moments, all_exact
