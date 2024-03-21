@@ -96,7 +96,7 @@ You can use Polar through its CLI interface or integrate it into your Python fil
 
 To install Polar locally, you can perform the following steps.
 
-1. Ensure you have python (version &geq; 3.8) and pip installed. If not, install them as preferred.
+1. Ensure you have python (version &geq; 3.9) and pip installed. If not, install them as preferred.
 
 2. Clone the repository:
 
