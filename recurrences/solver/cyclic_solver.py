@@ -21,7 +21,6 @@ class CyclicSolver(Solver):
     gen_sol_unknowns_set: Set[Symbol]
     numeric_roots: bool
     numeric_croots: bool
-    numeric_eps: float
     _is_exact: bool
 
     def __init__(
@@ -29,7 +28,6 @@ class CyclicSolver(Solver):
         recurrences: Recurrences,
         numeric_roots: bool = None,
         numeric_croots: bool = None,
-        numeric_eps: float = None,
     ):
         self.n = symbols("n", integer=True)
         self.recurrences = recurrences
@@ -39,7 +37,6 @@ class CyclicSolver(Solver):
         self.numeric_croots = (
             settings.numeric_croots if numeric_croots is None else numeric_croots
         )
-        self.numeric_eps = settings.numeric_eps if numeric_eps is None else numeric_eps
         self.monomials = set(recurrences.monomials)
         self.monom_to_index = {
             m: i
@@ -54,7 +51,6 @@ class CyclicSolver(Solver):
             self.characteristic_poly,
             self.numeric_roots,
             self.numeric_croots,
-            self.numeric_eps,
         )
         solution = sympify(0)
         count = 0

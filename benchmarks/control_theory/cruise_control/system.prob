@@ -1,0 +1,33 @@
+# state vector
+x1 = 1
+x2 = 1
+x3 = 1
+
+# command
+u = 1
+
+# measurements
+y1 = x1
+y2 = x2
+y3 = x3
+
+while true:
+    # store old values
+    x1o = x1
+    x2o = x2
+    x3o = x3
+    uo = u
+
+    # state update
+    x1 = 1*x1o + 0.01*x2o + 0*x3o + 0.0001*uo
+    x2 = -0.0003*x1o + 0.9997*x2o + 0.01*x3o + 0.0001*uo
+    x3 = -0.0604*x1o - 0.0531*x2o + 0.9974*x3o + 0.0247*uo
+
+    # command update
+    u = -872.54*x1o - 131.49*x2o - 10.097*x3o
+
+    # measurements
+    y1 = x1
+    y2 = x2
+    y3 = x3
+end

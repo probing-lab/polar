@@ -1,0 +1,55 @@
+# system state
+x1 = 1
+x2 = 1
+x3 = 1
+
+# command
+u = 1
+
+# controller state
+z1 = 1
+z2 = 1
+
+# measurements
+y1 = 0.5 * x1
+y2 = 0.25 * x3
+
+# Failure probabilities
+ps = 0
+pc = 0
+pa = 0
+
+while true:
+    # old values
+    x1o = x1
+    x2o = x2
+    x3o = x3
+    z1o = z1
+    z2o = z2
+
+    # system evolution
+    x1 = x1o + 0.015*x2o + 0.0003*x3o + 0.000029*u
+    x2 = x2o + 0.045*x3o + 0.0058*u
+    x3 = x3o + 0.256*u
+
+    overrun = Bernoulli(pc)
+    actuation_fail = Bernoulli(pa)
+
+    # controller evolution
+    if overrun == 0:
+        z1 = z1o + 0.025 * y1
+        z2 = 0.9685*z2o - 0.2608 * y1
+    end
+
+    # new command
+    if overrun == 0 && actuation_fail == 0:
+        u = -0.108*z1o - 0.2608*z2o - 2.43*y1 - 3*y2
+    end
+
+    # measurements
+    sensor_fail = Bernoulli(ps)
+    if sensor_fail == 0 && overrun == 0:
+        y1 = 0.5 * x1
+        y2 = 0.25 * x3
+    end
+end
