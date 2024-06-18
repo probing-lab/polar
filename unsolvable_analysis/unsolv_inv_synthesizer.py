@@ -244,7 +244,7 @@ class UnsolvInvSynthesizer:
         initial_candidate = cls.__get_init_value_candidate__(candidate, rec_builder)
         for solution in solutions:
             ans = solve_rec_by_summing(
-                rec_coeff=k.xreplace(solution) if isinstance(k, Symbol) else k,
+                rec_coeff=sympify(k).xreplace(solution) if isinstance(k, Symbol) else k,
                 init_value=initial_candidate.xreplace(solution),
                 inhom_part=sympify(effective_part_solution).xreplace(solution),
             )

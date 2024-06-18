@@ -33,6 +33,8 @@ def assert_specified_proportional(general_expr, equal_expr):
     for sym in general_expr.free_symbols:
         if str(sym).startswith("_"):
             substitutions[sym] = 1
+        if str(sym) == "n":
+            substitutions[sym] = sympify("n")
     specified_expr = general_expr.xreplace(substitutions)
     if (specified_expr - equal_expr).expand().is_zero:
         return

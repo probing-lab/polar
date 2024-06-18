@@ -24,7 +24,7 @@ class TestUnsolvableInvariantSynthesis(unittest.TestCase):
         candidate = solutions[0][0]
         closedform = solutions[0][1]
         assert_specified_proportional(candidate, "3*x - 2*y")
-        assert_specified_proportional(closedform, "0*n + 0**n")
+        assert_specified_proportional(closedform, "1")
         solutions = synth_inv(vs, 1, program, k=1)
         self.assertIsNone(solutions)
 
@@ -143,5 +143,6 @@ class TestUnsolvableInvariantSynthesis(unittest.TestCase):
 
         assert_specified_proportional(candidate, "x + y")
         assert_specified_proportional(
-            closedform, "2*2**n*(x0 + y0) + 6*n*(1 - (-1)**(n - 1))"
+            closedform,
+            "-(-1)**n*(1/3 - (-2)**n/3)/2 + 2**n*x0/3 + 2**n*y0/3 + 2**n/2 - 1/2",
         )
