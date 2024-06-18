@@ -1,0 +1,8 @@
+stop = 0
+x = 1
+runtime = 1
+while stop == 0:
+    stop = Bernoulli(1/2)
+    x = 2*x
+    runtime = runtime + 1
+end

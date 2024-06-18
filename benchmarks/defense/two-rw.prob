@@ -1,0 +1,5 @@
+x,y = 0,0
+while true:
+    x = x+1 {1/2} x-2
+    y = y-1 {1/2} y+2
+end

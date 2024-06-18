@@ -1,0 +1,6 @@
+z = 0
+i = y
+while true:
+    i = i - 1
+    z = z + x
+end
