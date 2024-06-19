@@ -1,26 +1,34 @@
-from typing import List
-from sympy import Dict, Expr, Monomial, Poly, Symbol, Tuple, degree, expand, limit, oo, simplify, summation, symbols, sympify
-
+from typing import Dict, List, Tuple
+from sympy import Expr, Monomial, Poly, Symbol, degree, expand, limit, oo, prod, simplify, summation, symbols, sympify
+from sympy import Poly as sympy_Poly
 from program.assignment.dist_assignment import DistAssignment
 from termination.martingales.asymptotics import dominated, dominating
 from termination.util.constants import ITER_VAR
-from termination.util.helpers import amber_limit, unique_positive_symbol
+from termination.util.helpers import amber_limit, inhom, recurrence_constant, unique_positive_symbol
 from termination.util.poly_utils import get_possible_signs
 
 
 def compute_bounds_of_expr(poly: Poly,
-                           branches: Dict[Symbol, Tuple[float, List[Poly]]],
+                           branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
                            dist_assignments: Dict[Symbol, DistAssignment],
                            closed_forms: Dict[Symbol, Expr],
                            initial_values: Dict[Symbol, Expr]):
     """
     Compute the bounds of a poly given its possible update-branches
     """
-    expression = poly
+    if poly.is_number:
+        return poly, poly
+    expression = sympify(poly)
+    if poly.free_symbols:
+        poly = Poly(poly.subs({s: Symbol(str(s)) for s in poly.free_symbols}))
     lb = expression
     ub = expression
-    monoms = poly.monoms
+    monoms = [prod(x**k for x, k in zip(poly.gens, mon)) for mon in poly.monoms()]
+    print(expression.__class__)
+
     for monom in monoms:
+        print(monom.__class__)
+
         rvs, m = _separate_rvs_from_monom(monom, dist_assignments)
         l_bound, u_bound = compute_bounds_of_monom(m, branches, dist_assignments, closed_forms, initial_values)
         if rvs:
@@ -37,29 +45,29 @@ def compute_bounds_of_expr(poly: Poly,
     return lb, ub
 
 
-def _separate_rvs_from_monom(monom, dist_assignments: Dict[Symbol]):
+def _separate_rvs_from_monom(monom, dist_assignments: Dict[Symbol, DistAssignment]):
     rvs = []
     rem = monom
     for symbol in monom.free_symbols:
         deg = degree(monom, gen =symbol)
         if symbol in dist_assignments:
-            rvs.append(symbol, deg)
+            rvs.append((symbol, deg))
             rem = rem.subs({symbol**deg: 1})
     return rvs, rem
 
 
 def _replace_monom_in_expr_bounds(monom, monom_bounds, expression, lb, ub):
-    coeff = expression.coeff_monomial(monom)
+    coeff = expression.as_expr().coeff(monom)
     coeff = amber_limit(coeff)
 
     if coeff.is_positive:
-        upper = monom_bounds.upper
-        lower = monom_bounds.lower
+        upper = monom_bounds[1]
+        lower = monom_bounds[0]
     else:
-        upper = monom_bounds.lower
-        lower = monom_bounds.upper
+        upper = monom_bounds[1]
+        lower = monom_bounds[0]
 
-    return lb.subs({monom: lower}), lb.subs({monom: upper})
+    return lb.subs({monom: lower}), ub.subs({monom: upper})
 
 def _multiply_rvs_for_monom_bounds(rvs, l_bound, u_bound, monomial, dist_assignments: Dict[Symbol, DistAssignment]):
     for rv, power in rvs:
@@ -83,22 +91,19 @@ def _multiply_rvs_for_monom_bounds(rvs, l_bound, u_bound, monomial, dist_assignm
 
 
 def _monom_is_deterministic(monom: Monomial,
-                            branches: Dict[Symbol, Tuple[float, List[Poly]]],
-                            dist_assignments: Dict[Symbol, DistAssignment],):
-    for sym in monom.free_symbols:
-        if sym in branches and len(branches[sym][1]) > 1:
-            return False
-        if sym in dist_assignments:
-            return False
-    return True
+                            branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
+                            closed_forms: Dict[Symbol, Expr]):
+    if not monom.free_symbols:
+        return True  # constant
+    return (monom.free_symbols & closed_forms.keys())==monom.free_symbols
 
 
 def compute_bounds_of_monom(monom: Monomial,
-                            branches: Dict[Symbol, Tuple[float, List[Poly]]],
+                            branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
                             dist_assignments: Dict[Symbol, DistAssignment],
                             closed_forms: Dict[Symbol, Expr],
                             initial_values: Dict[Symbol, Expr]):
-    if _monom_is_deterministic(monom, branches):
+    if _monom_is_deterministic(monom, branches, dist_assignments):
         # Substitute with closed form
         bound = simplify(monom.subs(closed_forms))
         return bound, bound
@@ -115,18 +120,18 @@ def compute_bounds_of_monom(monom: Monomial,
                                                  branches,
                                                  dist_assignments,
                                                  closed_forms,
-                                                 initial_values)[1] for b in inhom(branches[monom])]
+                                                 initial_values)[1] for b in inhom(branches[monom], monom)]
     inhom_bounds_lower = [compute_bounds_of_expr(b,
                                                  branches,
                                                  dist_assignments,
                                                  closed_forms,
-                                                 initial_values)[0] for b in inhom(branches[monom])]
+                                                 initial_values)[0] for b in inhom(branches[monom], monom)]
 
     max_upper = dominating(inhom_bounds_upper, ITER_VAR)
     min_lower = dominated(inhom_bounds_lower, ITER_VAR)
 
-    min_rec = min(recurrence_constant(b) for b in branches)
-    max_rec = max(recurrence_constant(b) for b in branches)
+    min_rec = min(recurrence_constant(branches[monom], monom))
+    max_rec = max(recurrence_constant(branches[monom], monom))
 
     maybe_pos, maybe_neg = get_possible_signs(*branches, 
                                               *inhom_bounds_lower, 

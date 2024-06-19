@@ -1,5 +1,5 @@
-from typing import Dict, List, Optional, Tuple
-from sympy import Expr, Poly, Symbol, sympify
+from typing import Dict, List, Optional, Set, Tuple
+from sympy import Expr, Monomial, Poly, Symbol, sympify
 from termcolor import colored
 from program.assignment.dist_assignment import DistAssignment
 from program.condition.atom_cond import Atom
@@ -36,9 +36,12 @@ class TerminationAnalyzer:
 
         if amber:
             # apply amber methodology
-            branches = cls._compute_branches_for_polynomial(poly, normalized_program)
-            
+            print(normalized_program.variables)
+            branches = cls._compute_branches_for_polynomial(list(normalized_program.variables)+[poly], normalized_program)
             print(branches)
+            
+            bounds = cls._compute_bounds_form_polynomial(poly, branches, normalized_program)
+            print(bounds)
         elif smt:
             has_prolog = normalized_program.initial is not None and len(normalized_program.initial) > 0
             formula = SMTTerminationCondition(closed_form_poly, 
@@ -61,10 +64,32 @@ class TerminationAnalyzer:
             print(witness)
 
     @classmethod
+    def _get_nondeterministic_branches(cls, branches: Dict[Monomial, List[Tuple[Expr, Expr]]], 
+                                  dist_vars: List[Symbol]):
+        """Fixpoint computation of the set of nondeterministic vars by looping over all branches"""
+        nondeterministic_vars: Set[Symbol] = set(dist_vars)
+
+        old_nondeterministic_vars = set()
+        while len(old_nondeterministic_vars) != len(nondeterministic_vars):
+            # save old vars
+            old_nondeterministic_vars = nondeterministic_vars
+
+            for monom in branches:
+                if len(branches[monom])>1:
+                    nondeterministic_vars.add(monom)
+                    continue
+                for prob_expr, eval_expr in branches[monom]:
+                    if eval_expr.free_symbols and len(eval_expr.free_symbols & nondeterministic_vars) > 0:
+                        nondeterministic_vars.add(monom)
+        return nondeterministic_vars
+        
+
+    @classmethod
     def _compute_bounds_form_polynomial(cls, poly: Poly, 
                                         branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
                                         program: Program):
         dist_assignments = {}
+        poly = Poly(poly)
 
         for assignment in program.loop_body:
             if isinstance(assignment, DistAssignment):
@@ -73,21 +98,38 @@ class TerminationAnalyzer:
         
         rec_builder = RecBuilder(program)
         initial_values = rec_builder.get_initial_values(program.variables)
-        deterministic_closed_forms = cls._compute_closed_form_of_polynomial(program.variabl)
+        nondeterministic_vars = cls._get_nondeterministic_branches(branches, dist_assignments.keys())
+        symbols = set().union(*[det_monom.free_symbols for det_monom in branches.keys()-nondeterministic_vars])
 
-        bounds = compute_bounds_of_expr(poly, branches, dist_assignments)
+        closed_forms = cls._compute_closed_form_of_polynomial(symbols, program)
+
+        deterministic_closed_forms = [det_monom.subs(closed_forms) for det_monom in branches.keys()-nondeterministic_vars]
+        bounds = cls._compute_bounds_of_expr(poly, branches, dist_assignments, deterministic_closed_forms, initial_values)
+        return bounds
+    
+    @classmethod
+    def _compute_bounds_of_expr(cls, poly: any,
+                                branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
+                                dist_assignments: Dict[Symbol, DistAssignment],
+                                closed_forms: Dict[Symbol, Expr],
+                                initial_values: Dict[Symbol, Expr]):
+        branches = {sympify(b): [(sympify(ex1), sympify(ex2)) for ex1, ex2 in branches[b]] for b in branches}
+        dist_assignments = {sympify(s): dist_assignments[s] for s in dist_assignments}
+        bounds = compute_bounds_of_expr(poly, branches, dist_assignments, closed_forms, initial_values)
+        return bounds
 
     @classmethod
-    def _compute_branches_for_polynomial(cls, poly: Poly, program: Program):
+    def _compute_branches_for_polynomial(cls, polys: List[Poly], program: Program):
         branch_builder = BranchBuilder(program)
-        expanded_poly = poly.expand()
-        symbols = expanded_poly.free_symbols
         branches:Dict[Symbol, List[Tuple[Expr, Expr]]] = {}
 
-        for symbol in symbols:
-            symbol = sympify(str(symbol))
-            branches.update(branch_builder.get_branches(symbol))
-        
+        for poly in polys:
+            expanded_poly = poly.expand()
+            symbols = expanded_poly.free_symbols
+
+            for symbol in symbols:
+                branches.update(branch_builder.get_branches(symbol))
+            
         return branches
 
     @classmethod

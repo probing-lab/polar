@@ -46,8 +46,8 @@ def is_dominating_or_same(f1: Expr, f2: Expr, n: Symbol, direction: Direction = 
     """
     upper = direction is Direction.PosInf
     lower = not upper
-    limit_f1 = amber_limit(f1, n)
-    limit_f2 = amber_limit(f2, n)
+    limit_f1 = amber_limit(f1)
+    limit_f2 = amber_limit(f2)
 
     # if both limits are constant
     if not limit_f1.is_infinite and not limit_f2.is_infinite:
@@ -68,11 +68,11 @@ def is_dominating_or_same(f1: Expr, f2: Expr, n: Symbol, direction: Direction = 
 
     if limit_f1 == oo:
         # if both functions go to +infinity, we have to investigate their fraction
-        return (upper and amber_limit(f1 / f2, n) > 0) or (lower and amber_limit(f1 / f2, n).is_finite)
+        return (upper and amber_limit(f1 / f2) > 0) or (lower and amber_limit(f1 / f2).is_finite)
 
     if limit_f1 == -oo:
         # if both functions go to -infinity, we have to investigate their fraction
-        return (upper and amber_limit(f1 / f2, n).is_finite) or (lower and amber_limit(f1 / f2, n) > 0)
+        return (upper and amber_limit(f1 / f2).is_finite) or (lower and amber_limit(f1 / f2) > 0)
 
 
 def simplify_asymptotically(expression: Expr, n: Symbol):
@@ -83,13 +83,13 @@ def simplify_asymptotically(expression: Expr, n: Symbol):
     if n not in expression.free_symbols:
         return expression
 
-    expression = expand(expression)
-    limit_exp = amber_limit(expression, n)
+    expression = expand(expression.as_expr())
+    limit_exp = amber_limit(expression)
     if limit_exp == 0:
         return expression
 
-    c = unique_positive_symbol('c', positive=True, real=True)
-    if limit_exp < 0:
+    c = unique_positive_symbol()
+    if limit_exp.is_extended_negative: # TODO: Check if really just one case
         c = -c
 
     return c * Order(expression, (n, oo)).expr

@@ -46,15 +46,15 @@ def get_sign(poly: Poly):
         return False
     return True
 
-def get_possible_signs(expr: Expr):
+def _get_possible_signs(expr: Expr):
     "returns a tuple (a,b), where a==True, (b==True) iff poly can be positive (negative)"
-    raise NotImplementedError()
+    return (expr.is_positive != False, expr.is_negative != False)
 
 def get_possible_signs(*args: List[Expr]):
     maybe_pos = False
     maybe_neg = False
     for expr in args:
-        p, n = get_possible_signs(expr)
+        p, n = _get_possible_signs(expr)
         maybe_pos = p or maybe_pos
         maybe_neg = n or maybe_neg
     return maybe_pos, maybe_neg
