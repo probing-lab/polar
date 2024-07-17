@@ -1,0 +1,12 @@
+x = 0
+c = 1
+while c == 1:
+    if c == 1:
+        x = x + 1
+        c = Bernoulli(1/2)
+    else:
+        x = x + 1
+    end
+end
+
+#test: raw; x; 0; 2 - 2/2**n
