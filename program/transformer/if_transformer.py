@@ -57,7 +57,7 @@ class IfTransformer(TreeTransformer):
                             assign.variable
                         ]
             extra_condition = current_condition.copy().simplify()
-            extra_condition.subs(current_rename_subs)
+            extra_condition.subs(rename_subs)
 
             # Add the branch conditions to the assignments
             for assign in branch:
