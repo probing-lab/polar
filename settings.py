@@ -16,9 +16,6 @@ numeric_roots: bool = False
 # If true, the complex roots in the recurrence computation will be computed numerically
 numeric_croots: bool = False
 
-# Interval epsilon for the potential approximation of roots
-numeric_eps: float = 1e-10
-
 # If set any loop guard will be overridden with 'true'
 trivial_guard: bool = False
 
