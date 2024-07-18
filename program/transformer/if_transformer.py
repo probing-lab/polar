@@ -46,9 +46,7 @@ class IfTransformer(TreeTransformer):
             for assign in branch:
                 if assign.variable in condition_symbols:
                     if assign.variable not in rename_subs:
-                        rename_subs[assign.variable] = get_unique_var(
-                            name="old"
-                        )
+                        rename_subs[assign.variable] = get_unique_var(name="old")
             extra_condition = current_condition.copy().simplify()
             extra_condition.subs(rename_subs)
 
