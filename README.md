@@ -121,6 +121,22 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Alternatively, build Polar as a Docker container using the provided `Dockerfile`.
+
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:probing-lab/polar.git
+   cd polar
+   ```
+2. Build the Docker container.
+   ```bash
+   docker build . -t polar
+   ```
+3. Execute the container.
+   ```bash
+   docker run --rm -v "$(pwd):$(pwd)" polar documentation/loops/loop.prob --goals "E(x)"
+   ```
+
 ## Supported Loops
 
 The problems Polar can solve are uncomputable for arbitrary probabilistic loops. This means that an algorithm and a
