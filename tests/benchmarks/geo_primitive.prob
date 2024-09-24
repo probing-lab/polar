@@ -1,0 +1,7 @@
+x = Geometric(1/4)
+while 0 == 1:
+    x = 0
+end
+
+# raw_after_loop; x; 3
+# raw_after_loop; x**2; 21

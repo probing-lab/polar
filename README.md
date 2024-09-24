@@ -145,6 +145,7 @@ end
 Generally, the input loops for Polar consist of a section for initial variable assignments followed by a while loop.
 Standard arithmetic is allowed in variable assignments, using Python syntax.
 Additionally, you can draw from common probability distributions such as `Bernoulli` and `Normal`.
+(The supported distributions are: `Bernoulli`, `Beta`, `Categorical`, `DiscreteUniform`, `Exponential`, `Gamma`, `Geometric`, `Laplace` `Normal`, `TruncNormal`, `Uniform`)
 Polar also supports expressions for probabilistic choice. For instance, `y` is assigned `y+1` with probability `1/2`,
 `y-2` with probability `1/3`, and to `y` otherwise. The use of `if` statements, `if-elif-else` statements,
 and loop guards are also possible.
