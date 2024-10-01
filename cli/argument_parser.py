@@ -11,7 +11,6 @@ def _set_settings(args):
     settings.type_fp_iterations = args.type_fp_iterations
     settings.numeric_roots = args.numeric_roots
     settings.numeric_croots = args.numeric_croots
-    settings.numeric_eps = args.numeric_eps
     settings.trivial_guard = args.trivial_guard
     settings.exact_func_moments = args.exact_func_moments
 
@@ -198,13 +197,6 @@ class ArgumentParser:
             action="store_true",
             default=settings.numeric_croots,
             help="If set the complex roots in the recurrence computation will be computed numerically",
-        )
-        self.argument_parser.add_argument(
-            "--numeric_eps",
-            dest="numeric_eps",
-            default=settings.numeric_eps,
-            type=float,
-            help="Interval epsilon for the potential approximation of roots",
         )
         self.argument_parser.add_argument(
             "--tail_bound_moments",

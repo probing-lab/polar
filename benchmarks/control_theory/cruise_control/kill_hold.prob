@@ -1,0 +1,45 @@
+# state vector
+x1 = 1
+x2 = 1
+x3 = 1
+
+# command
+u = 1
+
+# measurements
+y1 = x1
+y2 = x2
+y3 = x3
+
+# Failure probabilities
+ps = 0
+pc = 0
+pa = 0
+
+while true:
+    # store old values
+    x1o = x1
+    x2o = x2
+    x3o = x3
+
+    # state update
+    x1 = 1*x1o + 0.01*x2o + 0*x3o + 0.0001*u
+    x2 = -0.0003*x1o + 0.9997*x2o + 0.01*x3o + 0.0001*u
+    x3 = -0.0604*x1o - 0.0531*x2o + 0.9974*x3o + 0.0247*u
+
+    overrun = Bernoulli(pc)
+
+    # command update
+    actuation_fail = Bernoulli(pa)
+    if overrun == 0 && actuation_fail == 0:
+        u = -872.54*y1 - 131.49*y2 - 10.097*y3
+    end
+
+    # measurements
+    sensor_fail = Bernoulli(ps)
+    if sensor_fail == 0:
+        y1 = x1
+        y2 = x2
+        y3 = x3
+    end
+end
