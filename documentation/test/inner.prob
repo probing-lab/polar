@@ -1,0 +1,10 @@
+k = 0
+y = z
+
+while true:
+    k = k + 1
+    r1 = Normal(-1,2)
+    y = y + r1
+    r2 = Normal(0,1)
+    x =  x + r2
+end
