@@ -6,9 +6,9 @@ ITER_VAR = 'k'
 
 VAR_OF_INTEREST = 'k'
 
-expr = get_martingale_for_inner_loop(list(set([LOOP_GUARD, ITER_VAR, VAR_OF_INTEREST]))).pop()
+expr = get_martingale_for_inner_loop(list(set([LOOP_GUARD, "k-1", VAR_OF_INTEREST])))
 
-
+print(expr)
 # Get LB
 rhs = solve(expr, LOOP_GUARD)[0]
 

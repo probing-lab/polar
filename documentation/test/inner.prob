@@ -1,8 +1,12 @@
 k = 0
 y = z
+y1 = z
+k1 = -1
 
 while true:
+    k1 = k
     k = k + 1
+    y1 = y
     r1 = Normal(-1,2)
     y = y + r1
     r2 = Normal(0,1)

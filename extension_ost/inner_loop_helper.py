@@ -10,7 +10,7 @@ program = normalize_program(program)
 
 
 # Construct and solve recurrences
-def get_martingale_for_inner_loop (monomials):
+def     get_martingale_for_inner_loop (monomials):
     rec_builder = RecBuilder(program)
     closed_forms = {}
     for monomial in monomials:
