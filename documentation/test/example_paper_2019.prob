@@ -10,7 +10,6 @@ while true:
         z = Uniform(-1,0)
         x = x + z
     else:
-        z = Uniform(0,1)
-        x = x + z
+        x = x
     end
 end
