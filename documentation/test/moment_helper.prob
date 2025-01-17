@@ -1,0 +1,11 @@
+z= z0
+x = x0
+
+
+
+k = 0
+while true:
+    x1 = x
+    k = k+1
+    x = x - 3*k {1/2} x + k
+end

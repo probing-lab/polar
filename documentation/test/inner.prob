@@ -1,14 +1,16 @@
-k = 0
 y = z
 y1 = z
-k1 = -1
+k = 0
+k1 = 1
+r1 = Uniform(-4,2)
+y1 = z + r1
 
 while true:
-    k1 = k
-    k = k + 1
-    y1 = y
-    r1 = Normal(-1,2)
-    y = y + r1
+    k = k1
+    k1 = k1+1
+    r1 = Uniform(-4,2)
+    y = y1
+    y1 = y1+r1
     r2 = Normal(0,1)
-    x =  x + r2
+    x =  x + r2k1
 end
