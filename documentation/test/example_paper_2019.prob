@@ -1,5 +1,6 @@
 z= z0
 x = x0
+y = y0
 
 k = 0
 while true:
