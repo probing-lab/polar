@@ -3,13 +3,14 @@ x = x0
 y = y0
 
 k = 0
-while true:
+while x>0:
     k = k + 1
     c = Bernoulli(7/10)
     if c == 1:
         z = Uniform(-1,0)
         x = x + z
     else:
-        x = x
+        z = Uniform(0,1)
+        x = x + z
     end
 end
