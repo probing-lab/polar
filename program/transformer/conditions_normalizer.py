@@ -126,8 +126,8 @@ class ConditionsNormalizer(Transformer):
                     f"Can't normalize condition {bad_condition}, "
                     f"because of variable dependency between abstracted variables"
                 )
-            new_var = Symbol(get_unique_var(name="a"))
-            new_prob = Symbol(get_unique_var(name="prob"))
+            new_var = Symbol(get_unique_var(name="a"), real=True)
+            new_prob = Symbol(get_unique_var(name="prob"), real=True)
             abstraction_assign = DistAssignment(new_var, Bernoulli([new_prob]))
             self.program.add_type(Finite([0, 1], new_var))
             abstraction_store[bad_condition] = new_var

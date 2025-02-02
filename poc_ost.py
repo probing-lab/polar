@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import Dict
-from symengine.lib.symengine_wrapper import sympify
-from sympy import Piecewise, solve, symbols
+from sympy import Piecewise, Symbol, solve, symbols, sympify
+from extension_ost.bound_fixpoint import try_get_new_bound
 from extension_ost.expectation_map import get_expectation_maps
 from extension_ost.helpers import Expexted
 from inputparser.parser import Parser
@@ -9,6 +9,9 @@ from invariants.invariant_ideal import InvariantIdeal
 from program.condition.true_cond import TrueCond
 from program.transformer import normalize_program
 from recurrences.rec_builder import RecBuilder
+
+test = Symbol("test", real=True)
+test1 = sympify("a<2")
 
 program = Parser().parse_file("documentation/test/example_paper_2019.prob")
 lg = program.loop_guard
@@ -20,11 +23,13 @@ program.loop_guard = TrueCond()
 # Construct normal form so that Polar can analyze it
 normalized_program = normalize_program(program)
 
-vars = normalize_program.effective_variables
+vars = normalized_program.effective_variables
 
 recurrence_builder = RecBuilder(program)
 
-monoms = [sympify('k'),sympify('k**2'),sympify('x**2'), sympify('x*k')]
+monoms = [sympify('k'),sympify('k**2'),sympify('x**2'), sympify('x*k'), sympify('x')]
+
+bounds = [Expexted(sympify('k')) <= sympify('x0')+1, Expexted(sympify('k')) >= sympify('x0'), sympify('k') >= 1]
 
 
 
@@ -39,11 +44,15 @@ initial_value_dict = {var: recurrence_builder.get_initial_value(var) for var in 
 initial_value = final_expression1.subs(monom_subs).subs(initial_value_dict).simplify()
 
 final_expression1= final_expression1 - initial_value
-# Use Expected value function of sympy - this allows us to use solve and stuff like this. Unfortunately incompatible with most of polar.
+# Use Expected value function - this allows us to use solve and stuff like this. Unfortunately incompatible with most of polar.
 for monom in monoms:
     final_expression1 = final_expression1.subs(f"E({monom})", Expexted(monom))
 
 goal_monom = Expexted(sympify('k**2'))
+
+try_get_new_bound(final_expression1, goal_monom, bounds+[loop_guard.negated])
+
+try_get_new_bound(final_expression1.subs(sympify('k', sympify('(k-1)')).expand().simplify()), goal_monom, bounds+[loop_guard])
 
 print(final_expression1.expand().simplify())
 print(final_expression1.subs(sympify('k'), sympify('(k-1)')).expand().simplify())

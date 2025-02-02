@@ -16,9 +16,9 @@ class Assignment(ABC):
     default: Symbol  # the value to assign if condition is false
 
     def __init__(self, variable, condition=TrueCond(), default=None):
-        self.variable = Symbol(str(variable))
+        self.variable = Symbol(str(variable), real=True)
         self.condition = condition
-        self.default = Symbol(str(default)) if default else self.variable
+        self.default = Symbol(str(default), real=True) if default else self.variable
 
     def add_to_condition(self, cond: Condition):
         self.condition = And(self.condition, cond)

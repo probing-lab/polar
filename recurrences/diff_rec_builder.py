@@ -18,7 +18,7 @@ class DiffRecBuilder:
     def __init__(self, program: Program, param: Symbol):
         self.program = program
         # TODO: use Dummy here when updating symengine, current version is buggy
-        self.delta = Symbol(get_unique_var("diff_symbol"))
+        self.delta = Symbol(get_unique_var("diff_symbol"),real=True)
         self.param = param
         self.rec_builder = RecBuilder(program)
         self.dep_vars, _ = SensivitiyAnalyzer.get_dependent_variables(program, param)
