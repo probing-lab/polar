@@ -1,6 +1,7 @@
 from functools import reduce
 from typing import Dict
-from sympy import Piecewise, Symbol, solve, symbols, sympify
+from symengine.lib.symengine_wrapper import sympify
+from sympy import Piecewise, Symbol, solve, symbols, sympify as sp_sympify
 from extension_ost.bound_fixpoint import try_get_new_bound
 from extension_ost.expectation_map import get_expectation_maps
 from extension_ost.helpers import Expexted
@@ -50,9 +51,9 @@ for monom in monoms:
 
 goal_monom = Expexted(sympify('k**2'))
 
-try_get_new_bound(final_expression1, goal_monom, bounds+[loop_guard.negated])
+b1 = try_get_new_bound(final_expression1, goal_monom, bounds+[sp_sympify(loop_guard).negated])
 
-try_get_new_bound(final_expression1.subs(sympify('k', sympify('(k-1)')).expand().simplify()), goal_monom, bounds+[loop_guard])
+b2 = try_get_new_bound(final_expression1.subs(sympify('k'), sympify('(k-1)').expand().simplify()), goal_monom, bounds+[loop_guard])
 
 print(final_expression1.expand().simplify())
 print(final_expression1.subs(sympify('k'), sympify('(k-1)')).expand().simplify())

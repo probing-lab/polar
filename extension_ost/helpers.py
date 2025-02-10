@@ -1,11 +1,16 @@
 from functools import reduce
-from sympy import Add, Function, Mul
+from sympy import Add, Function, Interval, Mul
 
 
 class Expexted(Function):
     @classmethod
     def eval(cls, arg):
         # Distribute E over addition
+        # if isinstance(arg, Interval):
+        #     # Compute the function on both bounds (assuming monotonicity)
+        #     lower = cls(arg.start)
+        #     upper = cls(arg.end)
+        #     return Interval(lower, upper)
         if isinstance(arg, Add):
             return Add(*[cls(term) for term in arg.args])
         if arg.is_number:
