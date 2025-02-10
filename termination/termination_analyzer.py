@@ -14,12 +14,13 @@ from termination.polynomial.polynomial_termination_condition import PolynomialTe
 from termination.polynomial.termination_witness import TerminationWitness
 from termination.smt.smt_formula import SMTFormula
 from termination.smt.smt_termination_condition import SMTTerminationCondition
+from termination.variance_based.variance_based_termination_analyzer import VarianceBasedTerminationAnalyzer
 from utils.expressions import get_monoms, unpack_piecewise
 
 
 class TerminationAnalyzer:
     @classmethod
-    def analyze(cls, normalized_program: Program, loop_guard: Condition, smt=False, amber=False):
+    def analyze(cls, normalized_program: Program, loop_guard: Condition, smt=False, amber=False, variance_based=False):
         print()
         print(colored("-------------------", "cyan"))
         print(colored("-   Termination   -", "cyan"))
@@ -52,6 +53,8 @@ class TerminationAnalyzer:
                 print(formula)
             else:
                 print("No formula was found.")
+        elif variance_based:
+            analyzer = VarianceBasedTerminationAnalyzer()
         else:
             witness = PolynomialTerminationCondition(closed_form_poly, terminates_zero, terminates_negative).get_witness()
             if witness is None:
