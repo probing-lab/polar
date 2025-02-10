@@ -54,7 +54,20 @@ class TerminationAnalyzer:
             else:
                 print("No formula was found.")
         elif variance_based:
-            analyzer = VarianceBasedTerminationAnalyzer()
+            lc_recurrence = cls._compute_branches_for_polynomial([poly], normalized_program)[poly]
+            assert len(lc_recurrence) == 2, "More than two branches exist"
+            p1, q1_r = lc_recurrence[0]
+            p2, q2_r = lc_recurrence[1]
+            assert -0.00001 < p1+p2-1 < 0.00001
+            # substract the initial value from the branches
+            q1_r = (q1_r - poly).simplify()
+            q2_r = (q2_r - poly).simplify()
+            # compute closed form poly of q1 and q2
+            r = cls._compute_closed_form_of_polynomial([q1_r, q2_r], normalized_program)
+            q1 = r[q1_r]
+            q2 = r[q2_r]
+            analyzer = VarianceBasedTerminationAnalyzer(p1, q1, p2, q2)
+            analyzer.compute_bound(0.999, 0.001, 0.001)
         else:
             witness = PolynomialTerminationCondition(closed_form_poly, terminates_zero, terminates_negative).get_witness()
             if witness is None:
@@ -142,12 +155,13 @@ class TerminationAnalyzer:
         closed_forms = {}
 
         for symbol in symbols:
+            symbol1 = symbol
             symbol = sympify(str(symbol))
             if symbol not in solvers:
                 recurrences = recurrence_builder.get_recurrences(symbol)
                 s = RecurrenceSolver(recurrences)
                 solvers.update({sympify(m): s for m in recurrences.monomials})
-            closed_forms[symbol], is_exact = recurrence_builder.get_solution(symbol, solvers)
+            closed_forms[symbol1], is_exact = recurrence_builder.get_solution(symbol, solvers)
             if not is_exact:
                 print("Only exact closed forms are supported")
 
