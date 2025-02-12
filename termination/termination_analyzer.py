@@ -67,7 +67,8 @@ class TerminationAnalyzer:
             q1 = r[q1_r]
             q2 = r[q2_r]
             analyzer = VarianceBasedTerminationAnalyzer(p1, q1, p2, q2)
-            analyzer.compute_bound(0.95, 0.001, 0.001)
+            witness = analyzer.compute_bound(0.95, 0.001, 0.001)
+            witness.print()
         else:
             witness = PolynomialTerminationCondition(closed_form_poly, terminates_zero, terminates_negative).get_witness()
             if witness is None:

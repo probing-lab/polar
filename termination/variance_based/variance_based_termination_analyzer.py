@@ -73,7 +73,8 @@ class VarianceBasedTerminationAnalyzer:
     
     def _n_zero_delta1(self, delta1, q_var):
         # Maybe we must skip this for large polys
-        # the delta1 we use is actually smaller than the delta1 provided
+        # the delta1 we use is actually smaller than the delta1 provided 
+        # TODO: the larger error should be "granted" to the side corresponding to the sign of the second highes coeff.
         delta_bound = (1-delta1)/(1+delta1)
         var_ltmonom, var_ltcoeff = q_var.LT()
 
@@ -121,7 +122,7 @@ class VarianceBasedTerminationAnalyzer:
         expr = C0*q_c3.as_expr() - c0*(sp_sqrt(q_var.as_expr()**3))
         expr1 = q_exp.as_expr() - c0*sp_sqrt(q_var.as_expr())
 
-        root = nsolve(expr+expr1,N, 1000, maxsteps=1000)
+        root = nsolve(expr+expr1,N, 100, maxsteps=1000)
         return root
 
 
@@ -131,6 +132,14 @@ class VarianceBasedTerminationAnalyzer:
         q1 = Poly(self.q1)
         q2 = Poly(self.q2)
         C = 4*(self.p1*self.p2)
+        max_degree_q1, max_coeff_p1 =  q1.LT()
+        max_degree_q1 = max_degree_q1.exponents[0]
+
+        max_degree_q2, max_coeff_p2 =  q2.LT()
+        max_degree_q2 = max_degree_q2.exponents[0]
+        # This verifies, that deg(E(X_i)) < deg(Var(X_i))/2
+        assert max_degree_q1 == max_degree_q2 and max_coeff_p1*self.p1+max_coeff_p2*self.p2 == S.Zero,"Degree of expected value of loop guard change not lower than twice the degree of the variance."
+
 
         q_exp_indiv = q1*self.p1+q2*self.p2
         q_exp = summation((q1*self.p1+q2*self.p2).as_expr(),(N, 1, N))
@@ -140,35 +149,28 @@ class VarianceBasedTerminationAnalyzer:
         q_var = summation(q_var_inidiv.as_expr(), (N, 1, N))
         q_var = Poly(q_var)
 
+        # for large exponent, skip n_0 computation. We know it exists and is finite, but computing is time consuming
+        if max_degree_q1 > 10:
+            n_0 = Symbol("n_0")
+        else:
+            n_0_delta1 = self._n_zero_delta1(delta1, q_var)
 
-        n_0_delta1 = self._n_zero_delta1(delta1, q_var)
+            n_0_delta2 = self._n_zero_delta2(delta2, q_var, q_exp)
 
-        n_0_delta2 = self._n_zero_delta2(delta2, q_var, q_exp)
+            # 3rd central moment
+            q_c3 = ((Abs((q1-q_exp_indiv).as_expr()))**3*self.p1+(Abs((q2-q_exp_indiv).as_expr()))**3*self.p2).simplify()
+            q_c3 = summation(q_var_inidiv.as_expr(), (N, 1, N))
 
-        # 3rd central moment
-        q_c3 = ((Abs((q1-q_exp_indiv).as_expr()))**3*self.p1+(Abs((q2-q_exp_indiv).as_expr()))**3*self.p2).simplify()
-        q_c3 = summation(q_var_inidiv.as_expr(), (N, 1, N))
+            n_0_c_0 = self._n_zero_c_0(c_0, q_c3, q_var, q_exp)
 
-        n_0_c_0 = self._n_zero_c_0(c_0, q_c3, q_var, q_exp)
-
-        n_0 = max(n_0_delta1, n_0_delta2, n_0_c_0)
+            n_0 = max(n_0_delta1, n_0_delta2, n_0_c_0)
 
         if epsilon==None:
             # compute it from n_0
             epsilon = 0.001
 
-
-        max_degree_q1, max_coeff_p1 =  q1.LT()
-        max_degree_q1 = max_degree_q1.exponents[0]
-
-        max_degree_q2, max_coeff_p2 =  q2.LT()
-        max_degree_q2 = max_degree_q2.exponents[0]
-
-        # This verifies, that deg(E(X_i)) < deg(Var(X_i))/2
-        assert max_degree_q1 == max_degree_q2 and max_coeff_p1+max_coeff_p2 == S.Zero,"Degree of expected value of loop guard change not lower than twice the degree of the variance."
-
         witness = self._estimate_bound_percentage_of_terminating(max_degree_q1, C, delta1, delta2, epsilon, c_0, n_0)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
-        exp_stopping_time = witness.get_exp_stopping_time_bound(1)
-        pass
+
+        return witness
