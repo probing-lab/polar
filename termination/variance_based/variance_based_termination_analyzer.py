@@ -1,9 +1,13 @@
 # This file follows the draft "Verifying Positive Almost-Sure Termination using Variance"
 
 from math import exp, log, sqrt
-from sympy import S, Poly, Symbol
+import math
+import sys
+from sympy import S, Abs, Poly, Symbol, nroots, nsolve, summation, sqrt as sp_sqrt
 from scipy.stats import norm
 import numpy as np
+
+from termination.variance_based.variance_bound_witness import VarianceBoundWitness
 
 N = Symbol("n", integer=True)
 
@@ -22,11 +26,32 @@ class VarianceBasedTerminationAnalyzer:
         left_lower_bound2 = (norm.cdf(-(t)/sqrt(d*delta1-1))-c_0)
         union_bound = left_lower_bound*left_lower_bound2
         return union_bound
-
-    def _estimate_bound_percentage_of_terminating(self,m, C, delta1, delta2, c_0):
+    
+    def _estimate_bound_percentage_of_terminating(self,m, C, delta1, delta2, epsilon, c_0, n_0):
+        # TODO: This numeric approximation is very naive
         k_min = None
         perc_min = None
-        m_min = 10000000000000
+        t_min = None
+        exp_min = 0
+        for k in np.linspace(math.pow(6.87, 1/(2*m+1)), 20, 1000):
+            for t in np.linspace(2,30, 100):
+                perc = 1-self._calculate_percentage_of_terminating(t,math.pow(k,(2*m+1)),C,delta1,delta2,c_0)
+                exp = log(perc)/log(k+epsilon)
+                if perc >= 0.999:
+                    continue
+                if exp < exp_min:
+                    t_min = t
+                    perc_min = perc
+                    k_min = k
+                    exp_min = exp
+
+        return VarianceBoundWitness(epsilon, delta1, delta2, m, t_min, k_min, exp_min, perc_min, n_0)
+
+    def _estimate_needed_exponent(self,C, delta1, delta2, c_0):#
+        # This function computes the minimum exponent, rather than computing the bound when given an exponent
+        k_min = None
+        perc_min = None
+        m_min = sys.maxsize
         t_min = None
         d_min = None
         for d in np.linspace(6.87, 10000, 10000):
@@ -44,14 +69,93 @@ class VarianceBasedTerminationAnalyzer:
                     k_min = k_upper_bound
 
         exponent_min = log(perc_min)/log(k_min)
-        pass
+        return exponent_min
+    
+    def _n_zero_delta1(self, delta1, q_var):
+        # Maybe we must skip this for large polys
+        # the delta1 we use is actually smaller than the delta1 provided
+        delta_bound = (1-delta1)/(1+delta1)
+        var_ltmonom, var_ltcoeff = q_var.LT()
 
-    def compute_bound(self, delta1, delta2, c_0):
+        q_bound = (q_var - var_ltmonom.as_expr()*var_ltcoeff).simplify()
+        if q_bound.is_zero:
+            return 0
+        # lower bound
+        delta_term = var_ltmonom.as_expr()*var_ltcoeff*delta_bound
+        poly1 = q_bound - delta_term
+        # if all coeffs are negative, then there will be no root
+        if all(c < 0 for c in poly1.all_coeffs()):
+            r1 = 0
+        # Check if all coefficients are negative
+        else:
+            roots1 = [r for r in nroots(poly1, maxsteps=100) if r.is_real]
+            if len(roots1) == 0:
+                r1 = 0
+            else:
+                r1 = roots1[-1]
+        # upper bound
+        poly2 = q_bound + delta_term
+        # if all coeffs are negative, then there will be no root
+        if all(c > 0 for c in poly2.all_coeffs()):
+            r2 = 0
+        # Check if all coefficients are negative
+        else:
+            roots2 = [r for r in nroots(poly2, maxsteps=100) if r.is_real]
+            if len(roots2) == 0:
+                r2 = 0
+            else:
+                r2 = roots2[-1]
+        return max(r1, r2)
+    
+    def _n_zero_delta2(self, delta2, q_var, q_exp):
+        poly1 = q_exp-q_var*delta2
+        roots = [r for r in nroots(poly1, maxsteps=100) if r.is_real]
+        if len(roots)==0:
+            return 0
+        return roots[-1]
+
+    def _n_zero_c_0(self, c0, q_var, q_c3, q_exp):
+        # TODO: This solve may still be a bis sketchy - especially the initial quess.
+        C0 = 20
+
+        expr = C0*q_c3.as_expr() - c0*(sp_sqrt(q_var.as_expr()**3))
+        expr1 = q_exp.as_expr() - c0*sp_sqrt(q_var.as_expr())
+
+        root = nsolve(expr+expr1,N, 1000, maxsteps=1000)
+        return root
+
+
+    def compute_bound(self, delta1, delta2, c_0, epsilon=None):
         # we need to compute (n'_0(delta1,delta2,c_0)) and then 
         # approximate the percentage of terminating.
         q1 = Poly(self.q1)
         q2 = Poly(self.q2)
         C = 4*(self.p1*self.p2)
+
+        q_exp_indiv = q1*self.p1+q2*self.p2
+        q_exp = summation((q1*self.p1+q2*self.p2).as_expr(),(N, 1, N))
+        q_exp = Poly(q_exp, N)
+
+        q_var_inidiv = ((q1-q_exp_indiv)**2*self.p1+(q2-q_exp_indiv)**2*self.p2).simplify()
+        q_var = summation(q_var_inidiv.as_expr(), (N, 1, N))
+        q_var = Poly(q_var)
+
+
+        n_0_delta1 = self._n_zero_delta1(delta1, q_var)
+
+        n_0_delta2 = self._n_zero_delta2(delta2, q_var, q_exp)
+
+        # 3rd central moment
+        q_c3 = ((Abs((q1-q_exp_indiv).as_expr()))**3*self.p1+(Abs((q2-q_exp_indiv).as_expr()))**3*self.p2).simplify()
+        q_c3 = summation(q_var_inidiv.as_expr(), (N, 1, N))
+
+        n_0_c_0 = self._n_zero_c_0(c_0, q_c3, q_var, q_exp)
+
+        n_0 = max(n_0_delta1, n_0_delta2, n_0_c_0)
+
+        if epsilon==None:
+            # compute it from n_0
+            epsilon = 0.001
 
 
         max_degree_q1, max_coeff_p1 =  q1.LT()
@@ -63,6 +167,8 @@ class VarianceBasedTerminationAnalyzer:
         # This verifies, that deg(E(X_i)) < deg(Var(X_i))/2
         assert max_degree_q1 == max_degree_q2 and max_coeff_p1+max_coeff_p2 == S.Zero,"Degree of expected value of loop guard change not lower than twice the degree of the variance."
 
-        res = self._estimate_bound_percentage_of_terminating(max_degree_q1, C, delta1, delta2, c_0)
+        witness = self._estimate_bound_percentage_of_terminating(max_degree_q1, C, delta1, delta2, epsilon, c_0, n_0)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
+
+        exp_stopping_time = witness.get_exp_stopping_time_bound(1)
         pass
