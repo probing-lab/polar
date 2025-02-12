@@ -75,15 +75,25 @@ class VarianceBasedTerminationAnalyzer:
         # Maybe we must skip this for large polys
         # the delta1 we use is actually smaller than the delta1 provided 
         # TODO: the larger error should be "granted" to the side corresponding to the sign of the second highes coeff.
-        delta_bound = (1-delta1)/(1+delta1)
+        # TODO: Currently this is done very naively
         var_ltmonom, var_ltcoeff = q_var.LT()
-
         q_bound = (q_var - var_ltmonom.as_expr()*var_ltcoeff).simplify()
+
         if q_bound.is_zero:
             return 0
+        
+        _, second_coeff = q_bound.LT()
+        if second_coeff < 0:
+            a,b = 1, 20
+        else:
+            a,b = 20, 1
+
+        delta_bound = (1-delta1)/(a+delta1*b)
+
+
         # lower bound
-        delta_term = var_ltmonom.as_expr()*var_ltcoeff*delta_bound
-        poly1 = q_bound - delta_term
+        leading_monom = var_ltmonom.as_expr()*var_ltcoeff
+        poly1 = q_bound - leading_monom*delta_bound*a
         # if all coeffs are negative, then there will be no root
         if all(c < 0 for c in poly1.all_coeffs()):
             r1 = 0
@@ -95,7 +105,7 @@ class VarianceBasedTerminationAnalyzer:
             else:
                 r1 = roots1[-1]
         # upper bound
-        poly2 = q_bound + delta_term
+        poly2 = q_bound + leading_monom*delta_bound*b
         # if all coeffs are negative, then there will be no root
         if all(c > 0 for c in poly2.all_coeffs()):
             r2 = 0
@@ -119,10 +129,10 @@ class VarianceBasedTerminationAnalyzer:
         # TODO: This solve may still be a bis sketchy - especially the initial quess.
         C0 = 20
 
-        expr = C0*q_c3.as_expr() - c0*(sp_sqrt(q_var.as_expr()**3))
-        expr1 = q_exp.as_expr() - c0*sp_sqrt(q_var.as_expr())
+        expr = C0*q_c3.as_expr()/sp_sqrt(q_var.as_expr()**3)
+        expr1 = q_exp.as_expr()/sp_sqrt(q_var.as_expr())
 
-        root = nsolve(expr+expr1,N, 100, maxsteps=1000)
+        root = nsolve(expr+expr1-c0,N, 10000, maxsteps=100000, tol=1e-10)
         return root
 
 
