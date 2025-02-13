@@ -39,7 +39,7 @@ class VarianceBoundWitness:
         if(self.terminates()):
             print(colored("Program shown to be terminating!", "green"))
         else:
-            print(colored("Program termination could not be shown", "orange"))
+            print(colored("Program termination could not be shown", "red"))
         print(f"P(T>t) <= min(1, C * n**({self.exponent})\n")
         print(f"where C={self.get_coeff(1)}\n")
         print(f"E(T)< {self.get_exp_stopping_time_bound(1)}")
