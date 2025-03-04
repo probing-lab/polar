@@ -9,3 +9,5 @@ progress==1.6
 termcolor==2.4.*
 olll==1.0.2
 pre-commit==3.6.*
+gurobipy==12.0.*
+ortools==9.12.*

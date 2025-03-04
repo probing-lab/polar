@@ -6,6 +6,7 @@ import sys
 from sympy import S, Abs, Poly, Symbol, nroots, nsolve, summation, sqrt as sp_sqrt
 from scipy.stats import norm
 import numpy as np
+from termination.variance_based.exponent_approximation.inductive_bound import estimate_bound_exponent_inductive_bound
 
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
 
@@ -20,57 +21,6 @@ class VarianceBasedTerminationAnalyzer:
         assert q1.free_symbols == set([N]), "Only 'n' may occur in polynomial q1"
         assert q2.free_symbols == set([N]), "Only 'n' may occur in polynomial q2"
 
-
-    def _calculate_percentage_of_terminating(self, t, d, C, delta1, delta2, c_0):
-        left_lower_bound = (1-exp(C*(-(t-1-delta2)**2)/(2*(d*delta1/(d*delta1-1))**2))) 
-        left_lower_bound2 = (norm.cdf(-(t)/sqrt(d*delta1-1))-c_0)
-        union_bound = left_lower_bound*left_lower_bound2
-        return union_bound
-    
-    def _estimate_bound_percentage_of_terminating(self,m, C, delta1, delta2, epsilon, c_0, n_0):
-        # TODO: This numeric approximation is very naive
-        k_min = None
-        perc_min = None
-        t_min = None
-        exp_min = 0
-        for k in np.linspace(math.pow(6.87, 1/(2*m+1)), 20, 1000):
-            for t in np.linspace(2,30, 100):
-                perc = 1-self._calculate_percentage_of_terminating(t,math.pow(k,(2*m+1)),C,delta1,delta2,c_0)
-                exp = log(perc)/log(k+epsilon)
-                if perc >= 0.999:
-                    continue
-                if exp < exp_min:
-                    t_min = t
-                    perc_min = perc
-                    k_min = k
-                    exp_min = exp
-
-        return VarianceBoundWitness(epsilon, delta1, delta2, m, t_min, k_min, exp_min, perc_min, n_0)
-
-    def _estimate_needed_exponent(self,C, delta1, delta2, c_0):#
-        # This function computes the minimum exponent, rather than computing the bound when given an exponent
-        k_min = None
-        perc_min = None
-        m_min = sys.maxsize
-        t_min = None
-        d_min = None
-        for d in np.linspace(6.87, 10000, 10000):
-            for t in np.linspace(2,50, 100):
-                perc = 1-self._calculate_percentage_of_terminating(t,d,C,delta1,delta2,c_0)
-                if perc >= 0.999:
-                    continue
-                k_upper_bound = 1/perc
-                required_m = (log(d+1)/log(k_upper_bound) - 1)/2
-                if m_min > required_m:
-                    t_min = t
-                    d_min = d
-                    m_min=required_m
-                    perc_min = perc
-                    k_min = k_upper_bound
-
-        exponent_min = log(perc_min)/log(k_min)
-        return exponent_min
-    
     def _n_zero_delta1(self, delta1, q_var):
         # Maybe we must skip this for large polys
         # the delta1 we use is actually smaller than the delta1 provided 
@@ -160,7 +110,7 @@ class VarianceBasedTerminationAnalyzer:
         q_var = Poly(q_var)
 
         # for large exponent, skip n_0 computation. We know it exists and is finite, but computing is time consuming
-        if max_degree_q1 > 10:
+        if max_degree_q1 >=1:
             n_0 = Symbol("n_0")
         else:
             n_0_delta1 = self._n_zero_delta1(delta1, q_var)
@@ -175,11 +125,7 @@ class VarianceBasedTerminationAnalyzer:
 
             n_0 = max(n_0_delta1, n_0_delta2, n_0_c_0)
 
-        if epsilon==None:
-            # compute it from n_0
-            epsilon = 0.001
-
-        witness = self._estimate_bound_percentage_of_terminating(max_degree_q1, C, delta1, delta2, epsilon, c_0, n_0)
+        witness = estimate_bound_exponent_inductive_bound(max_degree_q1*2+1, C, delta1, delta2, c_0, n_0)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
 
