@@ -26,11 +26,11 @@ if SOLVER_NAME=="GUROBI": # TODO: this seems messy - but gurobipy seems to be re
 solver = pywraplp.Solver.CreateSolver(SOLVER_NAME) # CLP seems to have better numeric stability (e.g. not so often "ABNORMAL" result) than GLOP    
 
 
-def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_gaussian_cutoff: float, C, delta_2, c0, b):
+def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_gaussian_cutoff: float, C, delta_1, c0, b):
     # Create the linear solver with the GLOP backend.
     infinity = solver.infinity()
     solver.Clear()
-    exponent = -(sub_gaussian_cutoff - b - delta_2*(sqrt(1+var_scaling)/(sqrt(1+var_scaling)-1)))**2/2
+    exponent = -(sub_gaussian_cutoff - b - delta_1*(sqrt(1+var_scaling)/(sqrt(1+var_scaling)-1)))**2/2
     tail_bound = exp(C*exponent)
     if tail_bound < CUTOFF_MAX_PRECISION:
         raise PrecisionException()
@@ -90,8 +90,8 @@ def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_g
 
 spec_array = np.concatenate([np.linspace(4, 8, 5*5+1)[i::10] for i in range(10)])
 
-def _check_model(d: float, epsilon: float, C: float, delta_2: float, c_0: float, granularity: int, specification_end: float, sg_cutoff, b):
-    return _get_solution(list(np.linspace(0, specification_end, granularity)), epsilon, d, specification_end+sg_cutoff, C, delta_2, c_0, b)
+def _check_model(d: float, epsilon: float, C: float, delta_1: float, c_0: float, granularity: int, specification_end: float, sg_cutoff, b):
+    return _get_solution(list(np.linspace(0, specification_end, granularity)), epsilon, d, specification_end+sg_cutoff, C, delta_1, c_0, b)
 
 def _compute_b(epsilon, d, C):
     return sqrt(2*log(1/(1-epsilon)))/(C*(sqrt(1+d) - 1))
