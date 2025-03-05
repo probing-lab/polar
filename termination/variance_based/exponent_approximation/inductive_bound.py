@@ -71,11 +71,11 @@ def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_g
         constraint = solver.Constraint(0 , infinity, f"ct_{value}")
         constraint.SetCoefficient(cdf_vars[idx],-SCALING)
 
-        for iv, value1 in enumerate(values):
-            z_value = (value*sqrt(1+var_scaling)-value1)/sqrt(var_scaling)
-            prob = norm.cdf(z_value)-c0
+        z_values = (value*sqrt(1+var_scaling) - values)/sqrt(var_scaling)
+        probs = norm.cdf(z_values)-c0
 
-            constraint.SetCoefficient(pdf_vars[iv], prob*SCALING)
+        for iv, value1 in enumerate(values):
+            constraint.SetCoefficient(pdf_vars[iv], probs[iv]*SCALING)
 
     constraint = solver.Constraint(epsilon*SCALING,SCALING, f"cutoff_larger_epsilon")
     constraint.SetCoefficient(cdf_vars[0], 1)

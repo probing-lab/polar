@@ -25,7 +25,7 @@ class InductiveBoundSpecification:
               value.specification_end == self.specification_end and value.sg_cutoff == self.sg_cutoff
 
 class GeneticAlgorithm:
-    def __init__(self, C:float, delta_1: float, delta_2:float, c_0:float, degree:float, desired_population_size, population_multiplier, seed=None):
+    def __init__(self, C:float, delta_1: float, delta_2:float, c_0:float, degree:float, seed=None):
         self.C = C
         self.delta_1 = delta_1
         self.delta_2 = delta_2
@@ -34,8 +34,6 @@ class GeneticAlgorithm:
         self.rand_gen = np.random.default_rng(seed)
 
         self.population: List[InductiveBoundSpecification] = None
-        self.desired_population_size = desired_population_size
-        self.population_multiplier = population_multiplier
 
     @cache
     def fitness(self, spec: InductiveBoundSpecification):
@@ -50,10 +48,10 @@ class GeneticAlgorithm:
         except PrecisionException as ex:
             return 0
         
-    def mutate(self, spec: InductiveBoundSpecification):
+    def mutate(self, spec: InductiveBoundSpecification, new_granularity):
         d = spec.d
         epsilon = spec.epsilon
-        granularity = spec.granularity
+        granularity = new_granularity
         specification_end = spec.specification_end
         sg_cutoff = spec.sg_cutoff
 
@@ -68,10 +66,10 @@ class GeneticAlgorithm:
 
         return InductiveBoundSpecification(d, epsilon, granularity, specification_end, sg_cutoff)
 
-    def get_initial_guesses(self, granularity):
+    def get_initial_guesses(self, granularity, size):
         exp_asym_bound = get_closed_form_bound_asymptotic(self.degree, self.C)/1.8
         self.population=[]
-        for _ in range(self.desired_population_size):
+        for _ in range(size):
             epsilon = self.rand_gen.random()*0.3+0.1
             k =  exp((log(1-epsilon)/exp_asym_bound)) - self.delta_1
             d = k**self.degree - 1
@@ -81,18 +79,21 @@ class GeneticAlgorithm:
                 d, epsilon, granularity, specification_end, sg_cutoff
             ))
 
-    def get_new_population(self):
-        elems = self.rand_gen.choice(self.population, self.population_multiplier*len(self.population), replace=True)
-        self.population = self.population + [self.mutate(spec) for spec in elems]
+    def get_new_population(self, multipier, new_granularity):
+        elems = self.rand_gen.choice(self.population, multipier*len(self.population), replace=True)
+        self.population = self.population + [self.mutate(spec, new_granularity) for spec in elems]
 
     def sort_population(self):
         self.population = sorted(self.population, key=lambda spec: self.fitness(spec), reverse=True)
         
-    def shrink_population(self):
-        self.population = self.population[:self.desired_population_size]
+    def shrink_population(self, size):
+        self.population = self.population[:size]
+
+    def print_best(self):
+        print(f"exponent: {-self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}")
 
 
-def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, delta_1: float, delta_2: float, c_0: float, n_0, granularity: int = 201, pop_size: int=20, pop_multiplier: int=3, num_generations=10, seed=0):
+def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, delta_1: float, delta_2: float, c_0: float, n_0, granularity: int = 601, pop_size: int=3, pop_multiplier: int=3, num_generations=1, seed=0):
     """Create an upper bound for the exponent m of the bound $P(T\\geq t) \\leq Bn^{m}$. This method leverages a linear solver to do so.
 
     Args:
@@ -105,16 +106,17 @@ def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, del
         granularity (int, optional): the granularity of the model for the linear solver. High impact on running time (at least quadratic for model creation and model size). Defaults to 401.
     """
 
-    genetic_algorithm = GeneticAlgorithm(C, delta_1, delta_2, c_0, degree, pop_size, pop_multiplier, seed)
-    genetic_algorithm.get_initial_guesses(granularity)
+    genetic_algorithm = GeneticAlgorithm(C, delta_1, delta_2, c_0, degree, seed)
+    genetic_algorithm.get_initial_guesses(granularity, pop_size)
     genetic_algorithm.sort_population()
 
     for i in range(num_generations):
-        print(f"Starting generation {i} with best fitness: {genetic_algorithm.fitness(genetic_algorithm.population[0])}")
+        print(f"Starting generation {i} with best element:")
+        genetic_algorithm.print_best()
 
-        genetic_algorithm.get_new_population()
+        genetic_algorithm.get_new_population(pop_multiplier, granularity)
         genetic_algorithm.sort_population()
-        genetic_algorithm.shrink_population()
+        genetic_algorithm.shrink_population(pop_size)
 
     return VarianceBoundWitness(genetic_algorithm.population[0].epsilon,
                                 delta_1, delta_2, degree, None, genetic_algorithm.population[0].d, 
