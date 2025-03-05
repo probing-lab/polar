@@ -84,19 +84,26 @@ def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_g
     objective.SetCoefficient(cdf_vars[0], 1)
     objective.SetMaximization()
     result_status = solver.Solve()
+    
     if result_status == pywraplp.Solver.OPTIMAL:
         return ([var.solution_value()/SCALING for var in cdf_vars])
 
 spec_array = np.concatenate([np.linspace(4, 8, 5*5+1)[i::10] for i in range(10)])
+
+def _check_model(d: float, epsilon: float, C: float, delta_2: float, c_0: float, granularity: int, specification_end: float, sg_cutoff, b):
+    return _get_solution(list(np.linspace(0, specification_end, granularity)), epsilon, d, specification_end+sg_cutoff, C, delta_2, c_0, b)
+
+def _compute_b(epsilon, d, C):
+    return sqrt(2*log(1/(1-epsilon)))/(C*(sqrt(1+d) - 1))
+
 def _check_if_model_exists(d: float, epsilon:float, C: float, delta_2: float, c_0: float, granularity: int = 201):
     assert 0<epsilon and epsilon < 1
     # deviation of the tail bound from the mean
-    b = sqrt(2*log(1/(1-epsilon)))/(C*(sqrt(1+d) - 1))
+    b = _compute_b(epsilon, d, C)
     for specification_end in spec_array:
         try:
             for sg_cutoff in np.linspace(2,4.5,6):
-                print(d, epsilon, specification_end, sg_cutoff)
-                res = _get_solution(list(np.linspace(0, specification_end, granularity)), epsilon, d, specification_end+sg_cutoff, C, delta_2, c_0, b)
+                res = _check_model(d, epsilon, C, delta_2, c_0, granularity, specification_end, sg_cutoff, b)
                 if res is not None:
                     return (d, epsilon, C, delta_2, c_0, granularity, specification_end, specification_end+sg_cutoff, res)
         except PrecisionException as ex:

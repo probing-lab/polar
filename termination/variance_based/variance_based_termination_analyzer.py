@@ -6,6 +6,7 @@ import sys
 from sympy import S, Abs, Poly, Symbol, nroots, nsolve, summation, sqrt as sp_sqrt
 from scipy.stats import norm
 import numpy as np
+from termination.variance_based.exponent_approximation.genetic_algorithm import estimate_bound_exponent_inductive_bound_genetic
 from termination.variance_based.exponent_approximation.inductive_bound import estimate_bound_exponent_inductive_bound
 
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
@@ -125,7 +126,7 @@ class VarianceBasedTerminationAnalyzer:
 
             n_0 = max(n_0_delta1, n_0_delta2, n_0_c_0)
 
-        witness = estimate_bound_exponent_inductive_bound(max_degree_q1*2+1, C, delta1, delta2, c_0, n_0)
+        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, C, delta1, delta2, c_0, n_0)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
 
