@@ -19,8 +19,8 @@ class VarianceBasedTerminationAnalyzer:
         self.q1 = q1
         self.p2 = p2
         self.q2 = q2
-        assert q1.free_symbols == set([N]), "Only 'n' may occur in polynomial q1"
-        assert q2.free_symbols == set([N]), "Only 'n' may occur in polynomial q2"
+        assert q1.free_symbols ==set() or q1.free_symbols == set([N]), "Only 'n' may occur in polynomial q1"
+        assert q1.free_symbols ==set() or q2.free_symbols == set([N]), "Only 'n' may occur in polynomial q2"
 
     def _n_zero_delta1(self, delta1, q_var):
         # Maybe we must skip this for large polys
@@ -90,8 +90,8 @@ class VarianceBasedTerminationAnalyzer:
     def compute_bound(self, delta1, delta2, c_0, epsilon=None):
         # we need to compute (n'_0(delta1,delta2,c_0)) and then 
         # approximate the percentage of terminating.
-        q1 = Poly(self.q1)
-        q2 = Poly(self.q2)
+        q1 = Poly(self.q1, gens = [N])
+        q2 = Poly(self.q2, gens = [N])
         C = 4*(self.p1*self.p2)
         max_degree_q1, max_coeff_p1 =  q1.LT()
         max_degree_q1 = max_degree_q1.exponents[0]
