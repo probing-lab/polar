@@ -93,7 +93,7 @@ class GeneticAlgorithm:
         print(f"exponent: {-self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}")
 
 
-def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, delta_1: float, delta_2: float, c_0: float, n_0, granularity: int = 601, pop_size: int=3, pop_multiplier: int=3, num_generations=1, seed=0):
+def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, delta_1: float, delta_2: float, c_0: float, n_0, granularity: int = 20, pop_size: int=30, pop_multiplier: int=5, num_generations=50, seed=0):
     """Create an upper bound for the exponent m of the bound $P(T\\geq t) \\leq Bn^{m}$. This method leverages a linear solver to do so.
 
     Args:
@@ -107,18 +107,19 @@ def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, del
     """
 
     genetic_algorithm = GeneticAlgorithm(C, delta_1, delta_2, c_0, degree, seed)
-    genetic_algorithm.get_initial_guesses(granularity, pop_size)
+    new_granularity = granularity
+    genetic_algorithm.get_initial_guesses(granularity, pop_size*5)
     genetic_algorithm.sort_population()
 
     for i in range(num_generations):
-        print(f"Starting generation {i} with best element:")
+        print(f"Starting generation {i} with best element. Gen_size: {len(genetic_algorithm.population)}, granularity:{new_granularity}:")
         genetic_algorithm.print_best()
-
-        genetic_algorithm.get_new_population(pop_multiplier, granularity)
+        new_granularity =  granularity+int(granularity*(i+1)**2/100)
+        genetic_algorithm.get_new_population(pop_multiplier,new_granularity)
         genetic_algorithm.sort_population()
-        genetic_algorithm.shrink_population(pop_size)
+        genetic_algorithm.shrink_population(pop_size+int(pop_size*4/(i/2+1)))
 
     return VarianceBoundWitness(genetic_algorithm.population[0].epsilon,
                                 delta_1, delta_2, degree, None, genetic_algorithm.population[0].d, 
-                                genetic_algorithm.fitness(genetic_algorithm.population[0]),
+                                -genetic_algorithm.fitness(genetic_algorithm.population[0]),
                                 genetic_algorithm.population[0].epsilon, n_0)
