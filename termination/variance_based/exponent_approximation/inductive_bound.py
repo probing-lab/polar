@@ -14,6 +14,7 @@ from termination.variance_based.exponent_approximation.closed_form_bound import 
 class PrecisionException(Exception):
     pass
 
+ERR = 10e-12
 SOLVER_NAME = "GUROBI" # TODO: Should be a command line argument
 SCALING = 1 # TODO: This is not so important for gurobi, but might make a difference for other solvers
 CUTOFF_MAX_PRECISION = 10e-10
@@ -68,7 +69,7 @@ def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_g
     for idx, value in enumerate(values):
         if idx >= len(cdf_vars):
             continue
-        constraint = solver.Constraint(0 , infinity, f"ct_{value}")
+        constraint = solver.Constraint(ERR , infinity, f"ct_{value}")
         constraint.SetCoefficient(cdf_vars[idx],-SCALING)
 
         z_values = (value*sqrt(1+var_scaling) - values)/sqrt(var_scaling)

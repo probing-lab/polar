@@ -5,6 +5,7 @@ from typing import List
 
 import numpy as np
 from termination.polynomial.termination_witness import TerminationWitness
+from termination.variance_based.exponent_approximation.bound_validation import validate_bound
 from termination.variance_based.exponent_approximation.closed_form_bound import _get_c_d_prime, get_closed_form_bound_asymptotic
 from termination.variance_based.exponent_approximation.inductive_bound import PrecisionException, _check_model, _compute_b
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
@@ -47,6 +48,16 @@ class GeneticAlgorithm:
                 return 0
         except PrecisionException as ex:
             return 0
+        
+    def get_best_bound(self):
+        if len(self.population) < 1:
+            return None
+        spec = self.population[0]
+        res = _check_model(spec.d, spec.epsilon, self.C, self.delta_1, self.c_0, 
+                            spec.granularity, spec.specification_end, spec.sg_cutoff, 
+                            _compute_b(spec.epsilon, spec.d, self.C))
+        res_vals = np.linspace(0, spec.specification_end, spec.granularity)
+        return res, res_vals, spec.epsilon, spec.d, spec.specification_end+spec.sg_cutoff
         
     def mutate(self, spec: InductiveBoundSpecification, new_granularity):
         d = spec.d
@@ -96,7 +107,7 @@ class GeneticAlgorithm:
         print(f"exponent: {-self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}")
 
 
-def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, delta_prime: float, delta_1: float, c_0: float, n_0, granularity: int = 20, pop_size: int=30, pop_multiplier: int=5, num_generations=5, seed=0):
+def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, delta_prime: float, delta_1: float, c_0: float, n_0, granularity: int = 20, pop_size: int=30, pop_multiplier: int=5, num_generations=50, seed=0):
     """Create an upper bound for the exponent m of the bound $P(T\\geq t) \\leq Bn^{m}$. This method leverages a linear solver to do so.
 
     Args:
@@ -121,6 +132,9 @@ def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, del
         genetic_algorithm.get_new_population(pop_multiplier,new_granularity)
         genetic_algorithm.sort_population()
         genetic_algorithm.shrink_population(pop_size+int(pop_size*4/(i/2+1)))
+
+    bound_quantiles, bound_vals, epsilon, d, sg_cutoff = genetic_algorithm.get_best_bound()
+    validate_bound(bound_vals, bound_quantiles, epsilon, d, sg_cutoff, C, c_0, delta_1)
 
     return VarianceBoundWitness(genetic_algorithm.population[0].epsilon,
                                 delta_1, delta_prime, degree, None, genetic_algorithm.population[0].d, 
