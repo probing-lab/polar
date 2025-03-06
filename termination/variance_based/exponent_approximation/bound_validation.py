@@ -25,6 +25,7 @@ def validate_bound(values: np.ndarray, quantiles: np.ndarray, epsilon: float, d:
     densities = (np.array([quantiles_prime[0]-epsilon] + [y - x for x, y in pairwise(quantiles_prime)]))/(1-epsilon)
 
     new_bounds = []
+    initial_bounds = []
     for value, target_quantile in zip(values, quantiles):
         new_value = value*sqrt(1+d)
 
@@ -32,8 +33,10 @@ def validate_bound(values: np.ndarray, quantiles: np.ndarray, epsilon: float, d:
 
         new_quantile = np.sum(probs*densities) 
         new_bounds.append(new_quantile)
+        initial_bounds.append(norm.cdf(value))
 
     print(new_bounds)
     print(np.all(np.array(new_bounds)-quantiles) >ERR)
+    print(np.all(np.array(initial_bounds)-quantiles) >ERR)
 
     return True

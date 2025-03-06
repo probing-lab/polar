@@ -7,6 +7,7 @@ import numpy as np
 from termination.polynomial.termination_witness import TerminationWitness
 from termination.variance_based.exponent_approximation.bound_validation import validate_bound
 from termination.variance_based.exponent_approximation.closed_form_bound import _get_c_d_prime, get_closed_form_bound_asymptotic
+from termination.variance_based.exponent_approximation.genetic_algorithm_config import GeneticAlgorithmConfig
 from termination.variance_based.exponent_approximation.inductive_bound import PrecisionException, _check_model, _compute_b
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
 
@@ -66,10 +67,14 @@ class GeneticAlgorithm:
         specification_end = spec.specification_end
         sg_cutoff = spec.sg_cutoff
 
-        if self.rand_gen.random() < 0.3:
-            d *=(self.rand_gen.random()*0.35+0.7)
-        if self.rand_gen.random() < 0.3:
-            epsilon *= (self.rand_gen.random()*0.1+0.95)
+        if self.rand_gen.random() < 0.4: # small step
+            d *=(self.rand_gen.random()*0.1+0.9)
+        elif self.rand_gen.random() < 0.3:
+            d *=(self.rand_gen.random()*0.5+0.55)
+        if self.rand_gen.random() < 0.4: # small step
+            epsilon *= (self.rand_gen.random()*0.08+0.99)
+        elif self.rand_gen.random() < 0.2:
+            epsilon *= (self.rand_gen.random()*0.3+0.9)
         if self.rand_gen.random() < 0.3:
             specification_end *= (self.rand_gen.random()*0.4 + 0.8)
         if self.rand_gen.random() < 0.3:
@@ -107,7 +112,7 @@ class GeneticAlgorithm:
         print(f"exponent: {-self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}")
 
 
-def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, delta_prime: float, delta_1: float, c_0: float, n_0, granularity: int = 20, pop_size: int=30, pop_multiplier: int=5, num_generations=50, seed=0):
+def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, delta_prime: float, delta_1: float, c_0: float, n_0, algorithm_config: GeneticAlgorithmConfig, seed=0):
     """Create an upper bound for the exponent m of the bound $P(T\\geq t) \\leq Bn^{m}$. This method leverages a linear solver to do so.
 
     Args:
@@ -121,17 +126,15 @@ def estimate_bound_exponent_inductive_bound_genetic(degree: float, C: float, del
     """
 
     genetic_algorithm = GeneticAlgorithm(C, delta_1, delta_prime, c_0, degree, seed)
-    new_granularity = granularity
-    genetic_algorithm.get_initial_guesses(granularity, pop_size*5)
+    genetic_algorithm.get_initial_guesses(algorithm_config.get_granularity(0), algorithm_config.get_population_size(0))
     genetic_algorithm.sort_population()
 
-    for i in range(num_generations):
-        print(f"Starting generation {i} with best element. Gen_size: {len(genetic_algorithm.population)}, granularity:{new_granularity}:")
+    for i in range(algorithm_config.get_num_iterations()):
+        print(f"Starting generation {i} with best element. Gen_size: {len(genetic_algorithm.population)}, granularity:{algorithm_config.get_granularity(i)}:")
         genetic_algorithm.print_best()
-        new_granularity =  granularity+int(granularity*(i+1)**2/100)
-        genetic_algorithm.get_new_population(pop_multiplier,new_granularity)
+        genetic_algorithm.get_new_population(algorithm_config.get_population_multiplier(i), algorithm_config.get_granularity(i))
         genetic_algorithm.sort_population()
-        genetic_algorithm.shrink_population(pop_size+int(pop_size*4/(i/2+1)))
+        genetic_algorithm.shrink_population(algorithm_config.get_population_size(i))
 
     bound_quantiles, bound_vals, epsilon, d, sg_cutoff = genetic_algorithm.get_best_bound()
     validate_bound(bound_vals, bound_quantiles, epsilon, d, sg_cutoff, C, c_0, delta_1)
