@@ -31,7 +31,8 @@ class MinMaxQuadraticAlgorithmConfig(GeneticAlgorithmConfig):
         self.num_iterations = num_iterations
 
     def get_granularity(self, iteration):
-        return int(self.granularity_offset+iteration**2*self.granularity_coeff)
+        gr = int(self.granularity_offset+(iteration+1)**2*self.granularity_coeff)
+        return gr
     
     def get_population_multiplier(self, iteration):
         return self.population_multiplier
@@ -40,4 +41,4 @@ class MinMaxQuadraticAlgorithmConfig(GeneticAlgorithmConfig):
         return self.num_iterations
     
     def get_population_size(self, iteration):
-        return int(self.max_population+ self.population_coeff*iteration**self.degree_pop)
+        return int(self.max_population+ self.population_coeff*(iteration+1)**self.degree_pop)

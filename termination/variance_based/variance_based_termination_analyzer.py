@@ -88,7 +88,7 @@ class VarianceBasedTerminationAnalyzer:
         return root
 
 
-    def compute_bound(self, delta1, delta2, c_0, epsilon=None):
+    def compute_bound(self, delta_prime, delta1, c_0, epsilon=None):
         # we need to compute (n'_0(delta1,delta2,c_0)) and then 
         # approximate the percentage of terminating.
         q1 = Poly(self.q1, gens = [N])
@@ -115,9 +115,9 @@ class VarianceBasedTerminationAnalyzer:
         if max_degree_q1 >=1:
             n_0 = Symbol("n_0")
         else:
-            n_0_delta1 = self._n_zero_delta1(delta1, q_var)
+            n_0_delta1 = self._n_zero_delta1(delta_prime, q_var)
 
-            n_0_delta2 = self._n_zero_delta2(delta2, q_var, q_exp)
+            n_0_delta2 = self._n_zero_delta2(delta1, q_var, q_exp)
 
             # 3rd central moment
             q_c3 = ((Abs((q1-q_exp_indiv).as_expr()))**3*self.p1+(Abs((q2-q_exp_indiv).as_expr()))**3*self.p2).simplify()
@@ -127,7 +127,7 @@ class VarianceBasedTerminationAnalyzer:
 
             n_0 = max(n_0_delta1, n_0_delta2, n_0_c_0)
 
-        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, C, delta1, delta2, c_0, n_0, MinMaxQuadraticAlgorithmConfig(5, 20, 400, 10, 100, 10, degree_pop=0.5))
+        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, C, delta_prime, delta1, c_0, n_0, MinMaxQuadraticAlgorithmConfig(5, 20, 400, 10, 100, 10, degree_pop=0.5))
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
 
