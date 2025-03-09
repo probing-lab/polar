@@ -127,7 +127,7 @@ class VarianceBasedTerminationAnalyzer:
 
             n_0 = max(n_0_delta1, n_0_delta2, n_0_c_0)
 
-        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, C, delta_prime, delta1, c_0, n_0, MinMaxQuadraticAlgorithmConfig(5, 20, 400, 10, 100, 10, degree_pop=0.5))
+        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, self.p1,MinMaxQuadraticAlgorithmConfig(5, 20, 400, 10, 100, 10, degree_pop=0.5), q1, q2, exact_n0=True)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
 
