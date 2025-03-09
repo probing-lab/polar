@@ -46,5 +46,5 @@ class ActionFactory:
         if cli_args.termination_amber:
             return TerminationAction(cli_args, amber=True)
         if cli_args.termination_variance:
-            return TerminationAction(cli_args, variance_based=True)
+            return TerminationAction(cli_args, variance_based=True, exact=bool(cli_args.exact))
         return PrintBenchmarkAction(cli_args)

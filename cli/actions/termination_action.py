@@ -9,11 +9,12 @@ from .action import Action
 
 class TerminationAction(Action):
 
-    def __init__(self, cli_args: Namespace, smt=False, amber=False, variance_based=False):
+    def __init__(self, cli_args: Namespace, smt=False, amber=False, variance_based=False, exact=False):
         self.cli_args = cli_args
         self.smt = smt
         self.amber = amber
         self.variance_based = variance_based
+        self.exact = exact
 
     def __call__(self, *args, **kwargs):
         benchmark = args[0]
@@ -25,4 +26,4 @@ class TerminationAction(Action):
         program.loop_guard = TrueCond()
         program = normalize_program(program)
 
-        TerminationAnalyzer.analyze(program, guard, smt=self.smt, amber=self.amber, variance_based=self.variance_based)
+        TerminationAnalyzer.analyze(program, guard, smt=self.smt, amber=self.amber, variance_based=self.variance_based, exact=self.exact)

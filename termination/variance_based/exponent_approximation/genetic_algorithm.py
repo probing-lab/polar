@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from functools import cache
 from math import exp, log
 from typing import List
-from sympy import Expr
+from sympy import Expr, Symbol
+from scipy.special import zeta
 
 import numpy as np
 from termination.polynomial.termination_witness import TerminationWitness
@@ -60,15 +61,24 @@ class GeneticAlgorithm:
         try:
             c_0 = self._get_c_0(spec.n0)
             delta_1 = self._get_delta_1(spec.n0)
+            delta_prime = self._get_delta_prime(spec.n0)
             if _check_model(spec.d, spec.epsilon, self.C, delta_1, c_0, 
                             spec.granularity, spec.specification_end, spec.sg_cutoff, 
                             _compute_b(spec.epsilon, spec.d, self.C)) is not None:
-                fitness = -log(1-spec.epsilon)/log((spec.d+1)**(1/self.degree) + self.delta_1) # compute the exponent. times (-1) to have positive fitness
-                return fitness
+                exponent_fitness = log(1-spec.epsilon)/log((spec.d+1)**(1/self.degree) + delta_prime) # compute the exponent. times (-1) to have positive fitness
+                abs_bound = np.infty
+                coeff = np.infty
+                if exponent_fitness < -1 and self.q1 is not None and self.q2 is not None:
+                    # compute actual bound
+                    coeff = (1/(1-spec.epsilon))**((log(spec.n0, (spec.d+1)**(1/self.degree) + delta_prime))+2)
+                    
+                    series_sum = zeta(-exponent_fitness)
+                    abs_bound = coeff*series_sum
+                return (abs_bound, exponent_fitness, coeff) # fitness has two dimensions: the first is the actual bound (absolute value), the second is the exponent
             else:
-                return 0
+                return (np.infty, 0, np.infty)
         except PrecisionException as ex:
-            return 0
+            return (np.infty, 0, np.infty)
         
     def get_best_bound(self):
         if len(self.population) < 1:
@@ -80,7 +90,7 @@ class GeneticAlgorithm:
                             spec.granularity, spec.specification_end, spec.sg_cutoff, 
                             _compute_b(spec.epsilon, spec.d, self.C))
         res_vals = np.linspace(0, spec.specification_end, spec.granularity)
-        return res, res_vals, spec.epsilon, spec.d, spec.specification_end+spec.sg_cutoff
+        return res, res_vals, spec.epsilon, spec.d, spec.specification_end+spec.sg_cutoff, c_0, delta_1
         
     def mutate(self, spec: InductiveBoundSpecification, new_granularity):
         d = spec.d
@@ -112,7 +122,7 @@ class GeneticAlgorithm:
         c_prime, d_prime = _get_c_d_prime(self.C) # this serves just as a heuristic, to always guess in the somewhat right area
         for _ in range(size):
             epsilon = self.rand_gen.random()*0.3+0.1
-            n0 = 10000
+            n0 = 1000000
             delta_1 = self._get_delta_prime(n0)
             k =  exp((log(1-epsilon)/exp_asym_bound)) - delta_1
             d = k**self.degree - 1
@@ -128,13 +138,13 @@ class GeneticAlgorithm:
         self.population = self.population + [self.mutate(spec, new_granularity) for spec in elems]
 
     def sort_population(self):
-        self.population = sorted(self.population, key=lambda spec: self.fitness(spec), reverse=True)
+        self.population = sorted(self.population, key=lambda spec: self.fitness(spec), reverse=False)
         
     def shrink_population(self, size):
         self.population = self.population[:size]
 
     def print_best(self):
-        print(f"exponent: {-self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}")
+        print(f"exponent: {self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}")
 
 
 def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algorithm_config: GeneticAlgorithmConfig, q_1: Expr, q_2: Expr, exact_n0=False, seed=0):
@@ -154,10 +164,8 @@ def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algo
         genetic_algorithm.sort_population()
         genetic_algorithm.shrink_population(algorithm_config.get_population_size(i))
 
-    bound_quantiles, bound_vals, epsilon, d, sg_cutoff = genetic_algorithm.get_best_bound()
-    validate_bound(bound_vals, bound_quantiles, epsilon, d, sg_cutoff, C, c_0, delta_1)
+    bound_quantiles, bound_vals, epsilon, d, sg_cutoff, c_0_res, delta_1_res = genetic_algorithm.get_best_bound()
+    validate_bound(bound_vals, bound_quantiles, epsilon, d, sg_cutoff, C, c_0_res, delta_1_res)
 
-    return VarianceBoundWitness(genetic_algorithm.population[0].epsilon,
-                                -1, -1, degree, None, genetic_algorithm.population[0].d, 
-                                -genetic_algorithm.fitness(genetic_algorithm.population[0]),
-                                genetic_algorithm.population[0].epsilon, -1)
+    return VarianceBoundWitness(genetic_algorithm.fitness(genetic_algorithm.population[0])[1],
+                                Symbol("B") if not exact_n0 else genetic_algorithm.fitness(genetic_algorithm.population[0])[2])

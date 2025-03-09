@@ -88,12 +88,11 @@ class VarianceBasedTerminationAnalyzer:
         return root
 
 
-    def compute_bound(self, delta_prime, delta1, c_0, epsilon=None):
+    def compute_bound(self, exact):
         # we need to compute (n'_0(delta1,delta2,c_0)) and then 
         # approximate the percentage of terminating.
         q1 = Poly(self.q1, gens = [N])
         q2 = Poly(self.q2, gens = [N])
-        C = 4*(self.p1*self.p2)
         max_degree_q1, max_coeff_p1 =  q1.LT()
         max_degree_q1 = max_degree_q1.exponents[0]
 
@@ -102,32 +101,7 @@ class VarianceBasedTerminationAnalyzer:
         # This verifies, that deg(E(X_i)) < deg(Var(X_i))/2
         assert max_degree_q1 == max_degree_q2 and max_coeff_p1*self.p1+max_coeff_p2*self.p2 == S.Zero,"Degree of expected value of loop guard change not lower than twice the degree of the variance."
 
-
-        q_exp_indiv = q1*self.p1+q2*self.p2
-        q_exp = summation((q1*self.p1+q2*self.p2).as_expr(),(N, 1, N))
-        q_exp = Poly(q_exp, N)
-
-        q_var_inidiv = ((q1-q_exp_indiv)**2*self.p1+(q2-q_exp_indiv)**2*self.p2).simplify()
-        q_var = summation(q_var_inidiv.as_expr(), (N, 1, N))
-        q_var = Poly(q_var)
-
-        # for large exponent, skip n_0 computation. We know it exists and is finite, but computing is time consuming
-        if max_degree_q1 >=1:
-            n_0 = Symbol("n_0")
-        else:
-            n_0_delta1 = self._n_zero_delta1(delta_prime, q_var)
-
-            n_0_delta2 = self._n_zero_delta2(delta1, q_var, q_exp)
-
-            # 3rd central moment
-            q_c3 = ((Abs((q1-q_exp_indiv).as_expr()))**3*self.p1+(Abs((q2-q_exp_indiv).as_expr()))**3*self.p2).simplify()
-            q_c3 = summation(q_var_inidiv.as_expr(), (N, 1, N))
-
-            n_0_c_0 = self._n_zero_c_0(c_0, q_c3, q_var, q_exp)
-
-            n_0 = max(n_0_delta1, n_0_delta2, n_0_c_0)
-
-        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, self.p1,MinMaxQuadraticAlgorithmConfig(5, 20, 400, 10, 100, 10, degree_pop=0.5), q1, q2, exact_n0=True)
+        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, self.p1,MinMaxQuadraticAlgorithmConfig(5, 20, 400, 10, 100, 10, degree_pop=0.5), q1, q2, exact_n0=exact)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
 

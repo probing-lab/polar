@@ -311,15 +311,19 @@ class ArgumentParser:
             "--termination_amber",
             action="store_true",
             default=False,
-            help="""If set, Polar tries to compute a logical formula in SMT-lib syntax, which's validity/satisfyability
-                    implies (non-)termination.""",
+            help="""If set, Polar tries to find a (ranking-) supermartingale to show termination.""",
         ),
         self.argument_parser.add_argument(
             "--termination_variance",
             action="store_true",
             default=False,
-            help="""If set, Polar tries to compute a logical formula in SMT-lib syntax, which's validity/satisfyability
-                    implies (non-)termination.""",
+            help="""If set, Polar tries to find a bound for the running time of a polynnomial random walks (non-)termination.""",
+        )
+        self.argument_parser.add_argument(
+            "--exact",
+            action="store_true",
+            default=False,
+            help="""If set, polar tries to find a concrete bound for the expectation of the running time.""",
         )
 
     def parse_args(self):

@@ -1,47 +1,35 @@
 from dataclasses import dataclass
-from sympy import oo, zeta, log
+from sympy import Expr, oo
 from termcolor import colored
+from scipy.special import zeta
 
 
 @dataclass
 class VarianceBoundWitness:
+    """The we compute is actually for "P(T >= n)", and has the form Bn^m.
+    """
     # Parameters
-    epsilon: float
-    delta1: float
-    delta2: float
-    m: float|int
-
-    # computed
-    t: float
-    k: float
-    exponent: float
-    percentage: float
-
-    n0: float
+    m: float
+    B: float|Expr # this either is a number, or it can be a (known to be finite) expression
 
     def terminates(self):
-        return self.exponent < -1.00000001 # To ensure actual smaller, preventing floating point errors, as non-equality is needed.
-    
-    def get_coeff(self, N):
-        coeff = (1/self.percentage)**((log(self.n0, self.k+self.epsilon))+1) # TODO: This might be wrong for N>1, should involve some power
-        return coeff
+        return self.m < -1.00000001 # To ensure actual smaller, preventing floating point errors, as non-equality is needed.  
 
     def get_exp_stopping_time_bound(self, N):
         # Computes a bound for E(T^N)
         assert N >= 1, "Exponent for stopping time smaller 1 does not make sense"
-        if self.exponent > -1.00000001*N:
+        if self.m > -1.00000001*N:
             return oo
         
-        series_sum = zeta(-self.exponent/N)
-        return series_sum*self.get_coeff(N)
+        return self.B**N * zeta(-self.m/N)
 
     def print(self):
         if(self.terminates()):
             print(colored("Program shown to be terminating!", "green"))
         else:
             print(colored("Program termination could not be shown", "red"))
-        print(f"P(T>t) <= min(1, C * n**({self.exponent})\n")
-        print(f"where C={self.get_coeff(1)}\n")
+        print(f"P(T>t) <= min(1, B * n**({self.m})\n")
+        print(f"where B={self.B}\n")
         print(f"E(T)< {self.get_exp_stopping_time_bound(1)}")
-        print(f"E(T^N) < oo when "+colored(f"N<={-self.exponent/1.00000001}\n","green"))
+        print(f"E(T^N) < oo when "+colored(f"N<={-self.m/1.00000001}\n","green"))
 
