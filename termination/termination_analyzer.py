@@ -55,6 +55,7 @@ class TerminationAnalyzer:
                 print("No formula was found.")
         elif variance_based:
             lc_recurrence = cls._compute_branches_for_polynomial([poly], normalized_program)[poly]
+            initial_value = cls._get_initial_value([poly], normalized_program)[poly]
             assert len(lc_recurrence) == 2, "More than two branches exist"
             p1, q1_r = lc_recurrence[0]
             p2, q2_r = lc_recurrence[1]
@@ -66,7 +67,7 @@ class TerminationAnalyzer:
             r = cls._compute_closed_form_of_polynomial([q1_r, q2_r], normalized_program)
             q1 = r[q1_r]
             q2 = r[q2_r]
-            analyzer = VarianceBasedTerminationAnalyzer(p1, q1, p2, q2)
+            analyzer = VarianceBasedTerminationAnalyzer(p1, q1, p2, q2, initial_value)
             witness = analyzer.compute_bound(exact)
             witness.print()
         else:
@@ -124,6 +125,11 @@ class TerminationAnalyzer:
         bounds = cls._compute_bounds_of_expr(poly, branches, dist_assignments, deterministic_closed_forms, initial_values)
         return bounds
     
+    @classmethod
+    def _get_initial_value(cls, polys, program: Program):
+        rec_builder = RecBuilder(program)
+        return rec_builder.get_initial_values(polys)
+
     @classmethod
     def _compute_bounds_of_expr(cls, poly: any,
                                 branches: Dict[Symbol, List[Tuple[Expr, Expr]]],

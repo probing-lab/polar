@@ -2,14 +2,14 @@ from dataclasses import dataclass
 from functools import cache
 from math import exp, log
 from typing import List
-from sympy import Expr, Symbol
+from sympy import Expr, Symbol, sympify
 from scipy.special import zeta
 
 import numpy as np
 from termination.polynomial.termination_witness import TerminationWitness
 from termination.variance_based.exponent_approximation.bound_validation import validate_bound
 from termination.variance_based.exponent_approximation.closed_form_bound import _get_c_d_prime, get_closed_form_bound_asymptotic
-from termination.variance_based.exponent_approximation.converging_constants import compute_c_0, compute_delta_cb, compute_delta_prime
+from termination.variance_based.exponent_approximation.converging_constants import compute_c_0, compute_delta_cb, compute_delta_prime, get_n0_from_c0
 from termination.variance_based.exponent_approximation.genetic_algorithm_config import GeneticAlgorithmConfig
 from termination.variance_based.exponent_approximation.inductive_bound import PrecisionException, _check_model, _compute_b
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
@@ -31,11 +31,12 @@ class InductiveBoundSpecification:
               value.specification_end == self.specification_end and value.sg_cutoff == self.sg_cutoff
 
 class GeneticAlgorithm:
-    def __init__(self, C:float, p: float, q1: Expr, q2: Expr, degree:float, seed=None):
+    def __init__(self, C:float, p: float, q1: Expr, q2: Expr, initial_value:float|Expr, degree:float, seed=None):
         self.C = C
         self.p = p
         self.q1 = q1
         self.q2 = q2
+        self.initial_value = initial_value
         self.degree = degree
         self.rand_gen = np.random.default_rng(seed)
 
@@ -44,7 +45,7 @@ class GeneticAlgorithm:
     def _get_delta_1(self, n0):
         if self.q1 is None or self.q2 is None:
             return 1e-8
-        return compute_delta_cb(n0, self.p, self.q1.as_expr(), self.q2.as_expr())
+        return compute_delta_cb(n0, self.p, self.q1.as_expr(), self.q2.as_expr(), self.initial_value)
 
     def _get_delta_prime(self, n0):
         if self.q1 is None or self.q2 is None:
@@ -54,7 +55,7 @@ class GeneticAlgorithm:
     def _get_c_0(self, n0):
         if self.q1 is None or self.q2 is None:
             return 1e-8
-        return compute_c_0(n0, self.p, self.q1.as_expr(), self.q2.as_expr())
+        return compute_c_0(n0, self.p, self.q1.as_expr(), self.q2.as_expr(), self.initial_value)
 
     @cache
     def fitness(self, spec: InductiveBoundSpecification):
@@ -112,17 +113,19 @@ class GeneticAlgorithm:
             specification_end *= (self.rand_gen.random()*0.4 + 0.8)
         if self.rand_gen.random() < 0.3:
             sg_cutoff *= (self.rand_gen.random()*0.4 + 0.8)
+        if self.rand_gen.random() < 0.6:
+            n0 *= (self.rand_gen.random()+0.1 + (0.8 if self.fitness(spec)[0]==np.infty else 0))
 
         return InductiveBoundSpecification(n0, d, epsilon, granularity, specification_end, sg_cutoff)
 
     def get_initial_guesses(self, granularity, size):
         exp_asym_bound = get_closed_form_bound_asymptotic(self.degree, self.C)/1.8
+        n0 = get_n0_from_c0(self.p, self.q1.as_expr(), self.q2.as_expr(), 0.001, self.initial_value)
         
         self.population=[]
         c_prime, d_prime = _get_c_d_prime(self.C) # this serves just as a heuristic, to always guess in the somewhat right area
         for _ in range(size):
             epsilon = self.rand_gen.random()*0.3+0.1
-            n0 = 1000000
             delta_1 = self._get_delta_prime(n0)
             k =  exp((log(1-epsilon)/exp_asym_bound)) - delta_1
             d = k**self.degree - 1
@@ -144,16 +147,18 @@ class GeneticAlgorithm:
         self.population = self.population[:size]
 
     def print_best(self):
-        print(f"exponent: {self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}")
+        print(f"exponent: {self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}, n0: {self.population[0].n0}")
 
 
-def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algorithm_config: GeneticAlgorithmConfig, q_1: Expr, q_2: Expr, exact_n0=False, seed=0):
+def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algorithm_config: GeneticAlgorithmConfig, q_1: Expr, q_2: Expr, initial_expr=None, exact_n0=False, seed=0):
     """Create an upper bound for the exponent m of the bound $P(T\\geq t) \\leq Bn^{m}$. This method leverages a linear solver to do so.
     """
     assert 0 < p and p<1, "p must be a valid percentage between ]0;1["
+    if (initial_expr is None or not sympify(initial_expr).is_number) and exact_n0:
+        raise Exception("Can not compute exact bound for stopping time, when initial value of loop guard is unknown")
     C = 4*p*(1-p)
 
-    genetic_algorithm = GeneticAlgorithm(C, p, q_1 if exact_n0 else None, q_2 if exact_n0 else None, degree, seed)
+    genetic_algorithm = GeneticAlgorithm(C, p, q_1 if exact_n0 else None, q_2 if exact_n0 else None, initial_expr, degree, seed)
     genetic_algorithm.get_initial_guesses(algorithm_config.get_granularity(0), algorithm_config.get_population_size(0))
     genetic_algorithm.sort_population()
 
