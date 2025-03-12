@@ -9,7 +9,7 @@ import numpy as np
 from termination.polynomial.termination_witness import TerminationWitness
 from termination.variance_based.exponent_approximation.bound_validation import validate_bound
 from termination.variance_based.exponent_approximation.closed_form_bound import _get_c_d_prime, get_closed_form_bound_asymptotic
-from termination.variance_based.exponent_approximation.converging_constants import compute_c_0, compute_delta_cb, compute_delta_prime, get_n0_from_c0
+from termination.variance_based.exponent_approximation.converging_constants import compute_c_0, compute_delta_cb, compute_delta_prime, get_k_delta, get_n0_from_c0
 from termination.variance_based.exponent_approximation.genetic_algorithm_config import GeneticAlgorithmConfig
 from termination.variance_based.exponent_approximation.inductive_bound import PrecisionException, _check_model, _compute_b
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
@@ -49,13 +49,23 @@ class GeneticAlgorithm:
 
     def _get_delta_prime(self, n0):
         if self.q1 is None or self.q2 is None:
-            return 1e-8
-        return compute_delta_prime(n0)
+            return 1+1e-8
+        return compute_delta_prime(n0, self.p, self.q1, self.q2)
         
     def _get_c_0(self, n0):
         if self.q1 is None or self.q2 is None:
             return 1e-8
         return compute_c_0(n0, self.p, self.q1.as_expr(), self.q2.as_expr(), self.initial_value)
+
+    def _get_n0_from_c0(self, c0):
+        if self.q1 is None or self.q2 is None:
+            return 0
+        return get_n0_from_c0(self.p, self.q1.as_expr(), self.q2.as_expr(), c0, self.initial_value)
+    
+    def _get_k_delta(self, n0, k):
+        if self.q1 is None or self.q2 is None:
+            return 1e-8
+        return get_k_delta(n0, k)
 
     @cache
     def fitness(self, spec: InductiveBoundSpecification):
@@ -63,15 +73,19 @@ class GeneticAlgorithm:
             c_0 = self._get_c_0(spec.n0)
             delta_1 = self._get_delta_1(spec.n0)
             delta_prime = self._get_delta_prime(spec.n0)
+
+            k = ((spec.d+1)/delta_prime)**(1/self.degree)
+            k_delta = self._get_k_delta(spec.n0, k)
             if _check_model(spec.d, spec.epsilon, self.C, delta_1, c_0, 
                             spec.granularity, spec.specification_end, spec.sg_cutoff, 
                             _compute_b(spec.epsilon, spec.d, self.C)) is not None:
-                exponent_fitness = log(1-spec.epsilon)/log((spec.d+1)**(1/self.degree) + delta_prime) # compute the exponent. times (-1) to have positive fitness
+                
+                exponent_fitness = log(1-spec.epsilon)/log(k+k_delta) # compute the exponent. times (-1) to have positive fitness
                 abs_bound = np.infty
                 coeff = np.infty
                 if exponent_fitness < -1 and self.q1 is not None and self.q2 is not None:
                     # compute actual bound
-                    coeff = (1/(1-spec.epsilon))**((log(spec.n0, (spec.d+1)**(1/self.degree) + delta_prime))+2)
+                    coeff = (1/(1-spec.epsilon))**((log(spec.n0, (spec.d+1)**(1/self.degree)/delta_prime))+2)
                     
                     series_sum = zeta(-exponent_fitness)
                     abs_bound = coeff*series_sum
@@ -120,15 +134,15 @@ class GeneticAlgorithm:
 
     def get_initial_guesses(self, granularity, size):
         exp_asym_bound = get_closed_form_bound_asymptotic(self.degree, self.C)/1.8
-        n0 = get_n0_from_c0(self.p, self.q1.as_expr(), self.q2.as_expr(), 0.001, self.initial_value)
+        n0 = self._get_n0_from_c0(0.001)
         
         self.population=[]
         c_prime, d_prime = _get_c_d_prime(self.C) # this serves just as a heuristic, to always guess in the somewhat right area
         for _ in range(size):
             epsilon = self.rand_gen.random()*0.3+0.1
-            delta_1 = self._get_delta_prime(n0)
-            k =  exp((log(1-epsilon)/exp_asym_bound)) - delta_1
-            d = k**self.degree - 1
+            delta_prime = self._get_delta_prime(n0)
+            k =  exp((log(1-epsilon)/exp_asym_bound))
+            d = k**self.degree*delta_prime - 1
             sg_cutoff_total = self.rand_gen.random()*c_prime+5.5
             specification_end = sg_cutoff_total - (self.rand_gen.random()*4.5+1)
             sg_cutoff = sg_cutoff_total-specification_end

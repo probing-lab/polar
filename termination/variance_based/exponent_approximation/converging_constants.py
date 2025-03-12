@@ -1,5 +1,5 @@
 from functools import cache
-from sympy import Abs, Expr, Symbol, lambdify, nroots, nsolve, sqrt as sp_sqrt, summation
+from sympy import Abs, Expr, Poly, Symbol, lambdify, nroots, nsolve, sqrt as sp_sqrt, summation, LT
 import numpy as np
 from scipy.optimize import fsolve, bisect
 
@@ -54,8 +54,18 @@ def compute_delta_cb(n_0, p, q1, q2, initial_expr):
     val = _get_expectation_divided_by_sd_func(p, q1, q2, initial_expr)(n_0)
     return val
 
-def compute_delta_prime(n_0):
-    return 1/n_0
+def _get_delta_prime_func(p, q1, q2):
+    var_poly = _get_VarX(p,q1,q2)
+    # compute the maximum deviation when only taking the leading term
+    lt = LT(var_poly)
+
+    expr = (Abs(var_poly.as_expr())/lt.as_expr())**2
+    return lambdify(N, expr, modules="math")
+
+def compute_delta_prime(n_0, p, q1, q2):
+    func = _get_delta_prime_func(p, q1, q2)
+    val = func(n_0)
+    return val
 
 def get_n0_from_c0(p, q1, q2, c0, initial_expr):
     bn_expr = _get_bn_expr(p,q1,q2)
@@ -67,3 +77,5 @@ def get_n0_from_c0(p, q1, q2, c0, initial_expr):
     res = bisect(fun, 1000, 1e15)
     return res
 
+def get_k_delta(n0, k):
+    return 1/(n0*k)
