@@ -80,14 +80,14 @@ class GeneticAlgorithm:
                             spec.granularity, spec.specification_end, spec.sg_cutoff, 
                             _compute_b(spec.epsilon, spec.d, self.C)) is not None:
                 
-                exponent_fitness = log(1-spec.epsilon)/log(k+k_delta) # compute the exponent. times (-1) to have positive fitness
+                exponent_fitness = log(1-spec.epsilon)/log(k+k_delta) # compute the exponent.
                 abs_bound = np.infty
                 coeff = np.infty
                 if exponent_fitness < -1 and self.q1 is not None and self.q2 is not None:
                     # compute actual bound
                     coeff = (1/(1-spec.epsilon))**((log(spec.n0, (spec.d+1)**(1/self.degree)/delta_prime))+2)
                     
-                    series_sum = zeta(-exponent_fitness)
+                    series_sum = zeta(-exponent_fitness) # TODO: The zeta function is an over-approximation, because actually the elements are bounded by 1 from above (would need the partial sum from n_0).
                     abs_bound = coeff*series_sum
                 return (abs_bound, exponent_fitness, coeff) # fitness has two dimensions: the first is the actual bound (absolute value), the second is the exponent
             else:
@@ -116,11 +116,11 @@ class GeneticAlgorithm:
         n0 = spec.n0
 
         if self.rand_gen.random() < 0.4: # small step
-            d *=(self.rand_gen.random()*0.1+0.9)
+            d *=(self.rand_gen.random()*0.1+0.92)
         elif self.rand_gen.random() < 0.3:
             d *=(self.rand_gen.random()*0.5+0.55)
         if self.rand_gen.random() < 0.4: # small step
-            epsilon *= (self.rand_gen.random()*0.08+0.99)
+            epsilon *= (self.rand_gen.random()*0.08+0.98)
         elif self.rand_gen.random() < 0.2:
             epsilon *= (self.rand_gen.random()*0.3+0.9)
         if self.rand_gen.random() < 0.3:
@@ -131,6 +131,16 @@ class GeneticAlgorithm:
             n0 *= (self.rand_gen.random()+0.1 + (0.8 if self.fitness(spec)[0]==np.infty else 0))
 
         return InductiveBoundSpecification(n0, d, epsilon, granularity, specification_end, sg_cutoff)
+    
+    def crossover(self, spec1: InductiveBoundSpecification, spec2: InductiveBoundSpecification, new_granularity):
+        # every gene is randomly selected from one parent
+        n0 = spec1.n0 if self.rand_gen.random() < 0.5 else spec2.n0
+        d = spec1.d if self.rand_gen.random() < 0.5 else spec2.d
+        epsilon = spec1.epsilon if self.rand_gen.random() < 0.5 else spec2.epsilon
+        specification_end = spec1.specification_end if self.rand_gen.random() < 0.5 else spec2.specification_end
+        sg_cutoff = spec1.sg_cutoff if self.rand_gen.random() < 0.5 else spec2.sg_cutoff
+
+        return InductiveBoundSpecification(n0, d, epsilon, new_granularity, specification_end, sg_cutoff)
 
     def get_initial_guesses(self, granularity, size):
         exp_asym_bound = get_closed_form_bound_asymptotic(self.degree, self.C)/1.8
@@ -150,9 +160,13 @@ class GeneticAlgorithm:
                 n0, d, epsilon, granularity, specification_end, sg_cutoff
             ))
 
-    def get_new_population(self, multipier, new_granularity):
-        elems = self.rand_gen.choice(self.population, multipier*len(self.population), replace=True)
-        self.population = self.population + [self.mutate(spec, new_granularity) for spec in elems]
+    def get_new_population(self, mutation_multipier, crossover_multiplier, new_granularity):
+        elems = self.rand_gen.choice(self.population, mutation_multipier*len(self.population), replace=True)
+        mutations = [self.mutate(spec, new_granularity) for spec in elems]
+        
+        crossover_parents = [tuple(self.rand_gen.choice(self.population, size=2, replace=False)) for _ in range(int(crossover_multiplier*len(self.population)))]
+        children = [self.crossover(p1,p2,new_granularity) for p1,p2 in crossover_parents]
+        self.population = self.population+mutations+children
 
     def sort_population(self):
         self.population = sorted(self.population, key=lambda spec: self.fitness(spec), reverse=False)
@@ -164,7 +178,7 @@ class GeneticAlgorithm:
         print(f"exponent: {self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}, n0: {self.population[0].n0}")
 
 
-def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algorithm_config: GeneticAlgorithmConfig, q_1: Expr, q_2: Expr, initial_expr=None, exact_n0=False, seed=0):
+def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algorithm_config: GeneticAlgorithmConfig, q_1: Expr, q_2: Expr, initial_expr=None, exact_n0=False, seed=None):
     """Create an upper bound for the exponent m of the bound $P(T\\geq t) \\leq Bn^{m}$. This method leverages a linear solver to do so.
     """
     assert 0 < p and p<1, "p must be a valid percentage between ]0;1["
@@ -179,7 +193,9 @@ def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algo
     for i in range(algorithm_config.get_num_iterations()):
         print(f"Starting generation {i} with best element. Gen_size: {len(genetic_algorithm.population)}, granularity:{algorithm_config.get_granularity(i)}:")
         genetic_algorithm.print_best()
-        genetic_algorithm.get_new_population(algorithm_config.get_population_multiplier(i), algorithm_config.get_granularity(i))
+        genetic_algorithm.get_new_population(algorithm_config.get_population_mutation_multiplier(i), 
+                                             algorithm_config.get_population_crossover_multiplier(i), 
+                                             algorithm_config.get_granularity(i))
         genetic_algorithm.sort_population()
         genetic_algorithm.shrink_population(algorithm_config.get_population_size(i))
 
