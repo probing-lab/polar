@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from typing import Optional
 from sympy import Expr, oo
 from termcolor import colored
 from scipy.special import zeta
+import numpy as np
 
 
 @dataclass
@@ -11,6 +13,7 @@ class VarianceBoundWitness:
     # Parameters
     m: float
     B: float|Expr # this either is a number, or it can be a (known to be finite) expression
+    n0: Optional[float]
 
     def terminates(self):
         return self.m < -1.00000001 # To ensure actual smaller, preventing floating point errors, as non-equality is needed.  
@@ -20,8 +23,8 @@ class VarianceBoundWitness:
         assert N >= 1, "Exponent for stopping time smaller 1 does not make sense"
         if self.m > -1.00000001*N:
             return oo
-        
-        return self.B**N * zeta(-self.m/N)
+
+        return self.B**N * (zeta(-self.m/N, self.n0+1))  + self.n0**N
 
     def print(self):
         if(self.terminates()):

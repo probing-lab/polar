@@ -87,7 +87,7 @@ class GeneticAlgorithm:
                     # compute actual bound
                     coeff = (1/(1-spec.epsilon))**((log(spec.n0, (spec.d+1)**(1/self.degree)/delta_prime))+2)
                     
-                    series_sum = zeta(-exponent_fitness) # TODO: The zeta function is an over-approximation, because actually the elements are bounded by 1 from above (would need the partial sum from n_0).
+                    series_sum = zeta(-exponent_fitness, spec.n0+1) + spec.n0 # TODO: The zeta function is an over-approximation, because actually the elements are bounded by 1 from above (would need the partial sum from n_0).
                     abs_bound = coeff*series_sum
                 return (abs_bound, exponent_fitness, coeff) # fitness has two dimensions: the first is the actual bound (absolute value), the second is the exponent
             else:
@@ -128,7 +128,7 @@ class GeneticAlgorithm:
         if self.rand_gen.random() < 0.3:
             sg_cutoff *= (self.rand_gen.random()*0.4 + 0.8)
         if self.rand_gen.random() < 0.6:
-            n0 *= (self.rand_gen.random()+0.1 + (0.8 if self.fitness(spec)[0]==np.infty else 0))
+            n0 *= (self.rand_gen.random()+0.1 + (0.5 if self.fitness(spec)[0]==np.infty else 0))
 
         return InductiveBoundSpecification(n0, d, epsilon, granularity, specification_end, sg_cutoff)
     
@@ -203,4 +203,5 @@ def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algo
     validate_bound(bound_vals, bound_quantiles, epsilon, d, sg_cutoff, C, c_0_res, delta_1_res)
 
     return VarianceBoundWitness(genetic_algorithm.fitness(genetic_algorithm.population[0])[1],
-                                Symbol("B") if not exact_n0 else genetic_algorithm.fitness(genetic_algorithm.population[0])[2])
+                                Symbol("B") if not exact_n0 else genetic_algorithm.fitness(genetic_algorithm.population[0])[2],
+                                genetic_algorithm.population[0].n0 if exact_n0 else None)

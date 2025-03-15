@@ -102,7 +102,7 @@ class VarianceBasedTerminationAnalyzer:
         # This verifies, that deg(E(X_i)) < deg(Var(X_i))/2
         assert max_degree_q1 == max_degree_q2 and max_coeff_p1*self.p1+max_coeff_p2*self.p2 == S.Zero,"Degree of expected value of loop guard change not lower than twice the degree of the variance."
 
-        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, self.p1,MinMaxQuadraticAlgorithmConfig(50, 20, 400, 10, 100, 10,2, degree_pop=0.5), q1, q2,initial_expr=self.initial_value, exact_n0=exact)
+        witness = estimate_bound_exponent_inductive_bound_genetic(max_degree_q1*2+1, self.p1,MinMaxQuadraticAlgorithmConfig(200, 20, 400, 10, 100, 10,2, degree_pop=0.5, degree_gran=1), q1, q2,initial_expr=self.initial_value, exact_n0=exact)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
 
