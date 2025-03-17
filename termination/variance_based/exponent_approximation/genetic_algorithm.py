@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import cache
 from math import exp, log
 from typing import List
-from sympy import Expr, Symbol, sympify
+from sympy import Expr, Symbol, sympify, degree
 from scipy.special import zeta
 
 import numpy as np
@@ -13,6 +13,8 @@ from termination.variance_based.exponent_approximation.converging_constants impo
 from termination.variance_based.exponent_approximation.genetic_algorithm_config import GeneticAlgorithmConfig
 from termination.variance_based.exponent_approximation.inductive_bound import PrecisionException, _check_model, _compute_b
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
+
+N = Symbol("n", integer=True)
 
 @dataclass
 class InductiveBoundSpecification:
@@ -178,15 +180,15 @@ class GeneticAlgorithm:
         print(f"exponent: {self.fitness(self.population[0])},epsilon: {self.population[0].epsilon}, d: {self.population[0].d}, spec_end: {self.population[0].specification_end}, sg_cutoff: {self.population[0].sg_cutoff}, n0: {self.population[0].n0}")
 
 
-def estimate_bound_exponent_inductive_bound_genetic(degree: float, p:float, algorithm_config: GeneticAlgorithmConfig, q_1: Expr, q_2: Expr, initial_expr=None, exact_n0=False, seed=None):
+def estimate_bound_exponent_inductive_bound_genetic(p:float, algorithm_config: GeneticAlgorithmConfig, q_1: Expr, q_2: Expr, initial_expr=None, exact_n0=False, seed=None):
     """Create an upper bound for the exponent m of the bound $P(T\\geq t) \\leq Bn^{m}$. This method leverages a linear solver to do so.
     """
     assert 0 < p and p<1, "p must be a valid percentage between ]0;1["
     if (initial_expr is None or not sympify(initial_expr).is_number) and exact_n0:
         raise Exception("Can not compute exact bound for stopping time, when initial value of loop guard is unknown")
     C = 4*p*(1-p)
-
-    genetic_algorithm = GeneticAlgorithm(C, p, q_1 if exact_n0 else None, q_2 if exact_n0 else None, initial_expr, degree, seed)
+    var_degree = max(degree(q_1, N), degree(q_2, N)) *2+1
+    genetic_algorithm = GeneticAlgorithm(C, p, q_1 if exact_n0 else None, q_2 if exact_n0 else None, initial_expr, var_degree, seed)
     genetic_algorithm.get_initial_guesses(algorithm_config.get_granularity(0), algorithm_config.get_population_size(0))
     genetic_algorithm.sort_population()
 
