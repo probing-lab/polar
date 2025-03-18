@@ -144,7 +144,7 @@ class GeneticAlgorithm:
 
         return InductiveBoundSpecification(n0, d, epsilon, new_granularity, specification_end, sg_cutoff)
 
-    def get_initial_guesses(self, granularity, size):
+    def get_initial_guesses(self, granularity, size, adapt_d=True):
         exp_asym_bound = get_closed_form_bound_asymptotic(self.degree, self.C)/1.8
         n0 = self._get_n0_from_c0(0.001)
         
@@ -158,9 +158,15 @@ class GeneticAlgorithm:
             sg_cutoff_total = self.rand_gen.random()*c_prime+5.5
             specification_end = sg_cutoff_total - (self.rand_gen.random()*4.5+1)
             sg_cutoff = sg_cutoff_total-specification_end
-            self.population.append(InductiveBoundSpecification(
+            spec = InductiveBoundSpecification(
                 n0, d, epsilon, granularity, specification_end, sg_cutoff
-            ))
+            )
+            if adapt_d:
+                while self.fitness(spec)[1]!=0:
+                    spec.d /= 2
+                spec.d *= 2
+            self.population.append(spec)
+
 
     def get_new_population(self, mutation_multipier, crossover_multiplier, new_granularity):
         elems = self.rand_gen.choice(self.population, mutation_multipier*len(self.population), replace=True)
