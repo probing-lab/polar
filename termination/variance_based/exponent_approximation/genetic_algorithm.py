@@ -122,9 +122,7 @@ class GeneticAlgorithm:
         elif self.rand_gen.random() < 0.3:
             d *=(self.rand_gen.random()*0.5+0.55)
         if self.rand_gen.random() < 0.4: # small step
-            epsilon *= (self.rand_gen.random()*0.08+0.98)
-        elif self.rand_gen.random() < 0.2:
-            epsilon *= (self.rand_gen.random()*0.3+0.9)
+            epsilon *= (self.rand_gen.random()*0.08+0.96)
         if self.rand_gen.random() < 0.3:
             specification_end *= (self.rand_gen.random()*0.4 + 0.8)
         if self.rand_gen.random() < 0.3:
