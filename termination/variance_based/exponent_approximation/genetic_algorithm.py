@@ -54,10 +54,10 @@ class GeneticAlgorithm:
             return 1+1e-8
         return compute_delta_prime(n0, self.p, self.q1, self.q2)
         
-    def _get_c_0(self, n0):
+    def _get_c_0(self, n0, k):
         if self.q1 is None or self.q2 is None:
             return 1e-8
-        return compute_c_0(n0, self.p, self.q1.as_expr(), self.q2.as_expr(), self.initial_value)
+        return compute_c_0(n0, self.p, self.q1.as_expr(), self.q2.as_expr(), k,  self.initial_value)
 
     def _get_n0_from_c0(self, c0):
         if self.q1 is None or self.q2 is None:
@@ -72,12 +72,13 @@ class GeneticAlgorithm:
     @cache
     def fitness(self, spec: InductiveBoundSpecification):
         try:
-            c_0 = self._get_c_0(spec.n0)
             delta_1 = self._get_delta_1(spec.n0)
             delta_prime = self._get_delta_prime(spec.n0)
 
-            k = ((spec.d+1)/delta_prime)**(1/self.degree)
+            k = ((spec.d+1)*delta_prime)**(1/self.degree)
             k_delta = self._get_k_delta(spec.n0, k)
+            c_0 = self._get_c_0(spec.n0, k)
+
             if _check_model(spec.d, spec.epsilon, self.C, delta_1, c_0, 
                             spec.granularity, spec.specification_end, spec.sg_cutoff, 
                             _compute_b(spec.epsilon, spec.d, self.C)) is not None:
@@ -85,13 +86,17 @@ class GeneticAlgorithm:
                 exponent_fitness = log(1-spec.epsilon)/log(k+k_delta) # compute the exponent.
                 abs_bound = np.infty
                 coeff = np.infty
-                if exponent_fitness < -1 and self.q1 is not None and self.q2 is not None:
-                    # compute actual bound
-                    coeff = (1/(1-spec.epsilon))**((log(spec.n0, (spec.d+1)**(1/self.degree)/delta_prime))+2)
-                    
-                    series_sum = zeta(-exponent_fitness, spec.n0+1) + spec.n0 # TODO: The zeta function is an over-approximation, because actually the elements are bounded by 1 from above (would need the partial sum from n_0).
-                    abs_bound = coeff*series_sum
-                return (abs_bound, exponent_fitness, coeff) # fitness has two dimensions: the first is the actual bound (absolute value), the second is the exponent
+                try:
+                    if exponent_fitness < -1 and self.q1 is not None and self.q2 is not None:
+                        # compute actual bound
+                        coeff = (1/(1-spec.epsilon))**((log(spec.n0, k))+2)
+                        
+                        series_sum = zeta(-exponent_fitness, spec.n0+1)*coeff + spec.n0 # TODO: The zeta function is an over-approximation, because actually the elements are bounded by 1 from above (would need the partial sum from n_0).
+                        abs_bound = series_sum
+                    return (abs_bound, exponent_fitness, coeff) # fitness has two dimensions: the first is the actual bound (absolute value), the second is the exponent
+                except Exception as ex:
+                    print(f"Warning: encountered exception: {ex}")
+                    return (np.infty, 0, np.infty)
             else:
                 return (np.infty, 0, np.infty)
         except PrecisionException as ex:

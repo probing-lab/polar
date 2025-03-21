@@ -1,0 +1,7 @@
+i=0
+y = 10
+while y>0:
+    x = i {1/2} -i
+    y = y + x
+    i = i + 1
+end
