@@ -51,6 +51,12 @@ def _get_bn_func_2(p, q1, q2,k):
 def _get_expectation_divided_by_sd_expr(p, q1, q2, initial_expr):
     nominator = summation(_get_Ex(p,q1,q2), (N,0,N)) + initial_expr
     denominator = sp_sqrt(summation(_get_VarX(p,q1,q2), (N,0,N)))
+    return nominator/denominator
+
+@cache
+def _get_expectation_divided_by_sd_expr_2(p, q1, q2):
+    nominator = summation(_get_Ex(p,q1,q2), (N,0,N))
+    denominator = sp_sqrt(summation(_get_VarX(p,q1,q2), (N,0,N)))
     return nominator/denominator   
 
 @cache
@@ -60,12 +66,22 @@ def _get_expectation_divided_by_sd_func(p, q1, q2, initial_expr):
     fast_func = lambdify(N, expr, modules="math")
     return fast_func
 
+@cache
+def _get_expectation_divided_by_sd_func_2(p, q1, q2):
+    expr = _get_expectation_divided_by_sd_expr_2(p, q1, q2)
+
+    fast_func = lambdify(N, expr, modules="math")
+    return fast_func
+
 def compute_c_0(n_0, p, q1, q2,k, initial_expr):
     bn = _get_bn_func(p,q1,q2)(n_0)
     bn2 = _get_bn_func_2(p,q1,q2,k)(n_0)
-    mean_deviation_term = _get_expectation_divided_by_sd_func(p,q1,q2, initial_expr)(float(n_0))
+    exp_div_by_sd_func = _get_expectation_divided_by_sd_func(p,q1,q2, initial_expr)
+    
+    exp_dev = exp_div_by_sd_func(float(n_0))
+    exp_dev2 = exp_div_by_sd_func(float(n_0*k))-exp_div_by_sd_func(float(n_0))
 
-    return max(bn,bn2)+mean_deviation_term
+    return max(bn+exp_dev,bn2+exp_dev2)
 
 def compute_delta_cb(n_0, p, q1, q2, initial_expr):
     val = _get_expectation_divided_by_sd_func(p, q1, q2, initial_expr)(n_0)

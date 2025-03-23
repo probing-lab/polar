@@ -106,7 +106,10 @@ class GeneticAlgorithm:
         if len(self.population) < 1:
             return None
         spec = self.population[0]
-        c_0 = self._get_c_0(self.population[0].n0)
+        delta_prime = self._get_delta_prime(spec.n0)
+        k = ((spec.d+1)*delta_prime)**(1/self.degree)
+
+        c_0 = self._get_c_0(self.population[0].n0, k)
         delta_1 = self._get_delta_1(self.population[0].n0)
         res = _check_model(spec.d, spec.epsilon, self.C, delta_1, c_0, 
                             spec.granularity, spec.specification_end, spec.sg_cutoff, 
