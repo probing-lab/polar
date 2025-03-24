@@ -35,8 +35,7 @@ def validate_bound(values: np.ndarray, quantiles: np.ndarray, epsilon: float, d:
         new_bounds.append(new_quantile)
         initial_bounds.append(norm.cdf(value))
 
-    print(new_bounds)
-    print(np.all(np.array(new_bounds)-quantiles) >ERR)
-    print(np.all(np.array(initial_bounds)-quantiles) >ERR)
+    inductive_valid = np.all(np.array(new_bounds)-quantiles) >ERR
+    initial_valid = np.all(np.array(initial_bounds)-quantiles) >ERR
 
-    return True
+    return inductive_valid, initial_valid

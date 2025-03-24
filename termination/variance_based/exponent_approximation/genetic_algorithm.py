@@ -214,7 +214,9 @@ def estimate_bound_exponent_inductive_bound_genetic(p:float, algorithm_config: G
         genetic_algorithm.shrink_population(algorithm_config.get_population_size(i))
 
     bound_quantiles, bound_vals, epsilon, d, sg_cutoff, c_0_res, delta_1_res = genetic_algorithm.get_best_bound()
-    validate_bound(bound_vals, bound_quantiles, epsilon, d, sg_cutoff, C, c_0_res, delta_1_res)
+    inductive_valid, initial_valid = validate_bound(bound_vals, bound_quantiles, epsilon, d, sg_cutoff, C, c_0_res, delta_1_res)
+    assert inductive_valid, "inductive validity of bound could not be verified (probably a numeric error)"
+    assert initial_valid, "initial validity of bound could not be verified"
 
     return VarianceBoundWitness(genetic_algorithm.fitness(genetic_algorithm.population[0])[1],
                                 Symbol("B") if not exact_n0 else genetic_algorithm.fitness(genetic_algorithm.population[0])[2],
