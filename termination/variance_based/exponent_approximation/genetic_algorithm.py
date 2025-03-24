@@ -208,7 +208,7 @@ def estimate_bound_exponent_inductive_bound_genetic(p:float, algorithm_config: G
     if (initial_expr is None or not sympify(initial_expr).is_number) and exact_n0:
         raise Exception("Can not compute exact bound for stopping time, when initial value of loop guard is unknown")
     C = 4*p*(1-p)
-    var_degree = max(_get_poly_degree(q_1, N), _get_poly_degree(q_2, N)) *2+1
+    var_degree = max(_get_poly_degree(q_1), _get_poly_degree(q_2)) *2+1
     genetic_algorithm = GeneticAlgorithm(C, p, q_1 if exact_n0 else None, q_2 if exact_n0 else None, initial_expr, var_degree, seed)
     genetic_algorithm.get_initial_guesses(algorithm_config.get_granularity(0), algorithm_config.get_population_size(0))
     genetic_algorithm.sort_population()
