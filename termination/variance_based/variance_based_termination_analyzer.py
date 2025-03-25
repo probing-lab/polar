@@ -12,7 +12,7 @@ from termination.variance_based.exponent_approximation.inductive_bound import es
 
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
 
-N = Symbol("n", integer=True)
+N = Symbol("n", integer=True, positive=True)
 
 class VarianceBasedTerminationAnalyzer:
     def  __init__(self, p1, q1, p2, q2, initial_value):

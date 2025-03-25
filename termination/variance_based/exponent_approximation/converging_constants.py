@@ -4,7 +4,7 @@ import numpy as np
 from scipy.optimize import fsolve, bisect
 
 
-N = Symbol("n", integer=True)
+N = Symbol("n", integer=True, positive=True)
 C_0 = 0.5591# this is a constant from the berry-esseen-theorem 
 
 @cache

@@ -14,7 +14,7 @@ from termination.variance_based.exponent_approximation.genetic_algorithm_config 
 from termination.variance_based.exponent_approximation.inductive_bound import PrecisionException, _check_model, _compute_b
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
 
-N = Symbol("n", integer=True)
+N = Symbol("n", integer=True, positive=True)
 
 @dataclass
 class InductiveBoundSpecification:
