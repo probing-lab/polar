@@ -32,20 +32,31 @@ def _get_bn_func(p, q1, q2):
     return fast_func
 
 @cache
-def _get_bn_expr_2(p, q1, q2,k):
+def get_bn_2_nominator_expr(p, q1, q2):
     e1 = p*(Abs(q1-_get_Ex(p,q1,q2))**3) + (1-p)*(Abs(q2-_get_Ex(p,q1,q2))**3)
-    nominator = summation(e1, (N,N,k*N))
-    
-    e2 = _get_VarX(p, q1, q2)
-    denominator = summation(e2, (N,N,k*N))**(3/2)
+    nominator = summation(e1, (N,0,N))
 
-    return C_0*nominator/denominator
+    return C_0*nominator
 
 @cache
-def _get_bn_func_2(p, q1, q2,k):
-    expr = _get_bn_expr_2(p, q1, q2,k)
-    fast_func = lambdify(N, expr, modules="numpy")
-    return fast_func
+def get_bn_2_denominator_expr(p, q1, q2):
+    e2 = _get_VarX(p, q1, q2)
+    denominator = summation(e2, (N,0,N))**(3/2)
+    return denominator
+
+@cache
+def _get_bn_funcs(p, q1, q2):
+    nominator = get_bn_2_nominator_expr(p, q1, q2)
+    denominator = get_bn_2_denominator_expr(p, q1, q2)
+    nominator_func = lambdify(N, nominator, modules="numpy")
+    denominator_func = lambdify(N, denominator, modules="numpy")
+    return nominator_func, denominator_func
+
+def _get_bn2(p,q1,q2,k, n0):
+    nom_func, denom_func = _get_bn_funcs(p,q1,q2)
+    nom = nom_func(k*n0)-nom_func(n0)
+    denom = denom_func(k*n0)-denom_func(n0)
+    return nom/denom
 
 @cache
 def _get_expectation_divided_by_sd_expr(p, q1, q2, initial_expr):
@@ -75,8 +86,8 @@ def _get_expectation_divided_by_sd_func_2(p, q1, q2):
 
 def compute_c_0(n_0, p, q1, q2,k, initial_expr):
     bn = _get_bn_func(p,q1,q2)(n_0)
-    bn2 = _get_bn_func_2(p,q1,q2,k)(n_0)
     exp_div_by_sd_func = _get_expectation_divided_by_sd_func(p,q1,q2, initial_expr)
+    bn2 = _get_bn2(p, q1, q2, k, n_0)
     
     exp_dev = exp_div_by_sd_func(float(n_0))
     exp_dev2 = exp_div_by_sd_func(float(n_0*k))-exp_div_by_sd_func(float(n_0))
