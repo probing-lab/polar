@@ -26,7 +26,7 @@ if SOLVER_NAME=="GUROBI": # TODO: this seems messy - but gurobipy seems to be re
     print(gurobipy.gurobi.version())
 solver = pywraplp.Solver.CreateSolver(SOLVER_NAME) # CLP seems to have better numeric stability (e.g. not so often "ABNORMAL" result) than GLOP    
 if SOLVER_NAME=="GUROBI":
-    solver.SetNumThreads(1) 
+    solver.SetSolverSpecificParametersAsString('Threads 1')
 
 def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_gaussian_cutoff: float, C, delta_1, c0, b):
     # Create the linear solver with the GLOP backend.
