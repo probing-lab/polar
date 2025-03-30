@@ -101,6 +101,8 @@ class GeneticAlgorithm:
                 return (np.infty, 0, np.infty)
         except PrecisionException as ex:
             return (np.infty, 0, np.infty)
+        except ValueError as er: # This error can occure in the computation of constants
+            return (np.infty, 0, np.infty)
         
     def get_best_bound(self):
         if len(self.population) < 1:
