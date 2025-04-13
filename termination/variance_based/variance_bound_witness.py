@@ -23,8 +23,10 @@ class VarianceBoundWitness:
         assert N >= 1, "Exponent for stopping time smaller 1 does not make sense"
         if self.m > -1.00000001*N:
             return oo
-
-        return self.B**N * (zeta(-self.m/N, self.n0+1))  + self.n0**N
+        if self.n0:
+            return self.B**N * (zeta(-self.m/N, self.n0+1))  + self.n0**N
+        else:
+            return self.B**N * (zeta(-self.m/N))
 
     def print(self):
         if(self.terminates()):
