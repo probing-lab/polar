@@ -17,12 +17,12 @@ N = Symbol("n", integer=True, positive=True)
 class VarianceBasedTerminationAnalyzer:
     def  __init__(self, p1, q1, p2, q2, initial_value):
         self.p1 = p1
-        self.q1 = q1
+        self.q1 = q1.subs({Symbol("n", integer=True): N}).as_expr()
         self.p2 = p2
-        self.q2 = q2
+        self.q2 = q2.subs({Symbol("n", integer=True): N}).as_expr()
         self.initial_value = initial_value
-        assert q1.free_symbols ==set() or q1.free_symbols == set([N]), "Only 'n' may occur in polynomial q1"
-        assert q1.free_symbols ==set() or q2.free_symbols == set([N]), "Only 'n' may occur in polynomial q2"
+        assert self.q1.free_symbols ==set() or self.q1.free_symbols == set([N]), "Only 'n' may occur in polynomial q1"
+        assert self.q1.free_symbols ==set() or self.q2.free_symbols == set([N]), "Only 'n' may occur in polynomial q2"
 
     def _n_zero_delta1(self, delta1, q_var):
         # Maybe we must skip this for large polys
@@ -102,7 +102,7 @@ class VarianceBasedTerminationAnalyzer:
         # This verifies, that deg(E(X_i)) < deg(Var(X_i))/2
         assert max_degree_q1 == max_degree_q2 and max_coeff_p1*self.p1+max_coeff_p2*self.p2 == S.Zero,"Degree of expected value of loop guard change not lower than twice the degree of the variance."
 
-        witness = estimate_bound_exponent_inductive_bound_genetic(self.p1,MinMaxQuadraticAlgorithmConfig(50, 40, 400, 80, 200, 5,2, degree_pop=1, degree_gran=1), q1, q2,initial_expr=self.initial_value, exact_n0=exact)
+        witness = estimate_bound_exponent_inductive_bound_genetic(self.p1,MinMaxQuadraticAlgorithmConfig(50, 40, 400, 80, 200, 5,2, degree_pop=1, degree_gran=1), self.q1, self.q2,initial_expr=self.initial_value, exact_n0=exact)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
 
