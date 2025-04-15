@@ -399,7 +399,7 @@ class ArgumentParser:
         self.argument_parser.add_argument(
             "--seed",
             dest="seed",
-            type=Optional[int],
+            type=int,
             default=None,
             help="A seed to be used for reproducability",
         )
