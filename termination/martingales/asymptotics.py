@@ -19,7 +19,9 @@ def dominated(fs: List[Expr], n: Symbol):
     return get_eventual_bound(fs, n, Direction.NegInf)
 
 
-def get_eventual_bound(fs: List[Expr], n: Symbol, direction: Direction = Direction.PosInf) -> Expr:
+def get_eventual_bound(
+    fs: List[Expr], n: Symbol, direction: Direction = Direction.PosInf
+) -> Expr:
     """
     Given a list of expressions in n, it returns a single expression which is eventually a bound on all fs.
     Depending on the 'direction' parameter, the bound is either an eventual upper bound or eventual lower bound.
@@ -38,7 +40,9 @@ def get_eventual_bound(fs: List[Expr], n: Symbol, direction: Direction = Directi
     return simplify_asymptotically(result, n)
 
 
-def is_dominating_or_same(f1: Expr, f2: Expr, n: Symbol, direction: Direction = Direction.PosInf) -> bool:
+def is_dominating_or_same(
+    f1: Expr, f2: Expr, n: Symbol, direction: Direction = Direction.PosInf
+) -> bool:
     """
     Given two expressions in n it returns True iff the first expression eventually dominates the second one, modulo a
     positive constant factor.
@@ -53,10 +57,18 @@ def is_dominating_or_same(f1: Expr, f2: Expr, n: Symbol, direction: Direction = 
     if not limit_f1.is_infinite and not limit_f2.is_infinite:
         if upper:
             # f1 dominates if it's eventually positive or both are negative
-            return limit_f1.is_positive or limit_f2.is_negative or (limit_f1.is_zero and limit_f2.is_zero)
+            return (
+                limit_f1.is_positive
+                or limit_f2.is_negative
+                or (limit_f1.is_zero and limit_f2.is_zero)
+            )
         else:
             # f1 dominates if it's eventually negative or both are positive
-            return limit_f1.is_negative or limit_f2.is_positive or (limit_f1.is_zero and limit_f2.is_zero)
+            return (
+                limit_f1.is_negative
+                or limit_f2.is_positive
+                or (limit_f1.is_zero and limit_f2.is_zero)
+            )
 
     # FROM HERE onward: at least one limit is +/- infinity
 
@@ -68,11 +80,15 @@ def is_dominating_or_same(f1: Expr, f2: Expr, n: Symbol, direction: Direction = 
 
     if limit_f1 == oo:
         # if both functions go to +infinity, we have to investigate their fraction
-        return (upper and amber_limit(f1 / f2) > 0) or (lower and amber_limit(f1 / f2).is_finite)
+        return (upper and amber_limit(f1 / f2) > 0) or (
+            lower and amber_limit(f1 / f2).is_finite
+        )
 
     if limit_f1 == -oo:
         # if both functions go to -infinity, we have to investigate their fraction
-        return (upper and amber_limit(f1 / f2).is_finite) or (lower and amber_limit(f1 / f2) > 0)
+        return (upper and amber_limit(f1 / f2).is_finite) or (
+            lower and amber_limit(f1 / f2) > 0
+        )
 
 
 def simplify_asymptotically(expression: Expr, n: Symbol):
@@ -89,7 +105,7 @@ def simplify_asymptotically(expression: Expr, n: Symbol):
         return expression
 
     c = unique_positive_symbol()
-    if limit_exp.is_extended_negative: # TODO: Check if really just one case
+    if limit_exp.is_extended_negative:  # TODO: Check if really just one case
         c = -c
 
     return c * Order(expression, (n, oo)).expr

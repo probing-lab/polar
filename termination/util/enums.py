@@ -6,6 +6,7 @@ class LogicalState(Enum):
     Sat = 2
     Valid = 3
 
+
 class TerminationProperty(Enum):
     Terminating = 1
     Nontermination = 2

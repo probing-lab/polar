@@ -39,9 +39,9 @@ class BranchBuilder:
 
             monoms = set()
             for p, expr in recurrence_dict[next_monom]:
-                monoms = monoms.union(get_monoms(
-                    expr, constant_symbols=self.program.symbols
-                ))
+                monoms = monoms.union(
+                    get_monoms(expr, constant_symbols=self.program.symbols)
+                )
             for _, monom in monoms:
                 if monom not in recurrence_dict:
                     to_process.add(monom)
@@ -64,9 +64,14 @@ class BranchBuilder:
                 # Consider each branch
                 if self._assign_replace_is_necessary(assignment, right_side):
                     right_side = right_side.expand()
-                    possible_right_sides = self._replace_assign_branches(right_side, assignment)
-                    new_branches = new_branches+[(p*probability, expr.expand()) for (p, expr) in possible_right_sides]
-                    #right_side = self._reduce_powers(right_side)
+                    possible_right_sides = self._replace_assign_branches(
+                        right_side, assignment
+                    )
+                    new_branches = new_branches + [
+                        (p * probability, expr.expand())
+                        for (p, expr) in possible_right_sides
+                    ]
+                    # right_side = self._reduce_powers(right_side)
                 else:
                     new_branches.append((probability, right_side))
             branches = new_branches
@@ -111,8 +116,8 @@ class BranchBuilder:
                 for i in range(len(assign.polynomials)):
                     result = rest_without_var
                     for var_power, rest in terms_with_var:
-                        result += assign.polynomials[i]**var_power*rest
-                    possible_branches.append((assign.probabilities[i],result))
+                        result += assign.polynomials[i] ** var_power * rest
+                    possible_branches.append((assign.probabilities[i], result))
                 return possible_branches
 
             else:

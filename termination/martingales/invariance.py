@@ -3,6 +3,7 @@ This module contains functions deciding whether or not a given expression is an 
 More precisely, it decides whether expression <= 0 is eventually invariant.
 The methods are of course not complete in general.
 """
+
 from typing import Dict, List
 from sympy import Expr, Poly, Symbol, Tuple
 
@@ -12,10 +13,12 @@ from termination.util.poly_utils import get_sign
 from . import bound_store
 
 
-def is_invariant(expression: Expr,
-                 branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
-                 dist_assignments: Dict[Symbol, DistAssignment],
-                 closed_forms: Dict[Symbol, Expr]) -> bool:
+def is_invariant(
+    expression: Expr,
+    branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
+    dist_assignments: Dict[Symbol, DistAssignment],
+    closed_forms: Dict[Symbol, Expr],
+) -> bool:
     """
     Main function deciding whether expression <= 0 is eventually invariant
     """
@@ -26,7 +29,9 @@ def is_invariant(expression: Expr,
         return is_probabilistic_invariant(expression, branches, dist_assignments)
 
 
-def is_deterministic_invariant(expression: Expr, closed_forms: Dict[Symbol, Expr]) -> bool:
+def is_deterministic_invariant(
+    expression: Expr, closed_forms: Dict[Symbol, Expr]
+) -> bool:
     """
     Checks whether an expression only containing n eventually stays <= 0
     """
@@ -39,9 +44,11 @@ def is_deterministic_invariant(expression: Expr, closed_forms: Dict[Symbol, Expr
     return sign
 
 
-def is_probabilistic_invariant(expression: Expr,
-                               branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
-                               dist_assignments: Dict[Symbol, DistAssignment]) -> bool:
+def is_probabilistic_invariant(
+    expression: Expr,
+    branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
+    dist_assignments: Dict[Symbol, DistAssignment],
+) -> bool:
     """
     Tries several strategies to determine if a given expression eventually stays <= 0
     """

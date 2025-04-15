@@ -401,10 +401,8 @@ class ArgumentParser:
             dest="seed",
             type=Optional[int],
             default=None,
-            help="A seed to be used for reproducability"
+            help="A seed to be used for reproducability",
         )
-
-        
 
     def parse_args(self):
         args = self.argument_parser.parse_args()

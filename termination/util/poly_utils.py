@@ -1,11 +1,12 @@
 from typing import List
 from sympy import Expr, Poly, Symbol, degree, solve
 
+
 def has_real_zero(poly: Poly, symbol: Symbol):
-    if degree(poly, gen=symbol) > 4: 
+    if degree(poly, gen=symbol) > 4:
         # Solve can only analyze quartics (higher degrees only for special cases)
         return None
-    
+
     zeros = solve(poly, symbol)
     for zero in zeros:
         if zero.is_extended_real is True:
@@ -13,6 +14,7 @@ def has_real_zero(poly: Poly, symbol: Symbol):
         if zero.is_extended_real is None:
             return None
     return False
+
 
 def has_real_zero_for_any(poly: Poly):
     # exhaustively try for every symbol in poly.
@@ -24,6 +26,7 @@ def has_real_zero_for_any(poly: Poly):
             return res
     return None
 
+
 def get_sign(poly: Poly):
     # return True, when poly is always positive,
     # False, when poly is always negative and
@@ -34,21 +37,23 @@ def get_sign(poly: Poly):
         return True
     if not has_real_zero_for_any(poly) is False:
         return None
-    
+
     # leading_coeff has no zeros - now determine if it is positive
     symbols = poly.free_symbols
     substitutions = {sym: 0 for sym in symbols}
     zero_value = poly.subs(substitutions)
 
     assert zero_value != 0, "p(0) can not be 0, if p was found to have no zeros."
-    
+
     if zero_value < 0:
         return False
     return True
 
+
 def _get_possible_signs(expr: Expr):
     "returns a tuple (a,b), where a==True, (b==True) iff poly can be positive (negative)"
     return (expr.is_positive != False, expr.is_negative != False)
+
 
 def get_possible_signs(*args: List[Expr]):
     maybe_pos = False

@@ -9,11 +9,15 @@ def amber_limit(expr):
         return limit(expr.as_expr(), ITER_VAR, oo)
     return expr
 
+
 count = 0
+
+
 def unique_positive_symbol():
     global count
     count += 1
     return Symbol(f"__a__{count}", positive=True, real=True, is_finite=True)
+
 
 def inhom(branches: List[Tuple[Expr, Expr]], monomial: Monomial):
     inhom_parts = []
@@ -21,15 +25,18 @@ def inhom(branches: List[Tuple[Expr, Expr]], monomial: Monomial):
         inhom_parts.append(_get_inhom_part(expr, monomial))
     return inhom_parts
 
+
 def recurrence_constant(branches: List[Tuple[Expr, Expr]], monomial: Monomial):
     coeffs = []
     for prob, expr in branches:
         coeffs.append(_get_integer_coefficient(expr, monomial))
     return coeffs
 
+
 @cache
 def _get_inhom_part(expr: Expr, monomial: Monomial):
-    return simplify(expr - monomial*_get_integer_coefficient(expr, monomial))
+    return simplify(expr - monomial * _get_integer_coefficient(expr, monomial))
+
 
 @cache
 def _get_integer_coefficient(expr: Expr, monomial: Monomial):
