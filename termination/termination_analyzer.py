@@ -20,7 +20,7 @@ from utils.expressions import get_monoms, unpack_piecewise
 
 class TerminationAnalyzer:
     @classmethod
-    def analyze(cls, normalized_program: Program, loop_guard: Condition, smt=False, amber=False, variance_based=False, exact=False):
+    def analyze(cls, normalized_program: Program, loop_guard: Condition, smt=False, amber=False, variance_based=False, exact=False, genetic_algorithm_config=None, seed=None):
         print()
         print(colored("-------------------", "cyan"))
         print(colored("-   Termination   -", "cyan"))
@@ -68,7 +68,7 @@ class TerminationAnalyzer:
             q1 = r[q1_r]
             q2 = r[q2_r]
             analyzer = VarianceBasedTerminationAnalyzer(p1, q1, p2, q2, initial_value)
-            witness = analyzer.compute_bound(exact)
+            witness = analyzer.compute_bound(exact, genetic_algorithm_config, seed=seed)
             witness.print()
         else:
             witness = PolynomialTerminationCondition(closed_form_poly, terminates_zero, terminates_negative).get_witness()

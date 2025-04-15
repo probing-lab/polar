@@ -7,7 +7,7 @@ from sympy import S, Abs, Poly, Symbol, nroots, nsolve, summation, sqrt as sp_sq
 from scipy.stats import norm
 import numpy as np
 from termination.variance_based.exponent_approximation.genetic_algorithm import estimate_bound_exponent_inductive_bound_genetic
-from termination.variance_based.exponent_approximation.genetic_algorithm_config import MinMaxQuadraticAlgorithmConfig
+from termination.variance_based.exponent_approximation.genetic_algorithm_config import GeneticAlgorithmConfig, MinMaxGeneticAlgorithmConfig
 from termination.variance_based.exponent_approximation.inductive_bound import estimate_bound_exponent_inductive_bound
 
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
@@ -89,7 +89,7 @@ class VarianceBasedTerminationAnalyzer:
         return root
 
 
-    def compute_bound(self, exact):
+    def compute_bound(self, exact, genetic_algorithm_config: GeneticAlgorithmConfig, seed=None):
         # we need to compute (n'_0(delta1,delta2,c_0)) and then 
         # approximate the percentage of terminating.
         q1 = Poly(self.q1, gens = [N])
@@ -102,7 +102,7 @@ class VarianceBasedTerminationAnalyzer:
         # This verifies, that deg(E(X_i)) < deg(Var(X_i))/2
         assert max_degree_q1 == max_degree_q2 and max_coeff_p1*self.p1+max_coeff_p2*self.p2 == S.Zero,"Degree of expected value of loop guard change not lower than twice the degree of the variance."
 
-        witness = estimate_bound_exponent_inductive_bound_genetic(self.p1,MinMaxQuadraticAlgorithmConfig(20, 50, 200, 20, 100, 5,2, degree_pop=1, degree_gran=1), self.q1, self.q2,initial_expr=self.initial_value, exact_n0=exact)
+        witness = estimate_bound_exponent_inductive_bound_genetic(self.p1, genetic_algorithm_config, self.q1, self.q2,initial_expr=self.initial_value, exact_n0=exact, seed=seed)
         # For the percentage we have two parameters: t>1 and k, such that k**m >= 6.86546
 
 

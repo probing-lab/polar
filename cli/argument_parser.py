@@ -1,5 +1,6 @@
 from argparse import ArgumentParser as ArgParser
 import glob
+from typing import Optional
 
 import settings
 
@@ -325,6 +326,85 @@ class ArgumentParser:
             default=False,
             help="""If set, polar tries to find a concrete bound for the expectation of the running time.""",
         )
+        self.argument_parser.add_argument(
+            "--solver",
+            dest="lin_solver",
+            type=str,
+            default="CLP",
+            help="Set which linear solver to use. Defaults to CLP",
+        )
+        self.argument_parser.add_argument(
+            "--min_gran",
+            dest="min_gran",
+            type=int,
+            default=40,
+            help="Set minimum granularity of inductive bound",
+        )
+        self.argument_parser.add_argument(
+            "--max_gran",
+            dest="max_gran",
+            type=int,
+            default=200,
+            help="Set maximum granularity of inductive bound",
+        )
+        self.argument_parser.add_argument(
+            "--min_pop",
+            dest="min_pop",
+            type=int,
+            default=20,
+            help="Set minimum population of genetic algorithm",
+        )
+        self.argument_parser.add_argument(
+            "--max_pop",
+            dest="max_pop",
+            type=int,
+            default=100,
+            help="Set maximum population of genetic algorithm",
+        )
+        self.argument_parser.add_argument(
+            "--degree_population_shrink",
+            dest="degree_population_shrink",
+            type=float,
+            default=1,
+            help="Set degree of population shrinkage",
+        )
+        self.argument_parser.add_argument(
+            "--degree_granularity_growth",
+            dest="degree_granularity_growth",
+            type=float,
+            default=1,
+            help="Set degree of granularity growth",
+        )
+        self.argument_parser.add_argument(
+            "--num_generations",
+            dest="num_generations",
+            type=int,
+            default=20,
+            help="Set number of generations of genetic algorithm",
+        )
+        self.argument_parser.add_argument(
+            "--mutation_rate",
+            dest="mutation_rate",
+            type=int,
+            default=5,
+            help="Set number of mutations per element in the population",
+        )
+        self.argument_parser.add_argument(
+            "--crossover_rate",
+            dest="crossover_rate",
+            type=int,
+            default=2,
+            help="Set number of crossovers per element in the population",
+        )
+        self.argument_parser.add_argument(
+            "--seed",
+            dest="seed",
+            type=Optional[int],
+            default=None,
+            help="A seed to be used for reproducability"
+        )
+
+        
 
     def parse_args(self):
         args = self.argument_parser.parse_args()

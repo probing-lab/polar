@@ -22,8 +22,12 @@ class GeneticAlgorithmConfig(ABC):
     def get_num_iterations(self):
         pass
 
-class MinMaxQuadraticAlgorithmConfig(GeneticAlgorithmConfig):
-    def __init__(self, num_iterations, min_granularity, max_granularity, min_population, max_population, mutation_multiplier, crossover_multiplier, degree_pop=1, degree_gran=2):
+    @abstractmethod
+    def get_solver(self):
+        pass
+
+class MinMaxGeneticAlgorithmConfig(GeneticAlgorithmConfig):
+    def __init__(self, num_iterations, min_granularity, max_granularity, min_population, max_population, mutation_multiplier, crossover_multiplier, solver, degree_pop=1, degree_gran=2):
         self.granularity_offset = min_granularity
         self.granularity_coeff = (max_granularity-min_granularity)/num_iterations**degree_gran
 
@@ -35,6 +39,8 @@ class MinMaxQuadraticAlgorithmConfig(GeneticAlgorithmConfig):
         self.mutation_multiplier = mutation_multiplier
         self.crossover_multiplier = crossover_multiplier
         self.num_iterations = num_iterations
+
+        self.solver=solver
 
     def get_granularity(self, iteration):
         gr = int(self.granularity_offset+(iteration+1)**self.degree_gran*self.granularity_coeff)
@@ -51,3 +57,6 @@ class MinMaxQuadraticAlgorithmConfig(GeneticAlgorithmConfig):
     
     def get_population_size(self, iteration):
         return int(self.max_population+ self.population_coeff*(iteration+1)**self.degree_pop)
+    
+    def get_solver(self):
+        return self.solver

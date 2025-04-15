@@ -11,7 +11,7 @@ from termination.variance_based.exponent_approximation.bound_validation import v
 from termination.variance_based.exponent_approximation.closed_form_bound import _get_c_d_prime, get_closed_form_bound_asymptotic
 from termination.variance_based.exponent_approximation.converging_constants import compute_c_0, compute_delta_cb, compute_delta_prime, get_k_delta, get_n0_from_c0
 from termination.variance_based.exponent_approximation.genetic_algorithm_config import GeneticAlgorithmConfig
-from termination.variance_based.exponent_approximation.inductive_bound import PrecisionException, _check_model, _compute_b
+from termination.variance_based.exponent_approximation.inductive_bound import PrecisionException, _check_model, _compute_b, init
 from termination.variance_based.variance_bound_witness import VarianceBoundWitness
 
 N = Symbol("n", integer=True, positive=True)
@@ -210,11 +210,11 @@ def estimate_bound_exponent_inductive_bound_genetic(p:float, algorithm_config: G
     if (initial_expr is None or not sympify(initial_expr).is_number) and exact_n0:
         raise Exception("Can not compute exact bound for stopping time, when initial value of loop guard is unknown")
     C = 4*p*(1-p)
+    init(algorithm_config.get_solver())
     var_degree = max(_get_poly_degree(q_1), _get_poly_degree(q_2)) *2+1
     genetic_algorithm = GeneticAlgorithm(C, p, q_1 if exact_n0 else None, q_2 if exact_n0 else None, initial_expr, var_degree, seed)
     genetic_algorithm.get_initial_guesses(algorithm_config.get_granularity(0), algorithm_config.get_population_size(0))
     genetic_algorithm.sort_population()
-
     for i in range(algorithm_config.get_num_iterations()):
         print(f"Starting generation {i} with best element. Gen_size: {len(genetic_algorithm.population)}, granularity:{algorithm_config.get_granularity(i)}:")
         genetic_algorithm.print_best()

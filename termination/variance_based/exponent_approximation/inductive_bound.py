@@ -8,28 +8,29 @@ import numpy as np
 from ortools.linear_solver import pywraplp
 from scipy.stats import norm
 from heapq import heapify, heappush
-
+import gurobipy
 from termination.variance_based.exponent_approximation.closed_form_bound import get_closed_form_bound_asymptotic
 
 class PrecisionException(Exception):
     pass
 
 ERR = 10e-12
-SOLVER_NAME = "GUROBI" # TODO: Should be a command line argument
-SCALING = 1 # TODO: This is not so important for gurobi, but might make a difference for other solvers
+SCALING = 1 # TODO: This is not so important for gurobi
 CUTOFF_MAX_PRECISION = 10e-10
 CUTOFF_MIN_PRECISION = 0.01
 
-if SOLVER_NAME=="GUROBI": # TODO: this seems messy - but gurobipy seems to be required. I however dislike very much to have gurobipy as a dependency of polar in general.
-    os.environ["GUROBI_VERBOSITY"] = "0"
-    import gurobipy
-    print(gurobipy.gurobi.version())
-solver = pywraplp.Solver.CreateSolver(SOLVER_NAME) # CLP seems to have better numeric stability (e.g. not so often "ABNORMAL" result) than GLOP    
-if SOLVER_NAME=="GUROBI":
-    solver.SetSolverSpecificParametersAsString('Threads 1')
+
+solver = None
+
+def init(solver_name: str):
+    global solver
+    if solver_name=="GUROBI":
+        os.environ["GUROBI_VERBOSITY"] = "0"
+    solver = pywraplp.Solver.CreateSolver(solver_name) # CLP seems to have better numeric stability (e.g. not so often "ABNORMAL" result) than GLOP
+    if solver_name=="GUROBI":
+        solver.SetSolverSpecificParametersAsString('Threads 1')
 
 def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_gaussian_cutoff: float, C, delta_1, c0, b):
-    # Create the linear solver with the GLOP backend.
     infinity = solver.infinity()
     solver.Clear()
     exponent = -(sub_gaussian_cutoff - b - delta_1*(sqrt(1+var_scaling)/(sqrt(1+var_scaling)-1)))**2/2
@@ -41,8 +42,8 @@ def _get_solution(values: List[float], epsilon: float, var_scaling: float, sub_g
     rem_prob = (1- tail_bound)-epsilon
     rem_prob=rem_prob*SCALING
     if not solver:
-        print(f"Could not create solver {SOLVER_NAME}")
-        
+        print(f"Solver not initialized (did you call init?)")
+        exit(1)
     
 
     cdf_vars =  [solver.NumVar(0,SCALING, f"q_{v}") for v in values]
