@@ -4,15 +4,16 @@ More precisely, it decides whether expression <= 0 is eventually invariant.
 The methods are of course not complete in general.
 """
 
-from typing import Dict, List
-from sympy import Expr, Poly, Symbol, Tuple
+from typing import Dict, List, Optional
+from sympy import Expr, Poly, Symbol, Tuple, symbols, sympify
 
 from program.assignment.dist_assignment import DistAssignment
+from termination.martingales.asymptotics import Direction, is_dominating_or_same
 from termination.util.constants import ITER_VAR
 from termination.util.poly_utils import get_sign
 from . import bound_store
 
-
+n = Symbol("n", integer=True)
 def is_invariant(
     expression: Expr,
     branches: Dict[Symbol, List[Tuple[Expr, Expr]]],
@@ -53,21 +54,21 @@ def is_probabilistic_invariant(
     Tries several strategies to determine if a given expression eventually stays <= 0
     """
     answer = __is_probabilistic_invariant_via_bounds(expression)
-    if answer.is_known():
-        return answer.is_true()
+    if answer:
+        return answer
     raise NotImplemented()
 
 
-def __is_probabilistic_invariant_via_bounds(expression: Expr) -> Answer:
+def __is_probabilistic_invariant_via_bounds(expression: Expr) -> Optional[bool]:
     """
     Tries to decide if expression <= 0 eventually becomes invariant via bounds.
     """
     n = symbols("n", integer=True, positive=True)
     bounds = bound_store.get_bounds_of_expr(expression)
     if is_dominating_or_same(bounds.upper, sympify(-1), n, direction=Direction.NegInf):
-        return Answer.TRUE
+        return True
 
     if is_dominating_or_same(bounds.lower, sympify(1), n, direction=Direction.PosInf):
-        return Answer.FALSE
+        return False
 
-    return Answer.UNKNOWN
+    return None
