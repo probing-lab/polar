@@ -39,7 +39,7 @@ class RunsPlot(Plot):
     def _build(self):
         fig, ax = plt.subplots()
         goal = sympify(self.goal)
-        plt.ylabel("$\mathbb{R}$", rotation=0)
+        plt.ylabel("$\\mathbb{R}$", rotation=0)
         ax.set_yscale(self.yscale)
         plt.xlabel("n")
         exact_resolution = 4
@@ -62,7 +62,7 @@ class RunsPlot(Plot):
         if first_moment is not None:
             expectation_data = [float(eval_re(x, first_moment)) for x in xs]
             text = (
-                "$\mathbb{E}(" + str(goal) + "_n)$"
+                "$\\mathbb{E}(" + str(goal) + "_n)$"
                 if self.is_probabilistic
                 else f"${goal}_n$"
             )
@@ -78,7 +78,7 @@ class RunsPlot(Plot):
                     [0],
                     [0],
                     linestyle=":",
-                    label="$\pm 2 Std(" + str(goal) + "_n)$",
+                    label="$\\pm 2 Std(" + str(goal) + "_n)$",
                     color="red",
                 )
             )

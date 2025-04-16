@@ -89,7 +89,7 @@ class StatesPlot(Plot):
         if expectations:
             expectation_line = ax.axvline(x=expectations[0], color="red", linewidth=2)
             text = (
-                "$\mathbb{E}(" + str(goal) + "_n)$"
+                "$\\mathbb{E}(" + str(goal) + "_n)$"
                 if self.is_probabilistic
                 else f"${goal}_n$"
             )
@@ -108,7 +108,7 @@ class StatesPlot(Plot):
                     [0],
                     [0],
                     linestyle=":",
-                    label="$\pm 2 Std(" + str(goal) + "_n)$",
+                    label="$\\pm 2 Std(" + str(goal) + "_n)$",
                     color="red",
                 )
             )
