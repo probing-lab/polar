@@ -135,7 +135,7 @@ def _get_delta_prime_func(p, q1, q2):
     # compute the maximum deviation when only taking the leading term
     lt = LT(var_poly)
 
-    expr = (Abs(var_poly.as_expr()) / lt.as_expr()) ** 2
+    expr = (Abs(var_poly) / lt.as_expr()) ** 2
     return lambdify(N, expr, modules="math")
 
 
