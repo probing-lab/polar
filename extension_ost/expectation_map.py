@@ -60,13 +60,15 @@ def get_expectation_maps(recurrence_dict):
     
     # The expression map can be constructed from an invariant ideal
     invariant_ideal = InvariantIdeal(recurrences)
-    basis = invariant_ideal.compute_basis()
+    basis = list(invariant_ideal.compute_basis())
+    print(basis)
 
     # The basis is not yet a desired expression maps. We need to find an expression, where the actual random variables are cancelled out.
     # We have to do this, difference of E(p) and p must be zero NOT ONLY in expectation, but actually equal to the scalar 0. 
     # This is done by solving a linear system of equations. TODO: investigate if this could be replaced by monomial ordering in basis computation
     equations, coeffs = _build_equation_system(basis, set([Symbol(k) for k in recurrences.keys()]))
-
+    print(equations)
+    print(coeffs)
     solutions = _solve_equation_system(equations, coeffs)
 
     # We take every possible solution. TODO: check if this is necessary

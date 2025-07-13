@@ -31,14 +31,17 @@ recurrence_builder = RecBuilder(program)
 monoms = [sympify('k'),sympify('k**2'),sympify('x**2'), sympify('x*k'), sympify('x')]
 
 
-upper_bounds = {Expexted(sympify('k')): sympify('x0')+1}
-lower_bounds = {Expexted(sympify('k')): sympify('x0'), sympify('k'): 1, sympify('x0'):1}
+upper_bounds = {Expexted(sympify('k')): Symbol('x0', is_finite=True)+1}
+lower_bounds = {Expexted(sympify('k')): Symbol('x0', is_finite=True), Symbol('k'): sympify(1), Symbol('x0', is_finite=True):1}
 
 
 recurrences = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms}
+print(recurrences)
+
 
 sols = get_expectation_maps(recurrences)
-
+print(sols)
+exit(0)
 final_expression1 = sols[0]
 # get initial value
 monom_subs = {f"E({monom})":monom for monom in monoms}
@@ -53,16 +56,18 @@ for monom in monoms:
 print(final_expression1)
 goal_monom = Expexted(sympify('k**2'))
 
-expression_solved = solve(final_expression1, goal_monom)
+expression_solved = solve(final_expression1, goal_monom)[0]
+expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True))
 print(expression_solved)
 
 bound_store = BoundStore()
 bound_store.upper_bounds = upper_bounds 
-bound_store.upper_bounds[sympify("x")]= 0
+bound_store.upper_bounds[Symbol("x")]= sympify(0)
 bound_store.lower_bounds = lower_bounds 
-bound_store.lower_bounds[sympify("x")]= -1
+bound_store.lower_bounds[Symbol("x")]= sympify(-1)
+bound_store.add_initial(Symbol('x0', is_finite=True))
 
-upper_bound = bound_store._get_upper_bound_for_expression(expression_solved[0])
+upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
 
 print(upper_bound)
 # b2 = get_upper_bound(final_expression1.subs(sympify('k'), sympify('(k-1)').expand().simplify()), goal_monom, bounds+[loop_guard], program.symbols)

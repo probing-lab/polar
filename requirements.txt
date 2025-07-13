@@ -2,7 +2,7 @@ sympy==1.12.*
 symengine==0.13.*
 lark-parser==0.11
 singledispatchmethod==1.0
-scipy==1.12.*
+scipy==1.16.*
 numpy==1.26.*
 matplotlib==3.8.*
 progress==1.6
