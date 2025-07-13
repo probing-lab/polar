@@ -1,10 +1,11 @@
 from functools import reduce
-from sympy import Add, Function, Interval, Mul
+from sympy import Add, Function, Interval, Mul, expand, simplify
 
 
 class Expexted(Function):
     @classmethod
     def eval(cls, arg):
+        arg = (expand(arg))
         if isinstance(arg, Add):
             return Add(*[cls(term) for term in arg.args])
         if arg.is_number:

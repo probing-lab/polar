@@ -6,7 +6,8 @@ More concrete, we find a p[\bar{x}_t], s.t.
 """
 
 from functools import reduce
-from sympy import Piecewise, Symbol, solve, symbols
+from typing import Dict
+from sympy import Piecewise, Symbol, solve, symbols, sympify
 
 from invariants.invariant_ideal import InvariantIdeal
 
@@ -19,19 +20,31 @@ def _add_constant_factor(expr):
 
     return (expr-constant_part+constant_part*C).simplify()
 
+def _get_coeff(expr, monom):
+    for term in expr.as_ordered_terms():
+        if term.has(monom):
+            factors = term.as_coeff_mul()
+            coeff, rest = factors[0], factors[1]
+            # Check if the rest is exactly (y,) -> means y alone
+            if rest == sympify(monom).as_coeff_mul()[1]:
+                return coeff
+    return 0
 
-def _build_equation_system(basis, whitelist):
-    vars = reduce(lambda symbols, expr: symbols.union(expr.free_symbols),basis, set())
-    vars_to_eliminate = vars.difference(whitelist)
-    coeffs = list(symbols(f'c0:{len(basis)}'))
-    equations = []
+def _build_equation_system(recurrences:Dict, goal_var, deterministic_vars):
+    vars = set(recurrences.keys())
+    var_to_coeff = {var:Symbol(f'c{i}') for i,var in enumerate(vars)}
+
+    vars_to_eliminate = vars
+    vars_to_eliminate.add(C)
+
+    equations = [var_to_coeff[goal_var] - 1]
     for var in vars_to_eliminate:
-        expr = 0
-        for be, base_coeff in zip(basis, coeffs):
-            var_coeff = be.coeff(var, 1)
-            expr += var_coeff*base_coeff
+        expr = 0 if var not in var_to_coeff or var in deterministic_vars else -var_to_coeff[var] 
+        for monom, expression_E1 in recurrences.items():
+            var_coeff =_get_coeff(expression_E1,var)
+            expr += var_coeff*var_to_coeff[monom]
         equations.append(expr)
-    return equations, coeffs
+    return equations, var_to_coeff
 
 
 def _solve_equation_system(equations, coeffs):
@@ -54,30 +67,30 @@ def _solve_equation_system(equations, coeffs):
     return [solution_to_assignments(c) for c in sol_coeffs]
 
 
-def get_expectation_maps(recurrence_dict):
+def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
     # Note the "rec-monom". We do this, as we want to find the coefficient of each monomial in the poly p.
-    recurrences = {f"E({monom})": Piecewise((_add_constant_factor(rec-monom), True)) for monom,rec in recurrence_dict.items()}
+    recurrences = {monom: Piecewise((_add_constant_factor(rec - (monom if monom in deterministic_vars else 0)), True)) for monom,rec in recurrence_dict.items()}
     
     # The expression map can be constructed from an invariant ideal
-    invariant_ideal = InvariantIdeal(recurrences)
-    basis = list(invariant_ideal.compute_basis())
-    print(basis)
+    # invariant_ideal = InvariantIdeal(recurrences)
+    # basis = list(invariant_ideal.compute_basis())
+    # print(basis)
 
     # The basis is not yet a desired expression maps. We need to find an expression, where the actual random variables are cancelled out.
     # We have to do this, difference of E(p) and p must be zero NOT ONLY in expectation, but actually equal to the scalar 0. 
     # This is done by solving a linear system of equations. TODO: investigate if this could be replaced by monomial ordering in basis computation
-    equations, coeffs = _build_equation_system(basis, set([Symbol(k) for k in recurrences.keys()]))
+    equations, var_to_coeff = _build_equation_system(recurrences, goal_var, deterministic_vars)
     print(equations)
-    print(coeffs)
-    solutions = _solve_equation_system(equations, coeffs)
+    var_to_coeff_list = list(var_to_coeff.items())
+    solutions = _solve_equation_system(equations, [v for (_,v) in var_to_coeff_list])
 
     # We take every possible solution. TODO: check if this is necessary
     maps = []
     for solution in solutions:
         # Build the linear combination
         final_expression = 0
-        for expr, (_, coeff) in zip(basis, solution):
-            final_expression+= expr*coeff
+        for expr, (_, coeff) in zip([k for (k,_) in var_to_coeff_list], solution):
+            final_expression+= Symbol(f"E({expr})")*coeff
         
         # Replace the coefficients left with 1 (as they are underspecified)
         for (coeff, coeff_sol) in solution:

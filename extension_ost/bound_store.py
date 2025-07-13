@@ -126,17 +126,18 @@ class BoundStore:
         if expression in self.lower_bounds:
             return self.lower_bounds[expression]
         if isinstance(expression, Add):
-            return Add([self._get_lower_bound_for_expression(arg) for arg in expression.args])
+            parts = [self._get_lower_bound_for_expression(arg) for arg in expression.args]
+            return Add(*parts)
         if isinstance(expression, Mul): # Case split based on signs of bounds
             # TODO: Currently only extract numbers from multiplication
             number_args = [arg for arg in expression.args if arg.is_Number]
             if len(number_args)!=0:
                 # evaluate to check sign
-                coeff:Expr = simplify(Mul(number_args))
+                coeff:Expr = simplify(Mul(*number_args))
                 if coeff.is_nonnegative:
-                    return coeff*self._get_lower_bound_for_expression(Mul(arg for arg in expression.args if not arg.is_Number))
+                    return coeff*self._get_lower_bound_for_expression(Mul(*[arg for arg in expression.args if not arg.is_Number]))
                 if coeff.is_nonpositive:
-                    return coeff*self._get_upper_bound_for_expression(Mul((arg) for arg in expression.args if not arg.is_Number))
+                    return coeff*self._get_upper_bound_for_expression(Mul(*[(arg) for arg in expression.args if not arg.is_Number]))
         if isinstance(expression, Pow):
             base = expression.args[0]
             exponent = expression.args[1]

@@ -28,17 +28,17 @@ vars = normalized_program.effective_variables
 
 recurrence_builder = RecBuilder(program)
 
-monoms = [sympify('k'),sympify('k**2'),sympify('x**2'), sympify('x*k'), sympify('x')]
+monoms = [sympify('k'), sympify('x')]
 
 
-upper_bounds = {Expexted(sympify('k')): Symbol('x0', is_finite=True)*5+5}
-lower_bounds = {Expexted(sympify('k')): Symbol('x0', is_finite=True)*5, Symbol('k'): sympify(1), Symbol('x0', is_finite=True):1}
+upper_bounds = {}
+lower_bounds = {Symbol('k'): sympify(1), Symbol('x0', is_finite=True):1}
 
 
 recurrences = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms}
 print(recurrences)
 
-goal_monom = sympify('k**2')
+goal_monom = sympify('k')
 sols = get_expectation_maps(recurrences, goal_monom, {sympify('k')})
 print(sols)
 final_expression1 = sols[0]
@@ -53,7 +53,7 @@ for monom in monoms:
     final_expression1 = final_expression1.subs(f"E({monom})", Expexted(monom))
 
 print(final_expression1)
-goal_monom = Expexted(sympify('k**2'))
+goal_monom = Expexted(sympify('k'))
 
 expression_solved = solve(final_expression1, goal_monom)[0]
 expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True))
@@ -66,7 +66,7 @@ bound_store.lower_bounds = lower_bounds
 bound_store.lower_bounds[Symbol("x")]= sympify(-1)
 bound_store.add_initial(Symbol('x0', is_finite=True))
 
-upper_bound = bound_store._get_lower_bound_for_expression(expression_solved)
+upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
 print(upper_bound)
 
 bound_store = BoundStore()
@@ -81,7 +81,7 @@ print(expression_solved)
 expression_solved = expression_solved.subs(sympify('k'), sympify('(k-1)').expand().simplify())
 print(expression_solved)
 
-upper_bound = bound_store._get_lower_bound_for_expression(expression_solved.subs(sympify('k'), sympify('(k-1)').expand().simplify()))
+upper_bound = bound_store._get_upper_bound_for_expression(expression_solved.subs(sympify('k'), sympify('(k-1)').expand().simplify()))
 print(upper_bound)
 
 # print(final_expression1.expand().simplify())
