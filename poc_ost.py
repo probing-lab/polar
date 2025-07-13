@@ -1,8 +1,8 @@
 from functools import reduce
 from typing import Dict
 from symengine.lib.symengine_wrapper import sympify
-from sympy import Piecewise, Symbol, solve, symbols, sympify as sp_sympify
-from extension_ost.bound_fixpoint import try_get_new_bound
+from sympy import Piecewise, Symbol, reduce_inequalities, solve, symbols, sympify as sp_sympify
+from extension_ost.bound_store import BoundStore
 from extension_ost.expectation_map import get_expectation_maps
 from extension_ost.helpers import Expexted
 from inputparser.parser import Parser
@@ -19,7 +19,7 @@ lg = program.loop_guard
 print(f"Loop guard: {lg}")
 if lg.cop != '>':
     raise Exception(f"unknown cop: {lg.cop}")
-loop_guard = lg.poly1 > lg.poly2
+loop_guard = lg.poly1 - lg.poly2 # > 0 
 program.loop_guard = TrueCond()
 # Construct normal form so that Polar can analyze it
 normalized_program = normalize_program(program)
@@ -30,8 +30,9 @@ recurrence_builder = RecBuilder(program)
 
 monoms = [sympify('k'),sympify('k**2'),sympify('x**2'), sympify('x*k'), sympify('x')]
 
-bounds = [Expexted(sympify('k')) <= sympify('x0')+1, Expexted(sympify('k')) >= sympify('x0'), sympify('k') >= 1]
 
+upper_bounds = {Expexted(sympify('k')): sympify('x0')+1}
+lower_bounds = {Expexted(sympify('k')): sympify('x0'), sympify('k'): 1, sympify('x0'):1}
 
 
 recurrences = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms}
@@ -49,18 +50,29 @@ final_expression1= final_expression1 - initial_value
 for monom in monoms:
     final_expression1 = final_expression1.subs(f"E({monom})", Expexted(monom))
 
+print(final_expression1)
 goal_monom = Expexted(sympify('k**2'))
 
-b1 = try_get_new_bound(final_expression1, goal_monom, bounds+[sp_sympify(loop_guard).negated])
+expression_solved = solve(final_expression1, goal_monom)
+print(expression_solved)
 
-b2 = try_get_new_bound(final_expression1.subs(sympify('k'), sympify('(k-1)').expand().simplify()), goal_monom, bounds+[loop_guard])
+bound_store = BoundStore()
+bound_store.upper_bounds = upper_bounds 
+bound_store.upper_bounds[sympify("x")]= 0
+bound_store.lower_bounds = lower_bounds 
+bound_store.lower_bounds[sympify("x")]= -1
 
-print(final_expression1.expand().simplify())
-print(final_expression1.subs(sympify('k'), sympify('(k-1)')).expand().simplify())
+upper_bound = bound_store._get_upper_bound_for_expression(expression_solved[0])
 
-res = solve(final_expression1, goal_monom)
-print(res)
+print(upper_bound)
+# b2 = get_upper_bound(final_expression1.subs(sympify('k'), sympify('(k-1)').expand().simplify()), goal_monom, bounds+[loop_guard], program.symbols)
 
-res1 = solve (final_expression1.subs(sympify('k'), sympify('(k-1)')).expand().simplify(), goal_monom)
-print(res1)
+# print(final_expression1.expand().simplify())
+# print(final_expression1.subs(sympify('k'), sympify('(k-1)')).expand().simplify())
+
+# res = solve(final_expression1, goal_monom)
+# print(res)
+
+# res1 = solve (final_expression1.subs(sympify('k'), sympify('(k-1)')).expand().simplify(), goal_monom)
+# print(res1)
 pass
