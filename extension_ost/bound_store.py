@@ -176,11 +176,9 @@ class BoundStore:
                         continue
 
                     oexpr_hard_lb = self._get_lower_bound_for_expression(other_expr)
-                    if not oexpr_hard_lb.is_nonnegative:
+                    if not oexpr_hard_lb.is_nonnegative or not self._is_finite(oexpr_hard_lb):
                         continue
-                    oexpr_ub = self._get_upper_bound_for_expression(Expexted(other_expr))
-                    if self._is_finite(oexpr_ub):
-                        return Mul(*[hb_lower_bound, oexpr_ub])
+                    return Mul(*[hb_lower_bound, oexpr_hard_lb])
             pass
         elif expression.is_nonnegative:
             return 0

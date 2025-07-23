@@ -52,7 +52,7 @@ final_expression1= final_expression1 - initial_value
 for monom in monoms:
     final_expression1 = final_expression1.subs(f"E({monom})", Expexted(monom))
 
-print(final_expression1)
+print(f"Martingale: {final_expression1}")
 goal_monom = Expexted(sympify('k**2'))
 
 expression_solved = solve(final_expression1, goal_monom)[0]
@@ -66,8 +66,21 @@ bound_store.lower_bounds = lower_bounds
 bound_store.lower_bounds[Symbol("x")]= sympify(-1)
 bound_store.add_initial(Symbol('x0', is_finite=True))
 
-upper_bound = bound_store._get_lower_bound_for_expression(expression_solved)
+upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
 print(upper_bound)
+
+
+print("=========(k-1)========")
+
+print(final_expression1)
+final_expression1 = final_expression1.subs(sympify('k'), sympify('(k-1)'))
+print(final_expression1)
+final_expression1 = final_expression1.expand().simplify()
+print(final_expression1)
+
+expression_solved = solve(final_expression1, goal_monom)[0]
+expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True))
+print(expression_solved)
 
 bound_store = BoundStore()
 bound_store.upper_bounds = upper_bounds 
@@ -76,12 +89,10 @@ bound_store.lower_bounds = lower_bounds
 bound_store.lower_bounds[Symbol("x")]= sympify(0)
 bound_store.add_initial(Symbol('x0', is_finite=True))
 
-print("================")
 print(expression_solved)
-expression_solved = expression_solved.subs(sympify('k'), sympify('(k-1)').expand().simplify())
 print(expression_solved)
 
-upper_bound = bound_store._get_lower_bound_for_expression(expression_solved.subs(sympify('k'), sympify('(k-1)').expand().simplify()))
+upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
 print(upper_bound)
 
 # print(final_expression1.expand().simplify())
