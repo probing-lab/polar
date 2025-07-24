@@ -4,6 +4,7 @@ Note that in the current implementation, there needs to be an iter-variable name
 
 TODO: check if positivity (of symbols in bounds) is a necessary requirement (i think so)
 """
+from itertools import combinations
 from typing import Dict, List
 
 from sympy import Add, Expr, Interval, Mul, Symbol, oo, simplify, sympify, solve, Pow
@@ -118,6 +119,16 @@ class BoundStore:
             return 0
         return oo
     
+    def __two_partitions(self, s):
+        s = set(s)
+        seen = set()
+        return [
+            (a := set(c), s - a)
+            for r in range(1, len(s)//2 + 1)
+            for c in combinations(s, r)
+            if (key := frozenset([frozenset(c), frozenset(s - set(c))])) not in seen and not seen.add(key)
+        ]   
+    
     def _get_lower_bound_for_expression(self, expression: Expr):
         if expression.is_Number:
             return expression
@@ -138,6 +149,12 @@ class BoundStore:
                     return coeff*self._get_lower_bound_for_expression(Mul(*[arg for arg in expression.args if not arg.is_Number]))
                 if coeff.is_nonpositive:
                     return coeff*self._get_upper_bound_for_expression(Mul(*[(arg) for arg in expression.args if not arg.is_Number]))
+            else:
+                 for a_expr, b_expr in self.__two_partitions(expression.args):
+                     a_lb = self._get_lower_bound_for_expression(Mul(*a_expr))
+                     b_lb = self._get_lower_bound_for_expression(Mul(*b_expr))
+                     if a_lb.is_nonnegative and self._is_finite(a_lb) and b_lb.is_nonnegative and self._is_finite(b_lb):
+                         return a_lb*b_lb
         if isinstance(expression, Pow):
             base = expression.args[0]
             exponent = expression.args[1]
@@ -178,7 +195,7 @@ class BoundStore:
                     oexpr_hard_lb = self._get_lower_bound_for_expression(other_expr)
                     if not oexpr_hard_lb.is_nonnegative or not self._is_finite(oexpr_hard_lb):
                         continue
-                    return Mul(*[hb_lower_bound, oexpr_hard_lb])
+                    return Mul(*[hb_lower_bound, oexpr_hard_lb]) # redundant case - needs to be sharpened
             pass
         elif expression.is_nonnegative:
             return 0

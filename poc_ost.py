@@ -42,6 +42,8 @@ goal_monom = sympify('k**2')
 sols = get_expectation_maps(recurrences, goal_monom, {sympify('k')})
 print(sols)
 final_expression1 = sols[0]
+
+print(f"Substituted: {final_expression1.subs({f"E({k})":v for k,v in recurrences.items()})}")
 # get initial value
 monom_subs = {f"E({monom})":monom for monom in monoms}
 initial_value_dict = {var: recurrence_builder.get_initial_value(var) for var in vars}
@@ -53,21 +55,25 @@ for monom in monoms:
     final_expression1 = final_expression1.subs(f"E({monom})", Expexted(monom))
 
 print(f"Martingale: {final_expression1}")
+print(f"Martingale_substituted: {final_expression1.subs}")
 goal_monom = Expexted(sympify('k**2'))
 
-expression_solved = solve(final_expression1, goal_monom)[0]
-expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True))
-print(expression_solved)
+# expression_solved = solve(final_expression1, goal_monom)[0]
+# expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True))
+# print(expression_solved)
 
-bound_store = BoundStore()
-bound_store.upper_bounds = upper_bounds 
-bound_store.upper_bounds[Symbol("x")]= sympify(0)
-bound_store.lower_bounds = lower_bounds 
-bound_store.lower_bounds[Symbol("x")]= sympify(-1)
-bound_store.add_initial(Symbol('x0', is_finite=True))
+# bound_store = BoundStore()
+# bound_store.upper_bounds = upper_bounds 
+# bound_store.upper_bounds[Symbol("x")]= sympify(0)
+# bound_store.lower_bounds = lower_bounds 
+# bound_store.lower_bounds[Symbol("x")]= sympify(-1)
+# bound_store.add_initial(Symbol('x0', is_finite=True))
 
-upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
-print(upper_bound)
+# upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
+# print(f"Upper bound {upper_bound}")
+
+# lower_bound = bound_store._get_lower_bound_for_expression(expression_solved)
+# print(f"Lower bound {lower_bound}")
 
 
 print("=========(k-1)========")
@@ -93,7 +99,10 @@ print(expression_solved)
 print(expression_solved)
 
 upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
-print(upper_bound)
+print(f"Upper bound {upper_bound}")
+
+lower_bound = bound_store._get_lower_bound_for_expression(expression_solved)
+print(f"Lower bound {lower_bound}")
 
 # print(final_expression1.expand().simplify())
 # print(final_expression1.subs(sympify('k'), sympify('(k-1)')).expand().simplify())
