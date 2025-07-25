@@ -31,8 +31,8 @@ recurrence_builder = RecBuilder(program)
 monoms = [sympify('k'),sympify('k**2'),sympify('x**2'), sympify('x*k'), sympify('x')]
 
 
-upper_bounds = {Expexted(sympify('k')): Symbol('x0', is_finite=True)*5+5}
-lower_bounds = {Expexted(sympify('k')): Symbol('x0', is_finite=True)*5, Symbol('k'): sympify(1), Symbol('x0', is_finite=True):1}
+upper_bounds = {Expexted(sympify('k')): Symbol('x0', is_finite=True, positive=True)*5+5}
+lower_bounds = {Expexted(sympify('k')): Symbol('x0', is_finite=True, positive=True)*5, Symbol('k'): sympify(1), Symbol('x0', is_finite=True,positive=True):sympify(1)}
 
 
 recurrences = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms}
@@ -58,16 +58,16 @@ print(f"Martingale: {final_expression1}")
 print(f"Martingale_substituted: {final_expression1.subs}")
 goal_monom = Expexted(sympify('k**2'))
 
-# expression_solved = solve(final_expression1, goal_monom)[0]
-# expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True))
-# print(expression_solved)
+expression_solved = solve(final_expression1, goal_monom)[0]
+expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True, positive=True))
+print(expression_solved)
 
 # bound_store = BoundStore()
 # bound_store.upper_bounds = upper_bounds 
 # bound_store.upper_bounds[Symbol("x")]= sympify(0)
 # bound_store.lower_bounds = lower_bounds 
 # bound_store.lower_bounds[Symbol("x")]= sympify(-1)
-# bound_store.add_initial(Symbol('x0', is_finite=True))
+# bound_store.add_initial(Symbol('x0', is_finite=True, positive=True))
 
 # upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
 # print(f"Upper bound {upper_bound}")
@@ -85,7 +85,7 @@ final_expression1 = final_expression1.expand().simplify()
 print(final_expression1)
 
 expression_solved = solve(final_expression1, goal_monom)[0]
-expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True))
+expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True, positive=True))
 print(expression_solved)
 
 bound_store = BoundStore()
@@ -93,7 +93,7 @@ bound_store.upper_bounds = upper_bounds
 bound_store.upper_bounds[Symbol("x")]= sympify(1)
 bound_store.lower_bounds = lower_bounds 
 bound_store.lower_bounds[Symbol("x")]= sympify(0)
-bound_store.add_initial(Symbol('x0', is_finite=True))
+bound_store.add_initial(Symbol('x0', is_finite=True, positive=True))
 
 print(expression_solved)
 print(expression_solved)

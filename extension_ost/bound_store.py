@@ -184,7 +184,7 @@ class BoundStore:
             if isinstance(inner_expr, Mul):
                 for i in range(len(inner_expr.args)):
                     # TODO: This could be made more efficient by considering a powerset (and its complement), instead of recursive calls
-                    # TODO: More Cases are possible
+                    # TODO: More Cases are possible - this is just to get the minimum example working
                     hard_bounded_expr = inner_expr.args[i]
                     other_expr = Mul(*[arg for j,arg in enumerate(inner_expr.args) if j!= i])
 
@@ -195,7 +195,11 @@ class BoundStore:
                     oexpr_hard_lb = self._get_lower_bound_for_expression(other_expr)
                     if not oexpr_hard_lb.is_nonnegative or not self._is_finite(oexpr_hard_lb):
                         continue
-                    return Mul(*[hb_lower_bound, oexpr_hard_lb]) # redundant case - needs to be sharpened
+                    
+                    if hb_lower_bound.is_nonpositive:
+                        oexpr_ub = self._get_upper_bound_for_expression(Expexted(other_expr))
+                        if self._is_finite(oexpr_ub) and oexpr_ub.is_nonnegative:
+                            return Mul(*[hb_lower_bound, oexpr_ub]) # redundant case - needs to be sharpened
             pass
         elif expression.is_nonnegative:
             return 0
