@@ -80,7 +80,7 @@ def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
     # We have to do this, difference of E(p) and p must be zero NOT ONLY in expectation, but actually equal to the scalar 0. 
     # This is done by solving a linear system of equations. TODO: investigate if this could be replaced by monomial ordering in basis computation
     equations, var_to_coeff = _build_equation_system(recurrences, goal_var, deterministic_vars)
-    print(equations)
+
     var_to_coeff_list = list(var_to_coeff.items())
     solutions = _solve_equation_system(equations, [v for (_,v) in var_to_coeff_list])
 

@@ -11,9 +11,6 @@ from program.condition.true_cond import TrueCond
 from program.transformer import normalize_program
 from recurrences.rec_builder import RecBuilder
 
-test = Symbol("test", real=True)
-test1 = sympify("a<2")
-
 program = Parser().parse_file("documentation/test/example_paper_2019.prob")
 lg = program.loop_guard
 print(f"Loop guard: {lg}")
@@ -62,18 +59,18 @@ expression_solved = solve(final_expression1, goal_monom)[0]
 expression_solved = expression_solved.subs(Symbol("x0"), Symbol("x0", is_finite=True, positive=True))
 print(expression_solved)
 
-# bound_store = BoundStore()
-# bound_store.upper_bounds = upper_bounds 
-# bound_store.upper_bounds[Symbol("x")]= sympify(0)
-# bound_store.lower_bounds = lower_bounds 
-# bound_store.lower_bounds[Symbol("x")]= sympify(-1)
-# bound_store.add_initial(Symbol('x0', is_finite=True, positive=True))
+bound_store = BoundStore()
+bound_store.upper_bounds = upper_bounds 
+bound_store.upper_bounds[Symbol("x")]= sympify(0)
+bound_store.lower_bounds = lower_bounds 
+bound_store.lower_bounds[Symbol("x")]= sympify(-1)
+bound_store.add_initial(Symbol('x0', is_finite=True, positive=True))
 
-# upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
-# print(f"Upper bound {upper_bound}")
+upper_bound = bound_store._get_upper_bound_for_expression(expression_solved)
+print(f"Upper bound {upper_bound}")
 
-# lower_bound = bound_store._get_lower_bound_for_expression(expression_solved)
-# print(f"Lower bound {lower_bound}")
+lower_bound = bound_store._get_lower_bound_for_expression(expression_solved)
+print(f"Lower bound {lower_bound}")
 
 
 print("=========(k-1)========")
