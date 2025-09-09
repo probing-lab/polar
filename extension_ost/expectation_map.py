@@ -34,12 +34,11 @@ def _build_equation_system(recurrences:Dict, goal_var, deterministic_vars):
     vars = set(recurrences.keys())
     var_to_coeff = {var:Symbol(f'c{i}') for i,var in enumerate(vars)}
 
-    vars_to_eliminate = vars
-    vars_to_eliminate.add(C)
+    vars_to_eliminate = set(term.as_coeff_Mul()[1] for expr in recurrences.values() for term in expr.as_ordered_terms())
 
     equations = [var_to_coeff[goal_var] - 1]
     for var in vars_to_eliminate:
-        expr = 0 if var not in var_to_coeff or var in deterministic_vars else -var_to_coeff[var] 
+        expr = 0 if var not in var_to_coeff or len(set(var.free_symbols) - deterministic_vars)==0 else -var_to_coeff[var] 
         for monom, expression_E1 in recurrences.items():
             var_coeff =_get_coeff(expression_E1,var)
             expr += var_coeff*var_to_coeff[monom]
@@ -69,7 +68,7 @@ def _solve_equation_system(equations, coeffs):
 
 def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
     # Note the "rec-monom". We do this, as we want to find the coefficient of each monomial in the poly p.
-    recurrences = {monom: Piecewise((_add_constant_factor(rec - (monom if monom in deterministic_vars else 0)), True)) for monom,rec in recurrence_dict.items()}
+    recurrences = {monom: Piecewise((_add_constant_factor(rec - (monom if len(set(monom.free_symbols) - deterministic_vars)==0 else 0)), True)) for monom,rec in recurrence_dict.items()}
     
     # The expression map can be constructed from an invariant ideal
     # invariant_ideal = InvariantIdeal(recurrences)
@@ -80,7 +79,6 @@ def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
     # We have to do this, difference of E(p) and p must be zero NOT ONLY in expectation, but actually equal to the scalar 0. 
     # This is done by solving a linear system of equations. TODO: investigate if this could be replaced by monomial ordering in basis computation
     equations, var_to_coeff = _build_equation_system(recurrences, goal_var, deterministic_vars)
-
     var_to_coeff_list = list(var_to_coeff.items())
     solutions = _solve_equation_system(equations, [v for (_,v) in var_to_coeff_list])
 
@@ -95,7 +93,7 @@ def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
         # Replace the coefficients left with 1 (as they are underspecified)
         for (coeff, coeff_sol) in solution:
             if coeff == coeff_sol:
-                final_expression = final_expression.subs(coeff, 1)
+                final_expression = final_expression.subs(coeff, 0)
 
         maps.append(final_expression.simplify())
     return maps

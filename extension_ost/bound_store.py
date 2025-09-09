@@ -29,7 +29,7 @@ class BoundStore:
         self.initials.add(symbol)
 
     def _is_initial(self, expression:Expr):
-        return len(expression.free_symbols-self.initials)==0 and not expression.has(oo)
+        return len(expression.free_symbols-self.initials)==0 and not expression.has(oo) and not expression.has(-oo)
     
     def _is_finite(self, expression: Expr):
         return expression.is_finite or self._is_initial(expression)
