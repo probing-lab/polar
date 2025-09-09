@@ -33,8 +33,10 @@ def compute_bounds(random_vars: Set[Symbol],
     unprocessed:List[Expr] =deepcopy(monoms)
 
     bound_store = BoundStore()
-    bound_store.upper_bounds = initial_upper_bounds
-    bound_store.lower_bounds = initial_lower_bounds
+    for key, value in initial_upper_bounds.items():
+        bound_store.add_upper_bound(key, value)
+    for key, value in initial_lower_bounds.items():
+        bound_store.add_lower_bound(key, value)
     bound_store.initials = set(initial_constants)
     initial_value_dict = {var: sympify(recurrence_builder.get_initial_value(se_sympify(var))) for var in random_vars.union(deterministic_vars)}
     monom_subs = {f"E({monom})":monom for monom in monoms}
@@ -47,9 +49,6 @@ def compute_bounds(random_vars: Set[Symbol],
     while len(unprocessed) > 0:
         goal_monom = next(iter(unprocessed))
         unprocessed.remove(goal_monom)
-        if (Expexted(goal_monom) in bound_store.upper_bounds) and\
-            (Expexted(goal_monom) in bound_store.lower_bounds):
-            continue
 
         # There are potentially multiple martingales - maybe some of them lead to a bound, others dont
         martingales = get_expectation_maps(recurrences, goal_monom, deterministic_vars)
@@ -64,18 +63,20 @@ def compute_bounds(random_vars: Set[Symbol],
             assert len(solved_for_goal) == 1, "Unsure if this asserting is actually true - hence added for finding out"
             solved_for_goal = solved_for_goal[0].subs(initial_constants_sub)
 
-            if Expexted(goal_monom) not in bound_store.upper_bounds:
-                upper_bound = bound_store._get_upper_bound_for_expression(solved_for_goal).simplify()
-                if upper_bound != nan and bound_store._is_finite(upper_bound):
+            upper_bounds = bound_store._get_upper_bounds_for_expression(solved_for_goal)
+            for upper_bound in upper_bounds:
+                upper_bound = upper_bound.simplify()
+                if upper_bound != nan and bound_store._is_finite(upper_bound) and upper_bound not in bound_store.upper_bounds[Expexted(goal_monom)]:
                     bound_store.add_upper_bound(Expexted(goal_monom), upper_bound)
                     unprocessed = deepcopy(monoms)
                     print("     ",Expexted(goal_monom), "<=", upper_bound)
                 else:
                     print(Expexted(goal_monom), "<=", upper_bound)
 
-            if Expexted(goal_monom) not in bound_store.lower_bounds:
-                lower_bound = bound_store._get_lower_bound_for_expression(solved_for_goal).simplify()
-                if upper_bound != nan and bound_store._is_finite(lower_bound):
+            lower_bounds = bound_store._get_lower_bounds_for_expression(solved_for_goal)
+            for lower_bound in lower_bounds:
+                lower_bound = lower_bound.simplify()
+                if lower_bound != nan and bound_store._is_finite(lower_bound) and lower_bound not in bound_store.lower_bounds[Expexted(goal_monom)]:
                     bound_store.add_lower_bound(Expexted(goal_monom), lower_bound)
                     unprocessed = deepcopy(monoms)
                     print("     ",Expexted(goal_monom), ">=", lower_bound)
