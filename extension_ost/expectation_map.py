@@ -6,6 +6,7 @@ More concrete, we find a p[\bar{x}_t], s.t.
 """
 
 from functools import reduce
+from itertools import product
 from typing import Dict
 from sympy import Piecewise, Symbol, solve, symbols, sympify
 
@@ -82,18 +83,32 @@ def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
     var_to_coeff_list = list(var_to_coeff.items())
     solutions = _solve_equation_system(equations, [v for (_,v) in var_to_coeff_list])
 
+
+
     # We take every possible solution. TODO: check if this is necessary
     maps = []
     for solution in solutions:
+        free_vars = {coeff:[] for (coeff, coeff1) in solution if coeff==coeff1}
+        for (_,equation) in solution:
+            for free_var in free_vars:
+                if equation.has(free_var):
+                    free_vars[free_var].append(solve(equation, free_var)[0])
+
         # Build the linear combination
         final_expression = 0
         for expr, (_, coeff) in zip([k for (k,_) in var_to_coeff_list], solution):
             final_expression+= Symbol(f"E({expr})")*coeff
         
-        # Replace the coefficients left with 1 (as they are underspecified)
-        for (coeff, coeff_sol) in solution:
-            if coeff == coeff_sol:
-                final_expression = final_expression.subs(coeff, 0)
+        free_vars = free_vars.items()
+        free_var_names = [f[0] for f in free_vars]
+        substitutions = [f[1] for f in free_vars]
 
-        maps.append(final_expression.simplify())
+        substitution_combinations = [list(x) for x in product(*substitutions)]
+
+        for substitution_combination in substitution_combinations:
+            final_expression_substituted = final_expression
+            for var, sub in zip(free_var_names, substitution_combination):
+                final_expression_substituted = final_expression.subs(var, sub)
+
+            maps.append(final_expression_substituted.simplify())
     return maps
