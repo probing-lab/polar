@@ -8,7 +8,7 @@ from collections import defaultdict
 from itertools import combinations, product
 from typing import Dict, List
 
-from sympy import Add, Expr, Interval, Mul, Symbol, oo, simplify, sympify, solve, Pow
+from sympy import Add, Expr, Interval, Mul, Symbol, nan, oo, simplify, sympify, solve, Pow
 
 from extension_ost.helpers import Expexted
 
@@ -58,7 +58,8 @@ class BoundStore:
                     for bound in self._get_upper_bounds_for_expression(Mul(*[arg for arg in expression.args if not arg.is_Number])):
                         yield coeff*bound
                 if coeff.is_nonpositive:
-                    for bound in self._get_lower_bounds_for_expression(Mul(*[(arg) for arg in expression.args if not arg.is_Number])):
+                    bounds = list(self._get_lower_bounds_for_expression(Mul(*[(arg) for arg in expression.args if not arg.is_Number])))
+                    for bound in bounds:
                         yield coeff*bound
             else:
                 # TODO: this is suboptimal, as below
@@ -100,23 +101,23 @@ class BoundStore:
             for sharp_bound in self._get_upper_bounds_for_expression(inner_expr):
                 if self._is_finite(sharp_bound):
                     yield sharp_bound
-                if isinstance(inner_expr, Mul):
-                    for i in range(len(inner_expr.args)):
-                        # TODO: This could be made more efficient by considering a powerset (and its complement), instead of recursive calls
-                        # TODO: More Cases are possible
-                        hard_bounded_expr = inner_expr.args[i]
-                        other_expr = Mul(*[arg for j,arg in enumerate(inner_expr.args) if j!= i])
+            if isinstance(inner_expr, Mul):
+                for i in range(len(inner_expr.args)):
+                    # TODO: This could be made more efficient by considering a powerset (and its complement), instead of recursive calls
+                    # TODO: More Cases are possible
+                    hard_bounded_expr = inner_expr.args[i]
+                    other_expr = Mul(*[arg for j,arg in enumerate(inner_expr.args) if j!= i])
 
-                        for hb_upper_bound in self._get_upper_bounds_for_expression(hard_bounded_expr):
-                            if not self._is_finite(hb_upper_bound):
+                    for hb_upper_bound in self._get_upper_bounds_for_expression(hard_bounded_expr):
+                        if not self._is_finite(hb_upper_bound):
+                            continue
+
+                        for oexpr_hard_lb in self._get_lower_bounds_for_expression(other_expr):
+                            if not oexpr_hard_lb.is_nonnegative:
                                 continue
-
-                            for oexpr_hard_lb in self._get_lower_bounds_for_expression(other_expr):
-                                if not oexpr_hard_lb.is_nonnegative:
-                                    continue
-                                for oexpr_ub in self._get_upper_bounds_for_expression(Expexted(other_expr)):
-                                    if self._is_finite(oexpr_ub):
-                                        yield Mul(hb_upper_bound, oexpr_ub)
+                            for oexpr_ub in self._get_upper_bounds_for_expression(Expexted(other_expr)):
+                                if self._is_finite(oexpr_ub):
+                                    yield Mul(hb_upper_bound, oexpr_ub)
 
         elif expression.is_nonpositive:
             yield sympify(0)
@@ -141,7 +142,8 @@ class BoundStore:
         for bound in self.lower_bounds[expression]:
             yield bound
         if isinstance(expression, Add):
-            bounds = [list(x) for x in product(*[self._get_lower_bounds_for_expression(arg) for arg in expression.args])]
+            component_bounds = list(list(self._get_lower_bounds_for_expression(arg)) for arg in expression.args)
+            bounds = [list(x) for x in product(*component_bounds)]
             for bound in bounds:
                 yield Add(*bound)
         if isinstance(expression, Mul): # Case split based on signs of bounds
@@ -207,3 +209,23 @@ class BoundStore:
                                         yield Mul(*[hb_lower_bound, oexpr_ub]) # redundant case - needs to be sharpened
         elif expression.is_nonnegative:
             yield sympify(0)
+
+    def is_new_upper_bound(self, key, upper_bound):
+        if upper_bound == nan or not self._is_finite(upper_bound):
+            return False
+        # check if it is subsumed by any other lower bound
+        for old_ub in self.upper_bounds[key]:
+            if (upper_bound-old_ub).simplify().is_nonnegative:
+                return False
+
+        return True
+
+    def is_new_lower_bound(self, key, lower_bound):
+        if lower_bound == nan or not self._is_finite(lower_bound):
+            return False
+        # check if it is subsumed by any other lower bound
+        for old_lb in self.lower_bounds[key]:
+            if (lower_bound-old_lb).simplify().is_nonpositive:
+                return False
+
+        return True

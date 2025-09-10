@@ -66,22 +66,21 @@ def compute_bounds(random_vars: Set[Symbol],
             upper_bounds = bound_store._get_upper_bounds_for_expression(solved_for_goal)
             for upper_bound in upper_bounds:
                 upper_bound = upper_bound.simplify()
-                if upper_bound != nan and bound_store._is_finite(upper_bound) and upper_bound not in bound_store.upper_bounds[Expexted(goal_monom)]:
+                if bound_store.is_new_upper_bound(Expexted(goal_monom), upper_bound):
                     bound_store.add_upper_bound(Expexted(goal_monom), upper_bound)
                     unprocessed = deepcopy(monoms)
                     print("     ",Expexted(goal_monom), "<=", upper_bound)
                 else:
-                    print(Expexted(goal_monom), "<=", upper_bound)
+                    # print(Expexted(goal_monom), "<=", upper_bound)
+                    pass
 
             lower_bounds = bound_store._get_lower_bounds_for_expression(solved_for_goal)
             for lower_bound in lower_bounds:
                 lower_bound = lower_bound.simplify()
-                if lower_bound != nan and bound_store._is_finite(lower_bound) and lower_bound not in bound_store.lower_bounds[Expexted(goal_monom)]:
+                if bound_store.is_new_lower_bound(Expexted(goal_monom), lower_bound):
                     bound_store.add_lower_bound(Expexted(goal_monom), lower_bound)
                     unprocessed = deepcopy(monoms)
                     print("     ",Expexted(goal_monom), ">=", lower_bound)
                 else:
-                    print(Expexted(goal_monom), ">=", lower_bound)
-
-
-        pass
+                    # print(Expexted(goal_monom), ">=", lower_bound)
+                    pass
