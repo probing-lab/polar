@@ -21,10 +21,15 @@ class BoundStore:
         self.initials = set()
 
     def add_upper_bound(self, expression, upper_bound):
+        # remove all the upper bounds which are subsumed by the new upper bound
+        self.upper_bounds[expression] = [old_ub for old_ub in self.upper_bounds[expression] if not (old_ub-upper_bound).simplify().is_nonnegative]
         self.upper_bounds[expression].append(upper_bound)
         
-    def add_lower_bound(self, expresssion, lower_bounds):
-        self.lower_bounds[expresssion].append(lower_bounds)
+    def add_lower_bound(self, expression, lower_bound):
+
+        # remove all the lower bounds which are subsumed by the new lower bound
+        self.lower_bounds[expression] = [old_lb for old_lb in self.lower_bounds[expression] if not (old_lb-lower_bound).simplify().is_nonpositive]
+        self.lower_bounds[expression].append(lower_bound)
 
     def add_initial(self, symbol):
         self.initials.add(symbol)

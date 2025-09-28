@@ -69,7 +69,8 @@ def compute_bounds(random_vars: Set[Symbol],
                 if bound_store.is_new_upper_bound(Expexted(goal_monom), upper_bound):
                     bound_store.add_upper_bound(Expexted(goal_monom), upper_bound)
                     unprocessed = deepcopy(monoms)
-                    print("     ",Expexted(goal_monom), "<=", upper_bound)
+                    print("\t",Expexted(goal_monom), "<=", upper_bound)
+                    print("\t\t using:", martingale_expexted)
                 else:
                     # print(Expexted(goal_monom), "<=", upper_bound)
                     pass
@@ -80,7 +81,8 @@ def compute_bounds(random_vars: Set[Symbol],
                 if bound_store.is_new_lower_bound(Expexted(goal_monom), lower_bound):
                     bound_store.add_lower_bound(Expexted(goal_monom), lower_bound)
                     unprocessed = deepcopy(monoms)
-                    print("     ",Expexted(goal_monom), ">=", lower_bound)
+                    print("\t",Expexted(goal_monom), ">=", lower_bound)
+                    print("\t\t using:", martingale_expexted)
                 else:
                     # print(Expexted(goal_monom), ">=", lower_bound)
                     pass
