@@ -34,7 +34,7 @@ recurrence_builder = RecBuilder(normalized_program)
 
 compute_bounds({Symbol("x")},
                {Symbol("k")},
-               2,
+               3,
                recurrence_builder,
                [(Symbol("x0", is_finite=True, positive=True),sympify(0), oo)],
                {Symbol("x"): sympify(-1), Symbol("k"):sympify(1)},

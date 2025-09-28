@@ -92,7 +92,9 @@ def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
         for (_,equation) in solution:
             for free_var in free_vars:
                 if equation.has(free_var):
-                    free_vars[free_var].append(solve(equation, free_var)[0])
+                    solved_solutions = solve(equation, free_var)
+                    for sol in solved_solutions:
+                        free_vars[free_var].append(sol)
 
         # Build the linear combination
         final_expression = 0
@@ -108,7 +110,7 @@ def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
         for substitution_combination in substitution_combinations:
             final_expression_substituted = final_expression
             for var, sub in zip(free_var_names, substitution_combination):
-                final_expression_substituted = final_expression.subs(var, sub)
+                final_expression_substituted = final_expression_substituted.subs(var, sub)
 
             maps.append(final_expression_substituted.simplify())
     return maps
