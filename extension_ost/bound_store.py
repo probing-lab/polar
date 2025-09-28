@@ -6,9 +6,9 @@ TODO: check if positivity (of symbols in bounds) is a necessary requirement (i t
 """
 from collections import defaultdict
 from itertools import combinations, product
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
-from sympy import Add, Expr, Interval, Mul, Symbol, nan, oo, simplify, sympify, solve, Pow
+from sympy import S, Add, Expr, Interval, Mul, Poly, Symbol, nan, oo, simplify, sympify, solve, Pow
 
 from extension_ost.helpers import Expexted
 
@@ -18,24 +18,23 @@ class BoundStore:
     def __init__(self):
         self.upper_bounds:Dict[Expr, List[Expr]] =  defaultdict(list)
         self.lower_bounds:Dict[Expr, List[Expr]] =  defaultdict(list)
-        self.initials = set()
+        self.initials: Dict[Symbol, Tuple[Expr, Expr]] = {}
 
     def add_upper_bound(self, expression, upper_bound):
         # remove all the upper bounds which are subsumed by the new upper bound
-        self.upper_bounds[expression] = [old_ub for old_ub in self.upper_bounds[expression] if not (old_ub-upper_bound).simplify().is_nonnegative]
+        self.upper_bounds[expression] = [old_ub for old_ub in self.upper_bounds[expression] if not self._is_smaller(upper_bound, old_ub)]
         self.upper_bounds[expression].append(upper_bound)
         
     def add_lower_bound(self, expression, lower_bound):
-
         # remove all the lower bounds which are subsumed by the new lower bound
-        self.lower_bounds[expression] = [old_lb for old_lb in self.lower_bounds[expression] if not (old_lb-lower_bound).simplify().is_nonpositive]
+        self.lower_bounds[expression] = [old_lb for old_lb in self.lower_bounds[expression] if not self._is_smaller(old_lb, lower_bound)]
         self.lower_bounds[expression].append(lower_bound)
 
-    def add_initial(self, symbol):
-        self.initials.add(symbol)
+    def add_initial(self, symbol, lb=-oo, ub=oo):
+        self.initials[symbol] = (lb, ub)
 
     def _is_initial(self, expression:Expr):
-        return len(expression.free_symbols-self.initials)==0 and not expression.has(oo) and not expression.has(-oo)
+        return len(expression.free_symbols-self.initials.keys())==0 and not expression.has(oo) and not expression.has(-oo)
     
     def _is_finite(self, expression: Expr):
         return expression.is_finite or self._is_initial(expression)
@@ -49,7 +48,7 @@ class BoundStore:
             yield bound
         if isinstance(expression, Add):
             bounds = [list(self._get_upper_bounds_for_expression(arg)) for arg in expression.args]
-            bounds = [list(x) for x in product(*bounds)]
+            bounds = {tuple(x) for x in product(*bounds)}
 
             for bound in bounds:
                 yield Add(*bound)
@@ -220,7 +219,7 @@ class BoundStore:
             return False
         # check if it is subsumed by any other lower bound
         for old_ub in self.upper_bounds[key]:
-            if (upper_bound-old_ub).simplify().is_nonnegative:
+            if self._is_smaller(old_ub, upper_bound):
                 return False
 
         return True
@@ -230,7 +229,116 @@ class BoundStore:
             return False
         # check if it is subsumed by any other lower bound
         for old_lb in self.lower_bounds[key]:
-            if (lower_bound-old_lb).simplify().is_nonpositive:
+            if self._is_smaller(lower_bound, old_lb):
                 return False
 
         return True
+
+    def _pretty_print(self):
+        print("================================================")
+        for monom in {k for k in self.upper_bounds.keys() if len(self.upper_bounds[k])>0} |\
+                        {k for k in self.lower_bounds.keys() if len(self.lower_bounds[k])>0}:
+            if len(self.upper_bounds[monom])>0:
+                print(f"{str(monom):<20} <= {self.upper_bounds[monom][0]}")
+                for upper_bound in self.upper_bounds[monom][1:]:
+                    print(" "*20 + " <= "+str(upper_bound))
+
+            if len(self.lower_bounds[monom])>0:
+                print(f"{str(monom):<20} >= {self.lower_bounds[monom][0]}")
+                for lower_bound in self.lower_bounds[monom][1:]:
+                    print(" "*20 + " >= "+str(lower_bound))
+            print()
+
+    def _get_ub_for_initial_monomial(self, monom: Expr):
+        # TODO: support more complex monomials, like x0*y0
+        if len(monom.free_symbols) == 0:
+            return monom
+        if len(monom.free_symbols)!=1:
+            raise NotImplementedError("Currently only monomials that are of form x**k for some initial variable x are supported")
+        if monom in self.initials:
+            return self.initials[monom][1]
+
+        if isinstance(monom, Pow):
+            base = monom.args[0]
+            exponent = monom.args[1]
+            if base not in self.initials:
+                raise KeyError(f"monom base {base} expected to be in initials")
+            if exponent.is_odd:
+                return self.initials[base][1]**exponent
+            if exponent.is_even:
+                # take the absolutely larger bound
+                if self.initials[base][0].is_nonnegative:
+                    return self.initials[base][1]**exponent
+                if self.initials[base][1].is_nonpositive:
+                    return self.initials[base][0]**exponent
+                
+                diff_expr = self.initials[base][1]+self.initials[base][0]
+                if diff_expr.is_positive:
+                    return self.initials[base][1]**exponent
+                if diff_expr.is_negative:
+                    return self.initials[base][0]**exponent
+                # inconclusive :(
+
+        raise NotImplementedError("monomial could not be bounded")
+    
+    def _get_lb_for_initial_monomial(self, monom: Expr):
+        # TODO: support more complex monomials, like x0*y0
+        if len(monom.free_symbols) == 0:
+            return monom
+        if len(monom.free_symbols)!=1:
+            raise NotImplementedError("Currently only monomials that are of form x**k for some initial variable x are supported")
+        if monom in self.initials:
+            return self.initials[monom][0]
+
+        if isinstance(monom, Pow):
+            base = monom.args[0]
+            exponent = monom.args[1]
+            if base not in self.initials:
+                raise KeyError(f"monom base {base} expected to be in initials")
+            if exponent.is_odd:
+                return self.initials[base][1]**exponent
+            if exponent.is_even:
+                # take the absolutely larger bound
+                if self.initials[base][1].is_nonnegative:
+                    return self.initials[base][1]**exponent
+                else:
+                    return S.Zero
+                
+                # inconclusive :(
+
+        raise NotImplementedError("monomial could not be bounded")
+    
+    def _is_smaller(self, smaller_expr: Expr, larger_expr: Expr):
+        """returns True when smaller_expr < larger_expr, and false if the opposite is true, or if it is unknown
+
+        Args:
+            smaller_expr (Expr): smaller expression
+            larger_expr (Expr): larger expression
+        """
+        diff_expr = Add(larger_expr,smaller_expr*(-1)).simplify()
+
+        # check if positivity can easily shown
+        if diff_expr.is_nonnegative:
+            return True
+        
+        # try to lower bound the expression, and check if positivity can then be shown
+        initial_gens = list(self.initials.keys())
+        diff_expr_poly = Poly(diff_expr, *initial_gens)
+
+        coeff_monom_list = [(coeff,Mul(*[var**exp for var, exp in zip(initial_gens, poly_exps)])) for poly_exps, coeff in diff_expr_poly.terms()]
+
+        term = S.Zero
+        for coeff, monom in coeff_monom_list:
+            if coeff.is_positive:
+                monom_bound = self._get_lb_for_initial_monomial(monom)
+                term *= monom_bound*coeff
+            elif coeff.is_negative:
+                monom_bound = self._get_ub_for_initial_monomial(monom)
+                term *= monom_bound*coeff
+            else:
+                raise ValueError("Coefficient sign must be known")
+
+        if term.simplify().is_nonnegative:
+            return True
+
+        return False

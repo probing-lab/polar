@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import Dict
 from symengine.lib.symengine_wrapper import sympify
-from sympy import Piecewise, Symbol, reduce_inequalities, solve, symbols, sympify as sp_sympify
+from sympy import Piecewise, Symbol, oo, reduce_inequalities, solve, symbols, sympify as sp_sympify
 from extension_ost.bound_computation import compute_bounds
 from extension_ost.bound_store import BoundStore
 from extension_ost.expectation_map import get_expectation_maps
@@ -24,10 +24,18 @@ normalized_program = normalize_program(program)
 
 recurrence_builder = RecBuilder(normalized_program)
 
+# compute_bounds({Symbol("x")},
+#                {Symbol("k")},
+#                2,
+#                recurrence_builder,
+#                [(Symbol("x0", is_finite=True, positive=True),sympify(1), oo)],
+#                {Symbol("x"): sympify(0), Symbol("k"):sympify(1), Symbol("k")*Symbol("x"):sympify(0)},
+#                {Symbol("x"): sympify(1)})
+
 compute_bounds({Symbol("x")},
                {Symbol("k")},
                2,
                recurrence_builder,
-               [Symbol("x0", is_finite=True, positive=True)],
-               {Symbol("x"):-sympify(1), Symbol("k"):sympify(1)},
+               [(Symbol("x0", is_finite=True, positive=True),sympify(0), oo)],
+               {Symbol("x"): sympify(-1), Symbol("k"):sympify(1)},
                {Symbol("x"): sympify(0)})
