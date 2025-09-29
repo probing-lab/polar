@@ -79,6 +79,10 @@ class BoundStore:
                                         yield first_ub*second_ub
                                     if first_ub.is_nonpositive and second_ub.is_nonpositive and self._is_finite(first_lb) and self._is_finite(second_lb):
                                         yield first_lb*second_lb
+                    for first_ub in self._get_upper_bounds_for_expression(first_expr):
+                        for second_lb in self._get_lower_bounds_for_expression(second_lb):
+                            if first_ub.is_nonpositive and second_lb.is_nonnegative:
+                                yield first_ub*second_lb
 
         if isinstance(expression, Pow):
             base = expression.args[0]
@@ -112,8 +116,12 @@ class BoundStore:
                     hard_bounded_expr = inner_expr.args[i]
                     other_expr = Mul(*[arg for j,arg in enumerate(inner_expr.args) if j!= i])
 
+                    # hb_expr <= a   (a > 0)
+                    # 0 <= other_expr               =>          E(hb_expr*other_expr) <= ab
+                    # E(other_expr) < b
+ 
                     for hb_upper_bound in self._get_upper_bounds_for_expression(hard_bounded_expr):
-                        if not self._is_finite(hb_upper_bound):
+                        if not self._is_finite(hb_upper_bound) and not hb_upper_bound.is_nonnegative:
                             continue
 
                         for oexpr_hard_lb in self._get_lower_bounds_for_expression(other_expr):
@@ -121,7 +129,7 @@ class BoundStore:
                                 continue
                             for oexpr_ub in self._get_upper_bounds_for_expression(Expexted(other_expr)):
                                 if self._is_finite(oexpr_ub):
-                                    yield Mul(hb_upper_bound, oexpr_ub)
+                                    yield Mul(hb_upper_bound, oexpr_ub)                    
 
         elif expression.is_nonpositive:
             yield sympify(0)
@@ -173,6 +181,9 @@ class BoundStore:
             exponent = expression.args[1]
             
             for base_lb in self._get_lower_bounds_for_expression(base):
+                if base_lb.is_nonnegative and exponent.is_even:
+                    yield base_lb**exponent
+                
                 for base_ub in self._get_upper_bounds_for_expression(base):
                     if exponent.is_even:
                         if base_ub.is_nonpositive and self._is_finite(base_ub):
@@ -206,11 +217,18 @@ class BoundStore:
                         for oexpr_hard_lb in self._get_lower_bounds_for_expression(other_expr):
                             if not oexpr_hard_lb.is_nonnegative or not self._is_finite(oexpr_hard_lb):
                                 continue
-                            
+                            # a <= hb_expr [WHERE a <= 0] 
+                            # 0 <= other_expr               =>          ab <= E(hb_expr*other_expr)
+                            # E(other_expr) < b 
                             if hb_lower_bound.is_nonpositive:
                                 for oexpr_ub in self._get_upper_bounds_for_expression(Expexted(other_expr)):
                                     if self._is_finite(oexpr_ub) and oexpr_ub.is_nonnegative:
                                         yield Mul(*[hb_lower_bound, oexpr_ub]) # redundant case - needs to be sharpened
+                                        
+                                                               
+
+
+                    
         elif expression.is_nonnegative:
             yield sympify(0)
 

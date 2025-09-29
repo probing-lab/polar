@@ -64,9 +64,13 @@ def compute_bounds(random_vars: Set[Symbol],
         martingales = set(get_expectation_maps(recurrences, goal_monom, deterministic_vars))
         pass
         martingales.add(goal_monom)
+        martingales.add(Expexted(goal_monom))
 
         for martingale_map in martingales:
             if martingale_map == goal_monom:
+                solved_for_goal = martingale_map
+                martingale_expexted = solved_for_goal
+            elif martingale_map == Expexted(goal_monom):
                 solved_for_goal = martingale_map
                 martingale_expexted = solved_for_goal
             else:

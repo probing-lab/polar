@@ -39,7 +39,7 @@ for var in normalized_program.original_variables:
 
 compute_bounds(random_vars,
                deterministic_vars,
-               2,
+               3,
                recurrence_builder,
                [(Symbol("x0", is_finite=True, positive=True),sympify(0), oo)],
                {Symbol("x"): sympify(-1), Symbol("k"):sympify(1)},
