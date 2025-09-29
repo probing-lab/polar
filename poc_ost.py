@@ -1,13 +1,7 @@
 from functools import reduce
-from typing import Dict
-from symengine.lib.symengine_wrapper import sympify
-from sympy import Piecewise, Symbol, oo, reduce_inequalities, solve, symbols, sympify as sp_sympify
+from sympy import Symbol, oo, sympify
 from extension_ost.bound_computation import compute_bounds
-from extension_ost.bound_store import BoundStore
-from extension_ost.expectation_map import get_expectation_maps
-from extension_ost.helpers import Expexted
 from inputparser.parser import Parser
-from invariants.invariant_ideal import InvariantIdeal
 from program.condition.true_cond import TrueCond
 from program.transformer import normalize_program
 from recurrences.rec_builder import RecBuilder
@@ -24,6 +18,17 @@ normalized_program = normalize_program(program)
 
 recurrence_builder = RecBuilder(normalized_program)
 
+deterministic_vars = set()
+random_vars = set()
+
+for var in normalized_program.original_variables:
+    if not normalized_program.is_iteration_dependent(var):
+        continue
+    if normalized_program.is_dependent_vars({var}, normalized_program.dist_variables):
+        random_vars.add(Symbol(str(var)))
+    else:
+        deterministic_vars.add(Symbol(str(var)))
+
 # compute_bounds({Symbol("x")},
 #                {Symbol("k")},
 #                2,
@@ -32,9 +37,9 @@ recurrence_builder = RecBuilder(normalized_program)
 #                {Symbol("x"): sympify(0), Symbol("k"):sympify(1), Symbol("k")*Symbol("x"):sympify(0)},
 #                {Symbol("x"): sympify(1)})
 
-compute_bounds({Symbol("x")},
-               {Symbol("k")},
-               3,
+compute_bounds(random_vars,
+               deterministic_vars,
+               2,
                recurrence_builder,
                [(Symbol("x0", is_finite=True, positive=True),sympify(0), oo)],
                {Symbol("x"): sympify(-1), Symbol("k"):sympify(1)},

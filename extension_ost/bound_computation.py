@@ -28,10 +28,7 @@ def compute_bounds(random_vars: Set[Symbol],
                    initial_lower_bounds: Dict[Expr, Expr],
                    initial_upper_bounds: Dict[Expr, Expr]):
 
-    monoms = list(set(_get_monoms(random_vars.union(deterministic_vars), max_degree)))
-    monoms.sort(key=lambda x: str(x))
 
-    unprocessed:List[Expr] =deepcopy(monoms)
 
     bound_store = BoundStore()
     for key, value in initial_upper_bounds.items():
@@ -41,12 +38,22 @@ def compute_bounds(random_vars: Set[Symbol],
     for initial, lb, ub in initial_constants:
         bound_store.add_initial(initial, lb, ub)
     initial_value_dict = {var: sympify(recurrence_builder.get_initial_value(se_sympify(var))) for var in random_vars.union(deterministic_vars)}
-    monom_subs = {f"E({monom})":monom for monom in monoms}
     # Expexted is just a helper, with the main purpose of distributing and simplifying in accordance with Expected value of a RV
-    monom_expexted_sub = {f"E({monom})": Expexted(monom) for monom in monoms}
     initial_constants_sub = {Symbol(f"{sym}"):sym for sym,_,_ in initial_constants}
 
-    recurrences = {monom: sympify(recurrence_builder.get_recurrence(se_sympify(monom))) for monom in monoms} # TODO: Dirty fix with symengine. This needs a systematic change
+    monoms_all = list(set(_get_monoms(random_vars.union(deterministic_vars), max_degree)))
+
+    recurrences_all = {monom: sympify(recurrence_builder.get_recurrence(se_sympify(monom))) for monom in monoms_all} # TODO: Dirty fix with symengine. This needs a systematic change
+    # filter out the recurrences which are not iteration dependent - they destroy the procedure. TODO: Maybe adapt is_iteration_dependence of program for that
+    recurrences = {k:v for k,v in recurrences_all.items() if k.free_symbols == v.free_symbols}
+
+    monoms = list(recurrences.keys())
+    monoms.sort(key=lambda x: str(x))
+    monom_subs = {f"E({monom})":monom for monom in monoms}
+    monom_expexted_sub = {f"E({monom})": Expexted(monom) for monom in monoms}
+
+
+    unprocessed:List[Expr] =deepcopy(monoms)
 
     while len(unprocessed) > 0:
         goal_monom = next(iter(unprocessed))

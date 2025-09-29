@@ -8,7 +8,7 @@ More concrete, we find a p[\bar{x}_t], s.t.
 from functools import reduce
 from itertools import product
 from typing import Dict
-from sympy import Piecewise, Symbol, solve, symbols, sympify
+from sympy import Expr, Piecewise, Symbol, solve, symbols, sympify
 
 from invariants.invariant_ideal import InvariantIdeal
 
@@ -58,8 +58,7 @@ def _solve_equation_system(equations, coeffs):
                 # all coefficients not appearing in the solution can safely be set to zero
                 sol_coeffs[coeff] = 0
 
-        coeffs_sorted =sorted(list(sol_coeffs.items()), key=lambda x:str(x[0]))
-        return coeffs_sorted
+        return sol_coeffs
 
     sol_coeffs = solve(equations, coeffs, dict=True)
     if sol_coeffs is None:
@@ -67,6 +66,57 @@ def _solve_equation_system(equations, coeffs):
     return [solution_to_assignments(c) for c in sol_coeffs]
 
 
+
+def _get_axis_cut_solutions(solutions:Dict[Expr, Expr]):
+    """Given a general solution to a system of linear equations, this method returns all concrete solutions,
+    which (locally) maximize the number of variables set to 0.
+    
+    Args:
+        solutions (_type_): The solutions returned by solve for a multivariate system of equations
+    """
+    # get the variables which can be set to 0
+    choice_vars = set()
+    for k,v in solutions.items():
+        if k == v:
+            continue
+        if len(v.free_symbols)>=1:
+            choice_vars = choice_vars.union({f for f in v.free_symbols if solutions[f] == f})
+
+        # expression is of form x: y+a (x,y are vars, a is some constant)
+        # then we can either set x=0 and y=-a, or y=0, x=a
+        if len(v.free_symbols)==1:
+            choice_vars.add(k)
+
+    # no more choices, set all not determined vars to 0
+    if len(choice_vars) == 0:
+        sol = solutions.copy()
+        for k in sol:
+            if sol[k] == k:
+                sol[k]=0
+            elif len(sol[k].free_symbols)==0:
+                pass
+            else:
+                raise Exception("this should not occur in an underspecified system of equations (probably some kind of circularity)."+\
+                                "Is this input returned from linsolve?")
+        yield sol
+
+    for choice_var in choice_vars:
+        sol = solutions.copy()
+        
+        if sol[choice_var] != choice_var: #(sign chosen to be consistent, wlog) this handles the case: sol[choice_var] = other_var - a
+            assert len(sol[choice_var].free_symbols)==1
+            other_var = sol[choice_var].free_symbols.pop()
+            a = solve(sol[choice_var], other_var)[0]
+            sol[other_var] = a
+            for k in sol:
+                sol[k]=sol[k].subs(other_var, a)
+        for k in sol:
+            sol[k]=sol[k].subs(choice_var, 0)
+        
+        for solution in _get_axis_cut_solutions(sol):
+            yield solution
+
+# TODO: cache this function
 def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
     # Note the "rec-monom". We do this, as we want to find the coefficient of each monomial in the poly p.
     recurrences = {monom: Piecewise((_add_constant_factor(rec - (monom if len(set(monom.free_symbols) - deterministic_vars)==0 else 0)), True)) for monom,rec in recurrence_dict.items()}
@@ -85,32 +135,16 @@ def get_expectation_maps(recurrence_dict, goal_var, deterministic_vars):
 
 
 
-    # We take every possible solution. TODO: check if this is necessary
-    maps = []
+    maps = set()
     for solution in solutions:
-        free_vars = {coeff:[] for (coeff, coeff1) in solution if coeff==coeff1}
-        for (_,equation) in solution:
-            for free_var in free_vars:
-                if equation.has(free_var):
-                    solved_solutions = solve(equation, free_var)
-                    for sol in solved_solutions:
-                        free_vars[free_var].append(sol)
+        # TODO: the following contains many duplicates - get rid of them, either in the called function (probably hard) or afterwards
+        axis_cut_solutions = list(_get_axis_cut_solutions(solution))
+
 
         # Build the linear combination
         final_expression = 0
-        for expr, (_, coeff) in zip([k for (k,_) in var_to_coeff_list], solution):
+        for expr, coeff in var_to_coeff_list:
             final_expression+= Symbol(f"E({expr})")*coeff
-        
-        free_vars = free_vars.items()
-        free_var_names = [f[0] for f in free_vars]
-        substitutions = [f[1] for f in free_vars]
-
-        substitution_combinations = [list(x) for x in product(*substitutions)]
-
-        for substitution_combination in substitution_combinations:
-            final_expression_substituted = final_expression
-            for var, sub in zip(free_var_names, substitution_combination):
-                final_expression_substituted = final_expression_substituted.subs(var, sub)
-
-            maps.append(final_expression_substituted.simplify())
+        for axis_cut_solution in axis_cut_solutions:
+            maps.add(final_expression.subs(axis_cut_solution).simplify())
     return maps
