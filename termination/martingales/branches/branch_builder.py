@@ -65,9 +65,14 @@ class BranchBuilder:
                 # Consider each branch
                 if self._assign_replace_is_necessary(assignment, right_side):
                     right_side = right_side.expand()
-                    possible_right_sides = self._replace_assign_branches(right_side, assignment)
-                    new_branches = new_branches+[(p*probability, expr.expand()) for (p, expr) in possible_right_sides]
-                    #right_side = self._reduce_powers(right_side)
+                    possible_right_sides = self._replace_assign_branches(
+                        right_side, assignment
+                    )
+                    new_branches = new_branches + [
+                        (p * probability, expr.expand())
+                        for (p, expr) in possible_right_sides
+                    ]
+                    # right_side = self._reduce_powers(right_side)
                 else:
                     new_branches.append((probability, right_side))
             branches = new_branches
@@ -85,6 +90,7 @@ class BranchBuilder:
         if assign.variable not in self.context.triggers:
             return False
         return bool(self.context.triggers[assign.variable] & poly.free_symbols)
+
 
     def _get_last_assign_index(self, variables: Set[Symbol]):
         """
