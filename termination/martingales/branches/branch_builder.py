@@ -7,6 +7,7 @@ from program.assignment import Assignment
 from program.assignment.dist_assignment import DistAssignment
 from program.assignment.poly_assignment import PolyAssignment
 from program.condition.true_cond import TrueCond
+from program.distribution.distribution import DistributionFunction
 from program.type import Finite
 from recurrences import Recurrences
 from recurrences.rec_builder_context import RecBuilderContext
@@ -114,6 +115,11 @@ class BranchBuilder:
                         result += assign.polynomials[i]**var_power*rest
                     possible_branches.append((assign.probabilities[i],result))
                 return possible_branches
+            if isinstance(assign, DistAssignment):
+                result = rest_without_var
+                for var_power, rest in terms_with_var:
+                    result += DistributionFunction(assign.distribution)**var_power*rest
+                return result
 
             else:
                 raise NotImplementedError()
