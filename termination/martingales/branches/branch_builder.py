@@ -2,10 +2,12 @@ from functools import lru_cache
 from math import prod
 from typing import Set, List
 from symengine.lib.symengine_wrapper import Expr, Symbol, sympify, One, Zero
+from sympy import div
 from program import Program
 from program.assignment import Assignment
 from program.assignment.dist_assignment import DistAssignment
 from program.assignment.poly_assignment import PolyAssignment
+from program.condition.not_cond import Not
 from program.condition.true_cond import TrueCond
 from program.distribution.distribution import DistributionFunction
 from program.type import Finite
@@ -16,7 +18,7 @@ from utils import get_terms_with_var, get_terms_with_vars, get_monoms
 
 class BranchBuilder:
     """
-    This class provides the functionality to construct all the possible recurrences of monomials.
+    This class provides the functionality to construct all the possible assignment branches of monomials.
     """
 
     program: Program
@@ -39,7 +41,7 @@ class BranchBuilder:
             recurrence_dict[next_monom] = self.get_recurrence_branches(next_monom)
 
             monoms = set()
-            for p, expr in recurrence_dict[next_monom]:
+            for condition, p, expr in recurrence_dict[next_monom]:
                 monoms = monoms.union(get_monoms(
                     expr, constant_symbols=self.program.symbols
                 ))
@@ -57,24 +59,46 @@ class BranchBuilder:
         """
         self.context = RecBuilderContext()
         last_assign_index = self._get_last_assign_index(monomial.free_symbols)
-        branches = [(1, monomial)]
+        branches = [(TrueCond().to_arithm(self.program),sympify(1), monomial)]
         for i in reversed(range(last_assign_index + 1)):
             assignment = self.program.loop_body[i]
             new_branches = []
-            for probability, right_side in branches:
+            for branch_condition, probability_expr, right_side_expr in branches:
+                if assignment.condition.to_arithm(self.program) != branch_condition and not isinstance(assignment.condition, TrueCond):
+                    # Not the right branch
+                    if branch_condition == TrueCond().to_arithm(self.program) and assignment.condition.to_arithm(self.program) not in [b[0] for b in branches]:
+                        # new condition - hence create a new branch
+                        branch_condition = assignment.condition.to_arithm(self.program)
+
+                        # since we are in some ssa-ish form, replace the variables which occure later
+
+                        # but we also need to keep the other branch
+                        new_branches.append((Not(assignment.condition).to_arithm(self.program).simplify(), probability_expr, right_side_expr.subs(assignment.variable, assignment.default)))
+                    else:
+                        # otherwise switch vars
+                        new_branches.append((branch_condition, probability_expr, right_side_expr.subs(assignment.variable, assignment.default)))
+                        continue # not new, wait for the branches which satisfy this condition
+
+                # check if some probabilities need assignment
+                prob_branches = [(branch_condition, probability_expr, right_side_expr)]
+                if self._assign_replace_is_necessary(assignment, branch_condition):
+                    prob_branches = [(expr,prob*probability_expr, right_side_expr) for prob, expr in self._replace_assign_branches(branch_condition, assignment)]
+
                 # Consider each branch
-                if self._assign_replace_is_necessary(assignment, right_side):
-                    right_side = right_side.expand()
-                    possible_right_sides = self._replace_assign_branches(
-                        right_side, assignment
-                    )
-                    new_branches = new_branches + [
-                        (p * probability, expr.expand())
-                        for (p, expr) in possible_right_sides
-                    ]
-                    # right_side = self._reduce_powers(right_side)
-                else:
-                    new_branches.append((probability, right_side))
+                for branch_condition, probability, right_side in prob_branches:
+
+                    if self._assign_replace_is_necessary(assignment, right_side):
+                        right_side = right_side.expand()
+                        possible_right_sides = self._replace_assign_branches(
+                            right_side, assignment
+                        )
+                        new_branches = new_branches + [
+                            (branch_condition,p * probability, expr.expand())
+                            for (p, expr) in possible_right_sides
+                        ]
+                        # right_side = self._reduce_powers(right_side)
+                    else:
+                        new_branches.append((branch_condition, probability, right_side))
             branches = new_branches
         return branches
 
@@ -83,8 +107,6 @@ class BranchBuilder:
         Returns true iff assign needs to be considered when constructing a moment recurrence.
         The argument "poly" is the intermediate result of constructing a moment recurrence.
         """
-        if isinstance(assign, DistAssignment):
-            return False  # Dist assignments are kept as is, since they do not introduce a new branch. They are later handled when computing bounds
         if assign.variable in poly.free_symbols:
             return True
         if assign.variable not in self.context.triggers:
@@ -106,15 +128,11 @@ class BranchBuilder:
         """
         This method computes the possible branches for an assignment
         """
-        cond = assign.condition.to_arithm(self.program)
         # if poly doesn't contain triggers of assign.variables, we only need to worry about assign.variable itself
         if not self.context.var_has_triggers_in_expr(assign.variable, poly):
             terms_with_var, rest_without_var = get_terms_with_var(poly, assign.variable)
-
-            if not isinstance(assign.condition, TrueCond):
-                raise NotImplementedError()  # This is nontrivial, as conditions do not always create a new branch
+            possible_branches = []
             if isinstance(assign, PolyAssignment):
-                possible_branches = []
                 for i in range(len(assign.polynomials)):
                     result = rest_without_var
                     for var_power, rest in terms_with_var:
@@ -125,7 +143,7 @@ class BranchBuilder:
                 result = rest_without_var
                 for var_power, rest in terms_with_var:
                     result += DistributionFunction(assign.distribution)**var_power*rest
-                return result
+                return [(1,result)]
 
             else:
                 raise NotImplementedError()
