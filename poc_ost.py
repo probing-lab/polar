@@ -1,8 +1,11 @@
 from functools import reduce
-from sympy import Symbol, oo, solve, sympify
+from typing import List, Tuple
+from sympy import Expr, Symbol, oo, preorder_traversal, solve, sympify
 from extension_ost.bound_computation import compute_bounds
+from extension_ost.bound_store import BoundStore
 from inputparser.parser import Parser
 from program.condition.true_cond import TrueCond
+from program.distribution.distribution import DistributionFunction
 from program.transformer import normalize_program
 from recurrences.rec_builder import RecBuilder
 from termination.martingales.branches.branch_builder import BranchBuilder
@@ -35,8 +38,28 @@ assert len(loop_var_initial.free_symbols) == 1, "variable occuring in loop guard
 
 # use the branch builder to get the support
 branch_builder = BranchBuilder(normalized_program)
-branches = branch_builder.get_branches(Symbol('x'))
-pass
+branches = branch_builder.get_branches(loop_var)
+
+lgc_lb = 0
+lgc_ub = 0
+
+for cond, prob, expr in branches[loop_var]:
+    expr = sympify(expr)
+    distrs:List[DistributionFunction] = expr.find(DistributionFunction)
+
+    bound_store = BoundStore()
+    for distr in distrs:
+        bound_store.add_lower_bound(distr, min([ele for support_ele in distr.distribution.get_support() for ele in (support_ele if isinstance(support_ele, Tuple) else [support_ele])]))
+        bound_store.add_upper_bound(distr, max([ele for support_ele in distr.distribution.get_support() for ele in (support_ele if isinstance(support_ele, Tuple) else [support_ele])]))
+
+    lbs = max(lb for lb in list(bound_store._get_lower_bounds_for_expression((expr-loop_var).simplify())) if lb.is_number)
+    ubs = min(ub for ub in list(bound_store._get_upper_bounds_for_expression((expr-loop_var).simplify())) if ub.is_number)
+
+    lgc_lb = min(lbs, lgc_lb)
+    lgc_ub = max(ubs, lgc_ub)
+
+
+# get_maximum_lgc
 
 
 deterministic_vars = set()

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Union, Tuple, Set, Dict
 from symengine.lib.symengine_wrapper import Expr, Symbol, sympify
-from sympy import Function
+from sympy import Basic, Function
 from utils import float_to_rational
 
 
@@ -63,8 +63,8 @@ class Distribution(ABC):
     def get_free_symbols(self) -> Set[Symbol]:
         pass
 
-class DistributionFunction(Function):
+class DistributionFunction(Expr):
     distribution: Distribution
     
     def __init__(self, distribution):
-        distribution
+        self.distribution = distribution

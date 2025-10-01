@@ -11,6 +11,7 @@ from typing import Dict, List, Tuple
 from sympy import S, Add, Expr, Interval, Mul, Poly, Symbol, nan, oo, simplify, sympify, solve, Pow
 
 from extension_ost.helpers import Expexted
+from program.distribution.distribution import DistributionFunction
 
 # ITER_VAR = Symbol("k", integer=True, positive=True)
 
@@ -34,7 +35,7 @@ class BoundStore:
         self.initials[symbol] = (lb, ub)
 
     def _is_initial(self, expression:Expr):
-        return len(expression.free_symbols-self.initials.keys())==0 and not expression.has(oo) and not expression.has(-oo)
+        return len(expression.free_symbols-self.initials.keys())==0 and not expression.has(oo) and not expression.has(-oo) and not expression.has(DistributionFunction)
     
     def _is_finite(self, expression: Expr):
         return expression.is_finite or self._is_initial(expression)
