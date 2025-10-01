@@ -1,7 +1,7 @@
 from functools import lru_cache
 from math import prod
 from typing import Set, List
-from symengine.lib.symengine_wrapper import Expr, Symbol, sympify, One, Zero
+from sympy import Expr, Symbol, sympify, S
 from sympy import div
 from program import Program
 from program.assignment import Assignment
@@ -196,7 +196,7 @@ class BranchBuilder:
         index_to_vars = {i: var for i, var in enumerate(variables)}
         value = constant
         for monom, coeff in monoms:
-            term = One()
+            term = S.One
             for i in range(len(monom)):
                 term *= index_to_vars[i] ** monom[i]
             value += coeff * self.get_initial_value(term)

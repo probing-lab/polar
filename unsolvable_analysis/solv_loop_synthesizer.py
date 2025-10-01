@@ -2,7 +2,7 @@ from program.assignment import PolyAssignment
 from .unsolv_inv_synthesizer import UnsolvInvSynthesizer
 from recurrences import RecBuilder
 from utils import get_unique_var
-from symengine.lib.symengine_wrapper import Symbol
+from sympy import Symbol
 from program import Program
 
 

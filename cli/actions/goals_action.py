@@ -1,6 +1,6 @@
 from argparse import Namespace
 from typing import Dict
-from symengine.lib.symengine_wrapper import Expr
+from sympy import Expr
 from program import Program
 from .action import Action
 from inputparser import (

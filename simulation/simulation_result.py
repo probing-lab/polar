@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Dict, List
 from statistics import mean
-from symengine.lib.symengine_wrapper import sympify, Expr
+from sympy import sympify, Expr
 
 State = Dict[Expr, float]
 Run = List[State]

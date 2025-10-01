@@ -1,4 +1,4 @@
-from symengine.lib.symengine_wrapper import Matrix, eye, Symbol
+from sympy import Matrix, eye, Symbol
 
 
 def characteristic_poly(matrix: Matrix):

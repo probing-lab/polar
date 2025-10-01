@@ -1,7 +1,7 @@
 from argparse import Namespace
 from .action import Action
 from inputparser import Parser, GoalParser, MOMENT, TAIL_BOUND_LOWER, TAIL_BOUND_UPPER
-from symengine.lib.symengine_wrapper import Piecewise
+from sympy import Piecewise
 from simulation import Simulator
 from termcolor import colored
 

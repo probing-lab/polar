@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Dict, List, Set, Tuple
 from sympy import Expr, Symbol, nan, solve, sympify
-from symengine.lib.symengine_wrapper import sympify as se_sympify
+from sympy import sympify as se_sympify
 from itertools import chain, combinations
 
 from extension_ost.bound_store import BoundStore

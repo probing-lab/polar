@@ -1,4 +1,4 @@
-from symengine.lib.symengine_wrapper import Expr, Symbol
+from sympy import Expr, Symbol
 from typing import Set, TYPE_CHECKING
 
 if TYPE_CHECKING:

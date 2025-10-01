@@ -2,7 +2,7 @@ from functools import lru_cache
 from typing import List
 import random
 
-from symengine.lib.symengine_wrapper import Expr, sympify
+from sympy import Expr, sympify
 from .distribution import Distribution
 from .exceptions import EvaluationException
 

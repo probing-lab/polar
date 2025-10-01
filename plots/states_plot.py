@@ -1,5 +1,5 @@
 import numpy as np
-from symengine.lib.symengine_wrapper import sympify, Piecewise
+from sympy import sympify, Piecewise
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib

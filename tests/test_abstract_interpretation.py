@@ -3,7 +3,7 @@ import unittest
 
 from program import normalize_program
 from inputparser import parse_program
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 
 
 class AbstractInterpretationTest(unittest.TestCase):

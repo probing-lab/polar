@@ -1,5 +1,5 @@
 from abc import ABC
-from symengine.lib.symengine_wrapper import Symbol
+from sympy import Symbol
 
 
 class Type(ABC):

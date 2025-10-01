@@ -1,5 +1,5 @@
 from typing import Set, Dict, TYPE_CHECKING
-from symengine.lib.symengine_wrapper import Symbol, Expr
+from sympy import Symbol, Expr
 
 if TYPE_CHECKING:
     from program.assignment import FunctionalAssignment

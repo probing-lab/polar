@@ -1,6 +1,6 @@
 from argparse import Namespace
 from .action import Action
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 import sympy
 from termcolor import colored
 from unsolvable_analysis import UnsolvInvSynthesizer

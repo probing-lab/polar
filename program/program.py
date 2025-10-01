@@ -1,5 +1,5 @@
 from typing import Optional
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 from .type import Type, Finite
 from utils import indent_string
 

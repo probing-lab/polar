@@ -49,8 +49,8 @@ for cond, prob, expr in branches[loop_var]:
 
     bound_store = BoundStore()
     for distr in distrs:
-        bound_store.add_lower_bound(distr, min([ele for support_ele in distr.distribution.get_support() for ele in (support_ele if isinstance(support_ele, Tuple) else [support_ele])]))
-        bound_store.add_upper_bound(distr, max([ele for support_ele in distr.distribution.get_support() for ele in (support_ele if isinstance(support_ele, Tuple) else [support_ele])]))
+        bound_store.add_lower_bound(distr, min([ele for support_ele in distr._distribution.get_support() for ele in (support_ele if isinstance(support_ele, Tuple) else [support_ele])]))
+        bound_store.add_upper_bound(distr, max([ele for support_ele in distr._distribution.get_support() for ele in (support_ele if isinstance(support_ele, Tuple) else [support_ele])]))
 
     lbs = max(lb for lb in list(bound_store._get_lower_bounds_for_expression((expr-loop_var).simplify())) if lb.is_number)
     ubs = min(ub for ub in list(bound_store._get_upper_bounds_for_expression((expr-loop_var).simplify())) if ub.is_number)

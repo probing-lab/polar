@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from symengine.lib.symengine_wrapper import Expr, sympy2symengine, One, Zero
+from sympy import Expr, S
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import beta
@@ -17,7 +17,7 @@ class Beta(Distribution):
         if len(parameters) == 2:
             self.a = parameters[0]
             self.b = parameters[1]
-            self.scale = One()
+            self.scale = S.One
         elif len(parameters) == 3:
             self.a = parameters[0]
             self.b = parameters[1]
@@ -31,7 +31,7 @@ class Beta(Distribution):
         b = sympify(self.b)
         scale = sympify(self.scale)
         x = BetaDist("x", a, b)
-        return sympy2symengine(Rational((scale**k) * EV(x**k)))
+        return (Rational((scale**k) * EV(x**k)))
 
     def is_discrete(self):
         return False
@@ -80,10 +80,10 @@ class Beta(Distribution):
         )
 
     def get_support(self):
-        return {(Zero(), self.scale)}
+        return {(S.Zero, self.scale)}
 
     def __str__(self):
-        if self.scale == One():
+        if self.scale == S.One:
             return f"Beta({self.a}, {self.b})"
         else:
             return f"Beta({self.a}, {self.b}, {self.scale})"

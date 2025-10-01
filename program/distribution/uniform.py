@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 from sympy import sympify, E, I, Piecewise
-from symengine.lib.symengine_wrapper import Expr
+from sympy import Expr
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import uniform

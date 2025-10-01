@@ -1,5 +1,5 @@
 from typing import Set, Tuple
-from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
+from sympy import Symbol as SymengineSymbol
 
 SymbolSet = Set[SymengineSymbol]
 

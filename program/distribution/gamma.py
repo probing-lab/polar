@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from symengine.lib.symengine_wrapper import Expr, sympy2symengine, oo
+from sympy import Expr, oo
 from .distribution import Distribution
 from .exceptions import EvaluationException
 from scipy.stats import gamma
@@ -23,7 +23,7 @@ class Gamma(Distribution):
         k = sympify(self.k)
         theta = sympify(self.theta)
         x = GammaDist("x", k, theta)
-        return sympy2symengine(Rational(EV(x**p)))
+        return (Rational(EV(x**p)))
 
     def is_discrete(self):
         return False

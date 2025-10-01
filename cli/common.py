@@ -1,6 +1,6 @@
 from recurrences import RecBuilder
 from recurrences.solver import RecurrenceSolver
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 from sympy import limit_seq, Symbol
 from sympy import sympify as sympy_sympify
 from utils import (

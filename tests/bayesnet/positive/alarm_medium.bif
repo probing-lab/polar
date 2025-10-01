@@ -73,7 +73,7 @@ variable SHUNT {
   type discrete [ 2 ] { NORMAL, HIGH };
 }
 variable INTUBATION {
-  type discrete [ 3 ] { NORMAL, ESOPHAGEAL, ONESIDED };
+  type discrete [ 3 ] { NORMAL, ESOPHAGEALSSIDED };
 }
 variable PRESS {
   type discrete [ 4 ] { ZERO, LOW, NORMAL, HIGH };

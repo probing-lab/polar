@@ -1,5 +1,5 @@
 from typing import Set
-from symengine.lib.symengine_wrapper import Symbol
+from sympy import Symbol
 from itertools import combinations
 
 from .exceptions import TransformException

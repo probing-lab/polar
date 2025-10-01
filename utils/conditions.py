@@ -1,5 +1,5 @@
 from typing import Set
-from symengine.lib.symengine_wrapper import Expr
+from sympy import Expr
 
 
 def get_valid_values(possible_values: Set[Expr], cop: str, integer: Expr):

@@ -1,7 +1,6 @@
 from typing import List
 import math
 
-from symengine.lib.symengine_wrapper import sympy2symengine, Expr, Symbol, One, Zero
 from sympy import (
     Rational,
     linsolve,
@@ -13,11 +12,14 @@ from sympy import (
     Piecewise,
     LessThan,
     roots,
+    Expr, 
+    Symbol,
+    S
 )
 
 
 def float_to_rational(expr: Expr):
-    return sympy2symengine(Rational(str(expr)))
+    return (Rational(str(expr)))
 
 
 def get_all_roots(poly: Poly, numeric=False, numeric_croots=False, eps=1e-10):
@@ -83,21 +85,21 @@ def get_terms_with_var(poly: Expr, var: Symbol):
     This function is a specialization of get_terms_with_var and implemented as duplication for performance reasons.
     """
     result = []
-    rest = Zero()
+    rest = S.Zero
     terms = poly.args if poly.is_Add else [poly]
     for term in terms:
         if var not in term.free_symbols:
             rest += term
             continue
 
-        part_without_var = One()
-        power = Zero()
+        part_without_var = S.One
+        power = S.Zero
         parts = term.args if term.is_Mul else [term]
         for part in parts:
             if var not in part.free_symbols:
                 part_without_var *= part
                 continue
-            power = part.args[1] if part.is_Pow else One()
+            power = part.args[1] if part.is_Pow else S.One
 
         result.append((power, part_without_var))
     return result, rest
@@ -112,7 +114,7 @@ def get_terms_with_vars(poly: Expr, variables: List[Symbol]):
     [([2,1],y*z), ([1,1],-2)], y + 2
     """
     result = []
-    rest = Zero()
+    rest = S.Zero
     terms = poly.args if poly.is_Add else [poly]
     vars_set = set(variables)
     vars_to_index = {var: i for i, var in enumerate(variables)}
@@ -121,8 +123,8 @@ def get_terms_with_vars(poly: Expr, variables: List[Symbol]):
             rest += term
             continue
 
-        part_without_vars = One()
-        powers = [Zero()] * len(variables)
+        part_without_vars = S.One
+        powers = [S.Zero] * len(variables)
         parts = term.args if term.is_Mul else [term]
         for part in parts:
             if len(part.free_symbols) == 0:
@@ -132,14 +134,14 @@ def get_terms_with_vars(poly: Expr, variables: List[Symbol]):
             if part_var not in vars_set:
                 part_without_vars *= part
                 continue
-            powers[vars_to_index[part_var]] = part.args[1] if part.is_Pow else One()
+            powers[vars_to_index[part_var]] = part.args[1] if part.is_Pow else S.One
 
         result.append((powers, part_without_vars))
     return result, rest
 
 
 def get_monoms(
-    poly: Expr, constant_symbols=None, with_constant=False, zero=Zero(), one=One()
+    poly: Expr, constant_symbols=None, with_constant=False, zero=S.Zero, one=S.One
 ):
     """
     For a given polynomial returns a list of its monomials with separated coefficients - (coeff, monom).
@@ -168,7 +170,7 @@ def get_monoms(
         monoms.append((coeff, monom))
 
     if with_constant and constant != 0:
-        monoms.append((constant, One()))
+        monoms.append((constant, one))
     return monoms
 
 

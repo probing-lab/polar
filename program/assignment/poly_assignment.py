@@ -1,6 +1,6 @@
 from typing import List
 import random
-from symengine.lib.symengine_wrapper import Expr, sympify
+from sympy import Expr, sympify
 
 from utils import float_to_rational, get_monoms
 from .assignment import Assignment

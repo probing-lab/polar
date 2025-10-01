@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Set, Dict
-from symengine.lib.symengine_wrapper import Expr, Symbol
+from sympy import Expr, Symbol
 
 from program import Program
 from program.assignment import Assignment

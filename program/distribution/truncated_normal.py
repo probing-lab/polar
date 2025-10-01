@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from symengine.lib.symengine_wrapper import Expr, sqrt, sympy2symengine, one, zero
+from sympy import Expr, sqrt, S
 from program.distribution import Distribution
 from program.distribution.exceptions import EvaluationException
 from scipy.stats import truncnorm
@@ -47,9 +47,9 @@ class TruncNormal(Distribution):
         alpha = (a - mu) / sigma
         beta = (b - mu) / sigma
         z = Normal("z", 0, 1)
-        z_pdf = lambda x: sympy2symengine(density(z)(sympify(x)))
-        z_cdf = lambda x: sympy2symengine(cdf(z)(sympify(x)))
-        m = {-1: zero, 0: one}
+        z_pdf = lambda x: (density(z)(sympify(x)))
+        z_cdf = lambda x: (cdf(z)(sympify(x)))
+        m = {-1: S.Zero, 0: S.One}
         for i in range(1, int(k) + 1):
             m_i = (i - 1) * self.sigma2 * m[i - 2]
             m_i += mu * m[i - 1]
@@ -59,7 +59,7 @@ class TruncNormal(Distribution):
                 / (z_cdf(beta) - z_cdf(alpha))
             )
             m[i] = m_i
-        return sympy2symengine(Rational(str(float(m[k].simplify()))))
+        return (Rational(str(float(m[k].simplify()))))
 
     def mgf(self, t: Expr):
         t = sympify(t)

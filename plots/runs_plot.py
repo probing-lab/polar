@@ -1,5 +1,5 @@
 import numpy as np
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.lines import Line2D

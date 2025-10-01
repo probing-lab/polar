@@ -1,7 +1,7 @@
 from argparse import Namespace
 from .action import Action
 from expansions import CornishFisherExpansion
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 from sympy import Symbol
 from sympy.plotting import plot as symplot
 from cli.common import (

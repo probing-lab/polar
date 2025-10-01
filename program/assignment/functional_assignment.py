@@ -1,10 +1,8 @@
 from typing import Union, Dict, TYPE_CHECKING
-from symengine.lib.symengine_wrapper import (
+from sympy import (
     Expr,
-    One,
-    Zero,
+    S,
     Symbol,
-    sympy2symengine,
     sympify,
     Number,
     sin,
@@ -72,9 +70,9 @@ class FunctionalAssignment(Assignment):
 
     def get_support(self):
         if self.func == "Sin" or self.func == "Cos":
-            return {(-One(), One())}
+            return {(-S.One, S.One)}
         if self.func == "Exp":
-            return {(Zero(), oo)}
+            return {(S.Zero, oo)}
         raise FunctionalAssignmentException(f"Function {self.func} not supported.")
 
     def get_moment(
@@ -184,4 +182,4 @@ class FunctionalAssignment(Assignment):
         if cls.exact_func_moments or m.is_Rational:
             return m
         else:
-            return sympy2symengine(Rational(re(N(m, 20))))
+            return (Rational(re(N(m, 20))))

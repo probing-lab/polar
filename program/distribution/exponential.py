@@ -1,5 +1,5 @@
 from functools import lru_cache
-from symengine.lib.symengine_wrapper import Expr, oo, Zero, factorial
+from sympy import Expr, oo, S, factorial
 from sympy import sympify, I
 from .distribution import Distribution
 from .exceptions import EvaluationException
@@ -54,7 +54,7 @@ class Exponential(Distribution):
         return True
 
     def get_support(self):
-        return {(Zero(), oo)}
+        return {(S.Zero, oo)}
 
     def __str__(self):
         return f"Exponential({self.lamb})"

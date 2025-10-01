@@ -2,7 +2,7 @@ from typing import Set, Tuple
 from program import Program
 from program.assignment.poly_assignment import PolyAssignment
 from utils import expressions
-from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
+from sympy import Symbol as SymengineSymbol
 from program.assignment.assignment import Assignment
 
 SymbolSet = Set[SymengineSymbol]

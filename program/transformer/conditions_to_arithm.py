@@ -1,5 +1,5 @@
 from typing import List
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 from utils import get_unique_var
 from .update_info_transformer import UpdateInfoTransformer
 from .transformer import Transformer

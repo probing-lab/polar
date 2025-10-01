@@ -1,6 +1,6 @@
 from typing import Dict, List
 from singledispatchmethod import singledispatchmethod
-from symengine.lib.symengine_wrapper import Symbol
+from sympy import Symbol
 from program import Program
 from program.assignment import Assignment
 from program.ifstatem import IfStatem

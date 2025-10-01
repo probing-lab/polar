@@ -3,7 +3,7 @@ from typing import Union, Tuple, Set, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from recurrences import RecBuilderContext
-from symengine.lib.symengine_wrapper import Expr, Symbol
+from sympy import Expr, Symbol
 from .exceptions import EvaluationException
 from program.condition import Condition, TrueCond, And
 

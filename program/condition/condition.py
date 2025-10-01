@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple, Dict
-from symengine.lib.symengine_wrapper import Expr, Symbol
+from sympy import Expr, Symbol
 
 
 class Condition(ABC):

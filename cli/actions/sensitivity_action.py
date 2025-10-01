@@ -9,8 +9,8 @@ from inputparser.goal_parser import CENTRAL, CUMULANT, MOMENT
 from recurrences import RecBuilder, DiffRecBuilder
 from .action import Action
 from termcolor import colored
-from symengine.lib.symengine_wrapper import sympify
-from symengine.lib.symengine_wrapper import Symbol as SymengineSymbol
+from sympy import sympify
+from sympy import Symbol as SymengineSymbol
 
 
 class SensitivityAction(Action):

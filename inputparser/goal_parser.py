@@ -1,5 +1,5 @@
 from .exceptions import ParseException
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 import re
 
 MOMENT = "MOMENT"

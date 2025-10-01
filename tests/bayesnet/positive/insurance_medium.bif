@@ -79,7 +79,7 @@ variable ILiCost {
   type discrete [ 4 ] { Thousand, TenThou, HundredThou, Million };
 }
 variable DrivHist {
-  type discrete [ 3 ] { Zero, One, Many };
+  type discrete [ 3 ] { ZeroS, Many };
 }
 probability ( GoodStudent | SocioEcon, Age ) {
   (Prole, Adolescent) 0.1, 0.9;

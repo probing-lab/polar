@@ -1,4 +1,4 @@
-from symengine.lib.symengine_wrapper import sympify, Expr
+from sympy import sympify, Expr
 from .condition import Condition
 
 

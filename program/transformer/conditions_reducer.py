@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from symengine.lib.symengine_wrapper import Symbol
+from sympy import Symbol
 
 from .transformer import Transformer
 from program import Program

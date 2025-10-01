@@ -1,4 +1,4 @@
-from symengine import symbols
+from sympy import symbols
 
 from .transformer import Transformer
 from program import Program

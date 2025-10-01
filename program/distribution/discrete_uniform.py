@@ -2,7 +2,7 @@ from functools import lru_cache
 from typing import List
 import random
 
-from symengine.lib.symengine_wrapper import sympify, Expr, Rational
+from sympy import sympify, Expr, Rational
 from sympy import I, E, sympify as ssympify
 
 from .distribution import Distribution

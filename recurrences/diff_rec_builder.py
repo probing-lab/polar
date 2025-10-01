@@ -1,6 +1,6 @@
 from functools import lru_cache
 from typing import Set
-from symengine.lib.symengine_wrapper import Expr, Zero, sympify, One, Symbol
+from sympy import Expr, sympify, S, Symbol
 from program import Program
 from sensitivity_analysis import SensivitiyAnalyzer
 from .rec_builder import RecBuilder
@@ -68,7 +68,7 @@ class DiffRecBuilder:
         # replace delta for now and get recurrence
         monomial = monomial.subs(self.delta, 1)
         original_rec = self.rec_builder.get_recurrence(monomial)
-        rec = Zero()
+        rec = S.Zero
 
         # now go through each summand and differentiate it
         sum = original_rec.args if original_rec.is_Add else [original_rec]
@@ -78,8 +78,8 @@ class DiffRecBuilder:
                 continue
 
             # separate constant part and monomial part
-            constant_part = One()
-            monomial_part = One()
+            constant_part = S.One
+            monomial_part = S.One
 
             factors = summand.args if summand.is_Mul else [summand]
             for factor in factors:

@@ -1,6 +1,6 @@
 from functools import lru_cache
 from typing import Tuple
-from symengine.lib.symengine_wrapper import Expr, Symbol, Matrix, zeros, One
+from sympy import Expr, Symbol, Matrix, zeros, S
 
 
 @lru_cache(maxsize=None)
@@ -23,7 +23,7 @@ def _get_powers_transform_matrix(values: Tuple):
     for i in range(len(values)):
         for j in range(len(values)):
             if i == 0:
-                mat[i, j] = One()
+                mat[i, j] = S.One
             else:
                 mat[i, j] = values[j] ** i
     return mat.inv()

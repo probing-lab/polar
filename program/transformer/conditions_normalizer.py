@@ -1,6 +1,6 @@
 from typing import List, Set, Dict
 
-from symengine.lib.symengine_wrapper import Symbol, One
+from sympy import Symbol, S
 
 from .update_info_transformer import UpdateInfoTransformer
 from .exceptions import NormalizingException
@@ -137,7 +137,7 @@ class ConditionsNormalizer(Transformer):
             abstracted_vars |= bad_condition.get_free_symbols()
 
         assign.condition = And(
-            good_condition, Atom(abstraction_store[bad_condition], "==", One())
+            good_condition, Atom(abstraction_store[bad_condition], "==", S.One)
         ).simplify()
 
     def _partition_condition(self, condition: Condition, failed_variables: Set[Symbol]):

@@ -1,5 +1,5 @@
 from typing import FrozenSet, Tuple
-from symengine.lib.symengine_wrapper import sympify, Expr, Integer
+from sympy import sympify, Expr, Integer
 from .type import Type
 from utils import get_reduced_powers
 

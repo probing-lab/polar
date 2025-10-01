@@ -1,6 +1,7 @@
+from collections import defaultdict
 from typing import Dict
 
-from symengine.lib.symengine_wrapper import sympify, Zero, Symbol
+from sympy import parse_expr, sympify, Symbol, S
 
 from .or_cond import Or
 from .false_cond import FalseCond
@@ -17,8 +18,10 @@ from program.type import Finite
 class Atom(Condition):
     def __init__(self, poly1, cop, poly2):
         self.poly1 = sympify(poly1)
+        self.poly1 = self.poly1.xreplace({s: Symbol(s.name, real=True) for s in self.poly1.free_symbols})
         self.cop = cop
         self.poly2 = sympify(poly2)
+        self.poly2 = self.poly2.xreplace({s: Symbol(s.name, real=True) for s in self.poly2.free_symbols})
 
     def simplify(self):
         return self
@@ -46,14 +49,14 @@ class Atom(Condition):
 
         if self in store:
             self.poly1 = store[self].copy()
-            self.poly2 = Zero()
+            self.poly2 = S.Zero
             return []
 
         new_var = sympify(get_unique_var(name="r"))
         store[self.copy()] = new_var
         alias = self.poly1 - self.poly2
         self.poly1 = new_var
-        self.poly2 = Zero()
+        self.poly2 = S.Zero
         return [(new_var, alias)]
 
     def is_normalized(self):
@@ -75,9 +78,9 @@ class Atom(Condition):
         if len(valid_values) == 0:
             result = FalseCond()
         elif len(valid_values) == 1:
-            result = Atom(self.poly1.copy(), "==", valid_values.pop())
+            result = Atom(self.poly1, "==", valid_values.pop())
         else:
-            result = Atom(self.poly1.copy(), "==", valid_values.pop())
+            result = Atom(self.poly1, "==", valid_values.pop())
             for v in valid_values:
                 result = Or(result, Atom(self.poly1.copy(), "==", v))
         result.is_loop_guard = self.is_loop_guard
@@ -133,4 +136,4 @@ class Atom(Condition):
         return hash((self.poly1, self.cop, self.poly2))
 
     def _simple_copy(self):
-        return Atom(self.poly1.copy(), self.cop, self.poly2.copy())
+        return Atom(self.poly1, self.cop, self.poly2)

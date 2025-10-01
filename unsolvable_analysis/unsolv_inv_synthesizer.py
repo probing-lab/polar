@@ -1,6 +1,6 @@
 from typing import Union
 from utils import get_unique_var, solve_rec_by_summing, get_terms_with_vars, get_monoms
-from symengine.lib.symengine_wrapper import Symbol
+from sympy import Symbol
 from sympy import sympify, Number, linsolve, nonlinsolve, Complement
 from recurrences import RecBuilder
 from program import Program

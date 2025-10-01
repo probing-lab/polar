@@ -2,7 +2,7 @@ from argparse import Namespace
 from .action import Action
 from inputparser import Parser
 from recurrences import RecBuilder
-from symengine.lib.symengine_wrapper import sympify
+from sympy import sympify
 from simulation import Simulator
 from plots import StatesPlot, RunsPlot
 from cli.common import get_moment
