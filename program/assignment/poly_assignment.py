@@ -1,6 +1,6 @@
 from typing import List
 import random
-from sympy import Expr, sympify
+from sympy import Expr, Symbol, sympify
 
 from utils import float_to_rational, get_monoms
 from .assignment import Assignment
@@ -19,6 +19,7 @@ class PolyAssignment(Assignment):
         self.polynomials = []
         for poly in polynomials:
             expanded_poly = sympify(poly).expand()
+            expanded_poly = expanded_poly.xreplace({s: Symbol(s.name, real=True) for s in expanded_poly.free_symbols})
             monoms = get_monoms(expanded_poly, with_constant=True)
             term = 0
             for coeff, monom in monoms:
