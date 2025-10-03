@@ -271,8 +271,8 @@ class BoundStore:
                 for base_lb in self._get_lower_bounds_for_expression(base):
                     if base_lb.is_nonnegative:
                         yield sympify(0)
-                    if self._is_finite(base_ub):
-                        yield Pow(base_ub, exponent)
+                    if self._is_finite(base_lb):
+                        yield Pow(base_lb, exponent)
 
         if isinstance(expression, Expexted):
             inner_expr = expression.args[0]
