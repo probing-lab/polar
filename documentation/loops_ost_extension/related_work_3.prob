@@ -1,5 +1,6 @@
 # this is the turtoise + hoare example from
-# https://home.cs.colorado.edu/~srirams/papers/sas14-expectations.pdf
+# https://home.cs.colorado.edu/~srirams/papers/cav2013-martingales.pdf
+# page 3
 
 # syntactic changes (to fit loop guard)
 # the tortoise has an "unspecified" lead
