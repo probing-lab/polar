@@ -115,20 +115,19 @@ class BoundStore:
             exponent = expression.args[1]
             
             if exponent.is_even:
-                yield sympify(0)
                 for base_ub in self._get_upper_bounds_for_expression(base):
                     for base_lb in self._get_lower_bounds_for_expression(base):
                         if base_ub.is_nonpositive:
                             yield base_lb**exponent
                         elif base_lb.is_nonnegative:
                             yield base_ub**exponent
-                        if base_lb.is_nonpositive and base_ub.is_nonnegative: # TODO: check if this could be even relaxed to an else case
+                        elif base_lb.is_nonpositive and base_ub.is_nonnegative: # TODO: check if this could be even relaxed to an else case
                             # take the largest absolute value
                             diff_expr = base_ub+base_lb
                             if diff_expr.is_nonpositive: # the negative lower bound has greater absolute value
                                 yield base_lb**exponent
                             elif diff_expr.is_nonnegative: # positive upper bound has greater absolute value
-                                yield base_ub**exponent
+                                yield base_ub**exponent                        
 
             elif exponent.is_odd:
                 for base_ub in self._get_upper_bounds_for_expression(base):
@@ -252,20 +251,23 @@ class BoundStore:
             exponent = expression.args[1]
             
             if exponent.is_even:
-                yield sympify(0)
                 for base_ub in self._get_upper_bounds_for_expression(base):
                     for base_lb in self._get_lower_bounds_for_expression(base):
                         if base_ub.is_nonpositive:
                             yield base_ub**exponent
                         elif base_lb.is_nonnegative:
                             yield base_lb**exponent
-                        if base_lb.is_nonpositive and base_ub.is_nonnegative: # TODO: check if this could be even relaxed to an else case
+                        elif base_lb.is_nonpositive and base_ub.is_nonnegative: # TODO: check if this could be even relaxed to an else case
                             # take the smallest absolute value
                             diff_expr = base_ub+base_lb
                             if diff_expr.is_nonpositive: # the negative lower bound has greater absolute value
                                 yield base_ub**exponent
                             elif diff_expr.is_nonnegative: # positive upper bound has greater absolute value
                                 yield base_lb**exponent
+                            else:
+                                yield(sympify(0))
+                        else:
+                            yield sympify(0)
 
             elif exponent.is_odd:
                 for base_lb in self._get_lower_bounds_for_expression(base):
