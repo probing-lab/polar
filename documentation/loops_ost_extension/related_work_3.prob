@@ -1,0 +1,18 @@
+# this is the turtoise + hoare example from
+# https://home.cs.colorado.edu/~srirams/papers/sas14-expectations.pdf
+
+# syntactic changes (to fit loop guard)
+# the tortoise has an "unspecified" lead
+
+l = l0  # this exuals t-h, t = 30, h = 0
+k = 0
+while l > 0: # t > h
+    k = k + 1
+    c = Bernoulli(0.5)
+    l = l + 1  # t = t + 1
+
+    if c == 1:
+        s = Uniform(0,10)
+        l = l - s  # h = h + Uniform(0,10)
+    end
+end

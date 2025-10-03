@@ -1,5 +1,5 @@
 from typing import Optional
-from sympy import sympify
+from sympy import Symbol, sympify
 from .type import Type, Finite
 from utils import indent_string
 
@@ -22,8 +22,8 @@ class Program:
         self.dist_variables = []
         self.func_variables = []
         self.add_types(types)
-        self.original_variables = {sympify(v) for v in original_variables}
-        self.variables = {sympify(v) for v in variables}
+        self.original_variables = {Symbol(v, real=True) for v in original_variables}
+        self.variables = {Symbol(v, real=True) for v in variables}
         self.symbols = set()
         self.initial = initial
         self.loop_guard = loop_guard

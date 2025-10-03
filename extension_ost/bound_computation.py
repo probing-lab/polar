@@ -1,7 +1,6 @@
 from copy import deepcopy
 from typing import Dict, List, Set, Tuple
 from sympy import Expr, Symbol, nan, solve, sympify
-from sympy import sympify as se_sympify
 from itertools import chain, combinations
 
 from extension_ost.bound_store import BoundStore
@@ -28,8 +27,6 @@ def compute_bounds(random_vars: Set[Symbol],
                    initial_lower_bounds: Dict[Expr, Expr],
                    initial_upper_bounds: Dict[Expr, Expr]):
 
-
-
     bound_store = BoundStore()
     for key, value in initial_upper_bounds.items():
         bound_store.add_upper_bound(key, value)
@@ -37,13 +34,13 @@ def compute_bounds(random_vars: Set[Symbol],
         bound_store.add_lower_bound(key, value)
     for initial, lb, ub in initial_constants:
         bound_store.add_initial(initial, lb, ub)
-    initial_value_dict = {var: sympify(recurrence_builder.get_initial_value(se_sympify(var))) for var in random_vars.union(deterministic_vars)}
+    initial_value_dict = {var: sympify(recurrence_builder.get_initial_value(var)) for var in random_vars.union(deterministic_vars)}
     # Expexted is just a helper, with the main purpose of distributing and simplifying in accordance with Expected value of a RV
-    initial_constants_sub = {Symbol(f"{sym}"):sym for sym,_,_ in initial_constants}
+    initial_constants_sub = {Symbol(f"{sym}", real=True):sym for sym,_,_ in initial_constants}
 
     monoms_all = list(set(_get_monoms(random_vars.union(deterministic_vars), max_degree)))
 
-    recurrences_all = {monom: sympify(recurrence_builder.get_recurrence(se_sympify(monom))) for monom in monoms_all} # TODO: Dirty fix with symengine. This needs a systematic change
+    recurrences_all = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms_all}
     # filter out the recurrences which are not iteration dependent - they destroy the procedure. TODO: Maybe adapt is_iteration_dependence of program for that
     recurrences = {k:v for k,v in recurrences_all.items() if k.free_symbols == v.free_symbols}
 
@@ -82,6 +79,8 @@ def compute_bounds(random_vars: Set[Symbol],
                 solved_for_goal = solve(martingale_expexted, Expexted(goal_monom))
                 assert len(solved_for_goal) == 1, "Unsure if this asserting is actually true - hence added for finding out"
                 solved_for_goal = solved_for_goal[0].subs(initial_constants_sub)
+
+            print("Martingale:",solved_for_goal)
 
             upper_bounds = set(bound_store._get_upper_bounds_for_expression(solved_for_goal))
             pass

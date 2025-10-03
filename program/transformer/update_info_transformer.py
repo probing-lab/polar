@@ -57,6 +57,7 @@ class UpdateInfoTransformer(Transformer):
         self.program.original_variables = (
             self.program.original_variables & self.program.variables
         )
+        pass
 
     def _set_dists_for_func_assignments(self, assignments_list: [Assignment]):
         """

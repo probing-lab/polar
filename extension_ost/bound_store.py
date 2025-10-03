@@ -5,7 +5,7 @@ Note that in the current implementation, there needs to be an iter-variable name
 TODO: check if positivity (of symbols in bounds) is a necessary requirement (i think so)
 """
 from collections import defaultdict
-from itertools import combinations, product
+from itertools import chain, combinations, product
 from typing import Dict, List, Tuple
 
 from sympy import S, Add, Expr, Interval, Mul, Poly, Symbol, nan, oo, simplify, sympify, solve, Pow
@@ -50,7 +50,7 @@ class BoundStore:
         if isinstance(expression, Add):
             bounds = [list(self._get_upper_bounds_for_expression(arg)) for arg in expression.args]
             bounds = {tuple(x) for x in product(*bounds)}
-
+            pass
             for bound in bounds:
                 yield Add(*bound)
         if isinstance(expression, Mul): # Case split based on signs of bounds
@@ -67,43 +67,75 @@ class BoundStore:
                     for bound in bounds:
                         yield coeff*bound
             else:
-                # TODO: this is suboptimal, as below
+                # exhaustively consider all combinations of expressions
                 for i in range(len(expression.args)):
                     first_expr = expression.args[i]
                     second_expr = Mul(*[arg for j,arg in enumerate(expression.args) if j!=i])
 
-                    for first_lb in self._get_lower_bounds_for_expression(first_expr):
-                        for second_lb in self._get_lower_bounds_for_expression(second_expr):
-                            for first_ub in self._get_upper_bounds_for_expression(first_expr):
-                                for second_ub in self._get_upper_bounds_for_expression(second_expr):
-                                    if first_lb.is_nonnegative and second_lb.is_nonnegative and self._is_finite(first_ub) and self._is_finite(second_ub):
-                                        yield first_ub*second_ub
-                                    if first_ub.is_nonpositive and second_ub.is_nonpositive and self._is_finite(first_lb) and self._is_finite(second_lb):
-                                        yield first_lb*second_lb
-                    for first_ub in self._get_upper_bounds_for_expression(first_expr):
-                        for second_lb in self._get_lower_bounds_for_expression(second_lb):
-                            if first_ub.is_nonpositive and second_lb.is_nonnegative:
-                                yield first_ub*second_lb
+                    first_lbs = list(self._get_lower_bounds_for_expression(first_expr))
+                    if len(first_lbs) == 0:
+                        first_lbs = [-oo]
+                    second_lbs =list(self._get_lower_bounds_for_expression(second_expr))
+                    if len(second_lbs) == 0:
+                        second_lbs = [-oo]
+                    first_ubs = list(self._get_upper_bounds_for_expression(first_expr))
+                    if len(first_ubs) == 0:
+                        first_ubs = [oo]
+                    second_ubs =list(self._get_upper_bounds_for_expression(second_expr))
+                    if len(second_ubs) == 0:
+                        second_ubs = [oo]
+
+                    for a, b, c, d in product(first_lbs, first_ubs, second_lbs, second_ubs):
+                        # a<=X<=b, c<=Y<=d
+                        if a.is_nonnegative and b. is_nonnegative and d.is_nonnegative:
+                            bound = b*d
+                            if self._is_finite(bound):
+                                yield bound
+                        if a.is_nonpositive and b. is_nonnegative and c.is_nonpositive and d.is_nonnegative:
+                            # XY <= max(ac, bd)
+                            if (a*c-b*d).is_nonnegative:
+                                bound = a*c
+                                if self._is_finite(bound):
+                                    yield bound
+                            elif (a*c-b*d).is_nonpositive:
+                                bound = b*d
+                                if self._is_finite(bound):
+                                    yield bound
+                        if a.is_nonnegative and d.is_nonpositive:
+                            bound = a*d
+                            if self._is_finite(bound):
+                                yield bound
+                        if a.is_nonpositive and c.is_nonpositive and d.is_nonpositive:
+                            bound = a*c
+                            if self._is_finite(bound):
+                                yield bound
 
         if isinstance(expression, Pow):
             base = expression.args[0]
             exponent = expression.args[1]
             
-            for base_lb in self._get_lower_bounds_for_expression(base):
+            if exponent.is_even:
+                yield sympify(0)
                 for base_ub in self._get_upper_bounds_for_expression(base):
-
-                    if exponent.is_even:
-                        if base_ub.is_nonpositive and self._is_finite(base_lb):
-                            yield Pow(base_lb, exponent)
-                        if base_lb.is_nonnegative and self._is_finite(base_ub):
-                            yield Pow(base_ub, exponent)
-                    else:
+                    for base_lb in self._get_lower_bounds_for_expression(base):
                         if base_ub.is_nonpositive:
-                            if self._is_finite(base_ub):
-                                yield Pow(base_ub, exponent)
-                            yield sympify(0)
-                        if base_lb.is_nonnegative and self._is_finite(base_ub):
-                            yield Pow(base_ub, exponent)
+                            yield base_lb**exponent
+                        elif base_lb.is_nonnegative:
+                            yield base_ub**exponent
+                        if base_lb.is_nonpositive and base_ub.is_nonnegative: # TODO: check if this could be even relaxed to an else case
+                            # take the largest absolute value
+                            diff_expr = base_ub+base_lb
+                            if diff_expr.is_nonpositive: # the negative lower bound has greater absolute value
+                                yield base_lb**exponent
+                            elif diff_expr.is_nonnegative: # positive upper bound has greater absolute value
+                                yield base_ub**exponent
+
+            elif exponent.is_odd:
+                for base_ub in self._get_upper_bounds_for_expression(base):
+                    if base_ub.is_nonpositive:
+                        yield sympify(0)
+                    if self._is_finite(base_ub):
+                        yield Pow(base_ub, exponent)
 
         if isinstance(expression, Expexted):
             inner_expr = expression.args[0]
@@ -160,7 +192,6 @@ class BoundStore:
             for bound in bounds:
                 yield Add(*bound)
         if isinstance(expression, Mul): # Case split based on signs of bounds
-            # TODO: Currently only extract numbers from multiplication
             number_args = [arg for arg in expression.args if arg.is_Number]
             if len(number_args)!=0:
                 # evaluate to check sign
@@ -172,31 +203,76 @@ class BoundStore:
                     for bound in self._get_upper_bounds_for_expression(Mul(*[(arg) for arg in expression.args if not arg.is_Number])):
                         yield coeff*bound
             else:
-                 for a_expr, b_expr in self.__two_partitions(expression.args):
-                    for a_lb in self._get_lower_bounds_for_expression(Mul(*a_expr)):
-                        for b_lb in self._get_lower_bounds_for_expression(Mul(*b_expr)):
-                            if a_lb.is_nonnegative and self._is_finite(a_lb) and b_lb.is_nonnegative and self._is_finite(b_lb):
-                                yield a_lb*b_lb
+                # exhaustively consider all combinations of expressions
+                for i in range(len(expression.args)):
+                    first_expr = expression.args[i]
+                    second_expr = Mul(*[arg for j,arg in enumerate(expression.args) if j!=i])
+
+                    first_lbs = list(self._get_lower_bounds_for_expression(first_expr))
+                    if len(first_lbs) == 0:
+                        first_lbs = [-oo]
+                    second_lbs =list(self._get_lower_bounds_for_expression(second_expr))
+                    if len(second_lbs) == 0:
+                        second_lbs = [-oo]
+                    first_ubs = list(self._get_upper_bounds_for_expression(first_expr))
+                    if len(first_ubs) == 0:
+                        first_ubs = [oo]
+                    second_ubs =list(self._get_upper_bounds_for_expression(second_expr))
+                    if len(second_ubs) == 0:
+                        second_ubs = [oo]
+
+                    for a, b, c, d in product(first_lbs, first_ubs, second_lbs, second_ubs):
+                        # a<=X<=b, c<=Y<=d
+                        if b.is_nonpositive and d.is_nonpositive:
+                            bound = b*d
+                            if self._is_finite(bound):
+                                yield bound
+                        if b.is_nonnegative and c.is_nonpositive and (d.is_nonpositive or a.is_nonnegative):
+                            # either, X is strictly positive, then c*b is the smallest term
+                            #   or    Y is strictly negative, then c*b is also the smallest term
+                            bound = b*c
+                            if self._is_finite(bound):
+                                yield bound
+                        if a.is_nonpositive and b. is_nonnegative and c.is_nonpositive and d.is_nonnegative:
+                            # min(ad, bc) <= XY
+                            if (a*d-b*c).is_nonpositive:
+                                bound = a*d
+                                if self._is_finite(bound):
+                                    yield bound
+                            elif (a*d-b*c).is_nonnegative:
+                                bound = b*c
+                                if self._is_finite(bound):
+                                    yield bound
+                        if a.is_nonnegative and c.is_nonnegative:
+                            bound = a*c
+                            if self._is_finite(bound):
+                                yield bound
         if isinstance(expression, Pow):
             base = expression.args[0]
             exponent = expression.args[1]
             
-            for base_lb in self._get_lower_bounds_for_expression(base):
-                if base_lb.is_nonnegative and exponent.is_even:
-                    yield base_lb**exponent
-                
+            if exponent.is_even:
+                yield sympify(0)
                 for base_ub in self._get_upper_bounds_for_expression(base):
-                    if exponent.is_even:
-                        if base_ub.is_nonpositive and self._is_finite(base_ub):
-                            yield Pow(base_ub, exponent)
-                        if base_lb.is_nonnegative and self._is_finite(base_lb):
-                            yield Pow(base_lb, exponent)
+                    for base_lb in self._get_lower_bounds_for_expression(base):
+                        if base_ub.is_nonpositive:
+                            yield base_ub**exponent
+                        elif base_lb.is_nonnegative:
+                            yield base_lb**exponent
+                        if base_lb.is_nonpositive and base_ub.is_nonnegative: # TODO: check if this could be even relaxed to an else case
+                            # take the smallest absolute value
+                            diff_expr = base_ub+base_lb
+                            if diff_expr.is_nonpositive: # the negative lower bound has greater absolute value
+                                yield base_ub**exponent
+                            elif diff_expr.is_nonnegative: # positive upper bound has greater absolute value
+                                yield base_lb**exponent
+
+            elif exponent.is_odd:
+                for base_lb in self._get_lower_bounds_for_expression(base):
+                    if base_lb.is_nonnegative:
                         yield sympify(0)
-                    else:
-                        if base_ub.is_nonpositive and self._is_finite(base_lb):
-                            yield Pow(base_lb, exponent)
-                        if base_lb.is_nonnegative and self._is_finite(base_lb):
-                            yield Pow(base_lb, exponent)
+                    if self._is_finite(base_ub):
+                        yield Pow(base_ub, exponent)
 
         if isinstance(expression, Expexted):
             inner_expr = expression.args[0]

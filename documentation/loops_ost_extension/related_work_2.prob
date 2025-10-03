@@ -1,0 +1,10 @@
+x = a
+y = a
+k = 0
+while 0 < x && x < 100:
+    k = k + 1
+    z = -1 {0.5} 1
+    t = y
+    y = y + (y - x) + z
+    x = y
+end

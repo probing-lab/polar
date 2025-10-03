@@ -40,9 +40,9 @@ assert len(loop_var_initial.free_symbols) == 1, "variable occuring in loop guard
 branch_builder = BranchBuilder(normalized_program)
 branches = branch_builder.get_branches(loop_var)
 
+# get_maximum_lgc
 lgc_lb = 0
 lgc_ub = 0
-
 for cond, prob, expr in branches[loop_var]:
     expr = sympify(expr)
     distrs:List[DistributionFunction] = expr.find(DistributionFunction)
@@ -59,7 +59,6 @@ for cond, prob, expr in branches[loop_var]:
     lgc_ub = max(ubs, lgc_ub)
 
 
-# get_maximum_lgc
 
 
 deterministic_vars = set()
