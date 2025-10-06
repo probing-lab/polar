@@ -27,7 +27,7 @@ while x >= 1:
     z = y
     z = Inner("documentation/loops_ost_extension/nested_loops/loop1/inner.prob")
     x = Inner("documentation/loops_ost_extension/nested_loops/loop1/inner.prob")
-    z = z + k
+    y = y + 1
     x = x + 1
 
 

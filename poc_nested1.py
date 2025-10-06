@@ -53,14 +53,16 @@ k = Symbol("k")
 
 recurrences = {
     x: x-y/5+1, # NOTE: x_{n+1} \leq x_n - y_n + 1
+    x**2: x**2-x*y/5+y+2*x+1,
     # y: y+1,
     # y**2: y**2+2*y+1,
     # y**2: y**2+k**2+2*k+2*k*y+3,
     # k*y: k*y+k +y+1,
+
     y:y+1,
     y**2: y**2+2*y+1,
     y**3: y**3+3*y**2+3*y+1
 }
-maps1 = get_expectation_maps(recurrences, x, {k})
+maps1 = get_expectation_maps(recurrences, y, {y})
 
 pass
