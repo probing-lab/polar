@@ -4,9 +4,8 @@ from sympy import (
     Expr,
     Rational,
     Symbol,
-    Zero,
+    S,
     sqrt,
-    sympy2symengine,
 )
 from math import factorial
 import sympy as sym

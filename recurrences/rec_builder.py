@@ -164,7 +164,7 @@ class RecBuilder:
                 result = result.expand()
 
         for sym in monom.free_symbols.difference(self.program.symbols):
-            result = result.xreplace({sym: Symbol(f"{sym}0")})
+            result = result.xreplace({sym: Symbol(f"{sym}0", real=True)})
 
         return result.expand()
 

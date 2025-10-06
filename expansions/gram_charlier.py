@@ -3,10 +3,8 @@ from sympy import (
     Expr,
     Symbol,
     sqrt,
-    Zero,
-    One,
+    S,
     factorial,
-    sympy2symengine,
 )
 import sympy as sym
 from sympy.stats import Normal, density

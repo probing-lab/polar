@@ -1,5 +1,5 @@
 from .exceptions import ParseException
-from sympy import sympify
+from sympy import Symbol, sympify
 import re
 
 MOMENT = "MOMENT"
@@ -36,7 +36,7 @@ class GoalParser:
         try:
             number = int(goal[1:bracket_pos])
             between_brackets = goal[bracket_pos + 1 : -1].strip()
-            return kind, [number, sympify(between_brackets)]
+            return kind, [number, GoalParser._sympify_reals(between_brackets)]
         except Exception:
             raise ParseException(f"Malformed goal {goal}")
 
@@ -45,7 +45,12 @@ class GoalParser:
         if goal[1] != "(" or goal[-1] != ")":
             raise ParseException(f"Malformed goal {goal}")
         between_brackets = goal[2:-1].strip()
-        return MOMENT, [sympify(between_brackets)]
+        return MOMENT, [GoalParser._sympify_reals(between_brackets)]
+    
+    @staticmethod
+    def _sympify_reals(goal: str):
+        goal_expr = sympify(goal)
+        return goal_expr.xreplace({s: Symbol(s.name, real=True) for s in goal_expr.free_symbols})
 
     @staticmethod
     def _parse_tail_bound(goal: str):
@@ -55,7 +60,7 @@ class GoalParser:
         )
         if match:
             return TAIL_BOUND_UPPER, [
-                sympify(t) for t in [match.group(1), match.group(2)]
+                GoalParser._sympify_reals(t) for t in [match.group(1), match.group(2)]
             ]
 
         match = re.search(
@@ -64,7 +69,7 @@ class GoalParser:
         )
         if match:
             return TAIL_BOUND_LOWER, [
-                sympify(t) for t in [match.group(1), match.group(2)]
+                GoalParser._sympify_reals(t) for t in [match.group(1), match.group(2)]
             ]
 
         raise ParseException(f"Unknown goal {goal}")
