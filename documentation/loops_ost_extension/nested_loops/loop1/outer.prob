@@ -1,0 +1,36 @@
+# k = 0
+# x = x0
+# z = z0
+# while x >= 1:
+#     k = k + 1
+#     z = y
+#     while z >= 0:
+#         z = z - 1
+#         c = Bernoulli(3/5)
+#         if c==1:
+#             x = x - 1
+#         else:
+#             x = x + 1
+#         end
+#     end
+#     z = z + k
+#     x = x + 1
+
+
+# this is an example of a nested loop
+
+k = 0
+x = x0
+z = z0
+while x >= 1:
+    k = k + 1
+    z = y
+    z = Inner("documentation/loops_ost_extension/nested_loops/loop1/inner.prob")
+    x = Inner("documentation/loops_ost_extension/nested_loops/loop1/inner.prob")
+    z = z + k
+    x = x + 1
+
+
+
+
+

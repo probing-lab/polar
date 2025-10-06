@@ -1,0 +1,13 @@
+x=x0
+z=z0
+k=0
+while z >= 0:
+    k = k + 1
+    z = z - 1
+    c = Bernoulli(3/5)
+    if c==1:
+        x = x - 1
+    else:
+        x = x + 1
+    end
+end
