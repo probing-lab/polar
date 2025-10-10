@@ -1,0 +1,16 @@
+z= z0
+x = x0
+
+k = 0
+while x>0:
+    k = k + 1
+    c = Bernoulli(7/10)
+    if c == 1:
+        z = Normal(-1,1)
+        x = x + z
+    else:
+        z = Normal(1,1)
+        x = x + z
+    end
+end
+

@@ -10,7 +10,7 @@ from program.transformer import normalize_program
 from recurrences.rec_builder import RecBuilder
 from termination.martingales.branches.branch_builder import BranchBuilder
 
-program = Parser().parse_file("documentation/loops_ost_extension/running_example.prob")
+program = Parser().parse_file("documentation/loops_ost_extension/running_example_unbounded.prob")
 lg = program.loop_guard
 print(f"Loop guard: {lg}")
 if lg.cop != '>':
@@ -68,9 +68,9 @@ for var in normalized_program.original_variables:
     if not normalized_program.is_iteration_dependent(var):
         continue
     if normalized_program.is_dependent_vars({var}, normalized_program.dist_variables):
-        random_vars.add(Symbol(str(var)))
+        random_vars.add(Symbol(str(var), real=True))
     else:
-        deterministic_vars.add(Symbol(str(var)))
+        deterministic_vars.add(Symbol(str(var), real=True))
 
 
 compute_bounds(random_vars,
@@ -78,5 +78,5 @@ compute_bounds(random_vars,
                2,
                recurrence_builder,
                [(Symbol("x0", is_finite=True, positive=True),sympify(0), oo)],
-               {Symbol("x"): sympify(-1), Symbol("k"):sympify(1)},
-               {Symbol("x"): sympify(0)})
+               { Symbol("k", real=True):sympify(1)},
+               {Symbol("x", real=True): sympify(0)})
