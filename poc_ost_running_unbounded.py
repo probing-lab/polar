@@ -3,6 +3,7 @@ from typing import List, Tuple
 from sympy import Expr, Symbol, oo, preorder_traversal, solve, sympify
 from extension_ost.bound_computation import compute_bounds
 from extension_ost.bound_store import BoundStore
+from extension_ost.helpers import Expexted
 from inputparser.parser import Parser
 from program.condition.true_cond import TrueCond
 from program.distribution.distribution import DistributionFunction
@@ -75,8 +76,8 @@ for var in normalized_program.original_variables:
 
 compute_bounds(random_vars,
                deterministic_vars,
-               2,
+               3,
                recurrence_builder,
                [(Symbol("x0", is_finite=True, positive=True),sympify(0), oo)],
-               { Symbol("k", real=True):sympify(1)},
-               {Symbol("x", real=True): sympify(0)})
+               { Symbol("k", real=True): sympify(1)},
+               {Symbol("x", real=True): sympify(0), Expexted(Symbol("x", real=True)**2): sympify(1)})

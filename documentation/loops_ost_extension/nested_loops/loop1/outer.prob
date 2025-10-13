@@ -3,7 +3,7 @@
 # z = z0
 # while x >= 1:
 #     k = k + 1
-#     z = y
+#     z = k
 #     while z >= 0:
 #         z = z - 1
 #         c = Bernoulli(3/5)
