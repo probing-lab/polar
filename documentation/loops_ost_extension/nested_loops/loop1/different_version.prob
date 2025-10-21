@@ -3,7 +3,8 @@ x = x0
 z = z0
 while true:
     k = k + 1
-    x = x - y
-    y = y + 1
+    z = Uniform(0,1)
+    x = x - k*z
     x = x + 1
 end
+

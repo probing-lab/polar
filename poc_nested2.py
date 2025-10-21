@@ -11,7 +11,7 @@ from program.transformer import normalize_program
 from recurrences.rec_builder import RecBuilder
 from termination.martingales.branches.branch_builder import BranchBuilder
 
-program = Parser().parse_file("documentation/loops_ost_extension/nested_loops/loop1/inner.prob")
+program = Parser().parse_file("documentation/loops_ost_extension/nested_loops/loop1/different_version.prob")
 lg = program.loop_guard
 
 program.loop_guard = TrueCond()
@@ -42,8 +42,7 @@ compute_bounds(random_vars,
                recurrence_builder,
                [(Symbol("z0", is_finite=True, positive=True),sympify(0), oo),
                 (Symbol("x0", is_finite=True, positive=True),sympify(0), oo)],
-               {Symbol("z", real=True): sympify(-1),
-                Symbol("k", real=True): sympify(0)},
+               {Symbol("k", real=True): sympify(0)},
                {Symbol("z", real=True): sympify(0)})
 
 exit(0)

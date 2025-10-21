@@ -42,7 +42,7 @@ def compute_bounds(random_vars: Set[Symbol],
 
     recurrences_all = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms_all}
     # filter out the recurrences which are not iteration dependent - they destroy the procedure. TODO: Maybe adapt is_iteration_dependence of program for that
-    recurrences = {k:v for k,v in recurrences_all.items() if k.free_symbols == v.free_symbols}
+    recurrences = {k:v for k,v in recurrences_all.items() if k.free_symbols.issubset(v.free_symbols)}
 
     monoms = list(recurrences.keys())
     monoms.sort(key=lambda x: str(x))

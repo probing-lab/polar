@@ -1,7 +1,7 @@
 x=x0
 z=z0
 k=0
-while z >= 0:
+while true:
     k = k + 1
     z = z - 1
     c = Bernoulli(3/5)
@@ -11,3 +11,8 @@ while z >= 0:
         x = x + 1
     end
 end
+
+
+x + n/5 -x0 = 0
+
+E(x_{n+1}) = x + 3/5 

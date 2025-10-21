@@ -2,7 +2,6 @@
 # x = x0
 # z = z0
 # while x >= 1:
-#     k = k + 1
 #     z = k
 #     while z >= 0:
 #         z = z - 1
@@ -13,7 +12,8 @@
 #             x = x + 1
 #         end
 #     end
-#     z = z + k
+#     z = k
+#     k = k + 1
 #     x = x + 1
 
 
