@@ -11,8 +11,3 @@ while true:
         x = x + 1
     end
 end
-
-
-x + n/5 -x0 = 0
-
-E(x_{n+1}) = x + 3/5 

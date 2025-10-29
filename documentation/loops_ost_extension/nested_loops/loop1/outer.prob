@@ -4,7 +4,7 @@
 # while x >= 1:
 #     z = k
 #     while z >= 0:
-#         z = z - 1
+#         z = z - Uniform(-0.2,1)
 #         c = Bernoulli(3/5)
 #         if c==1:
 #             x = x - 1
@@ -17,6 +17,14 @@
 #     x = x + 1
 
 
+
+#    x_{n+1} >= x_n - k
+
+#    x_T >= -T
+
+#    
+
+
 # this is an example of a nested loop
 
 k = 0
@@ -27,7 +35,6 @@ while x >= 1:
     z = y
     z = Inner("documentation/loops_ost_extension/nested_loops/loop1/inner.prob")
     x = Inner("documentation/loops_ost_extension/nested_loops/loop1/inner.prob")
-    y = y + 1
     x = x + 1
 
 

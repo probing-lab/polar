@@ -93,7 +93,7 @@ print(martingale.expand())
 
 
 recurrences = {
-    x: x-k/5+1, # NOTE: x_{n+1} \leq x_n - y_n + 1
+    x: x-k, # NOTE: 
     x**2: x**2-x*k/5+k+2*x+1,
 
     k*x:((k+1)*(x+1)-(k+1)/5+(x+1)-1/5).expand().simplify(),  
