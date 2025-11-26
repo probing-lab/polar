@@ -355,6 +355,10 @@ class BoundStore:
             print()
 
     def _get_pow_of_initial(self, monom: Expr):
+        monom = monom.expand()
+        if monom in self.initials:
+            return self.initials[monom][1]
+
         if isinstance(monom, Pow):
             base = monom.args[0]
             exponent = monom.args[1]
@@ -376,7 +380,7 @@ class BoundStore:
                     return self.initials[base][0]**exponent
                 # inconclusive :(
 
-        raise NotImplementedError("monomial could not be bounded")
+        raise NotImplementedError(f"monomial {monom} could not be bounded")
 
     def _get_ub_for_initial_monomial(self, monom: Expr):
         # TODO: support more complex monomials, like x0*y0
@@ -389,19 +393,11 @@ class BoundStore:
 
         if isinstance(monom, Mul):
             expr = 1
-            success = True
             for elem in monom.args:
-                if elem in self.initials:
-                    expr*=self._get_pow_of_initial(monom)
-                else:
-                    success = False
-                    break
-            if success:
-                return expr
+                expr*=self._get_pow_of_initial(elem)
+            return expr
             
         return self._get_pow_of_initial(monom)
-
-
     
     def _get_lb_for_initial_monomial(self, monom: Expr):
         # TODO: support more complex monomials, like x0*y0
@@ -414,33 +410,11 @@ class BoundStore:
 
         if isinstance(monom, Mul):
             expr = 1
-            success = True
             for elem in monom.args:
-                if elem in self.initials:
-                    expr*=self.initials[elem][1]
-                else:
-                    success = False
-                    break
-            if success:
-                return expr
-
-        if isinstance(monom, Pow):
-            base = monom.args[0]
-            exponent = monom.args[1]
-            if base not in self.initials:
-                raise KeyError(f"monom base {base} expected to be in initials")
-            if exponent.is_odd:
-                return self.initials[base][1]**exponent
-            if exponent.is_even:
-                # take the absolutely larger bound
-                if self.initials[base][1].is_nonnegative:
-                    return self.initials[base][1]**exponent
-                else:
-                    return S.Zero
-                
-                # inconclusive :(
-
-        raise NotImplementedError("monomial could not be bounded")
+                expr*=self._get_pow_of_initial(elem)
+            return expr
+            
+        return self._get_pow_of_initial(monom)
     
     def _is_smaller(self, smaller_expr: Expr, larger_expr: Expr):
         """returns True when smaller_expr < larger_expr, and false if the opposite is true, or if it is unknown
