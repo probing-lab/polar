@@ -8,7 +8,7 @@ More concrete, we find a p[\bar{x}_t], s.t.
 from functools import cache, reduce
 from itertools import product
 from typing import Dict
-from sympy import Expr, Piecewise, Symbol, simplify, solve, symbols, sympify
+from sympy import S, Add, Expr, Function, Piecewise, Symbol, linear_eq_to_matrix, rem, simplify, solve, symbols, sympify
 
 from extension_ost.square_extraction import reformulate_with_squares
 from invariants.invariant_ideal import InvariantIdeal
@@ -71,63 +71,52 @@ class ExpectationMapBuilder():
             return []
         return [solution_to_assignments(c) for c in sol_coeffs]
 
-
-
-    def _get_axis_cut_solutions(self, solutions:Dict[Expr, Expr]):
-        """Given a general solution to a system of linear equations, this method returns all concrete solutions,
-        which (locally) maximize the number of variables set to 0.
-        
-        Args:
-            solutions (_type_): The solutions returned by solve for a multivariate system of equations
-        """
-        # get the variables which can be set to 0
-        choice_vars = set()
-        for k,v in solutions.items():
-            if k == v:
+    def _propagate_value(self, solutions: Dict[Expr, Expr], k: Expr, v: Expr):
+        assert len(v.free_symbols)<=1
+        for k1 in solutions:
+            if k not in solutions[k1].free_symbols:
                 continue
-        # expression is of form x: y+a (x,y are vars, a is some constant)
-            # then we can either set x=0 and y=-a, or y=0, x=a
-            if len(v.free_symbols)==1:
-                choice_vars.add(k)
-        
-        # this gives the variables, wich are "more underdetermined" an advantage
-        if len(choice_vars)==0:
-            for k,v in solutions.items():
+            solutions[k1] = solutions[k1].subs(k,v)
+            if solutions[k1].is_number:
+                self._propagate_value(solutions, k1, solutions[k1])
+            if len(solutions[k1].free_symbols)==1 and rem(solutions[k1], solutions[k1].free_symbols.pop()) == 0:
+                self._propagate_value(solutions, k1, solutions[k1])   
+
+    def _get_axis_cut_solutions_v3_recurse(self, solutions: Dict[Expr, Expr]):
+        progress = False
+        for k, v in solutions.items():
+            if len(v.free_symbols) == 1:
+                # set it to zero
+                progress = True
                 if k == v:
-                    continue
-                if len(v.free_symbols)>=1:
-                    choice_vars = choice_vars.union({f for f in v.free_symbols if solutions[f] == f})
-
-    
-
-        # no more choices, set all not determined vars to 0
-        if len(choice_vars) == 0:
-            sol = solutions.copy()
-            for k in sol:
-                if sol[k] == k:
-                    sol[k]=0
-                elif len(sol[k].free_symbols)==0:
-                    pass
+                    sol = solutions.copy()
+                    self._propagate_value(sol, k, S.Zero)
+                    for solution in self._get_axis_cut_solutions_v3_recurse(sol):
+                        yield solution
                 else:
-                    raise Exception("this should not occur in an underspecified system of equations (probably some kind of circularity)."+\
-                                    "Is this input returned from linsolve?")
-            yield sol
+                    sol = solutions.copy()
+                    sol[k] = S.Zero
+                    self._propagate_value(sol, k, S.Zero)
+                    k1 = v.free_symbols.pop()
+                    v1 = solve(v, k1)[0]
+                    self._propagate_value(sol,k1, v1)
+                    for solution in self._get_axis_cut_solutions_v3_recurse(sol):
+                        yield solution
+        if not progress:
+            assert all(len(v.free_symbols)==0 for v in solutions.values())
+            yield solutions
 
-        for choice_var in choice_vars:
-            sol = solutions.copy()
-            
-            if sol[choice_var] != choice_var: #(sign chosen to be consistent, wlog) this handles the case: sol[choice_var] = other_var - a
-                assert len(sol[choice_var].free_symbols)==1
-                other_var = sol[choice_var].free_symbols.pop()
-                a = solve(sol[choice_var], other_var)[0]
-                sol[other_var] = a
-                for k in sol:
-                    sol[k]=sol[k].subs(other_var, a)
-            for k in sol:
-                sol[k]=sol[k].subs(choice_var, 0)
-            
-            for solution in self._get_axis_cut_solutions(sol):
-                yield solution
+    def _get_axis_cut_solutions_v3(self, solutions):
+        ancestor_vars = set()
+        for k, v in solutions.items():
+             if len(v.free_symbols)>1:
+                 ancestor_vars = ancestor_vars.union(v.free_symbols)
+        for k in solutions:
+            if k not in ancestor_vars and k==solutions[k]:
+                solutions[k] = 0
+        
+        for solution in self._get_axis_cut_solutions_v3_recurse(solutions):
+            yield solution
 
     def _filter_similar_expectation_maps(self, maps):
         maps_filtered = set()
@@ -141,6 +130,97 @@ class ExpectationMapBuilder():
             if not redundant:
                 maps_filtered.add(map)
         return list(maps_filtered)
+    
+    def filter_unique_primitives(self, expressions):
+        unique_map = {}
+        
+        for expr in expressions:
+            if expr == 0:
+                unique_map[0] = 0
+                continue
+
+            # as_content_primitive returns a tuple: (scalar_factor, simplified_expr)
+            # e.g., 2*f(x) + 4*f(y)  ->  (2, f(x) + 2*f(y))
+            # e.g., -f(x) - 2*f(y)   ->  (-1, f(x) + 2*f(y))
+            content, primitive = expr.as_content_primitive()
+            
+            # We only care about the 'primitive' part as the dictionary key
+            if primitive not in unique_map:
+                unique_map[primitive] = expr
+                
+        return list(unique_map.values())
+
+    def get_sparse_basis(self, expressions):
+
+        variables = set()
+        for expr in expressions:
+            variables.update(expr.free_symbols)
+        
+        # Sort for deterministic matrix columns (A, B, C...)
+        # We sort by the string representation of the symbol
+        variables_list = sorted(list(variables), key=lambda s: s.name)
+
+        # 2. Build the Matrix (The Coefficient Matrix)
+        # rows = expressions, columns = variables
+        matrix_A, _ = linear_eq_to_matrix(expressions, variables_list)
+
+        # 3. Compute RREF (Reduced Row Echelon Form)
+        # This performs Gaussian elimination to zero out as much as possible
+        # and remove dependent rows.
+        rref_matrix, pivot_indices = matrix_A.rref()
+
+        # 4. Reconstruct the simplified expressions
+        simplified_exprs = []
+        rows, cols = rref_matrix.shape
+        
+        for i in range(rows):
+            # Reconstruct the expression from the row coefficients
+            # dot product: row[i] * variables_list
+            new_expr = sum(rref_matrix[i, j] * variables_list[j] for j in range(cols))
+            
+            # Filter out rows that became completely zero (the redundant ones)
+            if new_expr != 0:
+                simplified_exprs.append(new_expr)
+
+        return simplified_exprs
+
+    def get_shortest_basis(self, expressions):
+        # 1. Identify all variables across all expressions for matrix construction
+        #    (Using free_symbols since you have symbols like f(x1))
+        all_syms = set()
+        for e in expressions:
+            all_syms.update(e.free_symbols)
+        variables = sorted(list(all_syms), key=lambda s: s.name)
+
+        # 2. Sort expressions by "Complexity" (Number of terms)
+        #    Add.make_args splits 'a + b' into (a, b). 
+        #    We prefer expressions with fewer terms.
+        #    Secondary sort by string length ensures 'x' comes before 'y' (cosmetic)
+        sorted_exprs = sorted(expressions, key=lambda e: (len(Add.make_args(e)), str(e)))
+
+        basis = []
+        current_rank = 0
+
+        for expr in sorted_exprs:
+            # Handle zero expression
+            if expr == 0:
+                continue
+                
+            # 3. Test: Does adding this expression increase the rank?
+            candidate_basis = basis + [expr]
+            
+            # Build matrix of the candidate basis
+            mat, _ = linear_eq_to_matrix(candidate_basis, variables)
+            new_rank = mat.rank()
+            
+            # 4. If rank increases, this expression contains NEW info. Keep it.
+            #    Since we sorted by length, we are guaranteed to be keeping 
+            #    the shortest possible version of this information.
+            if new_rank > current_rank:
+                basis.append(expr)
+                current_rank = new_rank
+
+        return basis
 
     # TODO: cache this function
     @cache
@@ -165,13 +245,13 @@ class ExpectationMapBuilder():
         maps = set()
         for solution in solutions:
             # TODO: the following contains many duplicates - get rid of them, either in the called function (probably hard) or afterwards
-            axis_cut_solutions = list(self._get_axis_cut_solutions(solution))
+            axis_cut_solutions = list(self._get_axis_cut_solutions_v3(solution))
 
-
+            unique_axis_cut_solutions = [dict(t) for t in {frozenset(d.items()) for d in axis_cut_solutions}]
             # Build the linear combination
             final_expression = 0
             for expr, coeff in var_to_coeff_list:
                 final_expression+= Symbol(f"E({expr})")*coeff
-            for axis_cut_solution in axis_cut_solutions:
+            for axis_cut_solution in unique_axis_cut_solutions:
                 maps.add(final_expression.subs(axis_cut_solution).simplify())
-        return self._filter_similar_expectation_maps(reformulate_with_squares(maps, self.monom_maps))
+        return maps

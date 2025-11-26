@@ -3,6 +3,7 @@ from typing import List, Tuple
 from sympy import Expr, Symbol, oo, preorder_traversal, solve, sympify
 from extension_ost.bound_computation import compute_bounds
 from extension_ost.bound_store import BoundStore
+from extension_ost.saturation.saturation_based_bound_computation import compute_bounds_saturation
 from inputparser.parser import Parser
 from program.condition.true_cond import TrueCond
 from program.distribution.distribution import DistributionFunction
@@ -73,7 +74,7 @@ for var in normalized_program.original_variables:
         deterministic_vars.add(Symbol(str(var), real=True))
 
 
-compute_bounds(random_vars,
+compute_bounds_saturation(random_vars,
                deterministic_vars,
                2,
                recurrence_builder,
