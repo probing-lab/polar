@@ -6,7 +6,7 @@ u = u0
 n1 = n10
 n2 = n20
 k = 0
-while x>0:
+while true:
     k = k + 1
     u = Uniform(-1, 0)
     x = x + u

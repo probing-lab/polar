@@ -4,7 +4,7 @@ from sympy import Expr, Symbol, nan, solve, sympify
 from itertools import chain, combinations
 
 from extension_ost.bound_store import BoundStore
-from extension_ost.expectation_map import get_expectation_maps
+from extension_ost.expectation_map import ExpectationMapBuilder
 from extension_ost.helpers import Expexted
 from recurrences.rec_builder import RecBuilder
 
@@ -51,6 +51,8 @@ def compute_bounds(random_vars: Set[Symbol],
 
 
     unprocessed:List[Expr] =deepcopy(monoms)
+    exp_map_builder = ExpectationMapBuilder(recurrences, deterministic_vars)
+
 
     while len(unprocessed) > 0:
         goal_monom = next(iter(unprocessed))
@@ -58,7 +60,7 @@ def compute_bounds(random_vars: Set[Symbol],
         unprocessed.remove(goal_monom)
 
         # There are potentially multiple martingales - maybe some of them lead to a bound, others dont
-        martingales = set(get_expectation_maps(recurrences, goal_monom, deterministic_vars))
+        martingales = set(exp_map_builder.get_expectation_maps(goal_monom))
         pass
         martingales.add(goal_monom)
         martingales.add(Expexted(goal_monom))
@@ -74,7 +76,7 @@ def compute_bounds(random_vars: Set[Symbol],
                 martingale_initial_value = martingale_map.subs(monom_subs).subs(initial_value_dict).simplify()
 
                 martingale = martingale_map - martingale_initial_value
-                print("Martingale: ", martingale)
+                # print("Martingale: ", martingale)
                 martingale_expexted = martingale.subs(monom_expexted_sub).simplify()
 
                 solved_for_goal = solve(martingale_expexted, Expexted(goal_monom))
@@ -88,8 +90,8 @@ def compute_bounds(random_vars: Set[Symbol],
                 if bound_store.is_new_upper_bound(Expexted(goal_monom), upper_bound):
                     bound_store.add_upper_bound(Expexted(goal_monom), upper_bound)
                     unprocessed = deepcopy(monoms)
-                    # print("\t",Expexted(goal_monom), "<=", upper_bound)
-                    # print("\t\t using:", martingale_expexted)
+                    print("\t",Expexted(goal_monom), "<=", upper_bound)
+                    print("\t\t using:", martingale_expexted)
                 else:
                     # print(Expexted(goal_monom), "<=", upper_bound)
                     pass
@@ -101,11 +103,12 @@ def compute_bounds(random_vars: Set[Symbol],
                 if bound_store.is_new_lower_bound(Expexted(goal_monom), lower_bound):
                     bound_store.add_lower_bound(Expexted(goal_monom), lower_bound)
                     unprocessed = deepcopy(monoms)
-                    # print("\t",Expexted(goal_monom), ">=", lower_bound)
-                    # print("\t\t using:", martingale_expexted)
+                    print("\t",Expexted(goal_monom), ">=", lower_bound)
+                    print("\t\t using:", martingale_expexted)
                 else:
                     # print(Expexted(goal_monom), ">=", lower_bound)
                     pass
 
         if unprocessed == monoms:
             bound_store._pretty_print()
+    bound_store._pretty_print()

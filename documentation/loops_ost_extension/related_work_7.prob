@@ -1,0 +1,9 @@
+# taken from https://dl.acm.org/doi/pdf/10.1145/3453483.3454062
+
+while x >= 1:
+    k = k+1
+    c = Bernoulli(3/5)
+    if prob(3,2):
+        x = x - 1
+    else:
+        x = x + 1

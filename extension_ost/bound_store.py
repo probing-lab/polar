@@ -281,6 +281,14 @@ class BoundStore:
             for sharp_bound in self._get_lower_bounds_for_expression(inner_expr):
                 if self._is_finite(sharp_bound):
                     yield sharp_bound
+            if isinstance(inner_expr, Pow):
+                base = inner_expr.args[0]
+                exponent = inner_expr.args[1]
+                
+                if exponent.is_even:
+                    for bound in self._get_lower_bounds_for_expression(Expexted(base)):
+                        if self._is_finite(bound):
+                            yield bound**exponent
                 
             if isinstance(inner_expr, Mul):
                 for i in range(len(inner_expr.args)):
@@ -346,15 +354,7 @@ class BoundStore:
                     print(" "*20 + " >= "+str(lower_bound))
             print()
 
-    def _get_ub_for_initial_monomial(self, monom: Expr):
-        # TODO: support more complex monomials, like x0*y0
-        if len(monom.free_symbols) == 0:
-            return monom
-        if len(monom.free_symbols)!=1:
-            raise NotImplementedError("Currently only monomials that are of form x**k for some initial variable x are supported")
-        if monom in self.initials:
-            return self.initials[monom][1]
-
+    def _get_pow_of_initial(self, monom: Expr):
         if isinstance(monom, Pow):
             base = monom.args[0]
             exponent = monom.args[1]
@@ -377,15 +377,52 @@ class BoundStore:
                 # inconclusive :(
 
         raise NotImplementedError("monomial could not be bounded")
+
+    def _get_ub_for_initial_monomial(self, monom: Expr):
+        # TODO: support more complex monomials, like x0*y0
+        if len(monom.free_symbols) == 0:
+            return monom
+        if len(monom.free_symbols.difference(self.initials.keys()))!=0:
+            raise NotImplementedError("Currently only monomials that are of form x**k for some initial variable x are supported")
+        if monom in self.initials:
+            return self.initials[monom][1]
+
+        if isinstance(monom, Mul):
+            expr = 1
+            success = True
+            for elem in monom.args:
+                if elem in self.initials:
+                    expr*=self._get_pow_of_initial(monom)
+                else:
+                    success = False
+                    break
+            if success:
+                return expr
+            
+        return self._get_pow_of_initial(monom)
+
+
     
     def _get_lb_for_initial_monomial(self, monom: Expr):
         # TODO: support more complex monomials, like x0*y0
         if len(monom.free_symbols) == 0:
             return monom
-        if len(monom.free_symbols)!=1:
+        if len(monom.free_symbols.difference(self.initials.keys()))!=0:
             raise NotImplementedError("Currently only monomials that are of form x**k for some initial variable x are supported")
         if monom in self.initials:
             return self.initials[monom][0]
+
+        if isinstance(monom, Mul):
+            expr = 1
+            success = True
+            for elem in monom.args:
+                if elem in self.initials:
+                    expr*=self.initials[elem][1]
+                else:
+                    success = False
+                    break
+            if success:
+                return expr
 
         if isinstance(monom, Pow):
             base = monom.args[0]

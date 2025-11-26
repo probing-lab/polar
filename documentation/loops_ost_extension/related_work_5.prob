@@ -1,5 +1,6 @@
 # Listing 1.4 from https://arxiv.org/pdf/1811.06779
 # this is basically the same as the running example, but with fixed value for x0
+# this also occures in https://dl.acm.org/doi/pdf/10.1145/3453483.3454062
 
 
 z= z0
