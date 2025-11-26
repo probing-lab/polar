@@ -3,6 +3,7 @@ from sympy import Symbol, Expr
 
 from extension_ost.expectation_map import ExpectationMapBuilder
 from extension_ost.helpers import Expexted
+from extension_ost.square_extraction import reformulate_maps_with_squares
 from recurrences.rec_builder import RecBuilder
 
 def _get_monoms(symbols: List[Symbol],
@@ -39,6 +40,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     for monom in monoms:
         exp_maps += exp_map_builder.get_expectation_maps(monom)
     exp_maps_filtered = exp_map_builder.filter_unique_primitives(exp_maps)
+    
+    extracted_square_maps = reformulate_maps_with_squares(exp_maps_filtered, monom_expexted_sub)
     pass
 
 

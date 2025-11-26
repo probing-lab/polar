@@ -1,5 +1,5 @@
-from typing import Optional, Tuple
-from sympy import S, Add, Expr, Mul, Pow
+from typing import Dict, Optional, Tuple
+from sympy import S, Add, Expr, Mul, Pow, rem, simplify
 
 from extension_ost.helpers import Expexted
 
@@ -36,8 +36,28 @@ def _sqroot_if_possible(expr: Expr) -> Optional[Expr]:
             
     return x*a
 
+def _factor_if_exists(expr: Expr, potential_factor: Expr) -> Optional[Expr]:
+    """
+    Args:
+        expr (Expr): the expression for which it is checked, whether it is a square
+    """
+    a_given, expected_given = potential_factor.as_coeff_Mul()
+    if isinstance(expr, Mul):
+            # assert len(expr.args) == 2
+            a,expected = expr.as_coeff_Mul()
+    elif isinstance(expr, Expexted):
+        a = 1
+        expected = expr
+    else:
+        return
+    assert isinstance(expected, Expexted)
 
-def reformulate_with_squares(expression_map: Expr, monom_maps: Expr):
+    if rem(expected, expected_given) == S.Zero:
+        # is a true factor
+        return a/a_given*expected/expected_given
+
+
+def reformulate_with_squares(expression_map: Expr, monom_maps: Dict[Expr, Expr]):
     """
         Currently this method only works for extracting squares of the form 
         E((a*x+b*y)^2) from an expression, where a,b are (rational?) coefficients, whiel x and y are RVs.
@@ -53,11 +73,17 @@ def reformulate_with_squares(expression_map: Expr, monom_maps: Expr):
     plus_terms = [expression_map] if not isinstance(expression_map, Add) else expression_map.args
 
     roots_of_squares = [v for t in plus_terms if (v:=_sqroot_if_possible(t))]
-    pass
     
-def reformulate_maps_with_squares(expression_maps: Expr):
+    for root in roots_of_squares:
+        factors = [v for t in plus_terms if (v:=_factor_if_exists(2*root))]
+        for factor in factors:
+            expression = 
+
+    yield from []
+    
+def reformulate_maps_with_squares(expression_maps: Expr, monom_maps: Dict[Expr, Expr]):
     maps = []
     for map in expression_maps:
-        maps += reformulate_with_squares(map)
+        maps += reformulate_with_squares(map, monom_maps)
 
     return maps
