@@ -16,3 +16,11 @@ while x>0:
     z = z + y + n2
 end
 
+
+#while x>0:
+#    k = k + 1
+#    u = Uniform(-1, 0)
+#    x = x + u
+#    y = y + u + Normal(1,2)
+#    z = z + y + Normal(-2,4)
+#end

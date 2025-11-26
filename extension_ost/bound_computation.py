@@ -51,7 +51,7 @@ def compute_bounds(random_vars: Set[Symbol],
 
 
     unprocessed:List[Expr] =deepcopy(monoms)
-    exp_map_builder = ExpectationMapBuilder(recurrences, deterministic_vars)
+    exp_map_builder = ExpectationMapBuilder(recurrences, deterministic_vars, monom_subs)
 
 
     while len(unprocessed) > 0:

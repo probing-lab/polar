@@ -10,6 +10,7 @@ from itertools import product
 from typing import Dict
 from sympy import Expr, Piecewise, Symbol, simplify, solve, symbols, sympify
 
+from extension_ost.square_extraction import reformulate_with_squares
 from invariants.invariant_ideal import InvariantIdeal
 
 
@@ -88,7 +89,6 @@ class ExpectationMapBuilder():
             # then we can either set x=0 and y=-a, or y=0, x=a
             if len(v.free_symbols)==1:
                 choice_vars.add(k)
-                break
         
         # this gives the variables, wich are "more underdetermined" an advantage
         if len(choice_vars)==0:
@@ -174,4 +174,4 @@ class ExpectationMapBuilder():
                 final_expression+= Symbol(f"E({expr})")*coeff
             for axis_cut_solution in axis_cut_solutions:
                 maps.add(final_expression.subs(axis_cut_solution).simplify())
-        return self._filter_similar_expectation_maps(maps)
+        return self._filter_similar_expectation_maps(reformulate_with_squares(maps, self.monom_maps))
