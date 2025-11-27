@@ -42,6 +42,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     exp_maps_filtered = exp_map_builder.filter_unique_primitives(exp_maps)
     
     extracted_square_maps = reformulate_maps_with_squares(exp_maps_filtered, monom_expexted_sub)
+    extracted_square_maps_filtered = exp_map_builder.filter_unique_primitives(extracted_square_maps)    
     pass
 
 

@@ -1,10 +1,10 @@
 from typing import Dict, Optional, Tuple
-from sympy import S, Add, Expr, Mul, Pow, rem, simplify
+from sympy import S, Add, Expr, Mul, Pow, Symbol, rem, simplify, sqrt
 
 from extension_ost.helpers import Expexted
 
 
-def _sqroot_if_possible(expr: Expr) -> Optional[Expr]:
+def _sqroot_and_sign_if_possible(expr: Expr) -> Optional[Tuple[Expr, Expr]]:
     """
     Given an expression of form a*Expexted(x^alpha) this function determins, whether
     the expression is a square of some other monomial
@@ -16,7 +16,7 @@ def _sqroot_if_possible(expr: Expr) -> Optional[Expr]:
         # assert len(expr.args) == 2
         a,expected = expr.as_coeff_Mul()
     elif isinstance(expr, Expexted):
-        a = 1
+        a = S.One
         expected = expr
     else:
         return
@@ -34,14 +34,18 @@ def _sqroot_if_possible(expr: Expr) -> Optional[Expr]:
         else:
             return
             
-    return x*a
+    return simplify(x*(sqrt(a if a.is_nonnegative else -a))), 1 if a.is_nonnegative else -1
 
 def _factor_if_exists(expr: Expr, potential_factor: Expr) -> Optional[Expr]:
     """
     Args:
         expr (Expr): the expression for which it is checked, whether it is a square
     """
-    a_given, expected_given = potential_factor.as_coeff_Mul()
+    if len(expr.free_symbols - potential_factor.free_symbols) == 0:
+        return
+    terms = Mul.make_args(potential_factor)
+    a_given = Mul(*[t for t in terms if t.is_number])
+    expected_given = Mul(*[t for t in terms if not t.is_number])
     if isinstance(expr, Mul):
             # assert len(expr.args) == 2
             a,expected = expr.as_coeff_Mul()
@@ -52,9 +56,9 @@ def _factor_if_exists(expr: Expr, potential_factor: Expr) -> Optional[Expr]:
         return
     assert isinstance(expected, Expexted)
 
-    if rem(expected, expected_given) == S.Zero:
+    if rem(expected.args[0], expected_given) == S.Zero:
         # is a true factor
-        return a/a_given*expected/expected_given
+        return a/a_given*expected.args[0]/expected_given
 
 
 def reformulate_with_squares(expression_map: Expr, monom_maps: Dict[Expr, Expr]):
@@ -70,14 +74,21 @@ def reformulate_with_squares(expression_map: Expr, monom_maps: Dict[Expr, Expr])
         one needs a bound for E(ab) and vice versa
     """
     expression_map = expression_map.subs(monom_maps)
+    monom_maps_inv = {v:Symbol(k) for k, v in monom_maps.items()}
     plus_terms = [expression_map] if not isinstance(expression_map, Add) else expression_map.args
 
-    roots_of_squares = [v for t in plus_terms if (v:=_sqroot_if_possible(t))]
+    roots_of_squares = [v for t in plus_terms if (v:=_sqroot_and_sign_if_possible(t))]
     
-    for root in roots_of_squares:
-        factors = [v for t in plus_terms if (v:=_factor_if_exists(2*root))]
+    for root, sign in roots_of_squares:
+        factors = [v for t in plus_terms if (v:=_factor_if_exists(t, 2*root*sign))]
+        pass
         for factor in factors:
-            expression = 
+            expression = Expexted((root + factor)**2)
+
+            new_expression_map = simplify(expression_map - sign*expression)
+            new_expression_map_E = new_expression_map.subs(monom_maps_inv)
+            new_expression_map_with_square = new_expression_map_E +sign* Symbol(f"E({(root+factor)**2})")
+            yield new_expression_map_with_square
 
     yield from []
     
