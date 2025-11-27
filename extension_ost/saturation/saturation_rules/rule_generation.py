@@ -10,6 +10,8 @@ from extension_ost.saturation.saturation_rules.rule import Rule, RuleType
 
 # This basically is grounding of the rule
 # X <= a ==> E(X) <= a  (and similar for >=)
+
+
 def generate_hard_bound_rules(monoms, nodes,
                               lb_dependencies: Dict[Expr, Set[Rule]],
                               ub_dependencies: Dict[Expr, Set[Rule]]):
@@ -27,32 +29,107 @@ def generate_hard_bound_rules(monoms, nodes,
                   RuleType.UB,
                   [],
                   [nodes[monom]],
-                  [[(1,0)]],
+                  [[(1, 0)]],
                   S.Zero)
         ub_dependencies[nodes[monom]].add(r2)
         yield r2
 
-def generate_var_multiplication_ub_rules(monoms, nodes,
-                                      lb_dependencies,
-                                      ub_dependencies):
+
+def generate_var_multiplication_ub_rules(monoms,
+                                         nodes: Dict[Expr, Expr],
+                                         lb_dependencies: Dict[Expr, Set[Rule]],
+                                         ub_dependencies: Dict[Expr, Set[Rule]]):
     # we are in the general setting:
     # a <= X <= b
     # c <= Y <= d
     for X, Y in product(monoms, monoms):
         if simplify(X*Y) not in monoms and simplify(Y*X) not in monoms:
-            continue # to high degree
+            continue  # to high degree
         res_monom = simplify(X*Y) if simplify(X*Y) in monoms else simplify(Y*X)
 
         # a >= 0, b>= 0, c>= 0 => XY<= bd
-        rule1 = Rule(res_monom, 
+        rule1 = Rule(res_monom,
                      RuleType.UB,
                      [nodes[X]],
                      [nodes[X], nodes[Y]],
-                     [])
+                     [[(1, 0), (1, 1)]],
+                     S.Zero,
+                     inequalities=[[[(0,0)]],
+                                   [[(1,0)]],
+                                   [[(1,1)]]])
+        lb_dependencies[nodes[X]].add(rule1)
+        ub_dependencies[nodes[X]].add(rule1)
+        ub_dependencies[nodes[Y]].add(rule1)
+        yield rule1
+
+        # a >= 0, d <= 0 => XY <= ad
+        rule2 = Rule(nodes[res_monom],
+                     RuleType.UB,
+                     [nodes[X]],
+                     [nodes[Y]],
+                     [[(0, 0), (1, 0)]],
+                     S.Zero,
+                     inequalities=[[[(0,0)]],
+                                   [[(1,0),(2,-S.One)]]])
+        lb_dependencies[nodes[X]].add(rule2)
+        ub_dependencies[nodes[Y]].add(rule2)
+        yield rule2
+
+        # a <= 0, c <= 0, d <= 0
+        rule3 = Rule(nodes[res_monom],
+                     RuleType.UB,
+                     [nodes[X], nodes[Y]],
+                     [nodes[Y]],
+                     [[(0,0),(0,1)]],
+                     S.Zero,
+                     inequalities=[[[(0,0),(2,-S.One)]],
+                                   [[(0,1),(2,-S.One)]],
+                                   [[(1,0),(2,-S.One)]]])
+        lb_dependencies[nodes[X]].add(rule3)
+        lb_dependencies[nodes[Y]].add(rule3)
+        ub_dependencies[nodes[Y]].add(rule3)
+        yield rule3
+
+        # a <= 0, b >= 0, c <= 0, d >=0, ac >= bd => XY <= ac
+        rule4 = Rule(nodes[res_monom],
+                     RuleType.UB,
+                     [nodes[X], nodes[Y]],
+                     [nodes[X], nodes[Y]],
+                     [[(0,0),(0,1)]],
+                     S.Zero,
+                     inequalities=[[[(0,0),(2,-S.One)]],
+                                   [[(0,1),(2,-S.One)]],
+                                   [[(1,0)]],
+                                   [[(1,1)]],
+                                   [[(0,0), (0,1)],[(1,0),(1,1),(2,-S.One)]]]) # check whether ac-bd is nonnegative
+        lb_dependencies[nodes[X]].add(rule4)
+        lb_dependencies[nodes[Y]].add(rule4)
+        ub_dependencies[nodes[X]].add(rule4)
+        ub_dependencies[nodes[Y]].add(rule4)
+        yield rule4
+        
+        # a <= 0, b >= 0, c <= 0, d >=0, ac >= bd => XY <= bd
+        rule5 = Rule(nodes[res_monom],
+                     RuleType.UB,
+                     [nodes[X], nodes[Y]],
+                     [nodes[X], nodes[Y]],
+                     [[(1,0),(1,1)]],
+                     S.Zero,
+                     inequalities=[[[(0,0),(2,-S.One)]],
+                                   [[(0,1),(2,-S.One)]],
+                                   [[(1,0)]],
+                                   [[(1,1)]],
+                                   [[(0,0), (0,1),(2,-S.One)],[(1,0),(1,1)]]]) # check whether bd-ac is nonnegative
+        lb_dependencies[nodes[X]].add(rule5)
+        lb_dependencies[nodes[Y]].add(rule5)
+        ub_dependencies[nodes[X]].add(rule5)
+        ub_dependencies[nodes[Y]].add(rule5)
+        yield rule5
+
 
 def generate_rv_multiplication_rules(monoms, nodes,
-                                    lb_dependencies,
-                                    ub_dependencies):
+                                     lb_dependencies,
+                                     ub_dependencies):
     """Generates rules for deriving bounds
 
     Args:
@@ -62,6 +139,7 @@ def generate_rv_multiplication_rules(monoms, nodes,
         ub_dependencies (_type_): _description_
     """
     pass
+
 
 def generate_martingale_based_rule(expression_map: Expr,
                                    nodes: Dict[Expr, Expr],
@@ -80,32 +158,33 @@ def generate_martingale_based_rule(expression_map: Expr,
         ub_dependencies (Dict[Expr, Rule]): dictionary to store ub dependencies
         monom_subs (Dict[Expr, Expr]): mapping of E(X) to Expexted(X)
     """
-    expectation_symbols = {sym for sym in expression_map.free_symbols if str(sym).startswith("E(")}
+    expectation_symbols = {sym for sym in expression_map.free_symbols if str(
+        sym).startswith("E(")}
     for exp_symbol in expectation_symbols:
         solved_expr = solve(expression_map, exp_symbol)[0].subs(monom_subs)
 
         add_parts = Add.make_args(solved_expr)
 
-        # For the rule that derives E(X) <= ...        
+        # For the rule that derives E(X) <= ...
         UB_ub_values = []
         UB_lb_values = []
         UB_coeffs = []
         UB_i = 0
 
-        # For the rule that derives E(X) >= ...        
+        # For the rule that derives E(X) >= ...
         LB_ub_values = []
         LB_lb_values = []
         LB_coeffs = []
         LB_i = 0
 
-        ub_rule = Rule(nodes[monom_subs[str(exp_symbol)]], 
+        ub_rule = Rule(nodes[monom_subs[str(exp_symbol)]],
                        RuleType.UB,
                        UB_lb_values,
                        UB_ub_values,
                        UB_coeffs,
                        S.Zero)
 
-        lb_rule = Rule(nodes[monom_subs[str(exp_symbol)]], 
+        lb_rule = Rule(nodes[monom_subs[str(exp_symbol)]],
                        RuleType.LB,
                        LB_lb_values,
                        LB_ub_values,
@@ -119,28 +198,29 @@ def generate_martingale_based_rule(expression_map: Expr,
             if not exp_term.has(Expexted):
                 ub_rule.res_intercept += coeff*exp_term
             elif coeff.is_nonnegative:
-                UB_coeffs.append([(1,len(UB_ub_values)), (2, coeff)])
+                UB_coeffs.append([(1, len(UB_ub_values)), (2, coeff)])
                 UB_ub_values.append(nodes[exp_term])
                 ub_dependencies[nodes[exp_term]].add(ub_rule)
 
-                LB_coeffs.append([(0,len(LB_lb_values)), (2, coeff)])
+                LB_coeffs.append([(0, len(LB_lb_values)), (2, coeff)])
                 LB_lb_values.append(nodes[exp_term])
                 lb_dependencies[nodes[exp_term]].add(lb_rule)
 
-                UB_i+=1
-                LB_i+=1
+                UB_i += 1
+                LB_i += 1
             elif coeff.is_negative:
-                UB_coeffs.append([(0,len(UB_lb_values)), (2, coeff)])
+                UB_coeffs.append([(0, len(UB_lb_values)), (2, coeff)])
                 UB_lb_values.append(nodes[exp_term])
                 ub_dependencies[nodes[exp_term]].add(lb_rule)
 
-                LB_coeffs.append([(1,len(LB_ub_values)), (2, coeff)])
+                LB_coeffs.append([(1, len(LB_ub_values)), (2, coeff)])
                 LB_ub_values.append(nodes[exp_term])
                 lb_dependencies[nodes[exp_term]].add(ub_rule)
 
-                UB_i+=1
-                LB_i+=1
+                UB_i += 1
+                LB_i += 1
             else:
-                raise ValueError("Coefficient must be number, hence sign must be known")
+                raise ValueError(
+                    "Coefficient must be number, hence sign must be known")
         yield ub_rule
         yield lb_rule

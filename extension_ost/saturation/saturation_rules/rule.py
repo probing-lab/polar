@@ -30,9 +30,7 @@ class Rule:
                  ubs: List[ValueNode],
                  res_expr: List[List[Tuple[Literal[0,1],int]]],
                  res_intercept: Expr,
-                 positive_bounds: List[Tuple[Literal[0,1],int]]=[], # the indices of the upper bounds, which must be nonnegative
-                 negative_bounds: List[Tuple[Literal[0,1],int]]=[], # indices of nonpositive ubs
-                 inequalities: List[Tuple[Literal[0,1],int]]=[]): # given (c,a), (d,b), check whether a <= d, and 
+                 inequalities: List[List[List[Tuple[Literal[0,1],int]]]]=[]): # positivity_constraints
         self.result = result
         self.result_type = result_type
         self.lbs = lbs
@@ -40,14 +38,15 @@ class Rule:
         self.res_intercept = res_intercept
         self.inequalities = inequalities
         self.res_expr = res_expr
-        self.positive_bounds = positive_bounds
-        self.negative_bounds = negative_bounds
 
     def _get_value(self, lbs, ubs, access: Tuple[Literal[0,1], int|Expr]):
         (c, a) = access
         if c == 2:
             return a
         return (ubs if c == 1 else lbs)[a]
+    
+    def _get_expr(self, lbs, ubs, access: List[List[Tuple[Literal[0,1], int|Expr]]]):
+        return Add(*[Mul(*[self._get_value(lbs, ubs, i) for i in mul_term]) for mul_term in access])
 
     def fire(self) -> bool:
         """_summary_
@@ -63,16 +62,10 @@ class Rule:
         for lbs in lbss:
             for ubs in ubss:
                 # check the sign constraints of the bounds
-                if any((not self.result.initial_value_provider.is_nonnegative(self._get_value(lbs, ubs, i))) for i in self.positive_bounds):
-                    continue
-                if any((not self.result.initial_value_provider.is_nonnegative(-self._get_value(lbs, ubs, i))) for i in self.negative_bounds):
-                    continue
-                
-                if any((not (self.result.initial_value_provider.is_nonnegative(
-                     self._get_value(lbs, ubs, i1)-self._get_value(lbs, ubs, i2))) for i1, i2 in self.inequalities)):
+                if any((not (self.result.initial_value_provider.is_nonnegative(access) for access in self.inequalities))):
                     continue
 
-                new_candidate = self.res_intercept+Add(*[Mul(*[self._get_value(lbs, ubs, i) for i in mul_term]) for mul_term in self.res_expr])
+                new_candidate = self.res_intercept+self._get_expr(self.res_expr)
 
                 if self.result_type==RuleType.LB:
                     if self.result.add_lb(new_candidate):
