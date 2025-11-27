@@ -9,8 +9,6 @@ from extension_ost.saturation.saturation_rules.rule import Rule, RuleType
 
 # This basically is grounding of the rule
 # X <= a ==> E(X) <= a  (and similar for >=)
-
-
 def generate_hard_bound_rules(monoms, nodes,
                               lb_dependencies: Dict[Expr, Set[Rule]],
                               ub_dependencies: Dict[Expr, Set[Rule]]):
@@ -35,6 +33,23 @@ def generate_hard_bound_rules(monoms, nodes,
         ub_dependencies[nodes[monom]].add(r2)
         yield r2
 
+def generate_var_multiplication_rules(monoms, nodes,
+                                      lb_dependencies,
+                                      ub_dependencies):
+    pass
+
+def generate_rv_multiplication_rules(monoms, nodes,
+                                    lb_dependencies,
+                                    ub_dependencies):
+    """Generates rules for deriving bounds
+
+    Args:
+        monoms (_type_): _description_
+        nodes (_type_): _description_
+        lb_dependencies (_type_): _description_
+        ub_dependencies (_type_): _description_
+    """
+    pass
 
 def generate_martingale_based_rule(expression_map: Expr,
                                    nodes: Dict[Expr, Expr],
@@ -100,7 +115,7 @@ def generate_martingale_based_rule(expression_map: Expr,
 
                 LB_lb_coeffs.append(coeff)
                 LB_lb_values.append(nodes[exp_term])
-                ub_dependencies[nodes[exp_term]].add(lb_rule)
+                lb_dependencies[nodes[exp_term]].add(lb_rule)
             elif coeff.is_negative:
                 UB_lb_coeffs.append(coeff)
                 UB_lb_values.append(nodes[exp_term])
@@ -108,7 +123,7 @@ def generate_martingale_based_rule(expression_map: Expr,
 
                 LB_ub_coeffs.append(coeff)
                 LB_ub_values.append(nodes[exp_term])
-                ub_dependencies[nodes[exp_term]].add(ub_rule)
+                lb_dependencies[nodes[exp_term]].add(ub_rule)
             else:
                 raise ValueError("Coefficient must be number, hence sign must be known")
         yield ub_rule

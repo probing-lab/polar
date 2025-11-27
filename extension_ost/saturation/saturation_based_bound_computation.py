@@ -91,6 +91,22 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     for rule in rules:
         print(rule)
     
-    return saturate(nodes, rules, lb_dependencies, ub_dependencies)
+    res: List[ValueNode] = saturate(nodes, rules, lb_dependencies, ub_dependencies)
 
+    for monom in res.values():
+        ubs = list(monom.ubs)
+        lbs = list(monom.lbs)
 
+        if len(ubs)>0:
+            print(f"{str(monom.name):<20} <= {ubs[0]}")
+            for upper_bound in ubs[1:]:
+                print(" "*20 + " <= "+str(upper_bound))
+
+        if len(lbs)>0:
+            print(f"{str(monom.name):<20} >= {lbs[0]}")
+            for lower_bound in lbs[1:]:
+                print(" "*20 + " >= "+str(lower_bound))
+        if len(ubs) > 0 or len(lbs)>0:
+            print()
+
+    pass
