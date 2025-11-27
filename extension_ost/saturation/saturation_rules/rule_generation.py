@@ -242,7 +242,26 @@ def generate_rv_multiplication_rules(monoms, nodes,
         lb_dependencies (_type_): _description_
         ub_dependencies (_type_): _description_
     """
-    pass
+    for X, Y in product(monoms, monoms):
+        if simplify(X*Y) not in monoms and simplify(Y*X) not in monoms:
+            continue  # to high degree
+        res_monom = simplify(X*Y) if simplify(X*Y) in monoms else simplify(Y*X)
+
+        #  a <= X, a <= 0
+        #  0 <= Y, E(Y) <= b
+        rule1 = Rule(nodes[Expexted(res_monom)],
+                     RuleType.LB,
+                     [nodes[X], nodes[Y]],
+                     [nodes[Expexted(Y)]],
+                     [[(0, 0), (1, 0)]],
+                     S.Zero,
+                     inequalities=[[[(0,0),(2,-S.One)]],
+                                   [[(0,1)]],
+                                   [[(1,0)]]]) # last should follow from 2nd
+        lb_dependencies[nodes[X]].add(rule1)
+        lb_dependencies[nodes[Y]].add(rule1)
+        ub_dependencies[nodes[Expexted(Y)]].add(rule1)
+        yield rule1
 
 
 def generate_martingale_based_rule(expression_map: Expr,
