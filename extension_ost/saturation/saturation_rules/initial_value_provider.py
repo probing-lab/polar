@@ -1,5 +1,5 @@
 from typing import Dict, Tuple
-from sympy import Expr, Mul, Poly, Pow, Symbol, oo
+from sympy import S, Expr, Mul, Poly, Pow, Symbol, oo
 
 
 class InitialValueProvider:

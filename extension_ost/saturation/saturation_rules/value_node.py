@@ -33,6 +33,7 @@ class ValueNode:
         if not self._is_new_upper_bound(ub):
             return False
         self.ubs.add(ub)
+        return True
 
     def add_lb(self, lb: Expr) -> bool:
         """Try to add a new lower bound
@@ -46,6 +47,7 @@ class ValueNode:
         if not self._is_new_lower_bound(lb):
             return False
         self.lbs.add(lb)
+        return True
 
     def _is_new_upper_bound(self, upper_bound):
         if upper_bound == nan or not self._is_finite(upper_bound):

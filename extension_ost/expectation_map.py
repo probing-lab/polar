@@ -109,11 +109,11 @@ class ExpectationMapBuilder():
     def _get_axis_cut_solutions_v3(self, solutions):
         ancestor_vars = set()
         for k, v in solutions.items():
-             if len(v.free_symbols)>1:
+             if k!=v:
                  ancestor_vars = ancestor_vars.union(v.free_symbols)
         for k in solutions:
             if k not in ancestor_vars and k==solutions[k]:
-                solutions[k] = 0
+                solutions[k] = S.Zero
         
         for solution in self._get_axis_cut_solutions_v3_recurse(solutions):
             yield solution
