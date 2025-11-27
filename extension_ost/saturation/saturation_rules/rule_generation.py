@@ -34,7 +34,6 @@ def generate_hard_bound_rules(monoms, nodes,
         ub_dependencies[nodes[monom]].add(r2)
         yield r2
 
-
 def generate_var_multiplication_ub_rules(monoms,
                                          nodes: Dict[Expr, Expr],
                                          lb_dependencies: Dict[Expr, Set[Rule]],
@@ -48,7 +47,7 @@ def generate_var_multiplication_ub_rules(monoms,
         res_monom = simplify(X*Y) if simplify(X*Y) in monoms else simplify(Y*X)
 
         # a >= 0, b>= 0, c>= 0 => XY<= bd
-        rule1 = Rule(res_monom,
+        rule1 = Rule(nodes[res_monom],
                      RuleType.UB,
                      [nodes[X]],
                      [nodes[X], nodes[Y]],
@@ -126,6 +125,111 @@ def generate_var_multiplication_ub_rules(monoms,
         ub_dependencies[nodes[Y]].add(rule5)
         yield rule5
 
+def generate_var_multiplication_lb_rules(monoms,
+                                         nodes: Dict[Expr, Expr],
+                                         lb_dependencies: Dict[Expr, Set[Rule]],
+                                         ub_dependencies: Dict[Expr, Set[Rule]]):
+    # we are in the general setting:
+    # a <= X <= b
+    # c <= Y <= d
+    for X, Y in product(monoms, monoms):
+        if simplify(X*Y) not in monoms and simplify(Y*X) not in monoms:
+            continue  # to high degree
+        res_monom = simplify(X*Y) if simplify(X*Y) in monoms else simplify(Y*X)
+
+        # b<=0, d<=0 => bd <= XY
+        rule1 = Rule(nodes[res_monom],
+                     RuleType.LB,
+                     [],
+                     [nodes[X], nodes[Y]],
+                     [[(1, 0), (1, 1)]],
+                     S.Zero,
+                     inequalities=[[[(1,0),(2,-S.One)]],
+                                   [[(1,1),(2,-S.One)]]])
+        ub_dependencies[nodes[X]].add(rule1)
+        ub_dependencies[nodes[Y]].add(rule1)
+        yield rule1
+
+        # b>=0, c<=0, d<=0 ==> bc <= XY
+        rule2 = Rule(nodes[res_monom],
+                     RuleType.LB,
+                     [nodes[Y]],
+                     [nodes[X], nodes[Y]],
+                     [[(0, 0), (1, 0)]],
+                     S.Zero,
+                     inequalities=[[[(0,0),(2,-S.One)]],
+                                   [[(1,1),(2,-S.One)]],
+                                   [[(1,0)]]])
+        ub_dependencies[nodes[X]].add(rule2)
+        ub_dependencies[nodes[Y]].add(rule2)
+        lb_dependencies[nodes[Y]].add(rule2)
+        yield rule2
+
+        # a >= 0, b>=0, c <= 0 ==> bc <= XY
+        rule3 = Rule(nodes[res_monom],
+                     RuleType.LB,
+                     [nodes[X], nodes[Y]],
+                     [nodes[X]],
+                     [[(0, 1), (1, 0)]],
+                     S.Zero,
+                     inequalities=[[[(0,1),(2,-S.One)]],
+                                   [[(0,0)]],
+                                   [[(1,0)]]])
+        lb_dependencies[nodes[X]].add(rule3)
+        lb_dependencies[nodes[Y]].add(rule3)
+        ub_dependencies[nodes[X]].add(rule3)
+        yield rule3
+
+        # a >= 0, c >= 0 ==> ac <= XY
+        rule4 = Rule(nodes[res_monom],
+                     RuleType.LB,
+                     [nodes[X], nodes[Y]],
+                     [],
+                     [[(0, 0), (0, 1)]],
+                     S.Zero,
+                     inequalities=[[[(0,0)]],
+                                   [[(0,1)]]])
+        lb_dependencies[nodes[X]].add(rule4)
+        lb_dependencies[nodes[Y]].add(rule4)
+        yield rule4
+
+        # a <= 0, b >= 0, c <= 0, d >=0, ad <= bc => ad <= XY
+        rule5 = Rule(nodes[res_monom],
+                     RuleType.LB,
+                     [nodes[X], nodes[Y]],
+                     [nodes[X], nodes[Y]],
+                     [[(0,0),(1,1)]],
+                     S.Zero,
+                     inequalities=[[[(0,0),(2,-S.One)]],
+                                   [[(0,1),(2,-S.One)]],
+                                   [[(1,0)]],
+                                   [[(1,1)]],
+                                   [[(0,1), (1,0),(2,-S.One)],[(0,0),(1,1)]]])
+        lb_dependencies[nodes[X]].add(rule5)
+        lb_dependencies[nodes[Y]].add(rule5)
+        ub_dependencies[nodes[X]].add(rule5)
+        ub_dependencies[nodes[Y]].add(rule5)
+        yield rule5
+
+        # a <= 0, b >= 0, c <= 0, d >=0, ad >= bc => bc <= XY
+        rule6 = Rule(nodes[res_monom],
+                     RuleType.LB,
+                     [nodes[X], nodes[Y]],
+                     [nodes[X], nodes[Y]],
+                     [[(0,1),(1,0)]],
+                     S.Zero,
+                     inequalities=[[[(0,0),(2,-S.One)]],
+                                   [[(0,1),(2,-S.One)]],
+                                   [[(1,0)]],
+                                   [[(1,1)]],
+                                   [[(0,1), (1,0)],[(0,0),(1,1),(2,-S.One)]]])
+        lb_dependencies[nodes[X]].add(rule6)
+        lb_dependencies[nodes[Y]].add(rule6)
+        ub_dependencies[nodes[X]].add(rule6)
+        ub_dependencies[nodes[Y]].add(rule6)
+        yield rule6
+
+        
 
 def generate_rv_multiplication_rules(monoms, nodes,
                                      lb_dependencies,

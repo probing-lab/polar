@@ -5,7 +5,7 @@ from sympy import Symbol, Expr, simplify, sympify
 from extension_ost.expectation_map import ExpectationMapBuilder
 from extension_ost.helpers import Expexted
 from extension_ost.saturation.saturation_algorithm import saturate
-from extension_ost.saturation.saturation_rules.rule_generation import generate_hard_bound_rules, generate_martingale_based_rule, generate_var_multiplication_ub_rules
+from extension_ost.saturation.saturation_rules.rule_generation import generate_hard_bound_rules, generate_martingale_based_rule, generate_var_multiplication_lb_rules, generate_var_multiplication_ub_rules
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from extension_ost.saturation.saturation_rules.rule import Rule, RuleType
 from extension_ost.saturation.saturation_rules.value_node import ValueNode
@@ -53,8 +53,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     exp_maps_filtered = exp_map_builder.filter_unique_primitives(exp_maps)
     
     extracted_square_maps = reformulate_maps_with_squares(exp_maps_filtered, monom_expexted_sub)
-    extracted_square_maps_filtered = exp_map_builder.filter_unique_primitives(extracted_square_maps)    
-    
+    extracted_square_maps_filtered = exp_map_builder.filter_unique_primitives(extracted_square_maps)
+
     exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in exp_maps_filtered]
 
     initial_value_provider = InitialValueProvider()
@@ -82,6 +82,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     rules += list(generate_hard_bound_rules(monoms, nodes, lb_dependencies, ub_dependencies))
 
     rules += list(generate_var_multiplication_ub_rules(monoms, nodes, lb_dependencies, ub_dependencies))
+    rules += list(generate_var_multiplication_lb_rules(monoms, nodes, lb_dependencies, ub_dependencies))
 
     for martingale_map in exp_maps_filtered_with_initial:
         rules+=list(generate_martingale_based_rule(martingale_map,

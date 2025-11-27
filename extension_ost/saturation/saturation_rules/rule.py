@@ -62,10 +62,10 @@ class Rule:
         for lbs in lbss:
             for ubs in ubss:
                 # check the sign constraints of the bounds
-                if any((not (self.result.initial_value_provider.is_nonnegative(access) for access in self.inequalities))):
+                if any((not (self.result.initial_value_provider.is_nonnegative(self._get_expr(lbs, ubs, access)))) for access in self.inequalities):
                     continue
 
-                new_candidate = self.res_intercept+self._get_expr(self.res_expr)
+                new_candidate = self.res_intercept+self._get_expr(lbs, ubs, self.res_expr)
 
                 if self.result_type==RuleType.LB:
                     if self.result.add_lb(new_candidate):

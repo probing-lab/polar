@@ -21,10 +21,10 @@ class InitialValueProvider:
         for coeff, monom in coeff_monom_list:
             if coeff.is_positive:
                 monom_bound = self._get_lb_for_initial_monomial(monom)
-                term *= monom_bound*coeff
+                term += monom_bound*coeff
             elif coeff.is_negative:
                 monom_bound = self._get_ub_for_initial_monomial(monom)
-                term *= monom_bound*coeff
+                term += monom_bound*coeff
             else:
                 raise ValueError("Coefficient sign must be known")
 
