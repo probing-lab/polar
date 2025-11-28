@@ -50,5 +50,5 @@ def generate_square_rules(square_monoms,
                                      [(BoundRef.Const, a**2/b**2), (BoundRef.UB, 1)]],
                                      res_intercept=S.Zero)
             ub_dependencies[nodes[square_monom]].add(rule_ub)
-            ub_dependencies[Expexted(X**2)].add(rule_ub)
+            ub_dependencies[nodes[Expexted(X**2)]].add(rule_ub)
             yield rule_ub
