@@ -5,6 +5,7 @@ from sympy import S, Symbol, Expr, degree_list, simplify, sympify
 from extension_ost.expectation_map import ExpectationMapBuilder
 from extension_ost.helpers import Expexted
 from extension_ost.saturation.saturation_algorithm import saturate
+from extension_ost.saturation.saturation_rules.bound import Bound
 from extension_ost.saturation.saturation_rules.rule_generation import generate_hard_bound_rules, generate_martingale_based_rule, generate_rv_multiplication_rules, generate_var_multiplication_lb_rules, generate_var_multiplication_ub_rules
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from extension_ost.saturation.saturation_rules.rule import Rule, RuleType
@@ -77,13 +78,13 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     for node in nodes.values():
         expr = node.name.args[0] if isinstance(node.name, Expexted) else node.name
         if all(d%2==0 for d in degree_list(expr)):
-            node.add_lb(S.Zero)
+            node.add_lb(Bound(S.Zero, set()))
 
     # Fill with initial knowledge (basically negated loopgard and positivity of k)
     for k,v in initial_lower_bounds.items():
-        nodes[k].add_lb(v)
+        nodes[k].add_lb(Bound(v,set()))
     for k,v in initial_upper_bounds.items():
-        nodes[k].add_ub(v)
+        nodes[k].add_ub(Bound(v,set()))
 
     # if a lower (or upper) bound is added to the key, all its rules (the value)
     # need to be added to unprocessed

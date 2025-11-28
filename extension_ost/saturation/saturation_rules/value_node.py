@@ -41,7 +41,7 @@ class ValueNode:
         except StopIteration:
             return False
 
-    def add_ub(self, ub: Expr) -> bool:
+    def add_ub(self, ub_bound: Bound) -> bool:
         """Try to add a new upper bound
 
         Args:
@@ -50,18 +50,18 @@ class ValueNode:
         Returns:
             bool: whether the new upper bound was added (not subsumed by existing bound)
         """
-        if not self.can_have_sqrt_in_bound and self._contains_sqrt(ub):
+        if not self.can_have_sqrt_in_bound and self._contains_sqrt(ub_bound.value):
             return False
-        if self._has_nested_sqrt(ub):
+        if self._has_nested_sqrt(ub_bound.value):
             return False
         # forwards subsumption
-        if not self._is_new_upper_bound(ub):
+        if not self._is_new_upper_bound(ub_bound.value):
             return False
             # backwards subsumption
 
         # skip if sqrt, since it breaks subsumption check
-        self.ubs = {old_ub for old_ub in self.ubs if not self._is_smaller(ub, old_ub)}
-        self.ubs.add(ub)
+        self.ubs = {old_ub for old_ub in self.ubs if not self._is_smaller(ub_bound.value, old_ub.value)}
+        self.ubs.add(ub_bound)
         return True
     
     def _has_nested_sqrt(self, expr: Expr) -> bool:
@@ -79,15 +79,15 @@ class ValueNode:
         Returns:
             bool: whether the new lower bound was added (not subsumed by existing bound)
         """
-        if not self.can_have_sqrt_in_bound and self._contains_sqrt(lb.value):
+        if not self.can_have_sqrt_in_bound and self._contains_sqrt(lb_bound.value):
             return False
-        if self._has_nested_sqrt(lb.value):
+        if self._has_nested_sqrt(lb_bound.value):
             return False
-        if not self._is_new_lower_bound(lb.value):
+        if not self._is_new_lower_bound(lb_bound.value):
             return False
         # skip if sqrt, since it breaks subsumption check
-        self.lbs = {old_lb for old_lb in self.lbs if not self._is_smaller(old_lb, lb)}
-        self.lbs.add(lb)
+        self.lbs = {old_lb for old_lb in self.lbs if not self._is_smaller(old_lb.value, lb_bound.value)}
+        self.lbs.add(lb_bound)
         return True
 
     def _is_new_upper_bound(self, upper_bound):
@@ -96,12 +96,12 @@ class ValueNode:
         # check if it is subsumed by any other lower bound
         # skip if sqrt, since it breaks subsumption check
         for old_ub in self.ubs:
-            if self._is_smaller(old_ub, upper_bound):
+            if self._is_smaller(old_ub.value, upper_bound):
                 return False
         
         # the following line does a more agressive subsumption check (good for termination, bad for completeness)
         for old_ub in self.ubs:
-            if self._monoms_similar(old_ub, upper_bound):
+            if self._monoms_similar(old_ub.value, upper_bound):
                 return False
 
         return True
@@ -126,12 +126,6 @@ class ValueNode:
             return False
         if (p_old.keys() != p_new.keys()):
             return False
-
-        for k in p_old:
-            if p_old[k].is_positive and p_new[k].is_negative:
-                return False
-            if p_old[k].is_negative and p_new[k].is_positive:
-                return False
         return True
 
     def _is_new_lower_bound(self, lower_bound):
@@ -140,11 +134,11 @@ class ValueNode:
         # check if it is subsumed by any other lower bound
         # skip if sqrt, since it breaks subsumption check
         for old_lb in self.lbs:
-            if self._is_smaller(lower_bound, old_lb):
+            if self._is_smaller(lower_bound, old_lb.value):
                 return False
         # the following line does a more agressive subsumption check (good for termination, bad for completeness)
         for old_lb in self.lbs:
-            if self._monoms_similar(old_lb, lower_bound):
+            if self._monoms_similar(old_lb.value, lower_bound):
                 return False
 
         return True

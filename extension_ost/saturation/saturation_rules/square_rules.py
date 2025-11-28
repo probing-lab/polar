@@ -48,8 +48,7 @@ def generate_square_rules(square_monoms,
                            res_expr=[[(BoundRef.Const, 1/b**2), (BoundRef.UB, 0)],
                                      [(BoundRef.Const, 2*abs(a)/b**2), (BoundRef.Sqrt,(BoundRef.UB, 0)), (BoundRef.Sqrt,(BoundRef.UB, 1))],
                                      [(BoundRef.Const, a**2/b**2), (BoundRef.UB, 1)]],
-                                     res_intercept=S.Zero,
-                                     introduce_cycle_detection=True) # those rules are cycle sensitive - hence prevent them
+                                     res_intercept=S.Zero) # those rules are cycle sensitive - hence prevent them
             ub_dependencies[nodes[square_monom]].add(rule_ub)
             ub_dependencies[nodes[Expexted(X**2)]].add(rule_ub)
             yield rule_ub
