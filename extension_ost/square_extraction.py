@@ -34,7 +34,7 @@ def _sqroot_and_sign_if_possible(expr: Expr) -> Optional[Tuple[Expr, Expr]]:
         else:
             return
             
-    return simplify(x*(sqrt(a if a.is_nonnegative else -a))), 1 if a.is_nonnegative else -1
+    return simplify(x),(a if a.is_nonnegative else -a), 1 if a.is_nonnegative else -1
 
 def _factor_if_exists(expr: Expr, potential_factor: Expr) -> Optional[Expr]:
     """
@@ -79,16 +79,19 @@ def reformulate_with_squares(expression_map: Expr, monom_maps: Dict[Expr, Expr])
 
     roots_of_squares = [v for t in plus_terms if (v:=_sqroot_and_sign_if_possible(t))]
     
-    for root, sign in roots_of_squares:
-        factors = [v for t in plus_terms if (v:=_factor_if_exists(t, 2*root*sign))]
+    for monom_root, coeff, sign in roots_of_squares:
+        expression_map_adapted = simplify(expression_map/coeff)
+        plus_terms = [expression_map_adapted] if not isinstance(expression_map_adapted, Add) else expression_map_adapted.args
+
+        factors = [v for t in plus_terms if (v:=_factor_if_exists(t, 2*monom_root*sign))]
         pass
         for factor in factors:
-            expression = Expexted((root + factor)**2)
+            expression = Expexted((monom_root + factor)**2)
 
-            new_expression_map = simplify(expression_map - sign*expression)
+            new_expression_map = simplify(expression_map_adapted - sign*expression)
             new_expression_map_E = new_expression_map.subs(monom_maps_inv)
-            new_expression_map_with_square = new_expression_map_E +sign* Symbol(f"E({(root+factor)**2})")
-            yield new_expression_map_with_square
+            new_expression_map_with_square = new_expression_map_E +sign* Symbol(f"E({(monom_root+factor)**2})")
+            yield (new_expression_map_with_square, {Symbol(f"E({(monom_root+factor)**2})"): Expexted((monom_root+factor)**2, evaluate=False)})
 
     yield from []
     

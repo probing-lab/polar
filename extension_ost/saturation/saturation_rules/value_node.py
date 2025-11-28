@@ -70,6 +70,8 @@ class ValueNode:
     def _monoms_similar(self, old_ub: Expr, new_ub: Expr):
         # if they have the same monoms, and share the signs, then ignore the new
         gens = list(old_ub.free_symbols.union(new_ub.free_symbols))
+        if not gens:
+            return False
         p_old = Poly(old_ub, *gens).as_dict()
         p_new = Poly(new_ub, *gens).as_dict()
 
@@ -89,6 +91,10 @@ class ValueNode:
         # check if it is subsumed by any other lower bound
         for old_lb in self.lbs:
             if self._is_smaller(lower_bound, old_lb):
+                return False
+        # the following line does a more agressive subsumption check (good for termination, bad for completeness)
+        for old_lb in self.lbs:
+            if self._monoms_similar(old_lb, lower_bound):
                 return False
 
         return True

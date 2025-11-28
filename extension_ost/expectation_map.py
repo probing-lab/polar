@@ -150,40 +150,6 @@ class ExpectationMapBuilder():
                 
         return list(unique_map.values())
 
-    def get_sparse_basis(self, expressions):
-
-        variables = set()
-        for expr in expressions:
-            variables.update(expr.free_symbols)
-        
-        # Sort for deterministic matrix columns (A, B, C...)
-        # We sort by the string representation of the symbol
-        variables_list = sorted(list(variables), key=lambda s: s.name)
-
-        # 2. Build the Matrix (The Coefficient Matrix)
-        # rows = expressions, columns = variables
-        matrix_A, _ = linear_eq_to_matrix(expressions, variables_list)
-
-        # 3. Compute RREF (Reduced Row Echelon Form)
-        # This performs Gaussian elimination to zero out as much as possible
-        # and remove dependent rows.
-        rref_matrix, pivot_indices = matrix_A.rref()
-
-        # 4. Reconstruct the simplified expressions
-        simplified_exprs = []
-        rows, cols = rref_matrix.shape
-        
-        for i in range(rows):
-            # Reconstruct the expression from the row coefficients
-            # dot product: row[i] * variables_list
-            new_expr = sum(rref_matrix[i, j] * variables_list[j] for j in range(cols))
-            
-            # Filter out rows that became completely zero (the redundant ones)
-            if new_expr != 0:
-                simplified_exprs.append(new_expr)
-
-        return simplified_exprs
-
     def get_shortest_basis(self, expressions):
         # 1. Identify all variables across all expressions for matrix construction
         #    (Using free_symbols since you have symbols like f(x1))

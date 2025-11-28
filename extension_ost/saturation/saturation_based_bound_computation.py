@@ -42,7 +42,6 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     monoms = list(recurrences.keys())
     monoms.sort(key=lambda x: str(x))
-    monom_subs = {f"E({monom})":monom for monom in monoms}
     monom_expexted_sub = {f"E({monom})": Expexted(monom) for monom in monoms}
 
     exp_map_builder = ExpectationMapBuilder(recurrences, deterministic_vars)
@@ -50,12 +49,18 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     exp_maps = []
     for monom in monoms:
         exp_maps += exp_map_builder.get_expectation_maps(monom)
-    exp_maps_filtered = exp_map_builder.filter_unique_primitives(exp_maps)
+    exp_maps_filtered = exp_map_builder.get_shortest_basis(exp_maps)
     
     extracted_square_maps = reformulate_maps_with_squares(exp_maps_filtered, monom_expexted_sub)
-    extracted_square_maps_filtered = exp_map_builder.filter_unique_primitives(extracted_square_maps)
+    extracted_square_maps_filtered = exp_map_builder.get_shortest_basis([m[0] for m in extracted_square_maps])
+    # maps from E(...) to Expexted(...)
+    square_monom_maps =  {k: v for d in [m[1] for m in extracted_square_maps] for k,v in d.items()}
+    remove_expectation_map.update({k: v.args[0] for k,v in square_monom_maps.items()})
+    monom_expexted_sub.update({str(k): v for k,v in square_monom_maps.items()})
 
-    exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in exp_maps_filtered]
+
+    exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps_filtered+extracted_square_maps_filtered)]
+    
 
     initial_value_provider = InitialValueProvider()
     for symbol, lb, ub in initial_constants:
@@ -63,7 +68,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     # Creation of Nodes and Rules begins
 
-    bound_exprs = monoms+[Expexted(monom) for monom in monoms]
+    bound_exprs = monoms+[Expexted(monom) for monom in monoms]+list(square_monom_maps.values())
 
     nodes = {bound_expr: ValueNode(initial_value_provider, bound_expr) for bound_expr in bound_exprs}
 
