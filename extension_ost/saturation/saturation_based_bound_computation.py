@@ -58,7 +58,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     remove_expectation_map.update({k: v.args[0] for k,v in square_monom_maps.items()})
     monom_expexted_sub.update({str(k): v for k,v in square_monom_maps.items()})
 
-
+    extracted_square_maps_filtered = []
     exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps_filtered+extracted_square_maps_filtered)]
     
 

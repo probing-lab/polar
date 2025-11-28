@@ -249,6 +249,7 @@ def generate_rv_multiplication_rules(monoms, nodes,
 
         #  a <= X, a <= 0
         #  0 <= Y, E(Y) <= b
+        #  ==> E(XY) >= a*b
         rule1 = Rule(nodes[Expexted(res_monom)],
                      RuleType.LB,
                      [nodes[X], nodes[Y]],
@@ -289,7 +290,7 @@ def generate_rv_multiplication_rules(monoms, nodes,
                      [],
                      [[(0,0),(0,2)]],
                      S.Zero,
-                     inequalities=[[[(0,0),(2,-S.One)]], # TODO: revise removing one positivity constraint in document
+                     inequalities=[[[(0,0)]],
                                    [[(0,1)]],
                                    [[(0,2)]]]) # last should follow from previous
         lb_dependencies[nodes[X]].add(rule3)
