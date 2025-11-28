@@ -49,7 +49,7 @@ class Rule:
         if c == BoundRef.Const:
             return a
         if c == BoundRef.Sqrt:
-            return sqrt(self._get_value(a))
+            return sqrt(self._get_value(lbs, ubs, a))
         return (ubs if c == BoundRef.UB else lbs)[a]
     
     def _get_expr(self, lbs, ubs, access: List[List[Tuple[BoundRef, int|Expr]]]):

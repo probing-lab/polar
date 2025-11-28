@@ -8,6 +8,7 @@ from extension_ost.saturation.saturation_algorithm import saturate
 from extension_ost.saturation.saturation_rules.rule_generation import generate_hard_bound_rules, generate_martingale_based_rule, generate_rv_multiplication_rules, generate_var_multiplication_lb_rules, generate_var_multiplication_ub_rules
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from extension_ost.saturation.saturation_rules.rule import Rule, RuleType
+from extension_ost.saturation.saturation_rules.square_rules import generate_square_rules
 from extension_ost.saturation.saturation_rules.value_node import ValueNode
 from extension_ost.square_extraction import _sqroot_and_sign_if_possible, reformulate_maps_with_squares
 from recurrences.rec_builder import RecBuilder
@@ -58,7 +59,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     remove_expectation_map.update({k: v.args[0] for k,v in square_monom_maps.items()})
     monom_expexted_sub.update({str(k): v for k,v in square_monom_maps.items()})
 
-    extracted_square_maps_filtered = []
+    # extracted_square_maps_filtered = []
     exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps_filtered+extracted_square_maps_filtered)]
     
 
@@ -68,9 +69,10 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     # Creation of Nodes and Rules begins
 
-    bound_exprs = monoms+[Expexted(monom) for monom in monoms]+list(square_monom_maps.values())
+    bound_exprs = monoms+[Expexted(monom) for monom in monoms]
 
-    nodes = {bound_expr: ValueNode(initial_value_provider, bound_expr) for bound_expr in bound_exprs}
+    nodes = {bound_expr: ValueNode(initial_value_provider, bound_expr) for bound_expr in bound_exprs}|\
+        {bound_expr: ValueNode(initial_value_provider, bound_expr, can_have_sqrt_in_bound=False) for bound_expr in square_monom_maps.values()}
 
     for node in nodes.values():
         expr = node.name.args[0] if isinstance(node.name, Expexted) else node.name
@@ -94,6 +96,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     rules += list(generate_var_multiplication_ub_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_var_multiplication_lb_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_rv_multiplication_rules(monoms, nodes, lb_dependencies, ub_dependencies))
+    rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies))
 
     for martingale_map in exp_maps_filtered_with_initial:
         rules+=list(generate_martingale_based_rule(martingale_map,
@@ -112,14 +115,14 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
         lbs = list(monom.lbs)
 
         if len(ubs)>0:
-            print(f"{str(monom.name):<20} <= {ubs[0]}")
+            print(f"{str(monom.name):<30} <= {ubs[0]}")
             for upper_bound in ubs[1:]:
-                print(" "*20 + " <= "+str(upper_bound))
+                print(" "*30 + " <= "+str(upper_bound))
 
         if len(lbs)>0:
-            print(f"{str(monom.name):<20} >= {lbs[0]}")
+            print(f"{str(monom.name):<30} >= {lbs[0]}")
             for lower_bound in lbs[1:]:
-                print(" "*20 + " >= "+str(lower_bound))
+                print(" "*30 + " >= "+str(lower_bound))
         if len(ubs) > 0 or len(lbs)>0:
             print()
 

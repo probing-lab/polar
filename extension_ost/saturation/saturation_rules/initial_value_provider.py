@@ -1,29 +1,50 @@
 from typing import Dict, Tuple
-from sympy import S, Expr, Mul, Poly, Pow, Symbol, oo
+from sympy import S, Expr, Mul, Poly, PolynomialError, Pow, Symbol, oo
 
 
 class InitialValueProvider:
     def __init__(self):
         self.initials: Dict[Symbol, Tuple[Expr, Expr]] = {}
 
-    def is_nonnegative(self, expr: Expr):
+    def _get_sqrts(self, expression):
+        powers = expression.atoms(Pow)
+
+        for p in powers:
+            if p.exp == S.Half:
+                yield p
+
+    def is_nonnegative(self, expr0: Expr):
         # check if positivity can easily shown
-        if expr.is_nonnegative:
+        if expr0.is_nonnegative:
             return True
         
+        sqrts = list(self._get_sqrts(expr0))
+        root_subs = {k: Symbol(f"ROOT_SUBS{i}") for i,k in enumerate(sqrts)}
+        expr = expr0.subs(root_subs)
+
+        # if isinstance(expr, Pow) and expr.exp == S.Half:
+        #     # this is sound, since we use squareroots only to talk about bounds for absolute values of variables (which are by definition positive)
+        #     return True
+        
         # try to lower bound the expression, and check if positivity can then be shown
-        initial_gens = list(self.initials.keys())
+        initial_gens = list(self.initials.keys())+list(root_subs.values())
         diff_expr_poly = Poly(expr, *initial_gens)
+
+        symbolic_monoms = [
+            Mul(*[gen**exp for gen, exp in zip(diff_expr_poly.gens, powers)]) 
+            for powers in diff_expr_poly.monoms()
+        ]
+        root_lbs = {monom: S.Zero for monom in symbolic_monoms if monom.free_symbols.isdisjoint(self.initials.keys())}
 
         coeff_monom_list = [(coeff,Mul(*[var**exp for var, exp in zip(initial_gens, poly_exps)])) for poly_exps, coeff in diff_expr_poly.terms()]
 
         term = S.Zero
         for coeff, monom in coeff_monom_list:
             if coeff.is_positive:
-                monom_bound = self._get_lb_for_initial_monomial(monom)
+                monom_bound = root_lbs[monom] if monom in root_lbs else self._get_lb_for_initial_monomial(monom)
                 term += monom_bound*coeff
             elif coeff.is_negative:
-                monom_bound = self._get_ub_for_initial_monomial(monom)
+                monom_bound = oo if monom in root_lbs else self._get_ub_for_initial_monomial(monom)
                 term += monom_bound*coeff
             else:
                 raise ValueError("Coefficient sign must be known")
