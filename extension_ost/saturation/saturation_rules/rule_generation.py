@@ -355,6 +355,7 @@ def generate_martingale_based_rule(expression_map: Expr,
             exp_term = Mul(*[t for t in terms if not t.is_number])
             if not exp_term.has(Expexted):
                 ub_rule.res_intercept += coeff*exp_term
+                lb_rule.res_intercept += coeff*exp_term
             elif coeff.is_nonnegative:
                 UB_coeffs.append([(BoundRef.UB, len(UB_ub_values)), (BoundRef.Const, coeff)])
                 UB_ub_values.append(nodes[exp_term])
