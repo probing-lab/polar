@@ -6,6 +6,7 @@ from typing import List, Literal, Tuple
 
 from sympy import Add, Expr, Mul, sqrt
 
+from extension_ost.saturation.saturation_rules.bound import Bound
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from extension_ost.saturation.saturation_rules.value_node import ValueNode
 
@@ -41,7 +42,8 @@ class Rule:
                  res_expr: List[List[Tuple[Literal[0,1],int]]],
                  res_intercept: Expr,
                  inequalities: List[List[List[Tuple[Literal[0,1],int]]]]=[],
-                 name:str=None): # positivity_constraints
+                 name:str=None,
+                 introduce_cycle_detection: bool = False): # positivity_constraints
         self.result = result
         self.result_type = result_type
         self.lbs = lbs
@@ -49,6 +51,8 @@ class Rule:
         self.res_intercept = res_intercept
         self.inequalities = inequalities
         self.res_expr = res_expr
+        self.name = name
+        self.introduce_cycle_detection = introduce_cycle_detection
 
     def _get_value(self, lbs, ubs, access: Tuple[Literal[0,1], int|Expr]):
         (c, a) = access
@@ -56,7 +60,7 @@ class Rule:
             return a
         if c == BoundRef.Sqrt:
             return sqrt(self._get_value(lbs, ubs, a))
-        return (ubs if c == BoundRef.UB else lbs)[a]
+        return (ubs if c == BoundRef.UB else lbs)[a].value
     
     def _get_expr(self, lbs, ubs, access: List[List[Tuple[BoundRef, int|Expr]]]):
         return Add(*[Mul(*[self._get_value(lbs, ubs, i) for i in mul_term]) for mul_term in access])
@@ -67,9 +71,14 @@ class Rule:
         Returns:
             bool: indicator whether a new bound was generated 
         """
+        if not self.introduce_cycle_detection and self.result.descendants.intersection(self.ubs+self.lbs):
+            # cyclic dependency
+            return False
+
         # TODO: this reevaluates everything. Some computation could be stored
         lbss = list(product(*[lb.lbs for lb in self.lbs]))
         ubss = list(product(*[ub.ubs for ub in self.ubs]))
+
 
         was_updated = False
         for lbs in lbss:
@@ -78,19 +87,26 @@ class Rule:
                 if any((not (self.result.initial_value_provider.is_nonnegative(self._get_expr(lbs, ubs, access)))) for access in self.inequalities):
                     continue
 
-                new_candidate = self.res_intercept+self._get_expr(lbs, ubs, self.res_expr)
+                new_candidate = Bound(self.res_intercept+self._get_expr(lbs, ubs, self.res_expr))
 
                 if self.result_type==RuleType.LB:
                     if self.result.add_lb(new_candidate):
                         was_updated = True
-                        print(f"New derivation: {self.result.name} >= {new_candidate}")
+                        print(f"New derivation: {self.result.name} >= {new_candidate.value}")
                         print(f"\t\tusing: {self}")
                 elif self.result_type==RuleType.UB:
                     if self.result.add_ub(new_candidate):
                         was_updated = True
-                        print(f"New derivation: {self.result.name} <= {new_candidate}")
+                        print(f"New derivation: {self.result.name} <= {new_candidate.value}")
                         print(f"\t\tusing: {self}")
-        
+
+                if was_updated:
+                    # propagate dependency
+                    for ub in ubs:
+                        ub.propagate_descendents(self.result.descendants.union(new_candidate))
+                    for lb in lbs:
+                        lb.propagate_descendents(self.result.descendants.union(new_candidate))
+
         return was_updated
 
     def __str__(self):

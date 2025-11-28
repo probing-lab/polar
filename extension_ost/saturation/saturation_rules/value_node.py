@@ -1,13 +1,15 @@
+from functools import cache
 from typing import List, Set
 
 from sympy import S, Add, Expr, Poly, PolynomialError, Pow, nan, oo
 
+from extension_ost.saturation.saturation_rules.bound import Bound
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from program.distribution.distribution import DistributionFunction
 class ValueNode:
     name: Expr
-    lbs: Set[Expr]
-    ubs: Set[Expr]
+    lbs: Set[Bound]
+    ubs: Set[Bound]
 
     initial_value_provider: InitialValueProvider
 
@@ -20,6 +22,10 @@ class ValueNode:
         self.lbs=set()
         self.ubs=set()
         self.can_have_sqrt_in_bound=can_have_sqrt_in_bound
+
+        # dependency detection can be done using sets - little number of ground atoms
+        self.descendants: Set[ValueNode] = set()
+        self.ancestors: Set[ValueNode] = set()
         
     def _get_sqrts(self, expression):
         powers = expression.atoms(Pow)
@@ -64,7 +70,7 @@ class ValueNode:
                 return True
         return False
 
-    def add_lb(self, lb: Expr) -> bool:
+    def add_lb(self, lb_bound: Bound) -> bool:
         """Try to add a new lower bound
 
         Args:
@@ -73,11 +79,11 @@ class ValueNode:
         Returns:
             bool: whether the new lower bound was added (not subsumed by existing bound)
         """
-        if not self.can_have_sqrt_in_bound and self._contains_sqrt(lb):
+        if not self.can_have_sqrt_in_bound and self._contains_sqrt(lb.value):
             return False
-        if self._has_nested_sqrt(lb):
+        if self._has_nested_sqrt(lb.value):
             return False
-        if not self._is_new_lower_bound(lb):
+        if not self._is_new_lower_bound(lb.value):
             return False
         # skip if sqrt, since it breaks subsumption check
         self.lbs = {old_lb for old_lb in self.lbs if not self._is_smaller(old_lb, lb)}
@@ -147,7 +153,7 @@ class ValueNode:
     def _is_finite(self, expression: Expr):
         return expression.is_finite or (not expression.has(oo) and not expression.has(-oo))
 
-
+    @cache
     def _is_smaller(self, smaller_expr: Expr, larger_expr: Expr):
         """returns True when smaller_expr < larger_expr, and false if the opposite is true, or if it is unknown
 
@@ -157,4 +163,4 @@ class ValueNode:
         """
         diff_expr = Add(larger_expr,smaller_expr*(-1)).simplify()
         return self.initial_value_provider.is_nonnegative(diff_expr)
-        
+
