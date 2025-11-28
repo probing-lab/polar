@@ -33,7 +33,7 @@ class InitialValueProvider:
 
         return False
     
-    def _get_pow_of_initial(self, monom: Expr):
+    def _get_ub_of_pow_of_initial(self, monom: Expr):
         monom = monom.expand()
         if monom in self.initials:
             return self.initials[monom][1]
@@ -60,6 +60,28 @@ class InitialValueProvider:
                 # inconclusive :(
 
         raise NotImplementedError(f"monomial {monom} could not be bounded")
+    
+    def _get_lb_of_pow_of_initial(self, monom: Expr):
+        monom = monom.expand()
+        if monom in self.initials:
+            return self.initials[monom][0]
+        if isinstance(monom, Pow):
+                    base = monom.args[0]
+                    exponent = monom.args[1]
+                    if base not in self.initials:
+                        raise KeyError(f"monom base {base} expected to be in initials")
+                    if exponent.is_odd:
+                        return self.initials[base][1]**exponent
+                    if exponent.is_even:
+                        # take the absolutely larger bound
+                        if self.initials[base][1].is_nonnegative:
+                            return self.initials[base][1]**exponent
+                        else:
+                            return S.Zero
+                        
+                        # inconclusive :(
+
+        raise NotImplementedError("monomial could not be bounded")
 
     def _get_ub_for_initial_monomial(self, monom: Expr):
         # TODO: support more complex monomials, like x0*y0
@@ -73,10 +95,10 @@ class InitialValueProvider:
         if isinstance(monom, Mul):
             expr = 1
             for elem in monom.args:
-                expr*=self._get_pow_of_initial(elem)
+                expr*=self._get_ub_of_pow_of_initial(elem)
             return expr
             
-        return self._get_pow_of_initial(monom)
+        return self._get_ub_of_pow_of_initial(monom)
     
     def _get_lb_for_initial_monomial(self, monom: Expr):
         # TODO: support more complex monomials, like x0*y0
@@ -90,10 +112,10 @@ class InitialValueProvider:
         if isinstance(monom, Mul):
             expr = 1
             for elem in monom.args:
-                expr*=self._get_pow_of_initial(elem)
+                expr*=self._get_lb_of_pow_of_initial(elem)
             return expr
             
-        return self._get_pow_of_initial(monom)
+        return self._get_lb_of_pow_of_initial(monom)
 
     def add_initial(self, symbol, lb=-oo, ub=oo):
         self.initials[symbol] = (lb, ub)
