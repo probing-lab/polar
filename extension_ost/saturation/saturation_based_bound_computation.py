@@ -116,14 +116,14 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
         lbs = list(monom.lbs)
 
         if len(ubs)>0:
-            print(f"{str(monom.name):<30} <= {ubs[0]}")
+            print(f"{str(monom.name):<30} <= {ubs[0].value}")
             for upper_bound in ubs[1:]:
-                print(" "*30 + " <= "+str(upper_bound))
+                print(" "*30 + " <= "+str(upper_bound.value))
 
         if len(lbs)>0:
-            print(f"{str(monom.name):<30} >= {lbs[0]}")
+            print(f"{str(monom.name):<30} >= {lbs[0].value}")
             for lower_bound in lbs[1:]:
-                print(" "*30 + " >= "+str(lower_bound))
+                print(" "*30 + " >= "+str(lower_bound.value))
         if len(ubs) > 0 or len(lbs)>0:
             print()
 

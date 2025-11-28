@@ -79,6 +79,7 @@ def reformulate_with_squares(expression_map: Expr, monom_maps: Dict[Expr, Expr])
 
     roots_of_squares = [v for t in plus_terms if (v:=_sqroot_and_sign_if_possible(t))]
     
+    maps = []
     for monom_root, coeff, sign in roots_of_squares:
         expression_map_adapted = simplify(expression_map/coeff)
         plus_terms = [expression_map_adapted] if not isinstance(expression_map_adapted, Add) else expression_map_adapted.args
@@ -91,9 +92,19 @@ def reformulate_with_squares(expression_map: Expr, monom_maps: Dict[Expr, Expr])
             new_expression_map = simplify(expression_map_adapted - sign*expression)
             new_expression_map_E = new_expression_map.subs(monom_maps_inv)
             new_expression_map_with_square = new_expression_map_E +sign* Symbol(f"E({(monom_root+factor)**2})")
-            yield (new_expression_map_with_square, {Symbol(f"E({(monom_root+factor)**2})"): Expexted((monom_root+factor)**2, evaluate=False)})
+            maps.append((new_expression_map_with_square, {Symbol(f"E({(monom_root+factor)**2})"): Expexted((monom_root+factor)**2, evaluate=False)}))
 
-    yield from []
+    maps_to_return=list()
+    for map in maps:
+        _, monom_dict = map
+        duplicate = False
+        for m in maps_to_return:
+            if rem(list(monom_dict.values())[0].args[0],list(m[1].values())[0].args[0]) == S.Zero:
+                duplicate=True
+                break
+        if not duplicate:
+            maps_to_return.append(map)
+    yield from maps_to_return
     
 def reformulate_maps_with_squares(expression_maps: Expr, monom_maps: Dict[Expr, Expr]):
     maps = []

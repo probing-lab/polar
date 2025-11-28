@@ -370,11 +370,11 @@ def generate_martingale_based_rule(expression_map: Expr,
             elif coeff.is_negative:
                 UB_coeffs.append([(BoundRef.LB, len(UB_lb_values)), (BoundRef.Const, coeff)])
                 UB_lb_values.append(nodes[exp_term])
-                ub_dependencies[nodes[exp_term]].add(lb_rule)
+                lb_dependencies[nodes[exp_term]].add(ub_rule)
 
                 LB_coeffs.append([(BoundRef.UB, len(LB_ub_values)), (BoundRef.Const, coeff)])
                 LB_ub_values.append(nodes[exp_term])
-                lb_dependencies[nodes[exp_term]].add(ub_rule)
+                ub_dependencies[nodes[exp_term]].add(lb_rule)
 
                 UB_i += 1
                 LB_i += 1
