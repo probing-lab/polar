@@ -12,13 +12,15 @@ def saturate(nodes: List[ValueNode],
     
     unprocessed: Set[Rule] = set(rules)
     while len(unprocessed) > 0:
-        print(len(unprocessed))
         rule = unprocessed.pop()
 
         res = rule.fire()
         if res:
+            old_l = len(unprocessed)
             unprocessed = unprocessed.union(
                 (lb_dependencies if rule.result_type == RuleType.LB else ub_dependencies)[rule.result]
             )
+            new_l = len(unprocessed)
+            print(f"- Unprocessed {old_l} -> {new_l}")
 
     return nodes

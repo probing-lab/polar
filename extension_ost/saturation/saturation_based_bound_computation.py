@@ -1,6 +1,6 @@
 from collections import defaultdict
 from typing import List, Set, Tuple, Dict
-from sympy import Symbol, Expr, simplify, sympify
+from sympy import S, Symbol, Expr, degree_list, simplify, sympify
 
 from extension_ost.expectation_map import ExpectationMapBuilder
 from extension_ost.helpers import Expexted
@@ -9,7 +9,7 @@ from extension_ost.saturation.saturation_rules.rule_generation import generate_h
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from extension_ost.saturation.saturation_rules.rule import Rule, RuleType
 from extension_ost.saturation.saturation_rules.value_node import ValueNode
-from extension_ost.square_extraction import reformulate_maps_with_squares
+from extension_ost.square_extraction import _sqroot_and_sign_if_possible, reformulate_maps_with_squares
 from recurrences.rec_builder import RecBuilder
 
 def _get_monoms(symbols: List[Symbol],
@@ -66,6 +66,11 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     bound_exprs = monoms+[Expexted(monom) for monom in monoms]
 
     nodes = {bound_expr: ValueNode(initial_value_provider, bound_expr) for bound_expr in bound_exprs}
+
+    for node in nodes.values():
+        expr = node.name.args[0] if isinstance(node.name, Expexted) else node.name
+        if all(d%2==0 for d in degree_list(expr)):
+            node.add_lb(S.Zero)
 
     # Fill with initial knowledge (basically negated loopgard and positivity of k)
     for k,v in initial_lower_bounds.items():

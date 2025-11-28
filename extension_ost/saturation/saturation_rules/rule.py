@@ -70,9 +70,13 @@ class Rule:
                 if self.result_type==RuleType.LB:
                     if self.result.add_lb(new_candidate):
                         was_updated = True
+                        print(f"New derivation: {self.result.name} >= {new_candidate}")
+                        print(f"\t\tusing: {self}")
                 elif self.result_type==RuleType.UB:
                     if self.result.add_ub(new_candidate):
                         was_updated = True
+                        print(f"New derivation: {self.result.name} <= {new_candidate}")
+                        print(f"\t\tusing: {self}")
         
         return was_updated
 
