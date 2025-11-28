@@ -52,15 +52,15 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
         exp_maps += exp_map_builder.get_expectation_maps(monom)
     exp_maps_filtered = exp_map_builder.get_shortest_basis(exp_maps)
     
-    extracted_square_maps = reformulate_maps_with_squares(exp_maps_filtered, monom_expexted_sub)
-    extracted_square_maps_filtered = exp_map_builder.get_shortest_basis([m[0] for m in extracted_square_maps])
+    extracted_square_maps_monoms = reformulate_maps_with_squares(exp_maps_filtered, monom_expexted_sub)
     # maps from E(...) to Expexted(...)
-    square_monom_maps =  {k: v for d in [m[1] for m in extracted_square_maps] for k,v in d.items()}
+    square_monom_maps =  {k: v for d in [m[1] for m in extracted_square_maps_monoms] for k,v in d.items()}
     remove_expectation_map.update({k: v.args[0] for k,v in square_monom_maps.items()})
     monom_expexted_sub.update({str(k): v for k,v in square_monom_maps.items()})
+    extracted_square_maps = [m[0] for m in extracted_square_maps_monoms]
 
     # extracted_square_maps_filtered = []
-    exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps_filtered+extracted_square_maps_filtered)]
+    exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps_filtered+extracted_square_maps)]
     
 
     initial_value_provider = InitialValueProvider()
@@ -104,7 +104,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
                                                     lb_dependencies,
                                                     ub_dependencies,
                                                     monom_expexted_sub))
-        
+
     for rule in rules:
         print(rule)
     

@@ -18,6 +18,11 @@ class BoundRef(Enum):
     UB=1
     Const=2
     Sqrt=3
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return self.__str__()
 class Rule:
     result: ValueNode
     result_type: RuleType
@@ -35,7 +40,8 @@ class Rule:
                  ubs: List[ValueNode],
                  res_expr: List[List[Tuple[Literal[0,1],int]]],
                  res_intercept: Expr,
-                 inequalities: List[List[List[Tuple[Literal[0,1],int]]]]=[]): # positivity_constraints
+                 inequalities: List[List[List[Tuple[Literal[0,1],int]]]]=[],
+                 name:str=None): # positivity_constraints
         self.result = result
         self.result_type = result_type
         self.lbs = lbs

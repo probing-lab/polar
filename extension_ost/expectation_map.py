@@ -158,10 +158,6 @@ class ExpectationMapBuilder():
             all_syms.update(e.free_symbols)
         variables = sorted(list(all_syms), key=lambda s: s.name)
 
-        # 2. Sort expressions by "Complexity" (Number of terms)
-        #    Add.make_args splits 'a + b' into (a, b). 
-        #    We prefer expressions with fewer terms.
-        #    Secondary sort by string length ensures 'x' comes before 'y' (cosmetic)
         sorted_exprs = sorted(expressions, key=lambda e: (len(Add.make_args(e)), str(e)))
 
         basis = []
@@ -172,16 +168,12 @@ class ExpectationMapBuilder():
             if expr == 0:
                 continue
                 
-            # 3. Test: Does adding this expression increase the rank?
             candidate_basis = basis + [expr]
             
-            # Build matrix of the candidate basis
             mat, _ = linear_eq_to_matrix(candidate_basis, variables)
             new_rank = mat.rank()
             
-            # 4. If rank increases, this expression contains NEW info. Keep it.
-            #    Since we sorted by length, we are guaranteed to be keeping 
-            #    the shortest possible version of this information.
+            # 4. If rank increases, this expression contains new info. Keep it.
             if new_rank > current_rank:
                 basis.append(expr)
                 current_rank = new_rank
