@@ -30,8 +30,11 @@ class ValueNode:
         Returns:
             bool: whether the new upper bound was added (not subsumed by existing bound)
         """
+        # forwards subsumption
         if not self._is_new_upper_bound(ub):
             return False
+        # backwards subsumption
+        self.ubs = {old_ub for old_ub in self.ubs if not self._is_smaller(ub, old_ub)}
         self.ubs.add(ub)
         return True
 
@@ -46,6 +49,7 @@ class ValueNode:
         """
         if not self._is_new_lower_bound(lb):
             return False
+        self.lbs = {old_lb for old_lb in self.lbs if not self._is_smaller(old_lb, lb)}
         self.lbs.add(lb)
         return True
 
