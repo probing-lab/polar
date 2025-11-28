@@ -263,6 +263,40 @@ def generate_rv_multiplication_rules(monoms, nodes,
         ub_dependencies[nodes[Expexted(Y)]].add(rule1)
         yield rule1
 
+        #  X <= a, a >= 0
+        #  0 <= Y, E(Y) <= b, b Y= 0
+        # ==> E(XY) <= ab
+        rule2 = Rule(nodes[Expexted(res_monom)],
+                     RuleType.UB,
+                     [nodes[Y]],
+                     [nodes[X], nodes[Expexted(Y)]],
+                     [[(1,0), (1,1)]],
+                     S.Zero,
+                     inequalities=[[[(0,0)]],
+                                   [[(1,1)]],
+                                   [[(1,0)]]])
+        lb_dependencies[nodes[Y]].add(rule2)
+        ub_dependencies[nodes[X]].add(rule2)
+        ub_dependencies[nodes[Expexted(Y)]].add(rule2)
+        yield rule2
+
+        #  a<=X, a <= 0
+        #  0 <= Y, b <= E(Y), b >= 0
+        # ==> E(XY) >= ab
+        rule3 = Rule(nodes[Expexted(res_monom)],
+                     RuleType.LB,
+                     [nodes[X], nodes[Y],nodes[Expexted(Y)]],
+                     [],
+                     [[(0,0),(0,2)]],
+                     S.Zero,
+                     inequalities=[[[(0,0),(2,-S.One)]], # TODO: revise removing one positivity constraint in document
+                                   [[(0,1)]],
+                                   [[(0,2)]]]) # last should follow from previous
+        lb_dependencies[nodes[X]].add(rule3)
+        lb_dependencies[nodes[Y]].add(rule3)
+        lb_dependencies[nodes[Expexted(Y)]].add(rule3)
+        yield rule3
+
 
 def generate_martingale_based_rule(expression_map: Expr,
                                    nodes: Dict[Expr, Expr],

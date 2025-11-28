@@ -4,7 +4,6 @@ from sympy import S, Add, Expr, Poly, nan, oo
 
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from program.distribution.distribution import DistributionFunction
-
 class ValueNode:
     name: Expr
     lbs: Set[Expr]
@@ -60,7 +59,28 @@ class ValueNode:
         for old_ub in self.ubs:
             if self._is_smaller(old_ub, upper_bound):
                 return False
+            
+        # the following line does a more agressive subsumption check (good for termination, bad for completeness)
+        for old_ub in self.ubs:
+            if self._monoms_similar(old_ub, upper_bound):
+                return False
 
+        return True
+    
+    def _monoms_similar(self, old_ub: Expr, new_ub: Expr):
+        # if they have the same monoms, and share the signs, then ignore the new
+        gens = list(old_ub.free_symbols.union(new_ub.free_symbols))
+        p_old = Poly(old_ub, *gens).as_dict()
+        p_new = Poly(new_ub, *gens).as_dict()
+
+        if (p_old.keys() != p_new.keys()):
+            return False
+
+        for k in p_old:
+            if p_old[k].is_positive and p_new[k].is_negative:
+                return False
+            if p_old[k].is_negative and p_new[k].is_positive:
+                return False
         return True
 
     def _is_new_lower_bound(self, lower_bound):
