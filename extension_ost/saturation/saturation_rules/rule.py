@@ -4,7 +4,7 @@ from enum import Enum
 from itertools import combinations, product
 from typing import List, Literal, Tuple
 
-from sympy import Add, Expr, Mul
+from sympy import Add, Expr, Mul, sqrt
 
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from extension_ost.saturation.saturation_rules.value_node import ValueNode
@@ -13,6 +13,11 @@ class RuleType(Enum):
     LB=0
     UB=1
 
+class BoundRef(Enum):
+    LB=0
+    UB=1
+    Const=2
+    Sqrt=3
 class Rule:
     result: ValueNode
     result_type: RuleType
@@ -41,11 +46,13 @@ class Rule:
 
     def _get_value(self, lbs, ubs, access: Tuple[Literal[0,1], int|Expr]):
         (c, a) = access
-        if c == 2:
+        if c == BoundRef.Const:
             return a
-        return (ubs if c == 1 else lbs)[a]
+        if c == BoundRef.Sqrt:
+            return sqrt(self._get_value(a))
+        return (ubs if c == BoundRef.UB else lbs)[a]
     
-    def _get_expr(self, lbs, ubs, access: List[List[Tuple[Literal[0,1], int|Expr]]]):
+    def _get_expr(self, lbs, ubs, access: List[List[Tuple[BoundRef, int|Expr]]]):
         return Add(*[Mul(*[self._get_value(lbs, ubs, i) for i in mul_term]) for mul_term in access])
 
     def fire(self) -> bool:

@@ -6,7 +6,7 @@ from typing import Dict, Set
 from sympy import S, Add, Expr, Mul, simplify, solve
 
 from extension_ost.helpers import Expexted
-from extension_ost.saturation.saturation_rules.rule import Rule, RuleType
+from extension_ost.saturation.saturation_rules.rule import BoundRef, Rule, RuleType
 
 # This basically is grounding of the rule
 # X <= a ==> E(X) <= a  (and similar for >=)
@@ -21,7 +21,7 @@ def generate_hard_bound_rules(monoms, nodes,
                   RuleType.LB,
                   [nodes[monom]],
                   [],
-                  [[(0, 0)]],
+                  [[(BoundRef.LB, 0)]],
                   S.Zero)
         lb_dependencies[nodes[monom]].add(r1)
         yield r1
@@ -29,7 +29,7 @@ def generate_hard_bound_rules(monoms, nodes,
                   RuleType.UB,
                   [],
                   [nodes[monom]],
-                  [[(1, 0)]],
+                  [[(BoundRef.UB, 0)]],
                   S.Zero)
         ub_dependencies[nodes[monom]].add(r2)
         yield r2
@@ -51,11 +51,11 @@ def generate_var_multiplication_ub_rules(monoms,
                      RuleType.UB,
                      [nodes[X]],
                      [nodes[X], nodes[Y]],
-                     [[(1, 0), (1, 1)]],
+                     [[(BoundRef.UB, 0), (BoundRef.UB, 1)]],
                      S.Zero,
-                     inequalities=[[[(0,0)]],
-                                   [[(1,0)]],
-                                   [[(1,1)]]])
+                     inequalities=[[[(BoundRef.LB,0)]],
+                                   [[(BoundRef.UB,0)]],
+                                   [[(BoundRef.UB,1)]]])
         lb_dependencies[nodes[X]].add(rule1)
         ub_dependencies[nodes[X]].add(rule1)
         ub_dependencies[nodes[Y]].add(rule1)
@@ -66,10 +66,10 @@ def generate_var_multiplication_ub_rules(monoms,
                      RuleType.UB,
                      [nodes[X]],
                      [nodes[Y]],
-                     [[(0, 0), (1, 0)]],
+                     [[(BoundRef.LB, 0), (BoundRef.UB, 0)]],
                      S.Zero,
-                     inequalities=[[[(0,0)]],
-                                   [[(1,0),(2,-S.One)]]])
+                     inequalities=[[[(BoundRef.LB,0)]],
+                                   [[(BoundRef.UB,0),(BoundRef.Const,-S.One)]]])
         lb_dependencies[nodes[X]].add(rule2)
         ub_dependencies[nodes[Y]].add(rule2)
         yield rule2
@@ -79,11 +79,11 @@ def generate_var_multiplication_ub_rules(monoms,
                      RuleType.UB,
                      [nodes[X], nodes[Y]],
                      [nodes[Y]],
-                     [[(0,0),(0,1)]],
+                     [[(BoundRef.LB,0),(BoundRef.LB,1)]],
                      S.Zero,
-                     inequalities=[[[(0,0),(2,-S.One)]],
-                                   [[(0,1),(2,-S.One)]],
-                                   [[(1,0),(2,-S.One)]]])
+                     inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.LB,1),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.UB,0),(BoundRef.Const,-S.One)]]])
         lb_dependencies[nodes[X]].add(rule3)
         lb_dependencies[nodes[Y]].add(rule3)
         ub_dependencies[nodes[Y]].add(rule3)
@@ -94,13 +94,13 @@ def generate_var_multiplication_ub_rules(monoms,
                      RuleType.UB,
                      [nodes[X], nodes[Y]],
                      [nodes[X], nodes[Y]],
-                     [[(0,0),(0,1)]],
+                     [[(BoundRef.LB,0),(BoundRef.LB,1)]],
                      S.Zero,
-                     inequalities=[[[(0,0),(2,-S.One)]],
-                                   [[(0,1),(2,-S.One)]],
-                                   [[(1,0)]],
-                                   [[(1,1)]],
-                                   [[(0,0), (0,1)],[(1,0),(1,1),(2,-S.One)]]]) # check whether ac-bd is nonnegative
+                     inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.LB,1),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.UB,0)]],
+                                   [[(BoundRef.UB,1)]],
+                                   [[(BoundRef.LB,0), (BoundRef.LB,1)],[(BoundRef.UB,0),(BoundRef.UB,1),(BoundRef.Const,-S.One)]]]) # check whether ac-bd is nonnegative
         lb_dependencies[nodes[X]].add(rule4)
         lb_dependencies[nodes[Y]].add(rule4)
         ub_dependencies[nodes[X]].add(rule4)
@@ -112,13 +112,13 @@ def generate_var_multiplication_ub_rules(monoms,
                      RuleType.UB,
                      [nodes[X], nodes[Y]],
                      [nodes[X], nodes[Y]],
-                     [[(1,0),(1,1)]],
+                     [[(BoundRef.UB,0),(BoundRef.UB,1)]],
                      S.Zero,
-                     inequalities=[[[(0,0),(2,-S.One)]],
-                                   [[(0,1),(2,-S.One)]],
-                                   [[(1,0)]],
-                                   [[(1,1)]],
-                                   [[(0,0), (0,1),(2,-S.One)],[(1,0),(1,1)]]]) # check whether bd-ac is nonnegative
+                     inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.LB,1),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.UB,0)]],
+                                   [[(BoundRef.UB,1)]],
+                                   [[(BoundRef.LB,0), (BoundRef.LB,1),(BoundRef.Const,-S.One)],[(BoundRef.UB,0),(BoundRef.UB,1)]]]) # check whether bd-ac is nonnegative
         lb_dependencies[nodes[X]].add(rule5)
         lb_dependencies[nodes[Y]].add(rule5)
         ub_dependencies[nodes[X]].add(rule5)
@@ -142,10 +142,10 @@ def generate_var_multiplication_lb_rules(monoms,
                      RuleType.LB,
                      [],
                      [nodes[X], nodes[Y]],
-                     [[(1, 0), (1, 1)]],
+                     [[(BoundRef.UB, 0), (BoundRef.UB, 1)]],
                      S.Zero,
-                     inequalities=[[[(1,0),(2,-S.One)]],
-                                   [[(1,1),(2,-S.One)]]])
+                     inequalities=[[[(BoundRef.UB,0),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.UB,1),(BoundRef.Const,-S.One)]]])
         ub_dependencies[nodes[X]].add(rule1)
         ub_dependencies[nodes[Y]].add(rule1)
         yield rule1
@@ -155,11 +155,11 @@ def generate_var_multiplication_lb_rules(monoms,
                      RuleType.LB,
                      [nodes[Y]],
                      [nodes[X], nodes[Y]],
-                     [[(0, 0), (1, 0)]],
+                     [[(BoundRef.LB, 0), (BoundRef.UB, 0)]],
                      S.Zero,
-                     inequalities=[[[(0,0),(2,-S.One)]],
-                                   [[(1,1),(2,-S.One)]],
-                                   [[(1,0)]]])
+                     inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.UB,1),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.UB,0)]]])
         ub_dependencies[nodes[X]].add(rule2)
         ub_dependencies[nodes[Y]].add(rule2)
         lb_dependencies[nodes[Y]].add(rule2)
@@ -170,11 +170,11 @@ def generate_var_multiplication_lb_rules(monoms,
                      RuleType.LB,
                      [nodes[X], nodes[Y]],
                      [nodes[X]],
-                     [[(0, 1), (1, 0)]],
+                     [[(BoundRef.LB, 1), (BoundRef.UB, 0)]],
                      S.Zero,
-                     inequalities=[[[(0,1),(2,-S.One)]],
-                                   [[(0,0)]],
-                                   [[(1,0)]]])
+                     inequalities=[[[(BoundRef.LB,1),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.LB,0)]],
+                                   [[(BoundRef.UB,0)]]])
         lb_dependencies[nodes[X]].add(rule3)
         lb_dependencies[nodes[Y]].add(rule3)
         ub_dependencies[nodes[X]].add(rule3)
@@ -185,10 +185,10 @@ def generate_var_multiplication_lb_rules(monoms,
                      RuleType.LB,
                      [nodes[X], nodes[Y]],
                      [],
-                     [[(0, 0), (0, 1)]],
+                     [[(BoundRef.LB, 0), (BoundRef.LB, 1)]],
                      S.Zero,
-                     inequalities=[[[(0,0)]],
-                                   [[(0,1)]]])
+                     inequalities=[[[(BoundRef.LB,0)]],
+                                   [[(BoundRef.LB,1)]]])
         lb_dependencies[nodes[X]].add(rule4)
         lb_dependencies[nodes[Y]].add(rule4)
         yield rule4
@@ -198,13 +198,13 @@ def generate_var_multiplication_lb_rules(monoms,
                      RuleType.LB,
                      [nodes[X], nodes[Y]],
                      [nodes[X], nodes[Y]],
-                     [[(0,0),(1,1)]],
+                     [[(BoundRef.LB,0),(BoundRef.UB,1)]],
                      S.Zero,
-                     inequalities=[[[(0,0),(2,-S.One)]],
-                                   [[(0,1),(2,-S.One)]],
-                                   [[(1,0)]],
-                                   [[(1,1)]],
-                                   [[(0,1), (1,0),(2,-S.One)],[(0,0),(1,1)]]])
+                     inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.LB,1),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.UB,0)]],
+                                   [[(BoundRef.UB,1)]],
+                                   [[(BoundRef.LB,1), (BoundRef.UB,0),(BoundRef.Const,-S.One)],[(BoundRef.LB,0),(BoundRef.UB,1)]]])
         lb_dependencies[nodes[X]].add(rule5)
         lb_dependencies[nodes[Y]].add(rule5)
         ub_dependencies[nodes[X]].add(rule5)
@@ -216,13 +216,13 @@ def generate_var_multiplication_lb_rules(monoms,
                      RuleType.LB,
                      [nodes[X], nodes[Y]],
                      [nodes[X], nodes[Y]],
-                     [[(0,1),(1,0)]],
+                     [[(BoundRef.LB,1),(BoundRef.UB,0)]],
                      S.Zero,
-                     inequalities=[[[(0,0),(2,-S.One)]],
-                                   [[(0,1),(2,-S.One)]],
-                                   [[(1,0)]],
-                                   [[(1,1)]],
-                                   [[(0,1), (1,0)],[(0,0),(1,1),(2,-S.One)]]])
+                     inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.LB,1),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.UB,0)]],
+                                   [[(BoundRef.UB,1)]],
+                                   [[(BoundRef.LB,1), (BoundRef.UB,0)],[(BoundRef.LB,0),(BoundRef.UB,1),(BoundRef.Const,-S.One)]]])
         lb_dependencies[nodes[X]].add(rule6)
         lb_dependencies[nodes[Y]].add(rule6)
         ub_dependencies[nodes[X]].add(rule6)
@@ -254,11 +254,11 @@ def generate_rv_multiplication_rules(monoms, nodes,
                      RuleType.LB,
                      [nodes[X], nodes[Y]],
                      [nodes[Expexted(Y)]],
-                     [[(0, 0), (1, 0)]],
+                     [[(BoundRef.LB, 0), (BoundRef.UB, 0)]],
                      S.Zero,
-                     inequalities=[[[(0,0),(2,-S.One)]],
-                                   [[(0,1)]],
-                                   [[(1,0)]]]) # last should follow from 2nd
+                     inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
+                                   [[(BoundRef.LB,1)]],
+                                   [[(BoundRef.UB,0)]]]) # last should follow from 2nd
         lb_dependencies[nodes[X]].add(rule1)
         lb_dependencies[nodes[Y]].add(rule1)
         ub_dependencies[nodes[Expexted(Y)]].add(rule1)
@@ -271,11 +271,11 @@ def generate_rv_multiplication_rules(monoms, nodes,
                      RuleType.UB,
                      [nodes[Y]],
                      [nodes[X], nodes[Expexted(Y)]],
-                     [[(1,0), (1,1)]],
+                     [[(BoundRef.UB,0), (BoundRef.UB,1)]],
                      S.Zero,
-                     inequalities=[[[(0,0)]],
-                                   [[(1,1)]],
-                                   [[(1,0)]]])
+                     inequalities=[[[(BoundRef.LB,0)]],
+                                   [[(BoundRef.UB,1)]],
+                                   [[(BoundRef.UB,0)]]])
         lb_dependencies[nodes[Y]].add(rule2)
         ub_dependencies[nodes[X]].add(rule2)
         ub_dependencies[nodes[Expexted(Y)]].add(rule2)
@@ -288,11 +288,11 @@ def generate_rv_multiplication_rules(monoms, nodes,
                      RuleType.LB,
                      [nodes[X], nodes[Y],nodes[Expexted(Y)]],
                      [],
-                     [[(0,0),(0,2)]],
+                     [[(BoundRef.LB,0),(BoundRef.LB,2)]],
                      S.Zero,
-                     inequalities=[[[(0,0)]],
-                                   [[(0,1)]],
-                                   [[(0,2)]]]) # last should follow from previous
+                     inequalities=[[[(BoundRef.LB,0)]],
+                                   [[(BoundRef.LB,1)]],
+                                   [[(BoundRef.LB,2)]]]) # last should follow from previous
         lb_dependencies[nodes[X]].add(rule3)
         lb_dependencies[nodes[Y]].add(rule3)
         lb_dependencies[nodes[Expexted(Y)]].add(rule3)
@@ -356,22 +356,22 @@ def generate_martingale_based_rule(expression_map: Expr,
             if not exp_term.has(Expexted):
                 ub_rule.res_intercept += coeff*exp_term
             elif coeff.is_nonnegative:
-                UB_coeffs.append([(1, len(UB_ub_values)), (2, coeff)])
+                UB_coeffs.append([(BoundRef.UB, len(UB_ub_values)), (BoundRef.Const, coeff)])
                 UB_ub_values.append(nodes[exp_term])
                 ub_dependencies[nodes[exp_term]].add(ub_rule)
 
-                LB_coeffs.append([(0, len(LB_lb_values)), (2, coeff)])
+                LB_coeffs.append([(BoundRef.LB, len(LB_lb_values)), (BoundRef.Const, coeff)])
                 LB_lb_values.append(nodes[exp_term])
                 lb_dependencies[nodes[exp_term]].add(lb_rule)
 
                 UB_i += 1
                 LB_i += 1
             elif coeff.is_negative:
-                UB_coeffs.append([(0, len(UB_lb_values)), (2, coeff)])
+                UB_coeffs.append([(BoundRef.LB, len(UB_lb_values)), (BoundRef.Const, coeff)])
                 UB_lb_values.append(nodes[exp_term])
                 ub_dependencies[nodes[exp_term]].add(lb_rule)
 
-                LB_coeffs.append([(1, len(LB_ub_values)), (2, coeff)])
+                LB_coeffs.append([(BoundRef.UB, len(LB_ub_values)), (BoundRef.Const, coeff)])
                 LB_ub_values.append(nodes[exp_term])
                 lb_dependencies[nodes[exp_term]].add(ub_rule)
 
