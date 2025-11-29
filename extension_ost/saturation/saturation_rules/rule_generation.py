@@ -265,7 +265,7 @@ def generate_rv_multiplication_rules(monoms, nodes,
         yield rule1
 
         #  X <= a, a >= 0
-        #  0 <= Y, E(Y) <= b, b Y= 0
+        #  0 <= Y, E(Y) <= b, b >= 0
         # ==> E(XY) <= ab
         rule2 = Rule(nodes[Expexted(res_monom)],
                      RuleType.UB,
@@ -281,7 +281,7 @@ def generate_rv_multiplication_rules(monoms, nodes,
         ub_dependencies[nodes[Expexted(Y)]].add(rule2)
         yield rule2
 
-        #  a<=X, a <= 0
+        #  a<=X, a >= 0
         #  0 <= Y, b <= E(Y), b >= 0
         # ==> E(XY) >= ab
         rule3 = Rule(nodes[Expexted(res_monom)],
