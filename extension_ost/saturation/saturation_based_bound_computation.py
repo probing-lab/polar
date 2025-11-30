@@ -50,7 +50,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     exp_maps = []
     for monom in monoms:
-        exp_maps.append(exp_map_builder.get_sparse_expectation_maps(monom))
+        exp_maps+=(exp_map_builder.get_sparse_expectation_maps(monom))
 
     exp_maps = exp_map_builder.filter_unique_primitives(exp_maps)
     extracted_square_maps_monoms = reformulate_maps_with_squares(exp_maps, monom_expexted_sub)

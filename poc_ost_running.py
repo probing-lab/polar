@@ -76,7 +76,7 @@ for var in normalized_program.original_variables:
 
 compute_bounds_saturation(random_vars,
                deterministic_vars,
-               3,
+               2,
                {Symbol("x", real=True):1,
                 Symbol("y", real=True):1,
                 Symbol("z", real=True):2,

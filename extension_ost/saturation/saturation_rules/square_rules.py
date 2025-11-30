@@ -21,6 +21,7 @@ def generate_square_jensen(monoms,
                         [],
                         [[(BoundRef.LB,0),(BoundRef.LB,0)]],
                         S.Zero,
+                        inequalities=[[[(BoundRef.LB,0)]]],
                         name="square-jensen")
             lb_dependencies[nodes[Expexted(monom)]].add(rule)
             yield rule

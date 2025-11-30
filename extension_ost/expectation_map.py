@@ -98,7 +98,7 @@ class ExpectationMapBuilder():
         return list(unique_map.values())
 
 
-    def get_sparse_expectation_maps(self, goal_var):
+    def get_sparse_expectation_maps(self, goal_var, max_solutions=2):
         recurrences = {monom: Piecewise((self._add_constant_factor(rec - (monom if len(set(monom.free_symbols) - self.deterministic_vars)==0 else 0)), True)) for monom,rec in self.recurrence_dict.items()}
         
 
@@ -156,21 +156,35 @@ class ExpectationMapBuilder():
             objective.SetCoefficient(b_var, 1)
         objective.SetMinimization()
 
-        status = solver.Solve()
+        best = len(variables)+1
+        solutions = []
+        for _ in range(max_solutions):
+            nonzeros = []
+            status = solver.Solve()
 
-        if status not in [pywraplp.Solver.OPTIMAL, pywraplp.Solver.FEASIBLE]:
-            print("OR-Tools could not find an optimal solution.")
-            return None
+            if status not in [pywraplp.Solver.OPTIMAL, pywraplp.Solver.FEASIBLE]:
+                print("OR-Tools could not find an optimal solution.")
+                raise Exception()
 
-        martingale_expr = S.Zero
-        for i, sym in enumerate(variables):
-            val = x_vars[i].solution_value()
-            # Clean up floating point noise
-            if abs(val) < 1e-10: # is zero
-                continue
-            martingale_expr += nsimplify(Float(val), rational=True)*Symbol(f"E({coeff_to_var[sym]})")
+            martingale_expr = S.Zero
+            for i, sym in enumerate(variables):
+                val = x_vars[i].solution_value()
+                # Clean up floating point noise
+                if abs(val) < 1e-10: # is zero
+                    continue
+                nonzeros.append(is_nonzero[i])
+                martingale_expr += nsimplify(Float(val), rational=True)*Symbol(f"E({coeff_to_var[sym]})")
 
-        martingale_no_exp_rec = simplify(martingale_expr.subs({Symbol(f"E({monom})"): v for monom,v in recurrences.items()}))
-        assert martingale_no_exp_rec == S.Zero, "Numerical error caused wrong result in martingale map synthesis"
+            if len(nonzeros)>best:
+                return solutions
+            else:
+                best = len(nonzeros)
+                # exclude the current result
+                exclude_constraint = solver.RowConstraint(-infinity, len(nonzeros)-1)
+                for v in nonzeros:
+                    exclude_constraint.SetCoefficient(v, 1) 
+            martingale_no_exp_rec = simplify(martingale_expr.subs({Symbol(f"E({monom})"): v for monom,v in recurrences.items()}))
+            assert martingale_no_exp_rec == S.Zero, "Numerical error caused wrong result in martingale map synthesis"
+            solutions.append(martingale_expr)
 
-        return martingale_expr
+        return solutions

@@ -26,20 +26,6 @@ class ValueNode:
         # dependency detection can be done using sets - little number of ground atoms
         self.descendants: Set[ValueNode] = set()
         self.ancestors: Set[ValueNode] = set()
-        
-    def _get_sqrts(self, expression):
-        powers = expression.atoms(Pow)
-
-        for p in powers:
-            if p.exp == S.Half:
-                yield p
-
-    def _contains_sqrt(self, expression):
-        try:
-            next(self._get_sqrts(expression))
-            return True
-        except StopIteration:
-            return False
 
     def add_ub(self, ub_bound: Bound) -> bool:
         """Try to add a new upper bound
@@ -50,10 +36,6 @@ class ValueNode:
         Returns:
             bool: whether the new upper bound was added (not subsumed by existing bound)
         """
-        if not self.can_have_sqrt_in_bound and self._contains_sqrt(ub_bound.value):
-            return False
-        if self._has_nested_sqrt(ub_bound.value):
-            return False
         # forwards subsumption
         if not self._is_new_upper_bound(ub_bound.value):
             return False
@@ -63,12 +45,6 @@ class ValueNode:
         self.ubs = {old_ub for old_ub in self.ubs if not self._is_smaller(ub_bound.value, old_ub.value)}
         self.ubs.add(ub_bound)
         return True
-    
-    def _has_nested_sqrt(self, expr: Expr) -> bool:
-        for sqrt in self._get_sqrts(expr):
-            if self._contains_sqrt(sqrt.base):
-                return True
-        return False
 
     def add_lb(self, lb_bound: Bound) -> bool:
         """Try to add a new lower bound
@@ -79,10 +55,6 @@ class ValueNode:
         Returns:
             bool: whether the new lower bound was added (not subsumed by existing bound)
         """
-        if not self.can_have_sqrt_in_bound and self._contains_sqrt(lb_bound.value):
-            return False
-        if self._has_nested_sqrt(lb_bound.value):
-            return False
         if not self._is_new_lower_bound(lb_bound.value):
             return False
         # skip if sqrt, since it breaks subsumption check
@@ -110,12 +82,6 @@ class ValueNode:
     
     def _monoms_similar(self, old_ub: Expr, new_ub: Expr):
         # we must first extract the square-roots:
-        sqrts1 = list(self._get_sqrts(old_ub))
-        sqrts2 = list(self._get_sqrts(new_ub))
-        root_objects = set(sqrts1+sqrts2)
-        root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
-        old_ub = old_ub.subs(root_subs)
-        new_ub = new_ub.subs(root_subs)
 
         # if they have the same monoms, and share the signs, then ignore the new
         gens = list(old_ub.free_symbols.union(new_ub.free_symbols))
@@ -129,26 +95,17 @@ class ValueNode:
         if (p_old.keys() != p_new.keys()):
             return False
         return True
-
+    
     def _new_upper_bound_better(self, old_ub: Expr, new_ub: Expr):
         vars = old_ub.free_symbols.union(new_ub.free_symbols)
         if len(new_ub.free_symbols)==0:
             return True
 
-        sqrts1 = list(self._get_sqrts(old_ub))
-        sqrts2 = list(self._get_sqrts(new_ub))
-        if len(sqrts2) < len(sqrts1):
-            return True # we favor expressions without sqrts
-        root_objects = set(sqrts1+sqrts2)
-        root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
-
-        old_ub_no_roots = old_ub.subs(root_subs)
-        new_ub_no_roots = old_ub.subs(root_subs)
 
         new_ub_better = True
         for var in vars:
-            old_ub_poly = Poly(old_ub_no_roots, var)
-            new_ub_poly = Poly(new_ub_no_roots, var)
+            old_ub_poly = Poly(old_ub, var)
+            new_ub_poly = Poly(new_ub, var)
             lc_number,_ = old_ub_poly.LC().as_coeff_Mul()
 
             if lc_number.is_nonnegative:
@@ -167,19 +124,9 @@ class ValueNode:
         if len(new_lb.free_symbols)==0:
             return True
 
-        sqrts1 = list(self._get_sqrts(old_lb))
-        sqrts2 = list(self._get_sqrts(new_lb))
-        if len(sqrts2) < len(sqrts1):
-            return True # we favor expressions without sqrts
-        root_objects = set(sqrts1+sqrts2)
-        root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
-
-        old_lb_no_roots = old_lb.subs(root_subs)
-        new_lb_no_roots = old_lb.subs(root_subs)
-
         for var in vars:
-            old_lb_poly = Poly(old_lb_no_roots, var)
-            new_lb_poly = Poly(new_lb_no_roots, var)
+            old_lb_poly = Poly(old_lb, var)
+            new_lb_poly = Poly(new_lb, var)
             lc_number,_ = old_lb_poly.LC().as_coeff_Mul()
 
             if lc_number.is_nonnegative:
@@ -192,7 +139,6 @@ class ValueNode:
                 if new_lb_poly.LC().as_coeff_mul()[0].is_nonnegative:
                     return True
         return False
-
 
     def _is_new_lower_bound(self, lower_bound):
         if lower_bound == nan or not self._is_finite(lower_bound):

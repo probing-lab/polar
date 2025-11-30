@@ -1,5 +1,5 @@
 from typing import Dict, Optional, Tuple
-from sympy import S, Add, Expr, Mul, Pow, Symbol, rem, simplify, sqrt
+from sympy import S, Add, Expr, Mul, Pow, Symbol, primitive, rem, simplify, sqrt
 
 from extension_ost.helpers import Expexted
 
@@ -100,6 +100,10 @@ def reformulate_with_squares(expression_map: Expr, monom_maps: Dict[Expr, Expr])
             new_expression_map = simplify(expression_map_adapted - sign*expression)
             new_expression_map_E = new_expression_map.subs(monom_maps_inv)
             new_expression_map_with_square = new_expression_map_E +sign* Symbol(f"E({(monom_root+factor)**2})")
+
+            new_expr = simplify(new_expression_map + sign*Expexted((monom_root+factor)**2))
+            assert primitive(new_expr)[1] == primitive(expression_map)[1]
+
             maps.append((new_expression_map_with_square, {Symbol(f"E({(monom_root+factor)**2})"): Expexted((monom_root+factor)**2, evaluate=False)}))
 
     maps_to_return=list()
