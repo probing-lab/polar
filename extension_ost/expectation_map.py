@@ -111,7 +111,7 @@ class ExpectationMapBuilder():
         A_num = np.array(A_sym).astype(float)
         b_num = np.array(b_sym).astype(float).flatten()
         
-        solver = pywraplp.Solver.CreateSolver('SCIP')
+        solver = pywraplp.Solver.CreateSolver('GUROBI')
         assert solver, "solver initialization failed"
         infinity = solver.infinity()
 
