@@ -45,7 +45,7 @@ class ExpectationMapBuilder():
 
         vars_to_eliminate = set(term.as_coeff_Mul()[1] for expr in recurrences.values() for term in expr.as_ordered_terms())
 
-        equations = [var_to_coeff[goal_var] - 1]
+        equations = []
         for var in vars_to_eliminate:
             expr = 0 if var not in var_to_coeff or len(set(var.free_symbols) - deterministic_vars)==0 else -var_to_coeff[var] 
             for monom, expression_E1 in recurrences.items():
@@ -111,13 +111,13 @@ class ExpectationMapBuilder():
         A_num = np.array(A_sym).astype(float)
         b_num = np.array(b_sym).astype(float).flatten()
         
-        solver = pywraplp.Solver.CreateSolver('GUROBI')
+        solver = pywraplp.Solver.CreateSolver('SCIP')
         assert solver, "solver initialization failed"
         infinity = solver.infinity()
 
         x_vars = [solver.IntVar(-infinity, infinity, str(v)) for v in variables]
         
-        is_nonzero = [solver.IntVar(0, 1, f'nz_{v}') for v in variables]
+        is_nonzero = [solver.IntVar(1 if v == var_to_coeff[goal_var] else 0, 1, f'nz_{v}_{1 if v == var_to_coeff[goal_var] else 0}') for v in variables]
         
 
         for r in range(len(b_num)):
@@ -138,6 +138,17 @@ class ExpectationMapBuilder():
             c2 = solver.RowConstraint(0, infinity)
             c2.SetCoefficient(x_vars[i], 1)
             c2.SetCoefficient(is_nonzero[i], 10000)
+
+        for i in range(len(variables)):
+            # x[i] <= M * is_nonzero[i]
+            c1 = solver.RowConstraint(-infinity, 0)
+            c1.SetCoefficient(x_vars[i], -1)
+            c1.SetCoefficient(is_nonzero[i], 1)
+            
+            # x[i] >= -M * is_nonzero[i]  ->  x[i] + M*is_nonzero[i] >= 0
+            c2 = solver.RowConstraint(0, infinity)
+            c2.SetCoefficient(x_vars[i], 1)
+            c2.SetCoefficient(is_nonzero[i], -1)
 
         # minimize nonzeros
         objective = solver.Objective()
