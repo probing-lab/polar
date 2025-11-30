@@ -81,12 +81,20 @@ def reformulate_with_squares(expression_map: Expr, monom_maps: Dict[Expr, Expr])
     
     maps = []
     for monom_root, coeff, sign in roots_of_squares:
+        if len(monom_root.free_symbols)==0:
+            continue       
         expression_map_adapted = simplify(expression_map/coeff)
         plus_terms = [expression_map_adapted] if not isinstance(expression_map_adapted, Add) else expression_map_adapted.args
 
         factors = [v for t in plus_terms if (v:=_factor_if_exists(t, 2*monom_root*sign))]
         pass
         for factor in factors:
+            if len(factor.free_symbols) == 0:
+                continue
+            # check if factor squared is still permissible
+            if any(exp_atom not in set(monom_maps.values()) for exp_atom in simplify(Expexted(factor**2)).atoms(Expexted)):
+                continue
+
             expression = Expexted((monom_root + factor)**2)
 
             new_expression_map = simplify(expression_map_adapted - sign*expression)

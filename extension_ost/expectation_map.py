@@ -8,10 +8,12 @@ More concrete, we find a p[\bar{x}_t], s.t.
 from functools import cache, reduce
 from itertools import product
 from typing import Dict
-from sympy import S, Add, Expr, Function, Piecewise, Symbol, linear_eq_to_matrix, rem, simplify, solve, symbols, sympify
+import numpy as np
+from sympy import S, Add, Expr, Float, Function, Piecewise, Symbol, linear_eq_to_matrix, nsimplify, primitive, rem, simplify, solve, symbols, sympify
 
 from extension_ost.square_extraction import reformulate_with_squares
 from invariants.invariant_ideal import InvariantIdeal
+from ortools.linear_solver import pywraplp
 
 
 C = symbols('_ConstVal_')
@@ -52,60 +54,6 @@ class ExpectationMapBuilder():
             equations.append(expr)
         return equations, var_to_coeff
 
-
-    def _solve_equation_system(self, equations, coeffs):
-        def solution_to_assignments(sol_coeffs):    
-            for coeff in coeffs:
-                if coeff in sol_coeffs.keys():
-                    continue
-                elif any(s.has(coeff) for s in sol_coeffs.values()):
-                    sol_coeffs[coeff] = coeff
-                else:
-                    # all coefficients not appearing in the solution can safely be set to zero
-                    sol_coeffs[coeff] = 0
-
-            return sol_coeffs
-
-        sol_coeffs = solve(equations, coeffs, dict=True)
-        if sol_coeffs is None:
-            return []
-        return [solution_to_assignments(c) for c in sol_coeffs]
-
-    def _propagate_value(self, solutions: Dict[Expr, Expr], k: Expr, v: Expr):
-        assert len(v.free_symbols)<=1
-        for k1 in solutions:
-            if k not in solutions[k1].free_symbols:
-                continue
-            solutions[k1] = solutions[k1].subs(k,v)
-            if solutions[k1].is_number:
-                self._propagate_value(solutions, k1, solutions[k1])
-            if len(solutions[k1].free_symbols)==1 and rem(solutions[k1], solutions[k1].free_symbols.pop()) == 0:
-                self._propagate_value(solutions, k1, solutions[k1])   
-
-    def _get_axis_cut_solutions_v3_recurse(self, solutions: Dict[Expr, Expr]):
-        progress = False
-        for k, v in solutions.items():
-            if len(v.free_symbols) == 1:
-                # set it to zero
-                progress = True
-                if k == v:
-                    sol = solutions.copy()
-                    self._propagate_value(sol, k, S.Zero)
-                    for solution in self._get_axis_cut_solutions_v3_recurse(sol):
-                        yield solution
-                else:
-                    sol = solutions.copy()
-                    sol[k] = S.Zero
-                    self._propagate_value(sol, k, S.Zero)
-                    k1 = v.free_symbols.pop()
-                    v1 = solve(v, k1)[0]
-                    self._propagate_value(sol,k1, v1)
-                    for solution in self._get_axis_cut_solutions_v3_recurse(sol):
-                        yield solution
-        if not progress:
-            assert all(len(v.free_symbols)==0 for v in solutions.values())
-            yield solutions
-
     def _get_axis_cut_solutions_v3(self, solutions):
         ancestor_vars = set()
         for k, v in solutions.items():
@@ -138,78 +86,80 @@ class ExpectationMapBuilder():
             if expr == 0:
                 unique_map[0] = 0
                 continue
+            if expr is None:
+                continue
 
             # as_content_primitive returns a tuple: (scalar_factor, simplified_expr)
-            # e.g., 2*f(x) + 4*f(y)  ->  (2, f(x) + 2*f(y))
-            # e.g., -f(x) - 2*f(y)   ->  (-1, f(x) + 2*f(y))
             content, primitive = expr.as_content_primitive()
             
-            # We only care about the 'primitive' part as the dictionary key
             if primitive not in unique_map:
                 unique_map[primitive] = expr
                 
         return list(unique_map.values())
 
-    def get_shortest_basis(self, expressions):
-        # 1. Identify all variables across all expressions for matrix construction
-        #    (Using free_symbols since you have symbols like f(x1))
-        all_syms = set()
-        for e in expressions:
-            all_syms.update(e.free_symbols)
-        variables = sorted(list(all_syms), key=lambda s: s.name)
 
-        sorted_exprs = sorted(expressions, key=lambda e: (len(Add.make_args(e)), str(e)))
-
-        basis = []
-        current_rank = 0
-
-        for expr in sorted_exprs:
-            # Handle zero expression
-            if expr == 0:
-                continue
-                
-            candidate_basis = basis + [expr]
-            
-            mat, _ = linear_eq_to_matrix(candidate_basis, variables)
-            new_rank = mat.rank()
-            
-            # 4. If rank increases, this expression contains new info. Keep it.
-            if new_rank > current_rank:
-                basis.append(expr)
-                current_rank = new_rank
-
-        return basis
-
-    # TODO: cache this function
-    @cache
-    def get_expectation_maps(self, goal_var):
-        # Note the "rec-monom". We do this, as we want to find the coefficient of each monomial in the poly p.
+    def get_sparse_expectation_maps(self, goal_var):
         recurrences = {monom: Piecewise((self._add_constant_factor(rec - (monom if len(set(monom.free_symbols) - self.deterministic_vars)==0 else 0)), True)) for monom,rec in self.recurrence_dict.items()}
         
-        # The expression map can be constructed from an invariant ideal
-        # invariant_ideal = InvariantIdeal(recurrences)
-        # basis = list(invariant_ideal.compute_basis())
-        # print(basis)
 
-        # The basis is not yet a desired expression maps. We need to find an expression, where the actual random variables are cancelled out.
-        # We have to do this, difference of E(p) and p must be zero NOT ONLY in expectation, but actually equal to the scalar 0. 
-        # This is done by solving a linear system of equations. TODO: investigate if this could be replaced by monomial ordering in basis computation
-        equations, var_to_coeff = self._build_equation_system(recurrences, goal_var, self.deterministic_vars)
-        var_to_coeff_list = list(var_to_coeff.items())
-        solutions = self._solve_equation_system(equations, [v for (_,v) in var_to_coeff_list])
+        equations0, var_to_coeff = self._build_equation_system(recurrences, goal_var, self.deterministic_vars)
+        equations = [primitive(eq)[1] for eq in equations0]
+        coeff_to_var = {v:k for k,v in var_to_coeff.items()}
 
+        variables = list(set().union(*[v.free_symbols for v in  var_to_coeff.values()]))
+        A_sym, b_sym = linear_eq_to_matrix(equations,variables)
+        A_num = np.array(A_sym).astype(float)
+        b_num = np.array(b_sym).astype(float).flatten()
+        
+        solver = pywraplp.Solver.CreateSolver('GUROBI')
+        assert solver, "solver initialization failed"
+        infinity = solver.infinity()
 
+        x_vars = [solver.IntVar(-infinity, infinity, str(v)) for v in variables]
+        
+        is_nonzero = [solver.IntVar(0, 1, f'nz_{v}') for v in variables]
+        
 
-        maps = set()
-        for solution in solutions:
-            # TODO: the following contains many duplicates - get rid of them, either in the called function (probably hard) or afterwards
-            axis_cut_solutions = list(self._get_axis_cut_solutions_v3(solution))
+        for r in range(len(b_num)):
+            constraint = solver.RowConstraint(b_num[r], b_num[r]) # lhs <= expr <= rhs (strict equality)
+            for c in range(len(variables)):
+                constraint.SetCoefficient(x_vars[c], A_num[r][c])
 
-            unique_axis_cut_solutions = [dict(t) for t in {frozenset(d.items()) for d in axis_cut_solutions}]
-            # Build the linear combination
-            final_expression = 0
-            for expr, coeff in var_to_coeff_list:
-                final_expression+= Symbol(f"E({expr})")*coeff
-            for axis_cut_solution in unique_axis_cut_solutions:
-                maps.add(final_expression.subs(axis_cut_solution).simplify())
-        return maps
+        # Big-M constraints linking x to binary indicators
+        # If is_nonzero[i] == 0, then -0 <= x[i] <= 0  (x forced to zero)
+        # If is_nonzero[i] == 1, then -M <= x[i] <= M  (x allowed to be anything)
+        for i in range(len(variables)):
+            # x[i] <= M * is_nonzero[i]
+            c1 = solver.RowConstraint(-infinity, 0)
+            c1.SetCoefficient(x_vars[i], 1)
+            c1.SetCoefficient(is_nonzero[i], -10000)
+            
+            # x[i] >= -M * is_nonzero[i]  ->  x[i] + M*is_nonzero[i] >= 0
+            c2 = solver.RowConstraint(0, infinity)
+            c2.SetCoefficient(x_vars[i], 1)
+            c2.SetCoefficient(is_nonzero[i], 10000)
+
+        # minimize nonzeros
+        objective = solver.Objective()
+        for b_var in is_nonzero:
+            objective.SetCoefficient(b_var, 1)
+        objective.SetMinimization()
+
+        status = solver.Solve()
+
+        if status not in [pywraplp.Solver.OPTIMAL, pywraplp.Solver.FEASIBLE]:
+            print("OR-Tools could not find an optimal solution.")
+            return None
+
+        martingale_expr = S.Zero
+        for i, sym in enumerate(variables):
+            val = x_vars[i].solution_value()
+            # Clean up floating point noise
+            if abs(val) < 1e-10: # is zero
+                continue
+            martingale_expr += nsimplify(Float(val), rational=True)*Symbol(f"E({coeff_to_var[sym]})")
+
+        martingale_no_exp_rec = simplify(martingale_expr.subs({Symbol(f"E({monom})"): v for monom,v in recurrences.items()}))
+        assert martingale_no_exp_rec == S.Zero, "Numerical error caused wrong result in martingale map synthesis"
+
+        return martingale_expr

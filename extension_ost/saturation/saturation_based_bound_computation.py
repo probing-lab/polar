@@ -50,10 +50,10 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     exp_maps = []
     for monom in monoms:
-        exp_maps += exp_map_builder.get_expectation_maps(monom)
-    exp_maps_filtered = exp_map_builder.get_shortest_basis(exp_maps)
-    
-    extracted_square_maps_monoms = reformulate_maps_with_squares(exp_maps_filtered, monom_expexted_sub)
+        exp_maps.append(exp_map_builder.get_sparse_expectation_maps(monom))
+
+    exp_maps = exp_map_builder.filter_unique_primitives(exp_maps)
+    extracted_square_maps_monoms = reformulate_maps_with_squares(exp_maps, monom_expexted_sub)
     # maps from E(...) to Expexted(...)
     square_monom_maps =  {k: v for d in [m[1] for m in extracted_square_maps_monoms] for k,v in d.items()}
     remove_expectation_map.update({k: v.args[0] for k,v in square_monom_maps.items()})
@@ -61,7 +61,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     extracted_square_maps = [m[0] for m in extracted_square_maps_monoms]
 
     # extracted_square_maps_filtered = []
-    exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps_filtered+extracted_square_maps)]
+    exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps+extracted_square_maps)]
     
 
     initial_value_provider = InitialValueProvider()
@@ -97,7 +97,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     rules += list(generate_var_multiplication_ub_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_var_multiplication_lb_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_rv_multiplication_rules(monoms, nodes, lb_dependencies, ub_dependencies))
-    rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies))
+    # rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_square_jensen(monoms, nodes, lb_dependencies))
 
     for martingale_map in exp_maps_filtered_with_initial:
