@@ -3,6 +3,28 @@ from extension_ost.helpers import Expexted
 from extension_ost.saturation.saturation_rules.rule import BoundRef, Rule, RuleType
 
 
+def generate_square_jensen(monoms,
+                          nodes,
+                          lb_dependencies):
+    """generate rules of the form E(X)<=a ==> E(X^2)<=a^2
+
+    Args:
+        monoms (_type_): _description_
+        nodes (_type_): _description_
+        lb_dependencies (_type_): _description_
+    """
+    for monom in monoms:
+        if monom**2 in monoms:
+            rule = Rule(nodes[Expexted(monom**2)],
+                        RuleType.LB,
+                        [nodes[Expexted(monom)]],
+                        [],
+                        [[(BoundRef.LB,0),(BoundRef.LB,0)]],
+                        S.Zero,
+                        name="square-jensen")
+            lb_dependencies[nodes[Expexted(monom)]].add(rule)
+            yield rule
+
 def generate_square_rules(square_monoms,
                           monoms,
                           nodes,
@@ -48,7 +70,8 @@ def generate_square_rules(square_monoms,
                            res_expr=[[(BoundRef.Const, 1/b**2), (BoundRef.UB, 0)],
                                      [(BoundRef.Const, 2*abs(a)/b**2), (BoundRef.Sqrt,(BoundRef.UB, 0)), (BoundRef.Sqrt,(BoundRef.UB, 1))],
                                      [(BoundRef.Const, a**2/b**2), (BoundRef.UB, 1)]],
-                                     res_intercept=S.Zero) # those rules are cycle sensitive - hence prevent them
+                                     res_intercept=S.Zero,
+                                     name="mk-ub") # those rules are cycle sensitive - hence prevent them
             ub_dependencies[nodes[square_monom]].add(rule_ub)
             ub_dependencies[nodes[Expexted(X**2)]].add(rule_ub)
             yield rule_ub

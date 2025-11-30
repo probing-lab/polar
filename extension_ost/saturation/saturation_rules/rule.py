@@ -106,4 +106,4 @@ class Rule:
         op = "<=" if self.result_type==RuleType.UB else ">="
         concl = str(self.res_intercept)+"+"+str(self.res_expr)
         
-        return premise+"==>"+str(self.result.name)+op+concl
+        return (f"[{self.name}]  " if self.name else "")+ premise+"==>"+str(self.result.name)+op+concl

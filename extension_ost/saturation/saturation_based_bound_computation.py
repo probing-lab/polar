@@ -9,7 +9,7 @@ from extension_ost.saturation.saturation_rules.bound import Bound
 from extension_ost.saturation.saturation_rules.rule_generation import generate_hard_bound_rules, generate_martingale_based_rule, generate_rv_multiplication_rules, generate_var_multiplication_lb_rules, generate_var_multiplication_ub_rules
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
 from extension_ost.saturation.saturation_rules.rule import Rule, RuleType
-from extension_ost.saturation.saturation_rules.square_rules import generate_square_rules
+from extension_ost.saturation.saturation_rules.square_rules import generate_square_jensen, generate_square_rules
 from extension_ost.saturation.saturation_rules.value_node import ValueNode
 from extension_ost.square_extraction import _sqroot_and_sign_if_possible, reformulate_maps_with_squares
 from recurrences.rec_builder import RecBuilder
@@ -98,6 +98,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     rules += list(generate_var_multiplication_lb_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_rv_multiplication_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies))
+    rules += list(generate_square_jensen(monoms, nodes, lb_dependencies))
 
     for martingale_map in exp_maps_filtered_with_initial:
         rules+=list(generate_martingale_based_rule(martingale_map,
