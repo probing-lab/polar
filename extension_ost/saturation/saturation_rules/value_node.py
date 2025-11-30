@@ -103,6 +103,8 @@ class ValueNode:
         for old_ub in self.ubs:
             if self._monoms_similar(old_ub.value, upper_bound):
                 return False
+            if not self._new_upper_bound_better(old_ub.value, upper_bound):
+                return False
 
         return True
     
@@ -128,6 +130,70 @@ class ValueNode:
             return False
         return True
 
+    def _new_upper_bound_better(self, old_ub: Expr, new_ub: Expr):
+        vars = old_ub.free_symbols.union(new_ub.free_symbols)
+        if len(new_ub.free_symbols)==0:
+            return True
+
+        sqrts1 = list(self._get_sqrts(old_ub))
+        sqrts2 = list(self._get_sqrts(new_ub))
+        if len(sqrts2) < len(sqrts1):
+            return True # we favor expressions without sqrts
+        root_objects = set(sqrts1+sqrts2)
+        root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
+
+        old_ub_no_roots = old_ub.subs(root_subs)
+        new_ub_no_roots = old_ub.subs(root_subs)
+
+        new_ub_better = True
+        for var in vars:
+            old_ub_poly = Poly(old_ub_no_roots, var)
+            new_ub_poly = Poly(new_ub_no_roots, var)
+            lc_number,_ = old_ub_poly.LC().as_coeff_Mul()
+
+            if lc_number.is_nonnegative:
+                if new_ub_poly.degree() < old_ub_poly.degree():
+                    return True
+                elif new_ub_poly.LC().as_coeff_mul()[0].is_nonpositive:
+                    return True
+
+            if lc_number.is_nonpositive:
+                if new_ub_poly.degree() > old_ub_poly.degree():
+                    return True
+        return False
+    
+    def _new_lower_bound_better(self, old_lb: Expr, new_lb: Expr):
+        vars = old_lb.free_symbols.union(new_lb.free_symbols)
+        if len(new_lb.free_symbols)==0:
+            return True
+
+        sqrts1 = list(self._get_sqrts(old_lb))
+        sqrts2 = list(self._get_sqrts(new_lb))
+        if len(sqrts2) < len(sqrts1):
+            return True # we favor expressions without sqrts
+        root_objects = set(sqrts1+sqrts2)
+        root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
+
+        old_lb_no_roots = old_lb.subs(root_subs)
+        new_lb_no_roots = old_lb.subs(root_subs)
+
+        for var in vars:
+            old_lb_poly = Poly(old_lb_no_roots, var)
+            new_lb_poly = Poly(new_lb_no_roots, var)
+            lc_number,_ = old_lb_poly.LC().as_coeff_Mul()
+
+            if lc_number.is_nonnegative:
+                if new_lb_poly.degree() > old_lb_poly.degree():
+                    return True
+
+            if lc_number.is_nonpositive:
+                if new_lb_poly.degree() < old_lb_poly.degree():
+                    return True
+                if new_lb_poly.LC().as_coeff_mul()[0].is_nonnegative:
+                    return True
+        return False
+
+
     def _is_new_lower_bound(self, lower_bound):
         if lower_bound == nan or not self._is_finite(lower_bound):
             return False
@@ -139,6 +205,8 @@ class ValueNode:
         # the following line does a more agressive subsumption check (good for termination, bad for completeness)
         for old_lb in self.lbs:
             if self._monoms_similar(old_lb.value, lower_bound):
+                return False
+            if not self._new_lower_bound_better(old_lb.value, lower_bound):
                 return False
 
         return True
