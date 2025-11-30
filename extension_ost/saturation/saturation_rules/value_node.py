@@ -145,7 +145,7 @@ class ValueNode:
         root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
 
         old_ub_no_roots = old_ub.subs(root_subs)
-        new_ub_no_roots = old_ub.subs(root_subs)
+        new_ub_no_roots = new_ub.subs(root_subs)
 
         for var in vars:
             old_ub_poly = Poly(old_ub_no_roots, var)
@@ -176,7 +176,7 @@ class ValueNode:
         root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
 
         old_lb_no_roots = old_lb.subs(root_subs)
-        new_lb_no_roots = old_lb.subs(root_subs)
+        new_lb_no_roots = new_lb.subs(root_subs)
 
         for var in vars:
             old_lb_poly = Poly(old_lb_no_roots, var)
