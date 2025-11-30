@@ -32,7 +32,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
                    recurrence_builder: RecBuilder,
                    initial_constants: List[Tuple[Symbol, Expr, Expr]],
                    initial_lower_bounds: Dict[Expr, Expr],
-                   initial_upper_bounds: Dict[Expr, Expr]):
+                   initial_upper_bounds: Dict[Expr, Expr],
+                   use_minkowski=False):
 
     monoms_all = list(set(_get_monoms(random_vars.union(deterministic_vars), max_degree, degree_costs)))
     recurrences_all = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms_all}
@@ -50,7 +51,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     exp_maps = []
     for monom in monoms:
-        exp_maps+=(exp_map_builder.get_sparse_expectation_maps(monom))
+        exp_maps+=(exp_map_builder.get_sparse_expectation_maps(monom,max_solutions=2))
 
     exp_maps = exp_map_builder.filter_unique_primitives(exp_maps)
     extracted_square_maps_monoms = reformulate_maps_with_squares(exp_maps, monom_expexted_sub)
@@ -72,8 +73,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     bound_exprs = monoms+[Expexted(monom) for monom in monoms]
 
-    nodes = {bound_expr: ValueNode(initial_value_provider, bound_expr) for bound_expr in bound_exprs}|\
-        {bound_expr: ValueNode(initial_value_provider, bound_expr, can_have_sqrt_in_bound=False) for bound_expr in square_monom_maps.values()}
+    nodes = {bound_expr: ValueNode(initial_value_provider, bound_expr, use_minkowski=use_minkowski) for bound_expr in bound_exprs}|\
+        {bound_expr: ValueNode(initial_value_provider, bound_expr, can_have_sqrt_in_bound=False, use_minkowski=use_minkowski) for bound_expr in square_monom_maps.values()}
 
     for node in nodes.values():
         expr = node.name.args[0] if isinstance(node.name, Expexted) else node.name
@@ -97,7 +98,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     rules += list(generate_var_multiplication_ub_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_var_multiplication_lb_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_rv_multiplication_rules(monoms, nodes, lb_dependencies, ub_dependencies))
-    # rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies))
+    if use_minkowski:
+        rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_square_jensen(monoms, nodes, lb_dependencies))
 
     for martingale_map in exp_maps_filtered_with_initial:
