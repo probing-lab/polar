@@ -41,10 +41,12 @@ class InitialValueProvider:
         term = S.Zero
         for coeff, monom in coeff_monom_list:
             if coeff.is_positive:
-                monom_bound = root_lbs[monom] if monom in root_lbs else self._get_lb_for_initial_monomial(monom)
+                monom_bound = root_lbs[monom] if monom in root_lbs else (-oo if len(monom.free_symbols.intersection(root_subs.keys()))>0 else\
+                                self._get_lb_for_initial_monomial(monom))
                 term += monom_bound*coeff
             elif coeff.is_negative:
-                monom_bound = oo if monom in root_lbs else self._get_ub_for_initial_monomial(monom)
+                monom_bound = oo if monom in root_lbs else (oo if len(monom.free_symbols.intersection(root_subs.keys()))>0 else\
+                                self._get_ub_for_initial_monomial(monom))
                 term += monom_bound*coeff
             else:
                 raise ValueError("Coefficient sign must be known")
