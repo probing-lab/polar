@@ -81,6 +81,7 @@ class InitialValueProvider:
                 if diff_expr.is_negative:
                     return self.initials[base][0]**exponent
                 # inconclusive :(
+                return S.Zero
 
         raise NotImplementedError(f"monomial {monom} could not be bounded")
     

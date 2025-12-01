@@ -86,4 +86,5 @@ compute_bounds_saturation(random_vars,
                 (Symbol("y0", is_finite=True),sympify(0), oo),
                 (Symbol("z0", is_finite=True),sympify(0), oo)],
                {Symbol("x", real=True): sympify(-1), Symbol("k", real=True):sympify(1)},
-               {Symbol("x", real=True): sympify(0)})
+               {Symbol("x", real=True): sympify(0)},
+               num_sparsest_solutions=20)
