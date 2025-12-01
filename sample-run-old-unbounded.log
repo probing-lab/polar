@@ -1,0 +1,187 @@
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Set parameter Username
+Academic license - for non-commercial use only - expires 2026-11-18
+Loop guard: x > 0
+OR-Tools could not find an optimal solution.
+OR-Tools could not find an optimal solution.
+OR-Tools could not find an optimal solution.
+OR-Tools could not find an optimal solution.
+[moment-lb]  k>= b0==>Expexted(k)>=0+[[(LB, 0)]]
+[moment-ub]  k<= a0==>Expexted(k)<=0+[[(UB, 0)]]
+[moment-lb]  k**2>= b0==>Expexted(k**2)>=0+[[(LB, 0)]]
+[moment-ub]  k**2<= a0==>Expexted(k**2)<=0+[[(UB, 0)]]
+[moment-lb]  k*x>= b0==>Expexted(k*x)>=0+[[(LB, 0)]]
+[moment-ub]  k*x<= a0==>Expexted(k*x)<=0+[[(UB, 0)]]
+[moment-lb]  x>= b0==>Expexted(x)>=0+[[(LB, 0)]]
+[moment-ub]  x<= a0==>Expexted(x)<=0+[[(UB, 0)]]
+[moment-lb]  x**2>= b0==>Expexted(x**2)>=0+[[(LB, 0)]]
+[moment-ub]  x**2<= a0==>Expexted(x**2)<=0+[[(UB, 0)]]
+[mul-ub-1]  k<= a0/\k<= a1/\k>= b0==>k**2<=0+[[(UB, 0), (UB, 1)]]
+[mul-ub-2]  k<= a0/\k>= b0==>k**2<=0+[[(LB, 0), (UB, 0)]]
+[mul-ub-3]  k<= a0/\k>= b0/\k>= b1==>k**2<=0+[[(LB, 0), (LB, 1)]]
+[mul-ub-4]  k<= a0/\k<= a1/\k>= b0/\k>= b1==>k**2<=0+[[(LB, 0), (LB, 1)]]
+[mul-ub-5]  k<= a0/\k<= a1/\k>= b0/\k>= b1==>k**2<=0+[[(UB, 0), (UB, 1)]]
+[mul-ub-1]  k<= a0/\x<= a1/\k>= b0==>k*x<=0+[[(UB, 0), (UB, 1)]]
+[mul-ub-2]  x<= a0/\k>= b0==>k*x<=0+[[(LB, 0), (UB, 0)]]
+[mul-ub-3]  x<= a0/\k>= b0/\x>= b1==>k*x<=0+[[(LB, 0), (LB, 1)]]
+[mul-ub-4]  k<= a0/\x<= a1/\k>= b0/\x>= b1==>k*x<=0+[[(LB, 0), (LB, 1)]]
+[mul-ub-5]  k<= a0/\x<= a1/\k>= b0/\x>= b1==>k*x<=0+[[(UB, 0), (UB, 1)]]
+[mul-ub-1]  x<= a0/\k<= a1/\x>= b0==>k*x<=0+[[(UB, 0), (UB, 1)]]
+[mul-ub-2]  k<= a0/\x>= b0==>k*x<=0+[[(LB, 0), (UB, 0)]]
+[mul-ub-3]  k<= a0/\x>= b0/\k>= b1==>k*x<=0+[[(LB, 0), (LB, 1)]]
+[mul-ub-4]  x<= a0/\k<= a1/\x>= b0/\k>= b1==>k*x<=0+[[(LB, 0), (LB, 1)]]
+[mul-ub-5]  x<= a0/\k<= a1/\x>= b0/\k>= b1==>k*x<=0+[[(UB, 0), (UB, 1)]]
+[mul-ub-1]  x<= a0/\x<= a1/\x>= b0==>x**2<=0+[[(UB, 0), (UB, 1)]]
+[mul-ub-2]  x<= a0/\x>= b0==>x**2<=0+[[(LB, 0), (UB, 0)]]
+[mul-ub-3]  x<= a0/\x>= b0/\x>= b1==>x**2<=0+[[(LB, 0), (LB, 1)]]
+[mul-ub-4]  x<= a0/\x<= a1/\x>= b0/\x>= b1==>x**2<=0+[[(LB, 0), (LB, 1)]]
+[mul-ub-5]  x<= a0/\x<= a1/\x>= b0/\x>= b1==>x**2<=0+[[(UB, 0), (UB, 1)]]
+[mul-lb-1]  k<= a0/\k<= a1==>k**2>=0+[[(UB, 0), (UB, 1)]]
+[mul-lb-2]  k<= a0/\k<= a1/\k>= b0==>k**2>=0+[[(LB, 0), (UB, 0)]]
+[mul-lb-3]  k<= a0/\k>= b0/\k>= b1==>k**2>=0+[[(LB, 1), (UB, 0)]]
+[mul-lb-4]  k>= b0/\k>= b1==>k**2>=0+[[(LB, 0), (LB, 1)]]
+[mul-lb-5]  k<= a0/\k<= a1/\k>= b0/\k>= b1==>k**2>=0+[[(LB, 0), (UB, 1)]]
+[mul-lb-6]  k<= a0/\k<= a1/\k>= b0/\k>= b1==>k**2>=0+[[(LB, 1), (UB, 0)]]
+[mul-lb-1]  k<= a0/\x<= a1==>k*x>=0+[[(UB, 0), (UB, 1)]]
+[mul-lb-2]  k<= a0/\x<= a1/\x>= b0==>k*x>=0+[[(LB, 0), (UB, 0)]]
+[mul-lb-3]  k<= a0/\k>= b0/\x>= b1==>k*x>=0+[[(LB, 1), (UB, 0)]]
+[mul-lb-4]  k>= b0/\x>= b1==>k*x>=0+[[(LB, 0), (LB, 1)]]
+[mul-lb-5]  k<= a0/\x<= a1/\k>= b0/\x>= b1==>k*x>=0+[[(LB, 0), (UB, 1)]]
+[mul-lb-6]  k<= a0/\x<= a1/\k>= b0/\x>= b1==>k*x>=0+[[(LB, 1), (UB, 0)]]
+[mul-lb-1]  x<= a0/\k<= a1==>k*x>=0+[[(UB, 0), (UB, 1)]]
+[mul-lb-2]  x<= a0/\k<= a1/\k>= b0==>k*x>=0+[[(LB, 0), (UB, 0)]]
+[mul-lb-3]  x<= a0/\x>= b0/\k>= b1==>k*x>=0+[[(LB, 1), (UB, 0)]]
+[mul-lb-4]  x>= b0/\k>= b1==>k*x>=0+[[(LB, 0), (LB, 1)]]
+[mul-lb-5]  x<= a0/\k<= a1/\x>= b0/\k>= b1==>k*x>=0+[[(LB, 0), (UB, 1)]]
+[mul-lb-6]  x<= a0/\k<= a1/\x>= b0/\k>= b1==>k*x>=0+[[(LB, 1), (UB, 0)]]
+[mul-lb-1]  x<= a0/\x<= a1==>x**2>=0+[[(UB, 0), (UB, 1)]]
+[mul-lb-2]  x<= a0/\x<= a1/\x>= b0==>x**2>=0+[[(LB, 0), (UB, 0)]]
+[mul-lb-3]  x<= a0/\x>= b0/\x>= b1==>x**2>=0+[[(LB, 1), (UB, 0)]]
+[mul-lb-4]  x>= b0/\x>= b1==>x**2>=0+[[(LB, 0), (LB, 1)]]
+[mul-lb-5]  x<= a0/\x<= a1/\x>= b0/\x>= b1==>x**2>=0+[[(LB, 0), (UB, 1)]]
+[mul-lb-6]  x<= a0/\x<= a1/\x>= b0/\x>= b1==>x**2>=0+[[(LB, 1), (UB, 0)]]
+[rv-mul-1]  Expexted(k)<= a0/\k>= b0/\k>= b1==>Expexted(k**2)>=0+[[(LB, 0), (UB, 0)]]
+[rv-mul-2]  k<= a0/\Expexted(k)<= a1/\k>= b0==>Expexted(k**2)<=0+[[(UB, 0), (UB, 1)]]
+[rv-mul-3]  k>= b0/\k>= b1/\Expexted(k)>= b2==>Expexted(k**2)>=0+[[(LB, 0), (LB, 2)]]
+[rv-mul-1]  Expexted(x)<= a0/\k>= b0/\x>= b1==>Expexted(k*x)>=0+[[(LB, 0), (UB, 0)]]
+[rv-mul-2]  k<= a0/\Expexted(x)<= a1/\x>= b0==>Expexted(k*x)<=0+[[(UB, 0), (UB, 1)]]
+[rv-mul-3]  k>= b0/\x>= b1/\Expexted(x)>= b2==>Expexted(k*x)>=0+[[(LB, 0), (LB, 2)]]
+[rv-mul-1]  Expexted(k)<= a0/\x>= b0/\k>= b1==>Expexted(k*x)>=0+[[(LB, 0), (UB, 0)]]
+[rv-mul-2]  x<= a0/\Expexted(k)<= a1/\k>= b0==>Expexted(k*x)<=0+[[(UB, 0), (UB, 1)]]
+[rv-mul-3]  x>= b0/\k>= b1/\Expexted(k)>= b2==>Expexted(k*x)>=0+[[(LB, 0), (LB, 2)]]
+[rv-mul-1]  Expexted(x)<= a0/\x>= b0/\x>= b1==>Expexted(x**2)>=0+[[(LB, 0), (UB, 0)]]
+[rv-mul-2]  x<= a0/\Expexted(x)<= a1/\x>= b0==>Expexted(x**2)<=0+[[(UB, 0), (UB, 1)]]
+[rv-mul-3]  x>= b0/\x>= b1/\Expexted(x)>= b2==>Expexted(x**2)>=0+[[(LB, 0), (LB, 2)]]
+[mk-ub]  Expexted((k + 5*x/2)**2)<= a0/\Expexted(k**2)<= a1==>Expexted(x**2)<=0+[[(Const, 4/25), (UB, 0)], [(Const, 8/25), (Sqrt, (UB, 0)), (Sqrt, (UB, 1))], [(Const, 4/25), (UB, 1)]]
+[mk-ub]  Expexted((k + 5*x/2)**2)<= a0/\Expexted(x**2)<= a1==>Expexted(k**2)<=0+[[(Const, 1), (UB, 0)], [(Const, 5), (Sqrt, (UB, 0)), (Sqrt, (UB, 1))], [(Const, 25/4), (UB, 1)]]
+[square-jensen]  Expexted(k)>= b0==>Expexted(k**2)>=0+[[(LB, 0), (LB, 0)]]
+[square-jensen]  Expexted(x)>= b0==>Expexted(x**2)>=0+[[(LB, 0), (LB, 0)]]
+[ub-martingale (4000*E(k) + 10000*E(x) - 10000*x0)]  Expexted(k)>= b0==>Expexted(x)<=x0+[[(LB, 0), (Const, -2/5)]]
+[lb-martingale (4000*E(k) + 10000*E(x) - 10000*x0)]  Expexted(k)<= a0==>Expexted(x)>=x0+[[(UB, 0), (Const, -2/5)]]
+[ub-martingale (4000*E(k) + 10000*E(x) - 10000*x0)]  Expexted(x)>= b0==>Expexted(k)<=5*x0/2+[[(LB, 0), (Const, -5/2)]]
+[lb-martingale (4000*E(k) + 10000*E(x) - 10000*x0)]  Expexted(x)<= a0==>Expexted(k)>=5*x0/2+[[(UB, 0), (Const, -5/2)]]
+[ub-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(x)>= b0/\Expexted(x**2)>= b1/\Expexted(k**2)>= b2==>Expexted(k*x)<=5*x0**2/4 + 23*x0/4+[[(LB, 0), (Const, -23/4)], [(LB, 1), (Const, -5/4)], [(LB, 2), (Const, -1/5)]]
+[lb-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(x)<= a0/\Expexted(x**2)<= a1/\Expexted(k**2)<= a2==>Expexted(k*x)>=5*x0**2/4 + 23*x0/4+[[(UB, 0), (Const, -23/4)], [(UB, 1), (Const, -5/4)], [(UB, 2), (Const, -1/5)]]
+[ub-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(x**2)>= b0/\Expexted(k*x)>= b1/\Expexted(k**2)>= b2==>Expexted(x)<=5*x0**2/23 + x0+[[(LB, 0), (Const, -5/23)], [(LB, 1), (Const, -4/23)], [(LB, 2), (Const, -4/115)]]
+[lb-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(x**2)<= a0/\Expexted(k*x)<= a1/\Expexted(k**2)<= a2==>Expexted(x)>=5*x0**2/23 + x0+[[(UB, 0), (Const, -5/23)], [(UB, 1), (Const, -4/23)], [(UB, 2), (Const, -4/115)]]
+[ub-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(k*x)>= b0/\Expexted(x)>= b1/\Expexted(x**2)>= b2==>Expexted(k**2)<=25*x0**2/4 + 115*x0/4+[[(LB, 0), (Const, -5)], [(LB, 1), (Const, -115/4)], [(LB, 2), (Const, -25/4)]]
+[lb-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(k*x)<= a0/\Expexted(x)<= a1/\Expexted(x**2)<= a2==>Expexted(k**2)>=25*x0**2/4 + 115*x0/4+[[(UB, 0), (Const, -5)], [(UB, 1), (Const, -115/4)], [(UB, 2), (Const, -25/4)]]
+[ub-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(x)>= b0/\Expexted(k*x)>= b1/\Expexted(k**2)>= b2==>Expexted(x**2)<=x0**2 + 23*x0/5+[[(LB, 0), (Const, -23/5)], [(LB, 1), (Const, -4/5)], [(LB, 2), (Const, -4/25)]]
+[lb-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(x)<= a0/\Expexted(k*x)<= a1/\Expexted(k**2)<= a2==>Expexted(x**2)>=x0**2 + 23*x0/5+[[(UB, 0), (Const, -23/5)], [(UB, 1), (Const, -4/5)], [(UB, 2), (Const, -4/25)]]
+[ub-martingale (E((k + 5*x/2)**2) + 115*E(x)/4 - 5*x0*(5*x0 + 23)/4)]  Expexted(x)>= b0==>Expexted((k + 5*x/2)**2)<=25*x0**2/4 + 115*x0/4+[[(LB, 0), (Const, -115/4)]]
+[lb-martingale (E((k + 5*x/2)**2) + 115*E(x)/4 - 5*x0*(5*x0 + 23)/4)]  Expexted(x)<= a0==>Expexted((k + 5*x/2)**2)>=25*x0**2/4 + 115*x0/4+[[(UB, 0), (Const, -115/4)]]
+[ub-martingale (E((k + 5*x/2)**2) + 115*E(x)/4 - 5*x0*(5*x0 + 23)/4)]  Expexted((k + 5*x/2)**2)>= b0==>Expexted(x)<=5*x0**2/23 + x0+[[(LB, 0), (Const, -4/115)]]
+[lb-martingale (E((k + 5*x/2)**2) + 115*E(x)/4 - 5*x0*(5*x0 + 23)/4)]  Expexted((k + 5*x/2)**2)<= a0==>Expexted(x)>=5*x0**2/23 + x0+[[(UB, 0), (Const, -4/115)]]
+New derivation: Expexted(x) <= 0
+		using: [moment-ub]  x<= a0==>Expexted(x)<=0+[[(UB, 0)]]
+- Unprocessed 79 -> 80
+New derivation: Expexted((k + 5*x/2)**2) >= 5*x0*(5*x0 + 23)/4
+		using: [lb-martingale (E((k + 5*x/2)**2) + 115*E(x)/4 - 5*x0*(5*x0 + 23)/4)]  Expexted(x)<= a0==>Expexted((k + 5*x/2)**2)>=25*x0**2/4 + 115*x0/4+[[(UB, 0), (Const, -115/4)]]
+- Unprocessed 77 -> 77
+New derivation: Expexted(k) >= 5*x0/2
+		using: [lb-martingale (4000*E(k) + 10000*E(x) - 10000*x0)]  Expexted(x)<= a0==>Expexted(k)>=5*x0/2+[[(UB, 0), (Const, -5/2)]]
+- Unprocessed 45 -> 47
+New derivation: Expexted(k) >= 1
+		using: [moment-lb]  k>= b0==>Expexted(k)>=0+[[(LB, 0)]]
+- Unprocessed 38 -> 38
+New derivation: Expexted(k) <= 5*x0/2 + 13/4
+		using: [ub-martingale (4000*E(k) + 10000*E(x) - 10000*x0)]  Expexted(x)>= b0==>Expexted(k)<=5*x0/2+[[(LB, 0), (Const, -5/2)]]
+- Unprocessed 35 -> 38
+New derivation: Expexted(k*x) <= 0
+		using: [rv-mul-2]  x<= a0/\Expexted(k)<= a1/\k>= b0==>Expexted(k*x)<=0+[[(UB, 0), (UB, 1)]]
+- Unprocessed 36 -> 37
+New derivation: Expexted(k**2) >= 25*x0**2/4 + 115*x0/4 - 115/8
+		using: [lb-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(k*x)<= a0/\Expexted(x)<= a1/\Expexted(x**2)<= a2==>Expexted(k**2)>=25*x0**2/4 + 115*x0/4+[[(UB, 0), (Const, -5)], [(UB, 1), (Const, -115/4)], [(UB, 2), (Const, -25/4)]]
+- Unprocessed 36 -> 37
+New derivation: k**2 >= 1
+		using: [mul-lb-4]  k>= b0/\k>= b1==>k**2>=0+[[(LB, 0), (LB, 1)]]
+- Unprocessed 36 -> 37
+New derivation: Expexted(k**2) >= 1
+		using: [moment-lb]  k**2>= b0==>Expexted(k**2)>=0+[[(LB, 0)]]
+- Unprocessed 36 -> 36
+New derivation: Expexted(x) <= x0 - 2/5
+		using: [ub-martingale (4000*E(k) + 10000*E(x) - 10000*x0)]  Expexted(k)>= b0==>Expexted(x)<=x0+[[(LB, 0), (Const, -2/5)]]
+- Unprocessed 33 -> 38
+New derivation: Expexted((k + 5*x/2)**2) <= 25*x0**2/4 + 115*x0/4 + 299/8
+		using: [ub-martingale (E((k + 5*x/2)**2) + 115*E(x)/4 - 5*x0*(5*x0 + 23)/4)]  Expexted(x)>= b0==>Expexted((k + 5*x/2)**2)<=25*x0**2/4 + 115*x0/4+[[(LB, 0), (Const, -115/4)]]
+- Unprocessed 29 -> 30
+New derivation: Expexted(k**2) <= 25*x0**2/4 + 115*x0/4 + sqrt(5750*x0**2 + 26450*x0 + 34385)/4 + 207/4
+		using: [mk-ub]  Expexted((k + 5*x/2)**2)<= a0/\Expexted(x**2)<= a1==>Expexted(k**2)<=0+[[(Const, 1), (UB, 0)], [(Const, 5), (Sqrt, (UB, 0)), (Sqrt, (UB, 1))], [(Const, 25/4), (UB, 1)]]
+- Unprocessed 25 -> 28
+New derivation: k*x <= 0
+		using: [mul-ub-2]  x<= a0/\k>= b0==>k*x<=0+[[(LB, 0), (UB, 0)]]
+- Unprocessed 23 -> 24
+New derivation: Expexted(k*x) >= -23*x0/4 - sqrt(5750*x0**2 + 26450*x0 + 34385)/20 - 437/40
+		using: [lb-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(x)<= a0/\Expexted(x**2)<= a1/\Expexted(k**2)<= a2==>Expexted(k*x)>=5*x0**2/4 + 23*x0/4+[[(UB, 0), (Const, -23/4)], [(UB, 1), (Const, -5/4)], [(UB, 2), (Const, -1/5)]]
+New derivation: Expexted(k*x) >= -sqrt(5750*x0**2 + 26450*x0 + 34385)/20 - 529/40
+		using: [lb-martingale (4*E(k**2) + 20*E(k*x) + 115*E(x) + 25*E(x**2) - 5*x0*(5*x0 + 23))]  Expexted(x)<= a0/\Expexted(x**2)<= a1/\Expexted(k**2)<= a2==>Expexted(k*x)>=5*x0**2/4 + 23*x0/4+[[(UB, 0), (Const, -23/4)], [(UB, 1), (Const, -5/4)], [(UB, 2), (Const, -1/5)]]
+- Unprocessed 17 -> 19
+k                              >= 1
+
+k**2                           >= 1
+
+k*x                            <= 0
+
+x                              <= 0
+
+x**2                           >= 0
+
+Expexted(k)                    <= 5*x0/2 + 13/4
+Expexted(k)                    >= 1
+                               >= 5*x0/2
+
+Expexted(k**2)                 <= 25*x0**2/4 + 115*x0/4 + sqrt(5750*x0**2 + 26450*x0 + 34385)/4 + 207/4
+Expexted(k**2)                 >= 25*x0**2/4 + 115*x0/4 - 115/8
+                               >= 1
+
+Expexted(k*x)                  <= 0
+Expexted(k*x)                  >= -23*x0/4 - sqrt(5750*x0**2 + 26450*x0 + 34385)/20 - 437/40
+                               >= -sqrt(5750*x0**2 + 26450*x0 + 34385)/20 - 529/40
+
+Expexted(x)                    <= x0 - 2/5
+                               <= 0
+Expexted(x)                    >= -13/10
+
+Expexted(x**2)                 <= 23/10
+Expexted(x**2)                 >= 0
+
+Expexted((k + 5*x/2)**2)       <= 25*x0**2/4 + 115*x0/4 + 299/8
+Expexted((k + 5*x/2)**2)       >= 5*x0*(5*x0 + 23)/4
+
