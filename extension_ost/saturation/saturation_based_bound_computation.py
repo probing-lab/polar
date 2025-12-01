@@ -33,7 +33,9 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
                    initial_constants: List[Tuple[Symbol, Expr, Expr]],
                    initial_lower_bounds: Dict[Expr, Expr],
                    initial_upper_bounds: Dict[Expr, Expr],
-                   use_minkowski=False):
+                   use_minkowski=False,
+                   num_sparsest_solutions=2,
+                   keep_non_optimal_martingales=False):
 
     monoms_all = list(set(_get_monoms(random_vars.union(deterministic_vars), max_degree, degree_costs)))
     recurrences_all = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms_all}
@@ -51,7 +53,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     exp_maps = []
     for monom in monoms:
-        exp_maps+=(exp_map_builder.get_sparse_expectation_maps(monom,max_solutions=2))
+        exp_maps+=(exp_map_builder.get_sparse_expectation_maps(monom,max_solutions=num_sparsest_solutions, accept_non_minimal=keep_non_optimal_martingales))
 
     exp_maps = exp_map_builder.filter_unique_primitives(exp_maps)
     extracted_square_maps_monoms = reformulate_maps_with_squares(exp_maps, monom_expexted_sub)

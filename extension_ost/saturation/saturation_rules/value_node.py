@@ -192,7 +192,6 @@ class ValueNode:
                     return True
                 if new_lb_poly.LC().as_coeff_mul()[0].is_nonnegative:
                     return True
-        print("Discarding: ", new_lb, "because of", old_lb)
         return False
 
 

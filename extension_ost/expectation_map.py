@@ -39,7 +39,7 @@ class ExpectationMapBuilder():
                     return coeff
         return 0
 
-    def _build_equation_system(self, recurrences:Dict, goal_var, deterministic_vars):
+    def _build_equation_system(self, recurrences:Dict, goal_var):
         vars = set(recurrences.keys())
         var_to_coeff = {var:Symbol(f'c{i}') for i,var in enumerate(vars)}
 
@@ -47,11 +47,12 @@ class ExpectationMapBuilder():
 
         equations = []
         for var in vars_to_eliminate:
-            expr = 0 if var not in var_to_coeff or len(set(var.free_symbols) - deterministic_vars)==0 else -var_to_coeff[var] 
+            expr = -var_to_coeff[var] if var!= C else S.Zero 
             for monom, expression_E1 in recurrences.items():
                 var_coeff =self._get_coeff(expression_E1,var)
                 expr += var_coeff*var_to_coeff[monom]
-            equations.append(expr)
+            if not expr==S.Zero:
+                equations.append(expr)
         return equations, var_to_coeff
 
     def _get_axis_cut_solutions_v3(self, solutions):
@@ -98,11 +99,11 @@ class ExpectationMapBuilder():
         return list(unique_map.values())
 
 
-    def get_sparse_expectation_maps(self, goal_var, max_solutions=2):
-        recurrences = {monom: Piecewise((self._add_constant_factor(rec - (monom if len(set(monom.free_symbols) - self.deterministic_vars)==0 else 0)), True)) for monom,rec in self.recurrence_dict.items()}
+    def get_sparse_expectation_maps(self, goal_var, max_solutions=2, accept_non_minimal=False):
+        recurrences = {monom: Piecewise((self._add_constant_factor(rec), True)) for monom,rec in self.recurrence_dict.items()}
         
 
-        equations0, var_to_coeff = self._build_equation_system(recurrences, goal_var, self.deterministic_vars)
+        equations0, var_to_coeff = self._build_equation_system(recurrences, goal_var)
         equations = [primitive(eq)[1] for eq in equations0]
         coeff_to_var = {v:k for k,v in var_to_coeff.items()}
 
@@ -164,7 +165,7 @@ class ExpectationMapBuilder():
 
             if status not in [pywraplp.Solver.OPTIMAL, pywraplp.Solver.FEASIBLE]:
                 print("OR-Tools could not find an optimal solution.")
-                raise Exception()
+                break # no more optimal solutions
 
             martingale_expr = S.Zero
             for i, sym in enumerate(variables):
@@ -175,7 +176,7 @@ class ExpectationMapBuilder():
                 nonzeros.append(is_nonzero[i])
                 martingale_expr += nsimplify(Float(val), rational=True)*Symbol(f"E({coeff_to_var[sym]})")
 
-            if len(nonzeros)>best:
+            if len(nonzeros)>best and not accept_non_minimal:
                 return solutions
             else:
                 best = len(nonzeros)
@@ -183,7 +184,7 @@ class ExpectationMapBuilder():
                 exclude_constraint = solver.RowConstraint(-infinity, len(nonzeros)-1)
                 for v in nonzeros:
                     exclude_constraint.SetCoefficient(v, 1) 
-            martingale_no_exp_rec = simplify(martingale_expr.subs({Symbol(f"E({monom})"): v for monom,v in recurrences.items()}))
+            martingale_no_exp_rec = simplify(martingale_expr.subs({Symbol(f"E({monom})"): (v-monom) for monom,v in recurrences.items()}))
             assert martingale_no_exp_rec == S.Zero, "Numerical error caused wrong result in martingale map synthesis"
             solutions.append(martingale_expr)
 
