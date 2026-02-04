@@ -19,9 +19,10 @@ from ortools.linear_solver import pywraplp
 C = symbols('_ConstVal_')
 
 class ExpectationMapBuilder():
-    def __init__(self, recurrence_dict, deterministic_vars):
+    def __init__(self, recurrence_dict, deterministic_vars, solver_name):
         self.recurrence_dict = recurrence_dict
         self.deterministic_vars = deterministic_vars
+        self.solver_name = solver_name
 
     def _add_constant_factor(self, expr):
         """replace the constant part of a polynomial with the constant part multiplied by C, to later force elimination"""
@@ -94,7 +95,7 @@ class ExpectationMapBuilder():
             content, primitive = expr.as_content_primitive()
             
             if primitive not in unique_map:
-                unique_map[primitive] = expr
+                unique_map[primitive] = primitive
                 
         return list(unique_map.values())
 
@@ -112,7 +113,7 @@ class ExpectationMapBuilder():
         A_num = np.array(A_sym).astype(float)
         b_num = np.array(b_sym).astype(float).flatten()
         
-        solver = pywraplp.Solver.CreateSolver('GUROBI')
+        solver = pywraplp.Solver.CreateSolver(self.solver_name)
         assert solver, "solver initialization failed"
         infinity = solver.infinity()
 

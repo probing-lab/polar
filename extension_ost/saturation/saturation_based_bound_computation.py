@@ -35,7 +35,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
                    initial_upper_bounds: Dict[Expr, Expr],
                    use_minkowski=False,
                    num_sparsest_solutions=2,
-                   keep_non_optimal_martingales=False):
+                   keep_non_optimal_martingales=False,
+                   solver_name="CLP"):
 
     monoms_all = list(set(_get_monoms(random_vars.union(deterministic_vars), max_degree, degree_costs)))
     recurrences_all = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms_all}
@@ -49,7 +50,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     monoms.sort(key=lambda x: str(x))
     monom_expexted_sub = {f"E({monom})": Expexted(monom) for monom in monoms}
 
-    exp_map_builder = ExpectationMapBuilder(recurrences, deterministic_vars)
+    exp_map_builder = ExpectationMapBuilder(recurrences, deterministic_vars, solver_name)
 
     exp_maps = []
     for monom in monoms:
@@ -114,7 +115,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     for rule in rules:
         print(rule)
     
-    res: List[ValueNode] = saturate(nodes, rules, lb_dependencies, ub_dependencies)
+    res: Dict[Symbol, ValueNode] = saturate(nodes, rules, lb_dependencies, ub_dependencies)
 
     for monom in res.values():
         ubs = list(monom.ubs)
@@ -132,4 +133,4 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
         if len(ubs) > 0 or len(lbs)>0:
             print()
 
-    pass
+    return res
