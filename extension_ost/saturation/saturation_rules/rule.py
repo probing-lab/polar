@@ -42,7 +42,8 @@ class Rule:
                  res_expr: List[List[Tuple[Literal[0,1],int]]],
                  res_intercept: Expr,
                  inequalities: List[List[List[Tuple[Literal[0,1],int]]]]=[],
-                 name:str=None): # positivity_constraints
+                 name:str=None,
+                 hash_salt=None): # positivity_constraints
         self.result = result
         self.result_type = result_type
         self.lbs = lbs
@@ -51,6 +52,7 @@ class Rule:
         self.inequalities = inequalities
         self.res_expr = res_expr
         self.name = name
+        self.hash_salt = hash_salt
 
     def _get_value(self, lbs, ubs, access: Tuple[Literal[0,1], int|Expr]):
         (c, a) = access
@@ -85,7 +87,7 @@ class Rule:
                 if any((not (self.result.initial_value_provider.is_nonnegative(self._get_expr(lbs, ubs, access)))) for access in self.inequalities):
                     continue
 
-                new_candidate = Bound(simplify((self.res_intercept+self._get_expr(lbs, ubs, self.res_expr)).expand()), ancestor_rules.union([self]))
+                new_candidate = Bound(simplify((self.res_intercept+self._get_expr(lbs, ubs, self.res_expr)).expand()), ancestor_rules.union([self]), self.hash_salt)
 
                 if self.result_type==RuleType.LB:
                     if self.result.add_lb(new_candidate):
@@ -109,4 +111,4 @@ class Rule:
         return (f"[{self.name}]  " if self.name else "")+ premise+"==>"+str(self.result.name)+op+concl
 
     def __hash__(self):
-        return hash(self.__str__())
+        return hash((self.hash_salt, self.__str__()))

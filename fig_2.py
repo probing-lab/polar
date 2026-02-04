@@ -12,7 +12,15 @@ from program.distribution.distribution import DistributionFunction
 from program.transformer import normalize_program
 from recurrences.rec_builder import RecBuilder
 from termination.martingales.branches.branch_builder import BranchBuilder
+import argparse
 
+parser = argparse.ArgumentParser(description="Reproduce Figure 2 (bottom part of table)")
+
+parser.add_argument("-c", "--count", type=int, default=3, help="The number of times to invoke the saturation algorithm")
+parser.add_argument("-o", "--output", type=str, default=None, help="The (csv) output file location")
+parser.add_argument("-s", "--solver", type=str, default="CBC", help="The linear solver to use (CBC/GUROBI/...)")
+
+args = parser.parse_args()
 
 moment_bound_using_ost(
     "documentation/loops_ost_extension/running_example_unbounded.prob",
@@ -28,5 +36,6 @@ moment_bound_using_ost(
     num_sparsest_solutions=20,
     keep_nonoptimal_martingales=False,
     use_minkovski=True,
-    solver_name="CLP",
-    csv_path="fig_2.csv")
+    solver_name=args.solver,
+    csv_path=args.output,
+    num_runs=args.count)

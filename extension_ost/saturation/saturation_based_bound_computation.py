@@ -36,7 +36,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
                    use_minkowski=False,
                    num_sparsest_solutions=2,
                    keep_non_optimal_martingales=False,
-                   solver_name="CLP"):
+                   solver_name="CBC",
+                   hash_salt=None):
 
     monoms_all = list(set(_get_monoms(random_vars.union(deterministic_vars), max_degree, degree_costs)))
     recurrences_all = {monom: recurrence_builder.get_recurrence(monom) for monom in monoms_all}
@@ -82,20 +83,20 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     for node in nodes.values():
         expr = node.name.args[0] if isinstance(node.name, Expexted) else node.name
         if all(d%2==0 for d in degree_list(expr)):
-            node.add_lb(Bound(S.Zero, set()))
+            node.add_lb(Bound(S.Zero, set(), hash_salt))
 
     # Fill with initial knowledge (basically negated loopgard and positivity of k)
     for k,v in initial_lower_bounds.items():
-        nodes[k].add_lb(Bound(v,set()))
+        nodes[k].add_lb(Bound(v,set(), hash_salt))
     for k,v in initial_upper_bounds.items():
-        nodes[k].add_ub(Bound(v,set()))
+        nodes[k].add_ub(Bound(v,set(), hash_salt))
 
     # if a lower (or upper) bound is added to the key, all its rules (the value)
     # need to be added to unprocessed
     lb_dependencies:Dict[Expr, Set[Rule]] = defaultdict(set)
     ub_dependencies:Dict[Expr, Set[Rule]] = defaultdict(set)
 
-    rules = []
+    rules: List[Rule] = []
     rules += list(generate_hard_bound_rules(monoms, nodes, lb_dependencies, ub_dependencies))
 
     rules += list(generate_var_multiplication_ub_rules(monoms, nodes, lb_dependencies, ub_dependencies))
@@ -113,9 +114,10 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
                                                     monom_expexted_sub))
 
     for rule in rules:
+        rule.hash_salt = hash_salt
         print(rule)
     
-    res: Dict[Symbol, ValueNode] = saturate(nodes, rules, lb_dependencies, ub_dependencies)
+    res: Dict[Expr, ValueNode] = saturate(nodes, rules, lb_dependencies, ub_dependencies)
 
     for monom in res.values():
         ubs = list(monom.ubs)

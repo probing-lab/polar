@@ -18,8 +18,9 @@ def moment_bound_using_ost(file_path: str,
                            use_minkovski = False,
                            num_sparsest_solutions = 20,
                            keep_nonoptimal_martingales = False,
-                           solver_name = "CLP",
-                           csv_path = None):
+                           solver_name = "CBC",
+                           csv_path = None,
+                           num_runs = 1):
 
     program = Parser().parse_file(file_path)
     lg = program.loop_guard
@@ -42,8 +43,11 @@ def moment_bound_using_ost(file_path: str,
         else:
             deterministic_vars.add(Symbol(str(var), real=True))
 
+    result: Dict[Expr, List[ValueNode]] = {}
+    for i in range(num_runs):
+        print("="*10+f"RUN {i}"+"="*10)
 
-    result: List[ValueNode] = compute_bounds_saturation(random_vars,
+        res = compute_bounds_saturation(random_vars,
                 deterministic_vars,
                 stopping_time_moment_finite,
                 program_vars,
@@ -54,14 +58,19 @@ def moment_bound_using_ost(file_path: str,
                 num_sparsest_solutions=num_sparsest_solutions,
                 use_minkowski=use_minkovski,
                 keep_non_optimal_martingales=keep_nonoptimal_martingales,
-                solver_name=solver_name)
+                solver_name=solver_name,
+                hash_salt=i)
+        result = {key: result.get(key,[])+ ([res[key]] if key in res else []) for key in res.keys() | result.keys()}
+        
 
     if csv_path:
         with open(csv_path, 'w') as f:
             writer = csv.writer(f)
             writer.writerow(("monomial", "", "bound"))
-            for node in sorted(result.values(), key=lambda x: str(x.name)):
-                for ub in sorted(node.ubs, key=lambda x: str(x)):
-                    writer.writerow((str(node.name), "<=", str(ub)))
-                for lb in sorted(node.lbs, key=lambda x: str(x)):
-                    writer.writerow((str(node.name), ">=", str(lb)))
+            for expr, bounds in sorted(result.items(), key=lambda x: str(x[0])):
+                ubs = set.union(*({ub.value for ub in b.ubs} for b in bounds))
+                lbs = set.union(*({lb.value for lb in b.lbs} for b in bounds))
+                for ub in sorted(ubs, key=lambda x: str(x)):
+                    writer.writerow((str(expr), "<=", str(ub)))
+                for lb in sorted(lbs, key=lambda x: str(x)):
+                    writer.writerow((str(expr), ">=", str(lb)))
