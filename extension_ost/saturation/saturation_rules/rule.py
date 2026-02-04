@@ -107,3 +107,6 @@ class Rule:
         concl = str(self.res_intercept)+"+"+str(self.res_expr)
         
         return (f"[{self.name}]  " if self.name else "")+ premise+"==>"+str(self.result.name)+op+concl
+
+    def __hash__(self):
+        return hash(self.__str__())
