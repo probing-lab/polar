@@ -30,7 +30,8 @@ def generate_square_rules(square_monoms,
                           monoms,
                           nodes,
                           lb_dependencies,
-                          ub_dependencies):
+                          ub_dependencies,
+                          use_minkovski):
     """Generates rules for deriving bounds
 
     Args:
@@ -64,15 +65,55 @@ def generate_square_rules(square_monoms,
             # E(X**2) <= v
             # ==============
             # E(Y**2) <= (1/(b**2) * u + 2* |a|/(b**2) * sqrt(u)*sqrt(v) + a**2/b**2*v)
-            rule_ub = Rule(nodes[Expexted(Y**2)],
+            if use_minkovski:
+                rule_ub = Rule(nodes[Expexted(Y**2)],
+                            RuleType.UB,
+                            lbs=[],
+                            ubs=[nodes[square_monom] ,nodes[Expexted(X**2)]],
+                            res_expr=[[(BoundRef.Const, 1/b**2), (BoundRef.UB, 0)],
+                                        [(BoundRef.Const, 2*abs(a)/b**2), (BoundRef.Sqrt,(BoundRef.UB, 0)), (BoundRef.Sqrt,(BoundRef.UB, 1))],
+                                        [(BoundRef.Const, a**2/b**2), (BoundRef.UB, 1)]],
+                                        res_intercept=S.Zero,
+                                        name="mk-ub") # those rules are cycle sensitive - hence prevent them
+                ub_dependencies[nodes[square_monom]].add(rule_ub)
+                ub_dependencies[nodes[Expexted(X**2)]].add(rule_ub)
+                yield rule_ub
+                rule_lb = Rule(nodes[Expexted(Y**2)],
+                            RuleType.LB,
+                            lbs=[nodes[square_monom]],
+                            ubs=[nodes[Expexted(X**2)]],
+                            res_expr=[[(BoundRef.Const, 1/b**2), (BoundRef.LB, 0)],
+                                        [(BoundRef.Const, -2*abs(a)/b**2), (BoundRef.Sqrt,(BoundRef.UB, 0)), (BoundRef.Sqrt,(BoundRef.LB, 0))],
+                                        [(BoundRef.Const, a**2/b**2), (BoundRef.UB, 0)]],
+                                        res_intercept=S.Zero,
+                                        name="mk-lb",
+                            inequalities=[[[(BoundRef.LB,0)]]]) # those rules are cycle sensitive - hence prevent them
+                lb_dependencies[nodes[square_monom]].add(rule_lb)
+                lb_dependencies[nodes[Expexted(X**2)]].add(rule_lb)
+                yield rule_lb
+
+            # Young's inequality
+            yung_ub = Rule(nodes[Expexted(Y**2)],
                            RuleType.UB,
                            lbs=[],
                            ubs=[nodes[square_monom] ,nodes[Expexted(X**2)]],
-                           res_expr=[[(BoundRef.Const, 1/b**2), (BoundRef.UB, 0)],
-                                     [(BoundRef.Const, 2*abs(a)/b**2), (BoundRef.Sqrt,(BoundRef.UB, 0)), (BoundRef.Sqrt,(BoundRef.UB, 1))],
-                                     [(BoundRef.Const, a**2/b**2), (BoundRef.UB, 1)]],
+                           res_expr=[[(BoundRef.Const, 2/b**2), (BoundRef.UB, 0)],
+                                     [(BoundRef.Const, 2*a**2/b**2), (BoundRef.UB, 1)]],
                                      res_intercept=S.Zero,
-                                     name="mk-ub") # those rules are cycle sensitive - hence prevent them
-            ub_dependencies[nodes[square_monom]].add(rule_ub)
-            ub_dependencies[nodes[Expexted(X**2)]].add(rule_ub)
-            yield rule_ub
+                                     name="cs-ub") # those rules are cycle sensitive - hence prevent them
+            ub_dependencies[nodes[square_monom]].add(yung_ub)
+            ub_dependencies[nodes[Expexted(X**2)]].add(yung_ub)
+            yield yung_ub   
+            
+            yung_lb = Rule(nodes[Expexted(Y**2)],
+                           RuleType.LB,
+                           lbs=[nodes[square_monom]],
+                           ubs=[nodes[Expexted(X**2)]],
+                           res_expr=[[(BoundRef.Const, 1/(2*b**2)), (BoundRef.LB, 0)],
+                                     [(BoundRef.Const, -a**2/b**2), (BoundRef.UB, 0)]],
+                                     res_intercept=S.Zero,
+                                     name="cs-lb",
+                                     inequalities=[[[(BoundRef.LB, 0)]]]) # those rules are cycle sensitive - hence prevent them
+            lb_dependencies[nodes[square_monom]].add(yung_lb)
+            ub_dependencies[nodes[Expexted(X**2)]].add(yung_lb)
+            yield yung_lb   
