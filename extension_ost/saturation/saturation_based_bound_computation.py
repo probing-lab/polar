@@ -104,8 +104,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     rules += list(generate_var_multiplication_ub_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_var_multiplication_lb_rules(monoms, nodes, lb_dependencies, ub_dependencies))
     rules += list(generate_rv_multiplication_rules(monoms, nodes, lb_dependencies, ub_dependencies))
-    if use_minkowski:
-        rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies))
+    rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies, use_minkovski=use_minkowski))
     rules += list(generate_square_jensen(monoms, nodes, lb_dependencies))
 
     for martingale_map in exp_maps_filtered_with_initial:
