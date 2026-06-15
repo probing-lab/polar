@@ -146,16 +146,16 @@ def generate_square_rules(square_monoms,
             # ===============
             # E(XY) \geq -h - \sqrt(bh)
 
-            # mk_lb_loose = Rule(nodes[Expexted(X*Y)],
-            #                RuleType.LB,
-            #                lbs=[],
-            #                ubs=[nodes[square_monom], nodes[Expexted(X**2)]],
-            #                res_expr=[[(BoundRef.Const, -1), (BoundRef.UB, 1)],
-            #                          [(BoundRef.Const, -1), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))]],
-            #                          res_intercept=S.Zero,
-            #                          name="cs-lb-1",
-            #                          inequalities=[],
-            #                          priority=2)
-            # ub_dependencies[nodes[square_monom]].add(mk_lb_loose)
-            # ub_dependencies[nodes[Expexted(X**2)]].add(mk_lb_loose)
-            # yield mk_lb_loose
+            mk_lb_loose = Rule(nodes[Expexted(X*Y)],
+                           RuleType.LB,
+                           lbs=[],
+                           ubs=[nodes[square_monom], nodes[Expexted(X**2)]],
+                           res_expr=[[(BoundRef.Const, -1), (BoundRef.UB, 1)],
+                                     [(BoundRef.Const, -1), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))]],
+                                     res_intercept=S.Zero,
+                                     name="cs-lb-1",
+                                     inequalities=[],
+                                     priority=2)
+            ub_dependencies[nodes[square_monom]].add(mk_lb_loose)
+            ub_dependencies[nodes[Expexted(X**2)]].add(mk_lb_loose)
+            yield mk_lb_loose

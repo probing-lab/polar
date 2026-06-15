@@ -1,5 +1,5 @@
 from typing import Dict, Tuple
-from sympy import S, Expr, Mul, Poly, PolynomialError, Pow, Symbol, oo
+from sympy import S, Add, Expr, Mul, Poly, PolynomialError, Pow, Symbol, oo, sqrt, sympify
 
 
 class InitialValueProvider:
@@ -143,3 +143,34 @@ class InitialValueProvider:
 
     def add_initial(self, symbol, lb=-oo, ub=oo):
         self.initials[symbol] = (lb, ub)
+
+    def _upper_bound_expression_with_squares(self, expression):
+        add_args = Add.make_args(expression)
+        res = sympify(0)
+
+        for add_part in add_args:
+            terms = Mul.make_args(add_part)
+            coeff = Mul(*[t for t in terms if t.is_number])
+            exp_term = Mul(*[t for t in terms if not t.is_number])
+            if not coeff.is_nonnegative:
+                return
+
+            if(isinstance(exp_term, Pow) and exp_term.exp == S.Half):
+                # take the sqrt of every term in the sqrt
+                adds_inside_sqrt = Add.make_args(expression)
+                res_inside = sympify(0)
+                for add_inside in adds_inside_sqrt:
+                    r = sqrt(add_inside).simplify()
+                    if(not self._get_sqrts(r)):
+                        res_inside += r
+                    elif self.is_nonnegative(add_inside):
+                        res_inside += r
+                    else:
+                        return
+                res += res_inside*coeff
+                return 
+            elif(self._get_sqrts(exp_term)):
+                return
+            else:
+                res += exp_term*coeff
+        return res

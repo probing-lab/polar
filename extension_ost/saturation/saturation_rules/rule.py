@@ -4,7 +4,7 @@ from enum import Enum
 from itertools import combinations, product
 from typing import List, Literal, Tuple
 
-from sympy import Add, Expr, Mul, simplify, sqrt
+from sympy import Add, Expr, Mul, simplify, sqrt, sympify
 
 from extension_ost.saturation.saturation_rules.bound import Bound
 from extension_ost.saturation.saturation_rules.initial_value_provider import InitialValueProvider
@@ -45,7 +45,8 @@ class Rule:
                  inequalities: List[List[List[Tuple[Literal[0,1],int]]]]=[],
                  name:str=None,
                  hash_salt=None,
-                 priority=0): # positivity_constraints
+                 priority=0,
+                 avoid_squareroots=True): # positivity_constraints
         self.result = result
         self.result_type = result_type
         self.lbs = lbs
@@ -56,6 +57,7 @@ class Rule:
         self.name = name
         self.hash_salt = hash_salt
         self.priority = priority
+        self.avoid_squareroots = avoid_squareroots
 
     def _get_value(self, lbs, ubs, access: Tuple[Literal[0,1], int|Expr]):
         (c, a) = access
@@ -90,7 +92,16 @@ class Rule:
                 if any((not (self.result.initial_value_provider.is_nonnegative(self._get_expr(lbs, ubs, access)))) for access in self.inequalities):
                     continue
 
-                new_candidate = Bound(simplify((self.res_intercept+self._get_expr(lbs, ubs, self.res_expr)).expand()), ancestor_rules.union([self]), self.hash_salt)
+                new_candidate = Bound((self.res_intercept+self._get_expr(lbs, ubs, self.res_expr)), ancestor_rules.union([self]), self.hash_salt)
+                if(self.avoid_squareroots and self.result._contains_sqrt(new_candidate.value)):
+                    new_expr = self.result.initial_value_provider._upper_bound_expression_with_squares((-1 if self.result_type==RuleType.LB else 1)*new_candidate.value)
+                    if new_expr is None:
+                        print(new_candidate)
+                        continue
+                    else:
+                        pass
+                    
+                    new_candidate.value = new_expr*(-1 if self.result_type==RuleType.LB else 1)
 
                 if self.result_type==RuleType.LB:
                     if self.result.add_lb(new_candidate):
@@ -115,3 +126,6 @@ class Rule:
 
     def __hash__(self):
         return hash((self.hash_salt, self.__str__()))
+
+
+            
