@@ -1,5 +1,5 @@
 from typing import Dict, Tuple
-from sympy import S, Add, Expr, Mul, Poly, PolynomialError, Pow, Symbol, oo, sqrt, sympify
+from sympy import S, Add, Expr, Mul, Poly, PolynomialError, Pow, Symbol, oo, powsimp, sqrt, sympify
 
 
 class InitialValueProvider:
@@ -157,19 +157,18 @@ class InitialValueProvider:
 
             if(isinstance(exp_term, Pow) and exp_term.exp == S.Half):
                 # take the sqrt of every term in the sqrt
-                adds_inside_sqrt = Add.make_args(expression)
+                adds_inside_sqrt = Add.make_args(exp_term.args[0])
                 res_inside = sympify(0)
                 for add_inside in adds_inside_sqrt:
-                    r = sqrt(add_inside).simplify()
-                    if(not self._get_sqrts(r)):
+                    r = powsimp(sqrt(add_inside), force=True)
+                    if(len([i for i in self._get_sqrts(r)])==0):
                         res_inside += r
                     elif self.is_nonnegative(add_inside):
                         res_inside += r
                     else:
                         return
-                res += res_inside*coeff
-                return 
-            elif(self._get_sqrts(exp_term)):
+                res += res_inside*coeff 
+            elif(len([i for i in self._get_sqrts(exp_term)])>0):
                 return
             else:
                 res += exp_term*coeff
