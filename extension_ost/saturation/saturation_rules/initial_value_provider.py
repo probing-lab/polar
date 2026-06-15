@@ -129,7 +129,7 @@ class InitialValueProvider:
         if len(monom.free_symbols) == 0:
             return monom
         if len(monom.free_symbols.difference(self.initials.keys()))!=0:
-            raise NotImplementedError("Currently only monomials that are of form x**k for some initial variable x are supported")
+            raise NotImplementedError(f"Currently only monomials that are of form x**k for some initial variable x are supported, not: {monom}")
         if monom in self.initials:
             return self.initials[monom][0]
 

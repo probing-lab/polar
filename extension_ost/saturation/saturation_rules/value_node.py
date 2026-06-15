@@ -62,8 +62,8 @@ class ValueNode:
             # backwards subsumption
 
         # skip if sqrt, since it breaks subsumption check
-        self.ubs = {old_ub for old_ub in self.ubs if not self._is_smaller(ub_bound.value, old_ub.value)}
-        self.ubs.add(ub_bound)
+        # self.ubs = {old_ub for old_ub in self.ubs if not self._is_smaller(ub_bound.value, old_ub.value)}
+        self.ubs = set([ub_bound])
         return True
     
     def _has_nested_sqrt(self, expr: Expr) -> bool:
@@ -88,8 +88,9 @@ class ValueNode:
         if not self._is_new_lower_bound(lb_bound.value):
             return False
         # skip if sqrt, since it breaks subsumption check
-        self.lbs = {old_lb for old_lb in self.lbs if not self._is_smaller(old_lb.value, lb_bound.value)}
-        self.lbs.add(lb_bound)
+        # self.lbs = {old_lb for old_lb in self.lbs if not self._is_smaller(old_lb.value, lb_bound.value)}
+        # self.lbs.add(lb_bound)
+        self.lbs={lb_bound}
         return True
 
     def _is_new_upper_bound(self, upper_bound):
@@ -107,7 +108,6 @@ class ValueNode:
                 return False
             if not self._new_upper_bound_better(old_ub.value, upper_bound):
                 return False
-
         return True
     
     def _monoms_similar(self, old_ub: Expr, new_ub: Expr):
@@ -158,7 +158,7 @@ class ValueNode:
                 elif new_ub_poly.LC().as_coeff_mul()[0].is_nonpositive:
                     return True
 
-            if lc_number.is_nonpositive:
+            if lc_number.is_negative:
                 if new_ub_poly.degree() > old_ub_poly.degree():
                     return True
         return False

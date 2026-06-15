@@ -68,7 +68,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     print(*extracted_square_maps_monoms, sep="\n")
 
     # extracted_square_maps_filtered = []
-    exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps+extracted_square_maps)]
+    exp_maps_filtered_with_initial = [(exp_map,exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps+extracted_square_maps)]
     
 
     initial_value_provider = InitialValueProvider()
@@ -107,8 +107,9 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     rules += list(generate_square_rules(square_monom_maps.values(),monoms, nodes, lb_dependencies, ub_dependencies, use_minkovski=use_minkowski))
     rules += list(generate_square_jensen(monoms, nodes, lb_dependencies))
 
-    for martingale_map in exp_maps_filtered_with_initial:
+    for (martingale_map, initial_values) in exp_maps_filtered_with_initial:
         rules+=list(generate_martingale_based_rule(martingale_map,
+                                                   initial_values,
                                                     nodes,
                                                     lb_dependencies,
                                                     ub_dependencies,

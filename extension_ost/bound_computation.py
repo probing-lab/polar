@@ -73,15 +73,15 @@ def compute_bounds(random_vars: Set[Symbol],
                 solved_for_goal = martingale_map
                 martingale_expexted = solved_for_goal
             else:
-                martingale_initial_value = martingale_map.subs(monom_subs).subs(initial_value_dict).simplify()
+                martingale_initial_value = martingale_map.subs(monom_subs).subs(initial_value_dict)
 
-                martingale = martingale_map - martingale_initial_value
+                martingale = martingale_map
                 # print("Martingale: ", martingale)
                 martingale_expexted = martingale.subs(monom_expexted_sub).simplify()
 
                 solved_for_goal = solve(martingale_expexted, Expexted(goal_monom))
                 assert len(solved_for_goal) == 1, "Unsure if this asserting is actually true - hence added for finding out"
-                solved_for_goal = solved_for_goal[0].subs(initial_constants_sub)
+                solved_for_goal = solved_for_goal[0].subs(initial_constants_sub) - martingale_initial_value
 
             upper_bounds = set(bound_store._get_upper_bounds_for_expression(solved_for_goal))
             pass

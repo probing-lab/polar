@@ -3,7 +3,7 @@
 from itertools import product
 from typing import Dict, Set
 
-from sympy import S, Add, Expr, Mul, simplify, solve
+from sympy import S, Add, Expr, Mul, Symbol, simplify, solve
 
 from extension_ost.helpers import Expexted
 from extension_ost.saturation.saturation_rules.rule import BoundRef, Rule, RuleType
@@ -11,6 +11,7 @@ from extension_ost.saturation.saturation_rules.rule import BoundRef, Rule, RuleT
 # This basically is grounding of the rule
 # X <= a ==> E(X) <= a  (and similar for >=)
 
+INITIAL = Symbol("INITIAL")
 
 def generate_hard_bound_rules(monoms, nodes,
                               lb_dependencies: Dict[Expr, Set[Rule]],
@@ -332,6 +333,7 @@ def generate_rv_multiplication_rules(monoms, nodes,
 
 
 def generate_martingale_based_rule(expression_map: Expr,
+                                   initial_value: Expr,
                                    nodes: Dict[Expr, Expr],
                                    lb_dependencies: Dict[Expr, Set[Rule]],
                                    ub_dependencies: Dict[Expr, Set[Rule]],
@@ -351,9 +353,10 @@ def generate_martingale_based_rule(expression_map: Expr,
     expectation_symbols = {sym for sym in expression_map.free_symbols if str(
         sym).startswith("E(")}
     for exp_symbol in expectation_symbols:
-        solved_expr = solve(expression_map, exp_symbol)[0].subs(monom_subs)
+        solved_expr = solve(expression_map-INITIAL, exp_symbol)[0].subs(monom_subs)
 
         add_parts = Add.make_args(solved_expr)
+        
 
         # For the rule that derives E(X) <= ...
         UB_ub_values = []
@@ -389,9 +392,9 @@ def generate_martingale_based_rule(expression_map: Expr,
             terms = Mul.make_args(add_part)
             coeff = Mul(*[t for t in terms if t.is_number])
             exp_term = Mul(*[t for t in terms if not t.is_number])
-            if not exp_term.has(Expexted):
-                ub_rule.res_intercept += coeff*exp_term
-                lb_rule.res_intercept += coeff*exp_term
+            if exp_term == INITIAL:
+                ub_rule.res_intercept += coeff*initial_value
+                lb_rule.res_intercept += coeff*initial_value
             elif coeff.is_nonnegative:
                 UB_coeffs.append([(BoundRef.UB, len(UB_ub_values)), (BoundRef.Const, coeff)])
                 UB_ub_values.append(nodes[exp_term])
