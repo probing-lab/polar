@@ -27,6 +27,7 @@ class BoundRef(Enum):
 class Rule:
     result: ValueNode
     result_type: RuleType
+    priority: int
 
     lbs: List[ValueNode]
     ubs: List[ValueNode]
@@ -43,7 +44,8 @@ class Rule:
                  res_intercept: Expr,
                  inequalities: List[List[List[Tuple[Literal[0,1],int]]]]=[],
                  name:str=None,
-                 hash_salt=None): # positivity_constraints
+                 hash_salt=None,
+                 priority=0): # positivity_constraints
         self.result = result
         self.result_type = result_type
         self.lbs = lbs
@@ -53,6 +55,7 @@ class Rule:
         self.res_expr = res_expr
         self.name = name
         self.hash_salt = hash_salt
+        self.priority = priority
 
     def _get_value(self, lbs, ubs, access: Tuple[Literal[0,1], int|Expr]):
         (c, a) = access

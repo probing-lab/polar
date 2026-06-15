@@ -23,7 +23,8 @@ def generate_hard_bound_rules(monoms, nodes,
                   [],
                   [[(BoundRef.LB, 0)]],
                   S.Zero,
-                  name="moment-lb")
+                  name="moment-lb",
+                  priority=10)
         lb_dependencies[nodes[monom]].add(r1)
         yield r1
         r2 = Rule(nodes[Expexted(monom)],
@@ -32,7 +33,8 @@ def generate_hard_bound_rules(monoms, nodes,
                   [nodes[monom]],
                   [[(BoundRef.UB, 0)]],
                   S.Zero,
-                  name="moment-ub")
+                  name="moment-ub",
+                  priority=10)
         ub_dependencies[nodes[monom]].add(r2)
         yield r2
 
@@ -58,7 +60,8 @@ def generate_var_multiplication_ub_rules(monoms,
                      inequalities=[[[(BoundRef.LB,0)]],
                                    [[(BoundRef.UB,0)]],
                                    [[(BoundRef.UB,1)]]],
-                     name="mul-ub-1")
+                     name="mul-ub-1",
+                     priority=8)
         lb_dependencies[nodes[X]].add(rule1)
         ub_dependencies[nodes[X]].add(rule1)
         ub_dependencies[nodes[Y]].add(rule1)
@@ -73,7 +76,8 @@ def generate_var_multiplication_ub_rules(monoms,
                      S.Zero,
                      inequalities=[[[(BoundRef.LB,0)]],
                                    [[(BoundRef.UB,0),(BoundRef.Const,-S.One)]]],
-                     name="mul-ub-2")
+                     name="mul-ub-2",
+                     priority=8)
         lb_dependencies[nodes[X]].add(rule2)
         ub_dependencies[nodes[Y]].add(rule2)
         yield rule2
@@ -88,7 +92,8 @@ def generate_var_multiplication_ub_rules(monoms,
                      inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
                                    [[(BoundRef.LB,1),(BoundRef.Const,-S.One)]],
                                    [[(BoundRef.UB,0),(BoundRef.Const,-S.One)]]],
-                     name="mul-ub-3")
+                     name="mul-ub-3",
+                     priority=8)
         lb_dependencies[nodes[X]].add(rule3)
         lb_dependencies[nodes[Y]].add(rule3)
         ub_dependencies[nodes[Y]].add(rule3)
@@ -106,7 +111,8 @@ def generate_var_multiplication_ub_rules(monoms,
                                    [[(BoundRef.UB,0)]],
                                    [[(BoundRef.UB,1)]],
                                    [[(BoundRef.LB,0), (BoundRef.LB,1)],[(BoundRef.UB,0),(BoundRef.UB,1),(BoundRef.Const,-S.One)]]],
-                                   name="mul-ub-4") # check whether ac-bd is nonnegative
+                                   name="mul-ub-4",
+                                   priority=8) # check whether ac-bd is nonnegative
         lb_dependencies[nodes[X]].add(rule4)
         lb_dependencies[nodes[Y]].add(rule4)
         ub_dependencies[nodes[X]].add(rule4)
@@ -125,7 +131,8 @@ def generate_var_multiplication_ub_rules(monoms,
                                    [[(BoundRef.UB,0)]],
                                    [[(BoundRef.UB,1)]],
                                    [[(BoundRef.LB,0), (BoundRef.LB,1),(BoundRef.Const,-S.One)],[(BoundRef.UB,0),(BoundRef.UB,1)]]],
-                                   name="mul-ub-5") # check whether bd-ac is nonnegative
+                                   name="mul-ub-5",
+                                   priority=8) # check whether bd-ac is nonnegative
         lb_dependencies[nodes[X]].add(rule5)
         lb_dependencies[nodes[Y]].add(rule5)
         ub_dependencies[nodes[X]].add(rule5)
@@ -153,7 +160,8 @@ def generate_var_multiplication_lb_rules(monoms,
                      S.Zero,
                      inequalities=[[[(BoundRef.UB,0),(BoundRef.Const,-S.One)]],
                                    [[(BoundRef.UB,1),(BoundRef.Const,-S.One)]]],
-                                   name="mul-lb-1")
+                                   name="mul-lb-1",
+                                   priority=8)
         ub_dependencies[nodes[X]].add(rule1)
         ub_dependencies[nodes[Y]].add(rule1)
         yield rule1
@@ -168,7 +176,8 @@ def generate_var_multiplication_lb_rules(monoms,
                      inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
                                    [[(BoundRef.UB,1),(BoundRef.Const,-S.One)]],
                                    [[(BoundRef.UB,0)]]],
-                                   name="mul-lb-2")
+                                   name="mul-lb-2",
+                                   priority=8)
         ub_dependencies[nodes[X]].add(rule2)
         ub_dependencies[nodes[Y]].add(rule2)
         lb_dependencies[nodes[Y]].add(rule2)
@@ -184,7 +193,8 @@ def generate_var_multiplication_lb_rules(monoms,
                      inequalities=[[[(BoundRef.LB,1),(BoundRef.Const,-S.One)]],
                                    [[(BoundRef.LB,0)]],
                                    [[(BoundRef.UB,0)]]],
-                                   name="mul-lb-3")
+                                   name="mul-lb-3",
+                                   priority=8)
         lb_dependencies[nodes[X]].add(rule3)
         lb_dependencies[nodes[Y]].add(rule3)
         ub_dependencies[nodes[X]].add(rule3)
@@ -199,7 +209,8 @@ def generate_var_multiplication_lb_rules(monoms,
                      S.Zero,
                      inequalities=[[[(BoundRef.LB,0)]],
                                    [[(BoundRef.LB,1)]]],
-                                   name="mul-lb-4")
+                                   name="mul-lb-4",
+                                   priority=8)
         lb_dependencies[nodes[X]].add(rule4)
         lb_dependencies[nodes[Y]].add(rule4)
         yield rule4
@@ -216,7 +227,8 @@ def generate_var_multiplication_lb_rules(monoms,
                                    [[(BoundRef.UB,0)]],
                                    [[(BoundRef.UB,1)]],
                                    [[(BoundRef.LB,1), (BoundRef.UB,0),(BoundRef.Const,-S.One)],[(BoundRef.LB,0),(BoundRef.UB,1)]]],
-                                   name="mul-lb-5")
+                                   name="mul-lb-5",
+                                   priority=8)
         lb_dependencies[nodes[X]].add(rule5)
         lb_dependencies[nodes[Y]].add(rule5)
         ub_dependencies[nodes[X]].add(rule5)
@@ -235,7 +247,8 @@ def generate_var_multiplication_lb_rules(monoms,
                                    [[(BoundRef.UB,0)]],
                                    [[(BoundRef.UB,1)]],
                                    [[(BoundRef.LB,1), (BoundRef.UB,0)],[(BoundRef.LB,0),(BoundRef.UB,1),(BoundRef.Const,-S.One)]]],
-                                   name="mul-lb-6")
+                                   name="mul-lb-6",
+                                   priority=8)
         lb_dependencies[nodes[X]].add(rule6)
         lb_dependencies[nodes[Y]].add(rule6)
         ub_dependencies[nodes[X]].add(rule6)
@@ -272,7 +285,8 @@ def generate_rv_multiplication_rules(monoms, nodes,
                      inequalities=[[[(BoundRef.LB,0),(BoundRef.Const,-S.One)]],
                                    [[(BoundRef.LB,1)]],
                                    [[(BoundRef.UB,0)]]],
-                                   name="rv-mul-1") # last should follow from 2nd
+                                   name="rv-mul-1",
+                                   priority=6) # last should follow from 2nd
         lb_dependencies[nodes[X]].add(rule1)
         lb_dependencies[nodes[Y]].add(rule1)
         ub_dependencies[nodes[Expexted(Y)]].add(rule1)
@@ -290,7 +304,8 @@ def generate_rv_multiplication_rules(monoms, nodes,
                      inequalities=[[[(BoundRef.LB,0)]],
                                    [[(BoundRef.UB,1)]],
                                    [[(BoundRef.UB,0)]]],
-                                   name="rv-mul-2")
+                                   name="rv-mul-2",
+                                   priority=6)
         lb_dependencies[nodes[Y]].add(rule2)
         ub_dependencies[nodes[X]].add(rule2)
         ub_dependencies[nodes[Expexted(Y)]].add(rule2)
@@ -308,7 +323,8 @@ def generate_rv_multiplication_rules(monoms, nodes,
                      inequalities=[[[(BoundRef.LB,0)]],
                                    [[(BoundRef.LB,1)]],
                                    [[(BoundRef.LB,2)]]],
-                                   name="rv-mul-3") # last should follow from previous
+                                   name="rv-mul-3",
+                                   priority=6) # last should follow from previous
         lb_dependencies[nodes[X]].add(rule3)
         lb_dependencies[nodes[Y]].add(rule3)
         lb_dependencies[nodes[Expexted(Y)]].add(rule3)
@@ -357,7 +373,8 @@ def generate_martingale_based_rule(expression_map: Expr,
                        UB_ub_values,
                        UB_coeffs,
                        S.Zero,
-                       name=f"ub-martingale ({expression_map})")
+                       name=f"ub-martingale ({expression_map})",
+                       priority=4)
 
         lb_rule = Rule(nodes[monom_subs[str(exp_symbol)]],
                        RuleType.LB,
@@ -365,7 +382,8 @@ def generate_martingale_based_rule(expression_map: Expr,
                        LB_ub_values,
                        LB_coeffs,
                        S.Zero,
-                       name=f"lb-martingale ({expression_map})")
+                       name=f"lb-martingale ({expression_map})",
+                       priority=4)
 
         for add_part in add_parts:
             terms = Mul.make_args(add_part)

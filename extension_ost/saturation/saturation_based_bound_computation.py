@@ -58,12 +58,14 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
         exp_maps+=(exp_map_builder.get_sparse_expectation_maps(monom,max_solutions=num_sparsest_solutions, accept_non_minimal=keep_non_optimal_martingales))
 
     exp_maps = exp_map_builder.filter_unique_primitives(exp_maps)
+    print(*exp_maps, sep="\n")
     extracted_square_maps_monoms = reformulate_maps_with_squares(exp_maps, monom_expexted_sub)
     # maps from E(...) to Expexted(...)
     square_monom_maps =  {k: v for d in [m[1] for m in extracted_square_maps_monoms] for k,v in d.items()}
     remove_expectation_map.update({k: v.args[0] for k,v in square_monom_maps.items()})
     monom_expexted_sub.update({str(k): v for k,v in square_monom_maps.items()})
     extracted_square_maps = [m[0] for m in extracted_square_maps_monoms]
+    print(*extracted_square_maps_monoms, sep="\n")
 
     # extracted_square_maps_filtered = []
     exp_maps_filtered_with_initial = [exp_map-simplify(exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps+extracted_square_maps)]
@@ -117,6 +119,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
         rule.hash_salt = hash_salt
         print(rule)
     
+    print(*[v.name for v in ub_dependencies.keys()])
+    print(lb_dependencies)
     res: Dict[Expr, ValueNode] = saturate(nodes, rules, lb_dependencies, ub_dependencies)
 
     for monom in res.values():
