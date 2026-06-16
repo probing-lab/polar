@@ -14,6 +14,10 @@ class RuleType(Enum):
     LB=0
     UB=1
 
+DEBUG_RULE_NAMES = [
+    # "cs-ub-1"
+    ]
+DEBUG_GOAL_NAMES = [("Expexted(z)", RuleType.UB)]
 class BoundRef(Enum):
     LB=0
     UB=1
@@ -93,10 +97,11 @@ class Rule:
                     continue
 
                 new_candidate = Bound((self.res_intercept+self._get_expr(lbs, ubs, self.res_expr)), ancestor_rules.union([self]), self.hash_salt)
+                if self.name in DEBUG_RULE_NAMES or (str(self.result.name), self.result_type) in DEBUG_GOAL_NAMES:
+                    pass
                 if(self.avoid_squareroots and self.result._contains_sqrt(new_candidate.value)):
                     new_expr = self.result.initial_value_provider._upper_bound_expression_with_squares((-1 if self.result_type==RuleType.LB else 1)*new_candidate.value)
                     if new_expr is None:
-                        print(new_candidate)
                         continue
                     else:
                         pass

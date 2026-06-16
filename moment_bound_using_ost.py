@@ -68,8 +68,8 @@ def moment_bound_using_ost(file_path: str,
             writer = csv.writer(f)
             writer.writerow(("monomial", "", "bound"))
             for expr, bounds in sorted(result.items(), key=lambda x: str(x[0])):
-                ubs = set.union(*({ub.value for ub in b.ubs} for b in bounds))
-                lbs = set.union(*({lb.value for lb in b.lbs} for b in bounds))
+                ubs = set.union(*({ub.value for ub in b.get_ubs_simplified()} for b in bounds))
+                lbs = set.union(*({lb.value for lb in b.get_lbs_simplified()} for b in bounds))
                 for ub in sorted(ubs, key=lambda x: str(x)):
                     writer.writerow((str(expr), "<=", str(ub)))
                 for lb in sorted(lbs, key=lambda x: str(x)):

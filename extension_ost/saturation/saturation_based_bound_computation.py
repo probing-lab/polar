@@ -124,8 +124,8 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     res: Dict[Expr, ValueNode] = saturate(nodes, rules, lb_dependencies, ub_dependencies)
 
     for monom in res.values():
-        ubs = list(monom.ubs)
-        lbs = list(monom.lbs)
+        ubs = list(monom.get_ubs_simplified())
+        lbs = list(monom.get_lbs_simplified())
 
         if len(ubs)>0:
             print(f"{str(monom.name):<30} <= {ubs[0].value}")

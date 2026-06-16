@@ -1,4 +1,4 @@
-from sympy import S, Add, Mul, Pow, Abs
+from sympy import S, Add, Mul, Pow, Abs, sqrt
 from extension_ost.helpers import Expexted
 from extension_ost.saturation.saturation_rules.rule import BoundRef, Rule, RuleType
 
@@ -141,21 +141,40 @@ def generate_square_rules(square_monoms,
             # ub_dependencies[nodes[Expexted(X**2)]].add(mk_ub_loose)
             # yield mk_ub_loose   
 
-            # E((X+Y)^2) <= b
-            # E(X^2) <= h
-            # ===============
-            # E(XY) \geq -h - \sqrt(bh)
+            if a > 0 and b > 0:
+                # E((aX+bY)^2) <= g
+                # E(X^2) <= h
+                # ===============
+                # E(XY) \geq -h/|b| - \sqrt(gh/|b|)
 
-            mk_lb_loose = Rule(nodes[Expexted(X*Y)],
-                           RuleType.LB,
-                           lbs=[],
-                           ubs=[nodes[square_monom], nodes[Expexted(X**2)]],
-                           res_expr=[[(BoundRef.Const, -1), (BoundRef.UB, 1)],
-                                     [(BoundRef.Const, -1), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))]],
-                                     res_intercept=S.Zero,
-                                     name="cs-lb-1",
-                                     inequalities=[],
-                                     priority=2)
-            ub_dependencies[nodes[square_monom]].add(mk_lb_loose)
-            ub_dependencies[nodes[Expexted(X**2)]].add(mk_lb_loose)
-            yield mk_lb_loose
+                cs_lb_loose = Rule(nodes[Expexted(X*Y)],
+                            RuleType.LB,
+                            lbs=[],
+                            ubs=[nodes[square_monom], nodes[Expexted(X**2)]],
+                            res_expr=[[(BoundRef.Const, -a/b), (BoundRef.UB, 1)],
+                                        [(BoundRef.Const, -1/abs(b)), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))]],
+                                        res_intercept=S.Zero,
+                                        name="cs-lb-1",
+                                        inequalities=[],
+                                        priority=2)
+                ub_dependencies[nodes[square_monom]].add(cs_lb_loose)
+                ub_dependencies[nodes[Expexted(X**2)]].add(cs_lb_loose)
+                yield cs_lb_loose
+
+                # E((aX+bY)^2) <= g
+                # E(X^2) <= h
+                # ===============
+                # E(XY) \leq \sqrt(gh)*1/|b|
+                cs_ub_loose = Rule(nodes[Expexted(X*Y)],
+                            RuleType.UB,
+                            lbs=[],
+                            ubs=[nodes[square_monom], nodes[Expexted(X**2)]],
+                            res_expr=[[(BoundRef.Const, 1/abs(b)), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))],
+                                      [(BoundRef.Const, 1/2*(abs(a/b)-a/b)), (BoundRef.UB, 1)]],
+                                        res_intercept=S.Zero,
+                                        name="cs-ub-1",
+                                        inequalities=[],
+                                        priority=2)
+                ub_dependencies[nodes[square_monom]].add(cs_ub_loose)
+                ub_dependencies[nodes[Expexted(X**2)]].add(cs_ub_loose)
+                yield cs_ub_loose

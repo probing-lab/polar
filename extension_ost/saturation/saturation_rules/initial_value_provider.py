@@ -1,5 +1,5 @@
 from typing import Dict, Tuple
-from sympy import S, Add, Expr, Mul, Poly, PolynomialError, Pow, Symbol, oo, powsimp, sqrt, sympify
+from sympy import S, Add, Expr, Mul, Poly, PolynomialError, Pow, Rational, Symbol, oo, powsimp, sqrt, sympify
 
 
 class InitialValueProvider:
@@ -42,11 +42,11 @@ class InitialValueProvider:
         for coeff, monom in coeff_monom_list:
             if coeff.is_positive:
                 monom_bound = root_lbs[monom] if monom in root_lbs else (-oo if len(monom.free_symbols.intersection(root_subs.keys()))>0 else\
-                                self._get_lb_for_initial_monomial(monom))
+                                self._get_lb_for_initial_monomial(monom, root_subs))
                 term += monom_bound*coeff
             elif coeff.is_negative:
                 monom_bound = oo if monom in root_lbs else (oo if len(monom.free_symbols.intersection(root_subs.keys()))>0 else\
-                                self._get_ub_for_initial_monomial(monom))
+                                self._get_ub_for_initial_monomial(monom, root_subs))
                 term += monom_bound*coeff
             else:
                 raise ValueError("Coefficient sign must be known")
@@ -56,10 +56,12 @@ class InitialValueProvider:
 
         return False
     
-    def _get_ub_of_pow_of_initial(self, monom: Expr):
+    def _get_ub_of_pow_of_initial(self, monom: Expr, root_subs):
         monom = monom.expand()
         if monom in self.initials:
             return self.initials[monom][1]
+        if not monom.free_symbols.isdisjoint(root_subs.values()):
+            return oo
 
         if isinstance(monom, Pow):
             base = monom.args[0]
@@ -85,10 +87,12 @@ class InitialValueProvider:
 
         raise NotImplementedError(f"monomial {monom} could not be bounded")
     
-    def _get_lb_of_pow_of_initial(self, monom: Expr):
+    def _get_lb_of_pow_of_initial(self, monom: Expr, root_subs):
         monom = monom.expand()
         if monom in self.initials:
             return self.initials[monom][0]
+        if len(monom.free_symbols.difference(root_subs.values()))==0:
+            return S.Zero
         if isinstance(monom, Pow):
                     base = monom.args[0]
                     exponent = monom.args[1]
@@ -107,44 +111,58 @@ class InitialValueProvider:
 
         raise NotImplementedError("monomial could not be bounded")
 
-    def _get_ub_for_initial_monomial(self, monom: Expr):
+    def _get_ub_for_initial_monomial(self, monom: Expr, root_subs: Dict[Expr, Expr]):
         # TODO: support more complex monomials, like x0*y0
         if len(monom.free_symbols) == 0:
             return monom
-        if len(monom.free_symbols.difference(self.initials.keys()))!=0:
-            raise NotImplementedError("Currently only monomials that are of form x**k for some initial variable x are supported")
+        if len(monom.free_symbols.difference((set(self.initials.keys()).union(root_subs.values()))))!=0:
+            raise NotImplementedError(f"Currently only monomials that are of form x**k for some initial variable x are supported, not: {monom}")
         if monom in self.initials:
             return self.initials[monom][1]
 
         if isinstance(monom, Mul):
             expr = 1
             for elem in monom.args:
-                expr*=self._get_ub_of_pow_of_initial(elem)
+                expr*=self._get_ub_of_pow_of_initial(elem, root_subs)
             return expr
             
-        return self._get_ub_of_pow_of_initial(monom)
+        return self._get_ub_of_pow_of_initial(monom, root_subs)
     
-    def _get_lb_for_initial_monomial(self, monom: Expr):
+    def _get_lb_for_initial_monomial(self, monom: Expr, root_subs: Dict[Expr, Expr]):
         # TODO: support more complex monomials, like x0*y0
         if len(monom.free_symbols) == 0:
             return monom
-        if len(monom.free_symbols.difference(self.initials.keys()))!=0:
+        if len(monom.free_symbols.difference((set(self.initials.keys()).union(root_subs.values()))))!=0:
             raise NotImplementedError(f"Currently only monomials that are of form x**k for some initial variable x are supported, not: {monom}")
         if monom in self.initials:
             return self.initials[monom][0]
+        if monom in root_subs:
+            return 0 # This is sound, because whenever a rules applies a squareroot, it checks whether the 
 
         if isinstance(monom, Mul):
             expr = 1
             for elem in monom.args:
-                expr*=self._get_lb_of_pow_of_initial(elem)
+                expr*=self._get_lb_of_pow_of_initial(elem, root_subs)
             return expr
             
-        return self._get_lb_of_pow_of_initial(monom)
+        return self._get_lb_of_pow_of_initial(monom, root_subs)
 
     def add_initial(self, symbol, lb=-oo, ub=oo):
         self.initials[symbol] = (lb, ub)
 
+    def are_sqrts_atomic(self, expr):
+        powers = expr.atoms(Pow)
+        
+        for p in powers:
+            base, exp = p.args
+            if exp == Rational(1, 2):
+                if not (base.is_Symbol or base.is_Number):
+                    return False
+        return True
+
     def _upper_bound_expression_with_squares(self, expression):
+        if(self.are_sqrts_atomic(expression)):
+            return expression
         add_args = Add.make_args(expression)
         res = sympify(0)
 
@@ -161,9 +179,7 @@ class InitialValueProvider:
                 res_inside = sympify(0)
                 for add_inside in adds_inside_sqrt:
                     r = powsimp(sqrt(add_inside), force=True)
-                    if(len([i for i in self._get_sqrts(r)])==0):
-                        res_inside += r
-                    elif self.is_nonnegative(add_inside):
+                    if self.is_nonnegative(add_inside):
                         res_inside += r
                     else:
                         return

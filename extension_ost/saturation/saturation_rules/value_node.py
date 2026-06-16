@@ -227,3 +227,8 @@ class ValueNode:
         diff_expr = Add(larger_expr,smaller_expr*(-1)).simplify()
         return self.initial_value_provider.is_nonnegative(diff_expr)
 
+    def get_ubs_simplified(self):
+        return {Bound(ub.value.expand().simplify(), ub.used_rules, ub.hash_salt) for ub in self.ubs}
+
+    def get_lbs_simplified(self):
+        return {Bound(lb.value.expand().simplify(), lb.used_rules, lb.hash_salt) for lb in self.lbs}
