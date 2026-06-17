@@ -1,5 +1,6 @@
+from functools import cache
 from typing import Dict, Tuple
-from sympy import S, Add, Expr, Mul, Poly, PolynomialError, Pow, Rational, Symbol, oo, powsimp, sqrt, sympify
+from sympy import S, Abs, Add, Expr, Mul, Poly, PolynomialError, Pow, Rational, Symbol, factor, oo, powsimp, sqrt, sympify
 
 
 class InitialValueProvider:
@@ -17,60 +18,62 @@ class InitialValueProvider:
         # check if positivity can easily shown
         if expr0.is_nonnegative:
             return True
-        
-        sqrts = list(self._get_sqrts(expr0))
-        root_subs = {k: Symbol(f"ROOT_SUBS{i}") for i,k in enumerate(sqrts)}
-        expr = expr0.subs(root_subs)
-
-        # if isinstance(expr, Pow) and expr.exp == S.Half:
-        #     # this is sound, since we use squareroots only to talk about bounds for absolute values of variables (which are by definition positive)
-        #     return True
-        
-        # try to lower bound the expression, and check if positivity can then be shown
-        initial_gens = list(self.initials.keys())+list(root_subs.values())
-        diff_expr_poly = Poly(expr, *initial_gens)
-
-        symbolic_monoms = [
-            Mul(*[gen**exp for gen, exp in zip(diff_expr_poly.gens, powers)]) 
-            for powers in diff_expr_poly.monoms()
-        ]
-        root_lbs = {monom: S.Zero for monom in symbolic_monoms if monom.free_symbols.isdisjoint(self.initials.keys())}
-
-        coeff_monom_list = [(coeff,Mul(*[var**exp for var, exp in zip(initial_gens, poly_exps)])) for poly_exps, coeff in diff_expr_poly.terms()]
-
-        term = S.Zero
-        for coeff, monom in coeff_monom_list:
-            if coeff.is_positive:
-                monom_bound = root_lbs[monom] if monom in root_lbs else (-oo if len(monom.free_symbols.intersection(root_subs.keys()))>0 else\
-                                self._get_lb_for_initial_monomial(monom, root_subs))
-                term += monom_bound*coeff
-            elif coeff.is_negative:
-                monom_bound = oo if monom in root_lbs else (oo if len(monom.free_symbols.intersection(root_subs.keys()))>0 else\
-                                self._get_ub_for_initial_monomial(monom, root_subs))
-                term += monom_bound*coeff
-            else:
-                raise ValueError("Coefficient sign must be known")
-
-        if term.simplify().is_nonnegative:
+        if isinstance(expr0, Abs):
             return True
-
-        return False
+        if isinstance(expr0, Pow) and expr0.exp==S.Half:
+            return True
+        
+        grouped_terms = self._group_terms(expr0.expand().simplify())
+        bounding_expression = S.Zero
+        if len(grouped_terms.keys())>1:
+            pass
+        for var_part, coeff in grouped_terms.items():
+            if coeff.is_nonnegative:
+                lb = self._get_lb_of_monom(var_part)
+                bounding_expression+=lb*coeff
+            elif coeff.is_nonpositive:
+                ub = self._get_ub_of_monom(var_part)
+                bounding_expression += ub*coeff
+            else:
+                raise Exception(f"sign of coefficient is unknown (but expected to be a constant): {coeff}")
+        if bounding_expression.is_nonnegative:
+            return True
+        
+    def _get_lb_of_monom(self, expr):
+        final_lb = S.One
+        mul_args = Mul.make_args(expr)
+        assert len(mul_args)>0
+        for var in mul_args:
+            final_lb*=self._get_lb_of_pow_of_initial(var)
+        return final_lb
     
-    def _get_ub_of_pow_of_initial(self, monom: Expr, root_subs):
+    def _get_ub_of_monom(self, expr):
+        final_ub = S.One
+        mul_args = Mul.make_args(expr)
+        assert len(mul_args)>0
+        for var in mul_args:
+            final_ub*=self._get_ub_of_pow_of_initial(var)
+        return final_ub
+    
+    def _get_ub_of_pow_of_initial(self, monom: Expr):
         monom = monom.expand()
+        if monom.is_number:
+            return monom
         if monom in self.initials:
             return self.initials[monom][1]
-        if not monom.free_symbols.isdisjoint(root_subs.values()):
-            return oo
+        if isinstance(monom, Abs):
+            return max(abs(self.initials[monom][0],self.initials[monom][1]))
 
         if isinstance(monom, Pow):
             base = monom.args[0]
             exponent = monom.args[1]
             if base not in self.initials:
                 raise KeyError(f"monom base {base} expected to be in initials")
-            if exponent.is_odd:
+            if exponent == S.Half:
+                return sqrt(self._get_ub_of_pow_of_initial(base))
+            elif exponent.is_odd:
                 return self.initials[base][1]**exponent
-            if exponent.is_even:
+            elif exponent.is_even:
                 # take the absolutely larger bound
                 if self.initials[base][0].is_nonnegative:
                     return self.initials[base][1]**exponent
@@ -84,68 +87,39 @@ class InitialValueProvider:
                     return self.initials[base][0]**exponent
                 # inconclusive :(
                 return S.Zero
+            else: 
+                raise Exception(f"Unknown exponent: {exponent}")
 
         raise NotImplementedError(f"monomial {monom} could not be bounded")
     
-    def _get_lb_of_pow_of_initial(self, monom: Expr, root_subs):
+    def _get_lb_of_pow_of_initial(self, monom: Expr):
         monom = monom.expand()
+        if monom.is_number:
+            return monom
         if monom in self.initials:
             return self.initials[monom][0]
-        if len(monom.free_symbols.difference(root_subs.values()))==0:
-            return S.Zero
+        if isinstance(monom, Abs):
+            return 0 # this can be improved in some cases
+
         if isinstance(monom, Pow):
-                    base = monom.args[0]
-                    exponent = monom.args[1]
-                    if base not in self.initials:
-                        raise KeyError(f"monom base {base} expected to be in initials")
-                    if exponent.is_odd:
-                        return self.initials[base][1]**exponent
-                    if exponent.is_even:
-                        # take the absolutely larger bound
-                        if self.initials[base][1].is_nonnegative:
-                            return self.initials[base][1]**exponent
-                        else:
-                            return S.Zero
-                        
-                        # inconclusive :(
+            base = monom.args[0]
+            exponent = monom.args[1]
+            if base not in self.initials:
+                raise KeyError(f"monom base {base} expected to be in initials")
+            elif exponent == S.Half:
+                return sqrt(self._get_lb_of_pow_of_initial(base))
+            elif exponent.is_odd:
+                return self.initials[base][1]**exponent
+            elif exponent.is_even:
+                # take the absolutely larger bound
+                if self.initials[base][1].is_nonnegative:
+                    return self.initials[base][1]**exponent
+                else:
+                    return S.Zero
+            else:
+                raise Exception(f"Unknown exponent: {exponent}")
 
-        raise NotImplementedError("monomial could not be bounded")
-
-    def _get_ub_for_initial_monomial(self, monom: Expr, root_subs: Dict[Expr, Expr]):
-        # TODO: support more complex monomials, like x0*y0
-        if len(monom.free_symbols) == 0:
-            return monom
-        if len(monom.free_symbols.difference((set(self.initials.keys()).union(root_subs.values()))))!=0:
-            raise NotImplementedError(f"Currently only monomials that are of form x**k for some initial variable x are supported, not: {monom}")
-        if monom in self.initials:
-            return self.initials[monom][1]
-
-        if isinstance(monom, Mul):
-            expr = 1
-            for elem in monom.args:
-                expr*=self._get_ub_of_pow_of_initial(elem, root_subs)
-            return expr
-            
-        return self._get_ub_of_pow_of_initial(monom, root_subs)
-    
-    def _get_lb_for_initial_monomial(self, monom: Expr, root_subs: Dict[Expr, Expr]):
-        # TODO: support more complex monomials, like x0*y0
-        if len(monom.free_symbols) == 0:
-            return monom
-        if len(monom.free_symbols.difference((set(self.initials.keys()).union(root_subs.values()))))!=0:
-            raise NotImplementedError(f"Currently only monomials that are of form x**k for some initial variable x are supported, not: {monom}")
-        if monom in self.initials:
-            return self.initials[monom][0]
-        if monom in root_subs:
-            return 0 # This is sound, because whenever a rules applies a squareroot, it checks whether the 
-
-        if isinstance(monom, Mul):
-            expr = 1
-            for elem in monom.args:
-                expr*=self._get_lb_of_pow_of_initial(elem, root_subs)
-            return expr
-            
-        return self._get_lb_of_pow_of_initial(monom, root_subs)
+        raise NotImplementedError(f"monomial could not be bounded: {monom}")
 
     def add_initial(self, symbol, lb=-oo, ub=oo):
         self.initials[symbol] = (lb, ub)
@@ -159,6 +133,15 @@ class InitialValueProvider:
                 if not (base.is_Symbol or base.is_Number):
                     return False
         return True
+    
+    def _use_abs_subadditivity(self, expression):
+        if(isinstance(expression, Abs)):
+            res = S.Zero
+            for summand in Add.make_args(expression.args[0]):
+                res += Abs(summand)
+            return res.simplify()
+        else:
+            return expression
 
     def _upper_bound_expression_with_squares(self, expression):
         if(self.are_sqrts_atomic(expression)):
@@ -172,17 +155,19 @@ class InitialValueProvider:
             exp_term = Mul(*[t for t in terms if not t.is_number])
             if not coeff.is_nonnegative:
                 return
-
             if(isinstance(exp_term, Pow) and exp_term.exp == S.Half):
                 # take the sqrt of every term in the sqrt
                 adds_inside_sqrt = Add.make_args(exp_term.args[0])
                 res_inside = sympify(0)
+
+
                 for add_inside in adds_inside_sqrt:
-                    r = powsimp(sqrt(add_inside), force=True)
-                    if self.is_nonnegative(add_inside):
-                        res_inside += r
-                    else:
+                    # r_inner = self._use_abs_subadditivity(Abs(add_inside).simplify())
+                    if(add_inside.is_negative):
                         return
+                    r = powsimp(sqrt(add_inside))
+                    r = self._use_abs_subadditivity(r)
+                    res_inside += factor(r, deep=True)
                 res += res_inside*coeff 
             elif(len([i for i in self._get_sqrts(exp_term)])>0):
                 return
@@ -190,6 +175,21 @@ class InitialValueProvider:
                 res += exp_term*coeff
         return res
     
+    def _group_terms(self, expr) -> Dict[Expr, Expr]:
+        symbols = expr.free_symbols
+        terms = Add.make_args(expr)
+        
+        grouped_terms = {}
+        for term in terms:
+            coeff, var_part = term.as_independent(*symbols, as_Add=False)
+            
+            if var_part in grouped_terms:
+                grouped_terms[var_part] += coeff
+            else:
+                grouped_terms[var_part] = coeff
+        return grouped_terms
+
+    @cache
     def asymptotic_sign(self, expr):
         """Takes an expression over multiple variables and checks for the variable(s) with the highest degree for their asymptotic 
 
@@ -205,16 +205,21 @@ class InitialValueProvider:
         Args:
             expr (_type_): _description_
         """
-
         expr = sympify(expr).expand()
+        if len([s for s in self._get_sqrts(expr)]):
+            pass
         if expr.is_zero:
             return 1
-        terms = Add.make_args(expr)
-        
+
+
         max_key = None
         max_terms = []
+        grouped_terms = self._group_terms(expr)
         
-        for term in terms:
+        for var_part,coeff in grouped_terms.items():
+            term = coeff*var_part
+            if term.is_zero:
+                continue
             degrees = []
             for base, exp in term.as_powers_dict().items():
                 if base.free_symbols:
@@ -232,4 +237,5 @@ class InitialValueProvider:
             return 1
         if all(self.is_nonnegative(-term) for term in max_terms):
             return -1
+        print(f"Unable to check asymptotic behavior: {expr}")
         return 0

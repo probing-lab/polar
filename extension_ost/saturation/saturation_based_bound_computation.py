@@ -65,7 +65,6 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
     remove_expectation_map.update({k: v.args[0] for k,v in square_monom_maps.items()})
     monom_expexted_sub.update({str(k): v for k,v in square_monom_maps.items()})
     extracted_square_maps = [m[0] for m in extracted_square_maps_monoms]
-    print(*extracted_square_maps_monoms, sep="\n")
 
     # extracted_square_maps_filtered = []
     exp_maps_filtered_with_initial = [(exp_map,exp_map.subs(remove_expectation_map).subs(initial_value_dict)) for exp_map in (exp_maps+extracted_square_maps)]
@@ -117,10 +116,7 @@ def compute_bounds_saturation(random_vars: Set[Symbol],
 
     for rule in rules:
         rule.hash_salt = hash_salt
-        print(rule)
-    
-    print(*[v.name for v in ub_dependencies.keys()])
-    print(lb_dependencies)
+
     res: Dict[Expr, ValueNode] = saturate(nodes, rules, lb_dependencies, ub_dependencies)
 
     for monom in res.values():
