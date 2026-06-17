@@ -56,14 +56,19 @@ class ValueNode:
             return False
         if self._has_nested_sqrt(ub_bound.value):
             return False
-        # forwards subsumption
-        if not self._is_new_upper_bound(ub_bound.value):
-            return False
-            # backwards subsumption
+        
+        new_bounds=set()
+        for old_ub in self.ubs:
+            sign =  self.initial_value_provider.asymptotic_sign(old_ub.value-ub_bound.value)
+            if sign == 1: # new bound is better - drop the old one
+                continue
+            elif sign == -1: # old bound was better, do not add the current
+                return False
+            else: # indecisive which bound is better
+                new_bounds.add(old_ub)
+        new_bounds.add(ub_bound)
 
-        # skip if sqrt, since it breaks subsumption check
-        # self.ubs = {old_ub for old_ub in self.ubs if not self._is_smaller(ub_bound.value, old_ub.value)}
-        self.ubs = set([ub_bound])
+        self.ubs = new_bounds
         return True
     
     def _has_nested_sqrt(self, expr: Expr) -> bool:
@@ -85,131 +90,19 @@ class ValueNode:
             return False
         if self._has_nested_sqrt(lb_bound.value):
             return False
-        if not self._is_new_lower_bound(lb_bound.value):
-            return False
-        # skip if sqrt, since it breaks subsumption check
-        # self.lbs = {old_lb for old_lb in self.lbs if not self._is_smaller(old_lb.value, lb_bound.value)}
-        # self.lbs.add(lb_bound)
-        self.lbs={lb_bound}
-        return True
-
-    def _is_new_upper_bound(self, upper_bound):
-        if upper_bound == nan or not self._is_finite(upper_bound):
-            return False
-        # check if it is subsumed by any other lower bound
-        # skip if sqrt, since it breaks subsumption check
-        for old_ub in self.ubs:
-            if self._is_smaller(old_ub.value, upper_bound):
-                return False
         
-        # the following line does a more agressive subsumption check (good for termination, bad for completeness)
-        for old_ub in self.ubs:
-            if self._monoms_similar(old_ub.value, upper_bound):
-                return False
-            if not self._new_upper_bound_better(old_ub.value, upper_bound):
-                return False
-        return True
-    
-    def _monoms_similar(self, old_ub: Expr, new_ub: Expr):
-        # we must first extract the square-roots:
-        sqrts1 = list(self._get_sqrts(old_ub))
-        sqrts2 = list(self._get_sqrts(new_ub))
-        root_objects = set(sqrts1+sqrts2)
-        root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
-        old_ub = old_ub.subs(root_subs)
-        new_ub = new_ub.subs(root_subs)
-
-        # if they have the same monoms, and share the signs, then ignore the new
-        gens = list(old_ub.free_symbols.union(new_ub.free_symbols))
-        if not gens:
-            return False
-        try:
-            p_old = Poly(old_ub, *gens).as_dict()
-            p_new = Poly(new_ub, *gens).as_dict()
-        except PolynomialError:
-            return False
-        if (p_old.keys() != p_new.keys()):
-            return False
-        return True
-
-    def _new_upper_bound_better(self, old_ub: Expr, new_ub: Expr):
-        vars = old_ub.free_symbols.union(new_ub.free_symbols)
-        if len(new_ub.free_symbols)==0:
-            return True
-
-        sqrts1 = list(self._get_sqrts(old_ub))
-        sqrts2 = list(self._get_sqrts(new_ub))
-        if len(sqrts2) < len(sqrts1):
-            return True # we favor expressions without sqrts
-        root_objects = set(sqrts1+sqrts2)
-        root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
-
-        old_ub_no_roots = old_ub.subs(root_subs)
-        new_ub_no_roots = new_ub.subs(root_subs)
-
-        for var in vars:
-            old_ub_poly = Poly(old_ub_no_roots, var)
-            new_ub_poly = Poly(new_ub_no_roots, var)
-            lc_number,_ = old_ub_poly.LC().as_coeff_Mul()
-
-            if lc_number.is_nonnegative:
-                if new_ub_poly.degree() < old_ub_poly.degree():
-                    return True
-                elif new_ub_poly.LC().as_coeff_mul()[0].is_nonpositive:
-                    return True
-
-            if lc_number.is_negative:
-                if new_ub_poly.degree() > old_ub_poly.degree():
-                    return True
-        return False
-    
-    def _new_lower_bound_better(self, old_lb: Expr, new_lb: Expr):
-        vars = old_lb.free_symbols.union(new_lb.free_symbols)
-        if len(new_lb.free_symbols)==0:
-            return True
-
-        sqrts1 = list(self._get_sqrts(old_lb))
-        sqrts2 = list(self._get_sqrts(new_lb))
-        if len(sqrts2) < len(sqrts1):
-            return True # we favor expressions without sqrts
-        root_objects = set(sqrts1+sqrts2)
-        root_subs = {k: f"ROOT_SUBS{i}" for i,k in enumerate(root_objects)}
-
-        old_lb_no_roots = old_lb.subs(root_subs)
-        new_lb_no_roots = new_lb.subs(root_subs)
-
-        for var in vars:
-            old_lb_poly = Poly(old_lb_no_roots, var)
-            new_lb_poly = Poly(new_lb_no_roots, var)
-            lc_number,_ = old_lb_poly.LC().as_coeff_Mul()
-
-            if lc_number.is_nonnegative:
-                if new_lb_poly.degree() > old_lb_poly.degree():
-                    return True
-
-            if lc_number.is_nonpositive:
-                if new_lb_poly.degree() < old_lb_poly.degree():
-                    return True
-                if new_lb_poly.LC().as_coeff_mul()[0].is_nonnegative:
-                    return True
-        return False
-
-
-    def _is_new_lower_bound(self, lower_bound):
-        if lower_bound == nan or not self._is_finite(lower_bound):
-            return False
-        # check if it is subsumed by any other lower bound
-        # skip if sqrt, since it breaks subsumption check
+        new_bounds=set()
         for old_lb in self.lbs:
-            if self._is_smaller(lower_bound, old_lb.value):
+            sign =  self.initial_value_provider.asymptotic_sign(old_lb.value-lb_bound.value)
+            if sign == -1: # new bound is better - drop the old one
+                continue
+            elif sign == 1: # old bound was better, do not add the current
                 return False
-        # the following line does a more agressive subsumption check (good for termination, bad for completeness)
-        for old_lb in self.lbs:
-            if self._monoms_similar(old_lb.value, lower_bound):
-                return False
-            if not self._new_lower_bound_better(old_lb.value, lower_bound):
-                return False
-
+            else: # indecisive which bound is better
+                new_bounds.add(old_lb)
+        new_bounds.add(lb_bound)
+        
+        self.lbs=new_bounds
         return True
     
     

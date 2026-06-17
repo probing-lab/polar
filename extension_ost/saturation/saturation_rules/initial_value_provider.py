@@ -189,3 +189,47 @@ class InitialValueProvider:
             else:
                 res += exp_term*coeff
         return res
+    
+    def asymptotic_sign(self, expr):
+        """Takes an expression over multiple variables and checks for the variable(s) with the highest degree for their asymptotic 
+
+        Examples:
+        asymptotic_nonnegative(sympify("2x**2 -y +z+3")) -> 1
+        asymptotic_nonnegative(sympify("0")) -> 1
+        asymptotic_nonnegative(sympify("-2xy + 2x**2")) -> 1
+        asymptotic_nonnegative(sympify("-2y**2 + 2x**2")) -> 0
+        asymptotic_nonnegative(sympify("-2y**2 - 2x**2")) -> -1
+        asymptotic_nonnegative(sympify("-2y**2 + 2x**2*y")) -> 1
+        asymptotic_nonnegative(sympify("-2y**2 + 2x**2*sqrt(x)")) -> 1
+        
+        Args:
+            expr (_type_): _description_
+        """
+
+        expr = sympify(expr).expand()
+        if expr.is_zero:
+            return 1
+        terms = Add.make_args(expr)
+        
+        max_key = None
+        max_terms = []
+        
+        for term in terms:
+            degrees = []
+            for base, exp in term.as_powers_dict().items():
+                if base.free_symbols:
+                    degrees.append(exp)
+            # x**3 * y**2 * sqrt(z) -> (3, 2, 1/2)
+            key = tuple(sorted(degrees, reverse=True))
+
+            if max_key is None or key > max_key:
+                max_key = key
+                max_terms = [term]
+            elif key == max_key:
+                max_terms.append(term)
+
+        if all(self.is_nonnegative(term) for term in max_terms):
+            return 1
+        if all(self.is_nonnegative(-term) for term in max_terms):
+            return -1
+        return 0

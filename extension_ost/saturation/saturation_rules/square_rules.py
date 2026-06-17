@@ -95,52 +95,6 @@ def generate_square_rules(square_monoms,
                 lb_dependencies[nodes[Expexted(X**2)]].add(rule_lb)
                 yield rule_lb
 
-            # # Young's inequality
-            # yung_ub = Rule(nodes[Expexted(Y**2)],
-            #                RuleType.UB,
-            #                lbs=[],
-            #                ubs=[nodes[square_monom] ,nodes[Expexted(X**2)]],
-            #                res_expr=[[(BoundRef.Const, 2/b**2), (BoundRef.UB, 0)],
-            #                          [(BoundRef.Const, 2*a**2/b**2), (BoundRef.UB, 1)]],
-            #                          res_intercept=S.Zero,
-            #                          name="cs-ub",
-            #                          priority=2) # those rules are cycle sensitive - hence prevent them
-            # ub_dependencies[nodes[square_monom]].add(yung_ub)
-            # ub_dependencies[nodes[Expexted(X**2)]].add(yung_ub)
-            # yield yung_ub   
-            
-            # yung_lb = Rule(nodes[Expexted(Y**2)],
-            #                RuleType.LB,
-            #                lbs=[nodes[square_monom]],
-            #                ubs=[nodes[Expexted(X**2)]],
-            #                res_expr=[[(BoundRef.Const, 1/(2*b**2)), (BoundRef.LB, 0)],
-            #                          [(BoundRef.Const, -a**2/b**2), (BoundRef.UB, 0)]],
-            #                          res_intercept=S.Zero,
-            #                          name="cs-lb",
-            #                          inequalities=[[[(BoundRef.LB, 0)]]],
-            #                          priority=2) # those rules are cycle sensitive - hence prevent them
-            # lb_dependencies[nodes[square_monom]].add(yung_lb)
-            # ub_dependencies[nodes[Expexted(X**2)]].add(yung_lb)
-            # yield yung_lb   
-
-            # E((X+Y)^2) <= b
-            # E(X^2) <= h
-            # ===============
-            # E(XY) \geq -
-            # mk_ub_loose = Rule(nodes[Expexted(X*Y)],
-            #                RuleType.LB,
-            #                lbs=[nodes[square_monom]],
-            #                ubs=[nodes[Expexted(X**2)]],
-            #                res_expr=[[(BoundRef.Const, 1/(2*b**2)), (BoundRef.LB, 0)],
-            #                          [(BoundRef.Const, -a**2/b**2), (BoundRef.UB, 0)]],
-            #                          res_intercept=S.Zero,
-            #                          name="cs-lb",
-            #                          inequalities=[[[(BoundRef.LB, 0)]]],
-            #                          priority=2)
-            # lb_dependencies[nodes[square_monom]].add(mk_ub_loose)
-            # ub_dependencies[nodes[Expexted(X**2)]].add(mk_ub_loose)
-            # yield mk_ub_loose   
-
             if a > 0 and b > 0:
                 # E((aX+bY)^2) <= g
                 # E(X^2) <= h

@@ -35,7 +35,7 @@ moment_bound_using_ost(
     stopping_time_moment_finite=2,
     num_sparsest_solutions=20,
     keep_nonoptimal_martingales=False,
-    use_minkovski=True,
+    use_minkovski=False,
     solver_name=args.solver,
     csv_path=args.output,
     num_runs=args.count)
