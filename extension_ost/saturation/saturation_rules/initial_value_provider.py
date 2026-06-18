@@ -163,11 +163,13 @@ class InitialValueProvider:
 
                 for add_inside in adds_inside_sqrt:
                     # r_inner = self._use_abs_subadditivity(Abs(add_inside).simplify())
-                    if(add_inside.is_negative):
+                    if(add_inside.is_nonpositive):
                         return
                     r = powsimp(sqrt(add_inside))
                     r = self._use_abs_subadditivity(r)
                     res_inside += factor(r, deep=True)
+                    if not res_inside.is_real:
+                        pass
                 res += res_inside*coeff 
             elif(len([i for i in self._get_sqrts(exp_term)])>0):
                 return

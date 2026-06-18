@@ -1,5 +1,6 @@
 from argparse import Namespace
 
+from cli.actions.ost_action import OstAction
 from cli.actions.termination_action import TerminationAction
 
 from .bayesian_network_action import BayesNetworkAction
@@ -45,4 +46,6 @@ class ActionFactory:
             return TerminationAction(cli_args, smt=True)
         if cli_args.termination_amber:
             return TerminationAction(cli_args, amber=True)
+        if cli_args.ost:
+            return OstAction(cli_args)
         return PrintBenchmarkAction(cli_args)
