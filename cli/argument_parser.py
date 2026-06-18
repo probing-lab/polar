@@ -313,7 +313,50 @@ class ArgumentParser:
             default=False,
             help="""If set, Polar tries to compute a logical formula in SMT-lib syntax, which's validity/satisfyability
                     implies (non-)termination.""",
-        )
+        ),
+        self.argument_parser.add_argument(
+            "--ost",
+            action="store_true",
+            default=False,
+            help="""If set, Polar will compute bounds for the moments after termination.""",
+        ),
+        self.argument_parser.add_argument(
+            '-lb', 
+            nargs=2,
+            action='append',
+            metavar=('KEY', 'VALUE'),
+            help="give a lower bound after termination. For example '-lb x 0' indicates that x after termination is greater than 0. Similar '-lb E(x) 0' works.",
+        ),
+        self.argument_parser.add_argument(
+            '-ub', 
+            nargs=2,
+            action='append',
+            metavar=('KEY', 'VALUE'),
+            help="give an upper bound after termination. For example '-ub x 0' indicates that x after termination is less than 0. Similar '-ub E(x) 0' works.",
+        ),
+        self.argument_parser.add_argument(
+            "--milp_solver",
+            dest="milp_solver",
+            type=str,
+            default="CLP",
+            help="""The Mixed-Integer-Linear-Programming solver used.""",
+        ),
+        self.argument_parser.add_argument(
+            "--N",
+            dest="stopping_time_finite_moments",
+            type=int,
+            default=None,
+            help="""By setting you guarantee that E(T**N)<oo.""",
+        ),
+        self.argument_parser.add_argument(
+            "--o",
+            dest="csv_location",
+            type=str,
+            default=None,
+            help="""File in which to store the bounds.""",
+        ),
+    
+    # missing: iteration_counter, MILP parameters
 
     def parse_args(self):
         args = self.argument_parser.parse_args()

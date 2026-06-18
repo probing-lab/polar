@@ -99,14 +99,14 @@ def generate_square_rules(square_monoms,
                 # E((aX+bY)^2) <= g
                 # E(X^2) <= h
                 # ===============
-                # E(XY) \geq -h/|b| - \sqrt(gh/|b|)
+                # E(XY) \geq -\sqrt(gh)/|b| - h/2*(|a/b|+a/b)
 
                 cs_lb_loose = Rule(nodes[Expexted(X*Y)],
                             RuleType.LB,
                             lbs=[],
                             ubs=[nodes[square_monom], nodes[Expexted(X**2)]],
-                            res_expr=[[(BoundRef.Const, -a/b), (BoundRef.UB, 1)],
-                                        [(BoundRef.Const, -1/abs(b)), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))]],
+                            res_expr=[[(BoundRef.Const, -S(1)/S(2)*(Abs(a/b)+a/b)), (BoundRef.UB, 1)],
+                                        [(BoundRef.Const, -1/Abs(b)), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))]],
                                         res_intercept=S.Zero,
                                         name="cs-lb-1",
                                         inequalities=[],
@@ -118,13 +118,13 @@ def generate_square_rules(square_monoms,
                 # E((aX+bY)^2) <= g
                 # E(X^2) <= h
                 # ===============
-                # E(XY) \leq \sqrt(gh)*1/|b|
+                # E(XY) \leq \sqrt(gh)/|b| + h/2*(|a/b|-a/b)
                 cs_ub_loose = Rule(nodes[Expexted(X*Y)],
                             RuleType.UB,
                             lbs=[],
                             ubs=[nodes[square_monom], nodes[Expexted(X**2)]],
-                            res_expr=[[(BoundRef.Const, 1/abs(b)), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))],
-                                      [(BoundRef.Const, 1/2*(abs(a/b)-a/b)), (BoundRef.UB, 1)]],
+                            res_expr=[[(BoundRef.Const, 1/Abs(b)), (BoundRef.Sqrt,(BoundRef.UB, 0)),(BoundRef.Sqrt,(BoundRef.UB, 1))],
+                                      [(BoundRef.Const, S(1)/S(2)*(Abs(a/b)-a/b)), (BoundRef.UB, 1)]],
                                         res_intercept=S.Zero,
                                         name="cs-ub-1",
                                         inequalities=[],
