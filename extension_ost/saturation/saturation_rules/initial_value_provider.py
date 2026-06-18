@@ -62,7 +62,7 @@ class InitialValueProvider:
         if monom in self.initials:
             return self.initials[monom][1]
         if isinstance(monom, Abs):
-            return max(abs(self.initials[monom][0],self.initials[monom][1]))
+            return max(abs(self.initials[monom.args[0]][0]),abs(self.initials[monom.args[0]][1]))
 
         if isinstance(monom, Pow):
             base = monom.args[0]
