@@ -1,6 +1,6 @@
 # Polar - Polynomial Invariants for Unbounded Support Distributions
 
-This readme is specifically tailored for the extension to Invariants for Unbounded Support Distributions. Otherwise see `README_tool.md`.
+This readme is specifically tailored for the extension to Invariants for Unbounded Support Distributions. Otherwise see `README_tool.md`. The branch can be found under [https://github.com/probing-lab/polar/tree/ost-extension](https://github.com/probing-lab/polar/tree/ost-extension)
 
 It allows for reproduction of **Table 1**.
 
