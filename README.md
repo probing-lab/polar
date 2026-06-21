@@ -1,6 +1,8 @@
 # Polar - Polynomial Invariants for Unbounded Support Distributions
 
-This readme is specifically tailored for the extension to Invariants for Unbounded Support Distributions. Otherwise see `README_tool.md`
+This readme is specifically tailored for the extension to Invariants for Unbounded Support Distributions. Otherwise see `README_tool.md`.
+
+It allows for reproduction of **Table 1**.
 
 ## Content
 
@@ -11,6 +13,7 @@ This readme is specifically tailored for the extension to Invariants for Unbound
   - [Reproducing the results](#reproducing-the-results)
     - [Figure 1](#figure-1)
     - [Figure 2](#figure-2)
+
 
 
 ## Installation
