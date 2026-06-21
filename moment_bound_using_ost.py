@@ -2,6 +2,7 @@
 import csv
 from typing import Dict, List, Tuple
 from sympy import S, Expr, GreaterThan, LessThan, Poly, StrictGreaterThan, StrictLessThan, Symbol, oo, solve_univariate_inequality, sympify
+from extension_ost.helpers import Expexted
 from extension_ost.saturation.saturation_based_bound_computation import compute_bounds_saturation
 from extension_ost.saturation.saturation_rules.value_node import ValueNode
 from inputparser.parser import Parser
@@ -40,15 +41,20 @@ def _extract_bound_from_ineq(ineq: Expr,
 def _depends_on_unbound_support_dist(var: Symbol, normalized_program: Program):
     ancestors = normalized_program.dependency_info[var].ancestors
     for assignment in normalized_program.loop_body:
-        if(isinstance(assignment, DistAssignment)) and assignment.variable == var:
-            for lb, ub in assignment.get_support():
-                if not lb.is_finite or not ub.is_finite:
-                    return True
+        if(isinstance(assignment, DistAssignment)) and assignment.variable in ancestors:
+            for sup in assignment.get_support():
+                if isinstance(sup, Expr):
+                    if not sup.is_finite:
+                        return True
+                else:
+                    lb, ub = sup
+                    if not lb.is_finite or not ub.is_finite:
+                        return True
     return False
 
 def _get_jb_size(var: Symbol, normalized_program: Program):
     # rather proprietary, might fail
-    anc_jb_size = list(_get_jb_size(v, normalized_program)+1 for v in normalized_program.dependency_info[var].ancestors if v != var and v not in normalized_program.dist_variables)
+    anc_jb_size = list(_get_jb_size(v, normalized_program)+1 for v in normalized_program.dependency_info[var].ancestors.intersection(normalized_program.original_variables) if v != var and v not in normalized_program.dist_variables)
     anc_jb_size.append(1) # this assumes that every var is nonconstant - since we consider only iter-dep. vars, this is true
     return max(anc_jb_size)
 
@@ -97,14 +103,31 @@ def moment_bound_using_ost(file_path: str,
     upper_bounds_after_termination: Dict[Symbol, Expr] = dict()
     initial_values: List[Tuple[Symbol, Expr, Expr]] = []
     program_vars: Dict[Symbol, int] = dict()
+
+    subs =  {str(v):v for v in deterministic_vars.union(random_vars)}
+
+    for monom, ub in ubs.items():
+        if monom.startswith("E(") and monom.endswith(")"):
+            m = sympify(monom[2:-1]).subs(subs)
+            upper_bounds_after_termination[Expexted(m)] = sympify(ub).simplify()
+        else:
+            m = sympify(monom).subs(subs)
+            if len(m.free_symbols.difference(deterministic_vars.union(random_vars)))==0:
+                upper_bounds_after_termination[m] = sympify(ub).simplify()
+
+    for monom, lb in lbs.items():
+        if monom.startswith("E(") and monom.endswith(")"):
+            m = sympify(monom[2:-1]).subs(subs)
+            lower_bounds_after_termination[Expexted(m)] = sympify(lb).simplify()
+        else:
+            m = sympify(monom).subs(subs)
+            if len(m.free_symbols.difference(deterministic_vars.union(random_vars)))==0:
+                lower_bounds_after_termination[m] = sympify(lb).simplify()
+
+
     for var in deterministic_vars.union(random_vars):
-        if str(var) in lbs:
-            lower_bounds_after_termination[var] = sympify(lbs[str(var)])
-        if str(var) in ubs:
-            upper_bounds_after_termination[var] = sympify(ubs[str(var)])
         if str(var) == iter_var:
             lower_bounds_after_termination[var] = S.One
-
         # get_jb_size
         size = _get_jb_size(var, normalized_program)
         program_vars[Symbol(str(var), real=True)]=size
@@ -128,7 +151,7 @@ def moment_bound_using_ost(file_path: str,
 
     res = compute_bounds_saturation(random_vars,
             deterministic_vars,
-            stopping_time_moment_finite,
+            stopping_time_moment_finite - (1 if lg_depends_on_unbounded_support else 0),
             program_vars,
             recurrence_builder,
             initial_values,
