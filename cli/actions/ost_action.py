@@ -1,7 +1,7 @@
 from argparse import Action, Namespace
 
 from inputparser.parser import parse_program
-from moment_bound_using_ost import moment_bound_using_ost
+from extension_ost.moment_bound_using_ost import moment_bound_using_ost
 from program.condition.true_cond import TrueCond
 from program.transformer import normalize_program
 

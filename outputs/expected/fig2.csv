@@ -1,0 +1,18 @@
+monomial,,bound
+Expexted((k + 5*x/2)**2),<=,25*x0**2/4 + 115*x0/4 + 299/8
+Expexted((k + 5*x/2)**2),>=,5*x0*(5*x0 + 23)/4
+Expexted(k),<=,5*x0/2 + 13/4
+Expexted(k),>=,5*x0/2
+Expexted(k**2),<=,115*sqrt(2)*sqrt(x0)/4 + 25*x0**2/4 + 5*sqrt(230)*x0/4 + 115*x0/4 + 23*sqrt(65)/4 + 529/8
+Expexted(k**2),>=,25*x0**2/4 + 115*x0/4 - 115/8
+Expexted(k*x),<=,0
+Expexted(k*x),>=,-23*sqrt(2)*sqrt(x0)/4 - sqrt(230)*x0/4 - 23*sqrt(65)/20 - 23/4
+Expexted(x),<=,0
+Expexted(x),>=,-13/10
+Expexted(x**2),<=,23/10
+Expexted(x**2),>=,0
+k,>=,1
+k**2,>=,1
+k*x,<=,0
+x,<=,0
+x**2,>=,0
