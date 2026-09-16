@@ -10,7 +10,8 @@ from sympy.stats import Geometric as GeomDist, E as EV
 class Geometric(Distribution):
     """Geometric distribution: number of failures before the first success with success probability p.
     In particular, the support is {0, 1, 2, ...}.
-    (Note that there is another definition as the number trials instead of failures where the support is {1, 2, ...}.)"""
+    (Note that there is another definition as the number trials instead of failures where the support is {1, 2, ...}.)
+    """
 
     p: Expr
 

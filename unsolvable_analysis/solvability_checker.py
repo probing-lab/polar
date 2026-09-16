@@ -5,7 +5,6 @@ from program import Program
 from program.assignment import PolyAssignment
 from utils import expressions, Graph
 
-
 effective_vars = Set[Symbol]
 defective_vars = Set[Symbol]
 
