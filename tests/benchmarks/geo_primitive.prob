@@ -3,5 +3,5 @@ while 0 == 1:
     x = 0
 end
 
-# raw_after_loop; x; 3
-# raw_after_loop; x**2; 21
+#test: raw_after_loop; x; 3
+#test: raw_after_loop; x**2; 21

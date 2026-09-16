@@ -1,0 +1,8 @@
+x = Geometric(1/2)
+y = 0
+while true:
+    y = y + x
+end
+
+#test: raw; y; 0; n
+#test: raw; y**2; 0; 3*n**2
