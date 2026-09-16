@@ -38,7 +38,7 @@ class Geometric(Distribution):
             raise EvaluationException(
                 f"Parameter {self.p} doesn't evaluate to number with state {state}"
             )
-        return geom.rvs(float(p))
+        return geom.rvs(float(p)) - 1
 
     def get_free_symbols(self):
         return self.p.free_symbols
