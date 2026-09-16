@@ -9,6 +9,7 @@ from .uniform import Uniform
 from .discrete_uniform import DiscreteUniform
 from .beta import Beta
 from .gamma import Gamma
+from .geometric import Geometric
 
 _distributions = {
     "Bernoulli": Bernoulli,
@@ -21,6 +22,7 @@ _distributions = {
     "TruncNormal": TruncNormal,
     "Beta": Beta,
     "Gamma": Gamma,
+    "Geometric": Geometric,
 }
 
 
